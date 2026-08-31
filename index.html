@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,8 +7,10 @@
 
   <title>MENSUALES · Control de gastos</title>
 
-  <link rel="stylesheet" href="style.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css">
 
+  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
@@ -27,9 +30,13 @@
           ♡
         </div>
 
-        <p class="eyebrow">MENSUALES</p>
+        <p class="eyebrow">
+          MENSUALES
+        </p>
 
-        <h1>Controlá tus gastos</h1>
+        <h1>
+          Controlá tus gastos
+        </h1>
 
         <p class="auth-subtitle">
           Ingresá a tu cuenta para guardar y sincronizar tus gastos.
@@ -72,7 +79,10 @@
 
         </form>
 
-        <p id="authMessage" class="auth-message"></p>
+        <p
+          id="authMessage"
+          class="auth-message"
+        ></p>
 
         <button
           id="authSwitchBtn"
@@ -91,7 +101,10 @@
          APLICACIÓN
     ========================== -->
 
-    <section id="appContent" class="hidden">
+    <section
+      id="appContent"
+      class="hidden"
+    >
 
       <!-- HEADER -->
 
@@ -115,7 +128,10 @@
 
         <div class="header-actions">
 
-          <span id="userEmail" class="user-email"></span>
+          <span
+            id="userEmail"
+            class="user-email"
+          ></span>
 
           <button
             id="logoutBtn"
@@ -156,7 +172,9 @@
 
           <div class="money-input">
 
-            <span>$</span>
+            <span>
+              $
+            </span>
 
             <input
               id="budgetInput"
@@ -325,7 +343,9 @@
           class="empty-state"
         >
 
-          <div>♡</div>
+          <div>
+            ♡
+          </div>
 
           <strong>
             Todavía no hay gastos
@@ -381,9 +401,11 @@
 
           <span>
             TOTAL ·
+
             <span id="totalMonthName">
               —
             </span>
+
           </span>
 
           <strong id="tableTotal">
@@ -507,9 +529,7 @@
       <!-- FOOTER -->
 
       <footer>
-
         MENSUALES · Tus gastos, organizados.
-
       </footer>
 
     </section>
@@ -666,6 +686,7 @@
           Cancelar
         </button>
 
+
         <button
           id="submitExpenseBtn"
           type="submit"
@@ -681,12 +702,16 @@
   </dialog>
 
 
-  <!-- JAVASCRIPT -->
+  <!-- =========================
+       JAVASCRIPT
+  ========================== -->
 
   <script
     type="module"
-    src="script.js"
+    src="app.js"
   ></script>
 
 </body>
 </html>
+```
+
