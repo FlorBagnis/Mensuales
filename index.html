@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>MENSUALES | Control de Gastos</title>
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
+
+</head>
+
+
+<body>
+
+<main class="app">
+
+
+  <!-- =========================
+       ENCABEZADO
+  ========================== -->
+
+  <header class="hero">
+
+    <div>
+
+      <p class="eyebrow">
+        MENSUALES
+      </p>
+
+      <h1>
+        CONTROL DE GASTOS MENSUALES
+      </h1>
+
+      <p class="subtitle">
+        Tu registro personal de gastos, simple y ordenado.
+      </p>
+
+    </div>
+
+
+    <button
+      id="pdfBtn"
+      class="btn btn-dark"
+    >
+      ↓ Descargar PDF
+    </button>
+
+  </header>
+
+
+
+  <!-- =========================
+       CONTROLES
+  ========================== -->
+
+  <section class="toolbar">
+
+
+    <div class="field">
+
+      <label for="monthPicker">
+        Mes a consultar
+      </label>
+
+      <input
+        type="month"
+        id="monthPicker"
+      >
+
+    </div>
+
+
+
+    <div class="field">
+
+      <label for="budgetInput">
+        Presupuesto mensual
+      </label>
+
+      <div class="money-input">
+
+        <span>$</span>
+
+        <input
+          type="number"
+          id="budgetInput"
+          min="0"
+          step="0.01"
+          placeholder="150000"
+        >
+
+      </div>
+
+    </div>
+
+
+
+    <button
+      id="saveBudgetBtn"
+      class="btn btn-pink"
+    >
+      Guardar presupuesto
+    </button>
+
+
+
+    <button
+      id="addExpenseBtn"
+      class="btn btn-outline"
+    >
+      + Agregar gasto
+    </button>
+
+
+
+    <button
+      id="clearMonthBtn"
+      class="btn btn-danger"
+    >
+      🗑 Borrar mes
+    </button>
+
+
+    <button
+      id="newUserBtn"
+      class="btn btn-dark"
+    >
+      ✨ Empezar de cero
+    </button>
+
+
+  </section>
+
+
+
+  <!-- =========================
+       RESUMEN
+  ========================== -->
+
+  <section class="summary-grid">
+
+
+    <article class="summary-card">
+
+      <span>
+        TOTAL GASTADO
+      </span>
+
+      <strong id="totalSpent">
+        $0,00
+      </strong>
+
+      <small id="currentMonthLabel">
+        Mes actual
+      </small>
+
+    </article>
+
+
+
+    <article class="summary-card">
+
+      <span>
+        MES ANTERIOR
+      </span>
+
+      <strong id="previousSpent">
+        $0,00
+      </strong>
+
+      <small id="previousMonthLabel">
+        Mes anterior
+      </small>
+
+    </article>
+
+
+
+    <article class="summary-card">
+
+      <span>
+        DIFERENCIA
+      </span>
+
+      <strong id="difference">
+        —
+      </strong>
+
+      <small id="differenceLabel">
+        Sin datos comparables
+      </small>
+
+    </article>
+
+
+
+    <article class="summary-card">
+
+      <span>
+        PRESUPUESTO
+      </span>
+
+      <strong id="budgetTotal">
+        $0,00
+      </strong>
+
+      <small id="budgetStatus">
+        Sin presupuesto
+      </small>
+
+    </article>
+
+
+  </section>
+
+
+
+  <!-- =========================
+       DETALLE DE GASTOS
+  ========================== -->
+
+  <section class="panel">
+
+
+    <div class="section-heading">
+
+      <div>
+
+        <h2>
+          Detalle de Gastos del Mes
+        </h2>
+
+        <p id="expenseCount">
+          0 gastos registrados
+        </p>
+
+      </div>
+
+
+      <div
+        class="month-pill"
+        id="monthPill"
+      >
+        —
+      </div>
+
+    </div>
+
+
+
+    <div class="table-wrap">
+
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              FECHA
+            </th>
+
+            <th>
+              CONCEPTO / DESCRIPCIÓN
+            </th>
+
+            <th>
+              CATEGORÍA
+            </th>
+
+            <th>
+              MONTO ($)
+            </th>
+
+            <th>
+              ACCIONES
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody id="expenseTable"></tbody>
+
+      </table>
+
+
+
+      <div
+        id="emptyState"
+        class="empty-state"
+      >
+
+        <div>
+          ♡
+        </div>
+
+        <strong>
+          Todavía no hay gastos
+        </strong>
+
+        <span>
+          Agregá tu primer gasto del mes.
+        </span>
+
+      </div>
+
+
+    </div>
+
+
+
+    <div class="table-total">
+
+      <span>
+
+        TOTAL GASTADO EN
+
+        <b id="totalMonthName">
+          EL MES
+        </b>
+
+      </span>
+
+      <strong id="tableTotal">
+        $0,00
+      </strong>
+
+    </div>
+
+
+  </section>
+
+
+
+  <!-- =========================
+       HISTORIAL + CATEGORÍAS
+  ========================== -->
+
+  <section class="two-columns">
+
+
+    <div class="panel">
+
+      <div class="section-heading">
+
+        <div>
+
+          <h2>
+            Comparativa Histórica
+          </h2>
+
+          <p>
+            Últimos meses registrados
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                MES
+              </th>
+
+              <th>
+                PRESUPUESTO
+              </th>
+
+              <th>
+                GASTO REAL
+              </th>
+
+              <th>
+                RESULTADO
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="historyTable"></tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="panel">
+
+      <div class="section-heading">
+
+        <div>
+
+          <h2>
+            Gastos por categoría
+          </h2>
+
+          <p>
+            Distribución del mes seleccionado
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="categoryChart"
+        class="category-chart"
+      ></div>
+
+    </div>
+
+
+  </section>
+
+
+
+  <!-- =========================
+       ANÁLISIS
+  ========================== -->
+
+  <section class="trend-box">
+
+    <h2>
+      ★ Análisis de Tendencia
+    </h2>
+
+    <p id="trendText">
+      Agregá gastos para comenzar a analizar tus hábitos.
+    </p>
+
+  </section>
+
+
+
+  <footer>
+
+    MENSUALES · Control personal de gastos ·
+    Los datos se guardan en este navegador.
+
+  </footer>
+
+
+</main>
+
+
+
+<!-- =========================
+     MODAL
+========================== -->
+
+<dialog id="expenseDialog">
+
+
+  <form
+    id="expenseForm"
+    class="modal"
+  >
+
+
+    <button
+      type="button"
+      class="close"
+      id="closeDialog"
+    >
+      ×
+    </button>
+
+
+    <p
+      class="eyebrow"
+      id="modalEyebrow"
+    >
+      NUEVO REGISTRO
+    </p>
+
+
+    <h2 id="modalTitle">
+      Agregar gasto
+    </h2>
+
+
+
+    <label>
+
+      Fecha
+
+      <input
+        type="date"
+        id="expenseDate"
+        required
+      >
+
+    </label>
+
+
+
+    <label>
+
+      Concepto / descripción
+
+      <input
+        type="text"
+        id="expenseDescription"
+        placeholder="Ej. Supermercado"
+        required
+      >
+
+    </label>
+
+
+
+    <label>
+
+      Categoría
+
+      <select
+        id="expenseCategory"
+        required
+      >
+
+        <option value="Alimentación">
+          Alimentación
+        </option>
+
+        <option value="Servicios">
+          Servicios
+        </option>
+
+        <option value="Educación">
+          Educación
+        </option>
+
+        <option value="Salidas">
+          Salidas
+        </option>
+
+        <option value="Transporte">
+          Transporte
+        </option>
+
+        <option value="Personal">
+          Personal
+        </option>
+
+        <option value="Salud">
+          Salud
+        </option>
+
+        <option value="Hogar">
+          Hogar
+        </option>
+
+        <option value="Otros">
+          Otros
+        </option>
+
+      </select>
+
+    </label>
+
+
+
+    <label>
+
+      Monto
+
+      <div class="money-input">
+
+        <span>$</span>
+
+        <input
+          type="number"
+          id="expenseAmount"
+          min="0.01"
+          step="0.01"
+          placeholder="0,00"
+          required
+        >
+
+      </div>
+
+    </label>
+
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn btn-outline"
+        id="cancelDialog"
+      >
+        Cancelar
+      </button>
+
+
+      <button
+        type="submit"
+        class="btn btn-pink"
+        id="submitExpenseBtn"
+      >
+        Guardar gasto
+      </button>
+
+    </div>
+
+
+  </form>
+
+</dialog>
+
+
+
+<script
+  src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"
+></script>
+
+
+<script src="app.js"></script>
+
+
+</body>
+
+</html>
