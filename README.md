@@ -1,8 +1,6 @@
 # 💗 MENSUALES · Control de gastos
 
-<img width="1108" height="866" alt="image" src="https://github.com/user-attachments/assets/426ebc41-138f-4283-91eb-803901030aa0" />
-
-
+<img width="1504" height="877" alt="image" src="https://github.com/user-attachments/assets/52879245-6b81-48ec-9fbd-2569a2c0e07d" />
 
 **MENSUALES** es una aplicación web para registrar, organizar y controlar los gastos personales mes a mes.
 
