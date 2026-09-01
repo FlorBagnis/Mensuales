@@ -1,12 +1,10 @@
-/* ==========================================
+/* =========================================================
    MENSUALES
    FIREBASE + FIRESTORE
-   GASTOS RECURRENTES
-========================================== */
+   GASTOS RECURRENTES + MONTOS VARIABLES
+========================================================= */
 
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 
 import {
   getAuth,
@@ -28,9 +26,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 
-/* ==========================================
+/* =========================================================
    FIREBASE
-========================================== */
+========================================================= */
 
 const firebaseConfig = {
   apiKey: "AIzaSyBGGfMzmGfRH614IT5wwG2kZOtUDBd16ok",
@@ -46,13 +44,9 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
 
-/* ==========================================
+/* =========================================================
    VARIABLES
-========================================== */
-
-const STORAGE_KEY = "mensuales_data_v1";
-
-const $ = id => document.getElementById(id);
+========================================================= */
 
 let data = {
   months: {}
@@ -63,10 +57,12 @@ let unsubscribeMonths = null;
 let authMode = "login";
 let appReady = false;
 
+const $ = id => document.getElementById(id);
 
-/* ==========================================
+
+/* =========================================================
    DINERO
-========================================== */
+========================================================= */
 
 function money(value) {
   return new Intl.NumberFormat("es-AR", {
@@ -77,66 +73,44 @@ function money(value) {
 }
 
 
-/* ==========================================
+/* =========================================================
    MESES
-========================================== */
+========================================================= */
+
+function currentMonthValue() {
+  const today = new Date();
+
+  return `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}`;
+}
+
 
 function monthName(month) {
-
-  const [
-    year,
-    monthNumber
-  ] = month.split("-").map(Number);
+  const [year, monthNumber] = month.split("-").map(Number);
 
   return new Intl.DateTimeFormat("es-AR", {
     month: "long",
     year: "numeric"
   })
     .format(new Date(year, monthNumber - 1, 1))
-    .replace(/^./, character => character.toUpperCase());
+    .replace(/^./, c => c.toUpperCase());
 }
 
 
 function shortMonthName(month) {
-
-  const [
-    year,
-    monthNumber
-  ] = month.split("-").map(Number);
+  const [year, monthNumber] = month.split("-").map(Number);
 
   return new Intl.DateTimeFormat("es-AR", {
     month: "long"
   })
     .format(new Date(year, monthNumber - 1, 1))
-    .replace(/^./, character => character.toUpperCase());
-}
-
-
-function previousMonth(month) {
-
-  const [
-    year,
-    monthNumber
-  ] = month.split("-").map(Number);
-
-  const date = new Date(
-    year,
-    monthNumber - 2,
-    1
-  );
-
-  return `${date.getFullYear()}-${String(
-    date.getMonth() + 1
-  ).padStart(2, "0")}`;
+    .replace(/^./, c => c.toUpperCase());
 }
 
 
 function addMonths(month, amount) {
-
-  const [
-    year,
-    monthNumber
-  ] = month.split("-").map(Number);
+  const [year, monthNumber] = month.split("-").map(Number);
 
   const date = new Date(
     year,
@@ -150,32 +124,18 @@ function addMonths(month, amount) {
 }
 
 
-function currentMonthValue() {
-
-  const today = new Date();
-
-  return `${today.getFullYear()}-${String(
-    today.getMonth() + 1
-  ).padStart(2, "0")}`;
+function previousMonth(month) {
+  return addMonths(month, -1);
 }
 
 
 function getLastDayOfMonth(year, monthNumber) {
-
-  return new Date(
-    year,
-    monthNumber,
-    0
-  ).getDate();
+  return new Date(year, monthNumber, 0).getDate();
 }
 
 
 function buildDateForMonth(month, requestedDay) {
-
-  const [
-    year,
-    monthNumber
-  ] = month.split("-").map(Number);
+  const [year, monthNumber] = month.split("-").map(Number);
 
   const lastDay = getLastDayOfMonth(
     year,
@@ -191,12 +151,11 @@ function buildDateForMonth(month, requestedDay) {
 }
 
 
-/* ==========================================
+/* =========================================================
    DATOS
-========================================== */
+========================================================= */
 
 function emptyMonth() {
-
   return {
     budget: 0,
     expenses: []
@@ -205,7 +164,6 @@ function emptyMonth() {
 
 
 function ensureMonth(month) {
-
   if (!data.months[month]) {
     data.months[month] = emptyMonth();
   }
@@ -214,15 +172,12 @@ function ensureMonth(month) {
 }
 
 
-/* ==========================================
+/* =========================================================
    FIRESTORE
-========================================== */
+========================================================= */
 
 function monthsCollectionRef() {
-
-  if (!currentUser) {
-    return null;
-  }
+  if (!currentUser) return null;
 
   return collection(
     db,
@@ -234,10 +189,7 @@ function monthsCollectionRef() {
 
 
 function monthDocumentRef(month) {
-
-  if (!currentUser) {
-    return null;
-  }
+  if (!currentUser) return null;
 
   return doc(
     db,
@@ -250,10 +202,7 @@ function monthDocumentRef(month) {
 
 
 async function saveMonthToFirestore(month) {
-
-  if (!currentUser) {
-    return;
-  }
+  if (!currentUser) return;
 
   const monthData = ensureMonth(month);
 
@@ -270,38 +219,32 @@ async function saveMonthToFirestore(month) {
 
 
 async function saveMultipleMonths(months) {
-
-  if (!currentUser) {
-    return;
-  }
+  if (!currentUser) return;
 
   const batch = writeBatch(db);
 
-  Object.keys(months).forEach(month => {
+  Object.entries(months).forEach(
+    ([month, monthData]) => {
 
-    const monthData = months[month];
+      batch.set(
+        monthDocumentRef(month),
+        {
+          budget: Number(monthData.budget || 0),
+          expenses: Array.isArray(monthData.expenses)
+            ? monthData.expenses
+            : []
+        }
+      );
 
-    batch.set(
-      monthDocumentRef(month),
-      {
-        budget: Number(monthData.budget || 0),
-        expenses: Array.isArray(monthData.expenses)
-          ? monthData.expenses
-          : []
-      }
-    );
-
-  });
+    }
+  );
 
   await batch.commit();
 }
 
 
 async function deleteMonthFromFirestore(month) {
-
-  if (!currentUser) {
-    return;
-  }
+  if (!currentUser) return;
 
   await deleteDoc(
     monthDocumentRef(month)
@@ -309,11 +252,12 @@ async function deleteMonthFromFirestore(month) {
 }
 
 
-async function loadMonthsFromFirestore() {
+/* =========================================================
+   CARGAR DATOS
+========================================================= */
 
-  if (!currentUser) {
-    return;
-  }
+async function loadMonthsFromFirestore() {
+  if (!currentUser) return;
 
   const snapshot = await getDocs(
     monthsCollectionRef()
@@ -322,25 +266,14 @@ async function loadMonthsFromFirestore() {
   const months = {};
 
   snapshot.forEach(documentSnapshot => {
+    const value = documentSnapshot.data();
 
-    const value =
-      documentSnapshot.data();
-
-    months[
-      documentSnapshot.id
-    ] = {
-
-      budget: Number(
-        value.budget || 0
-      ),
-
-      expenses:
-        Array.isArray(value.expenses)
-          ? value.expenses
-          : []
-
+    months[documentSnapshot.id] = {
+      budget: Number(value.budget || 0),
+      expenses: Array.isArray(value.expenses)
+        ? value.expenses
+        : []
     };
-
   });
 
   data = {
@@ -349,220 +282,78 @@ async function loadMonthsFromFirestore() {
 }
 
 
-/* ==========================================
-   LOCALSTORAGE
-========================================== */
+/* =========================================================
+   SINCRONIZACIÓN EN TIEMPO REAL
+========================================================= */
 
-function loadOldLocalData() {
+function startRealtimeSync() {
+  stopRealtimeSync();
 
-  try {
+  if (!currentUser) return;
 
-    const raw =
-      localStorage.getItem(
-        STORAGE_KEY
+  unsubscribeMonths = onSnapshot(
+    monthsCollectionRef(),
+
+    snapshot => {
+
+      const months = {};
+
+      snapshot.forEach(documentSnapshot => {
+        const value = documentSnapshot.data();
+
+        months[documentSnapshot.id] = {
+          budget: Number(value.budget || 0),
+          expenses: Array.isArray(value.expenses)
+            ? value.expenses
+            : []
+        };
+      });
+
+      data = {
+        months
+      };
+
+      const month =
+        $("monthPicker")?.value ||
+        currentMonthValue();
+
+      ensureMonth(month);
+
+      if (!appReady) {
+        appReady = true;
+      }
+
+      render();
+    },
+
+    error => {
+      console.error(
+        "Error sincronizando Firestore:",
+        error
       );
 
-    if (!raw) {
-      return null;
+      alert(
+        "No se pudieron sincronizar los datos con Firebase. Revisá las reglas de Firestore."
+      );
     }
-
-    const parsed =
-      JSON.parse(raw);
-
-    if (
-      !parsed ||
-      !parsed.months
-    ) {
-      return null;
-    }
-
-    return parsed;
-
-  } catch {
-
-    return null;
-
-  }
-}
-
-
-async function migrateLocalDataIfNecessary() {
-
-  if (!currentUser) {
-    return;
-  }
-
-  const oldData =
-    loadOldLocalData();
-
-  if (
-    !oldData ||
-    !Object.keys(
-      oldData.months || {}
-    ).length
-  ) {
-    return;
-  }
-
-  const existing =
-    await getDocs(
-      monthsCollectionRef()
-    );
-
-  if (!existing.empty) {
-
-    localStorage.removeItem(
-      STORAGE_KEY
-    );
-
-    return;
-  }
-
-  const months =
-    Object.entries(
-      oldData.months
-    );
-
-  for (
-    const [
-      month,
-      monthData
-    ] of months
-  ) {
-
-    await setDoc(
-      monthDocumentRef(month),
-      {
-        budget: Number(
-          monthData.budget || 0
-        ),
-
-        expenses:
-          Array.isArray(
-            monthData.expenses
-          )
-            ? monthData.expenses
-            : []
-      }
-    );
-
-  }
-
-  localStorage.removeItem(
-    STORAGE_KEY
   );
 }
 
 
-/* ==========================================
-   SINCRONIZACIÓN
-========================================== */
-
-function startRealtimeSync() {
-
-  stopRealtimeSync();
-
-  if (!currentUser) {
-    return;
-  }
-
-  unsubscribeMonths =
-    onSnapshot(
-
-      monthsCollectionRef(),
-
-      snapshot => {
-
-        const months = {};
-
-        snapshot.forEach(
-          documentSnapshot => {
-
-            const value =
-              documentSnapshot.data();
-
-            months[
-              documentSnapshot.id
-            ] = {
-
-              budget:
-                Number(
-                  value.budget || 0
-                ),
-
-              expenses:
-                Array.isArray(
-                  value.expenses
-                )
-                  ? value.expenses
-                  : []
-
-            };
-
-          }
-        );
-
-        data = {
-          months
-        };
-
-        if (!appReady) {
-
-          ensureMonth(
-            $("monthPicker").value
-          );
-
-          appReady = true;
-
-        }
-
-        render();
-
-      },
-
-      error => {
-
-        console.error(
-          "Error sincronizando Firestore:",
-          error
-        );
-
-        alert(
-          "No se pudieron sincronizar los datos con Firebase. Revisá las reglas de Firestore."
-        );
-
-      }
-
-    );
-}
-
-
 function stopRealtimeSync() {
-
-  if (
-    typeof unsubscribeMonths ===
-    "function"
-  ) {
-
+  if (typeof unsubscribeMonths === "function") {
     unsubscribeMonths();
-
     unsubscribeMonths = null;
-
   }
 }
 
 
-/* ==========================================
+/* =========================================================
    AUTENTICACIÓN
-========================================== */
+========================================================= */
 
-function setAuthMessage(
-  message,
-  success = false
-) {
-
-  $("authMessage").textContent =
-    message;
+function setAuthMessage(message, success = false) {
+  $("authMessage").textContent = message;
 
   $("authMessage").classList.toggle(
     "success",
@@ -572,9 +363,9 @@ function setAuthMessage(
 
 
 function updateAuthInterface() {
+  const isLogin = authMode === "login";
 
-  const isLogin =
-    authMode === "login";
+  $("authSubmitBtn").disabled = false;
 
   $("authSubmitBtn").textContent =
     isLogin
@@ -596,12 +387,9 @@ function updateAuthInterface() {
 
 
 function firebaseErrorMessage(error) {
-
-  const code =
-    error?.code || "";
+  const code = error?.code || "";
 
   const messages = {
-
     "auth/invalid-email":
       "El email no es válido.",
 
@@ -627,11 +415,10 @@ function firebaseErrorMessage(error) {
       "Hubo demasiados intentos. Esperá un momento y volvé a intentar.",
 
     "auth/network-request-failed":
-      "No hay conexión con Firebase. Revisá tu conexión a Internet.",
+      "No hay conexión con Firebase.",
 
     "auth/operation-not-allowed":
-      "El inicio de sesión con email todavía no está habilitado en Firebase."
-
+      "El inicio de sesión con email no está habilitado en Firebase."
   };
 
   return (
@@ -641,147 +428,146 @@ function firebaseErrorMessage(error) {
 }
 
 
-$("authSwitchBtn")
-  .addEventListener(
-    "click",
-    () => {
+/* =========================================================
+   LOGIN / REGISTRO
+========================================================= */
 
-      authMode =
-        authMode === "login"
-          ? "register"
-          : "login";
+$("authSwitchBtn").addEventListener(
+  "click",
+  () => {
+
+    authMode =
+      authMode === "login"
+        ? "register"
+        : "login";
+
+    updateAuthInterface();
+  }
+);
+
+
+$("authForm").addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    const email =
+      $("authEmail").value.trim();
+
+    const password =
+      $("authPassword").value;
+
+    if (!email || !password) {
+      setAuthMessage(
+        "Completá email y contraseña."
+      );
+
+      return;
+    }
+
+    const button =
+      $("authSubmitBtn");
+
+    button.disabled = true;
+
+    button.textContent =
+      authMode === "login"
+        ? "Ingresando..."
+        : "Creando cuenta...";
+
+    try {
+
+      if (authMode === "register") {
+
+        await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+      } else {
+
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Firebase Auth:",
+        error
+      );
+
+      setAuthMessage(
+        firebaseErrorMessage(error)
+      );
+
+      button.disabled = false;
 
       updateAuthInterface();
-
     }
-  );
+  }
+);
 
 
-$("authForm")
-  .addEventListener(
-    "submit",
-    async event => {
+/* =========================================================
+   CERRAR SESIÓN
+========================================================= */
 
-      event.preventDefault();
+$("logoutBtn").addEventListener(
+  "click",
+  async () => {
 
-      const email =
-        $("authEmail")
-          .value
-          .trim();
+    const confirmed = confirm(
+      "¿Querés cerrar sesión?"
+    );
 
-      const password =
-        $("authPassword")
-          .value;
+    if (!confirmed) return;
 
-      if (
-        !email ||
-        !password
-      ) {
+    const button = $("logoutBtn");
 
-        setAuthMessage(
-          "Completá email y contraseña."
-        );
+    button.disabled = true;
+    button.textContent = "Cerrando sesión...";
 
-        return;
-      }
+    try {
 
-      const button =
-        $("authSubmitBtn");
+      stopRealtimeSync();
 
-      button.disabled =
-        true;
+      appReady = false;
 
-      button.textContent =
-        authMode === "login"
-          ? "Ingresando..."
-          : "Creando cuenta...";
+      await signOut(auth);
 
-      try {
+    } catch (error) {
 
-        if (
-          authMode === "register"
-        ) {
+      console.error(
+        "Error cerrando sesión:",
+        error
+      );
 
-          await createUserWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
+      button.disabled = false;
+      button.textContent = "Cerrar sesión";
 
-        } else {
-
-          await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Firebase Auth:",
-          error
-        );
-
-        setAuthMessage(
-          firebaseErrorMessage(error)
-        );
-
-        button.disabled =
-          false;
-
-        updateAuthInterface();
-
-      }
-
+      alert(
+        "No se pudo cerrar la sesión."
+      );
     }
-  );
+  }
+);
 
 
-$("logoutBtn")
-  .addEventListener(
-    "click",
-    async () => {
-
-      const confirmed =
-        confirm(
-          "¿Querés cerrar sesión?"
-        );
-
-      if (!confirmed) {
-        return;
-      }
-
-      try {
-
-        await signOut(auth);
-
-      } catch (error) {
-
-        console.error(error);
-
-        alert(
-          "No se pudo cerrar la sesión."
-        );
-
-      }
-
-    }
-  );
-
-
-/* ==========================================
+/* =========================================================
    ESTADO DE AUTENTICACIÓN
-========================================== */
+========================================================= */
 
 onAuthStateChanged(
   auth,
   async user => {
 
-    currentUser =
-      user;
+    currentUser = user;
 
     if (!user) {
 
@@ -791,47 +577,48 @@ onAuthStateChanged(
         months: {}
       };
 
-      appReady =
-        false;
+      appReady = false;
 
       $("authSection")
-        .classList.remove(
-          "hidden"
-        );
+        .classList.remove("hidden");
 
       $("appContent")
-        .classList.add(
-          "hidden"
-        );
+        .classList.add("hidden");
+
+      $("userEmail").textContent = "";
+
+      $("logoutBtn").disabled = false;
+      $("logoutBtn").textContent = "Cerrar sesión";
+
+      $("authSubmitBtn").disabled = false;
+
+      updateAuthInterface();
 
       return;
     }
 
+
     $("authSection")
-      .classList.add(
-        "hidden"
-      );
+      .classList.add("hidden");
 
     $("appContent")
-      .classList.remove(
-        "hidden"
-      );
+      .classList.remove("hidden");
 
     $("userEmail")
       .textContent =
       user.email || "";
 
-    try {
+    $("logoutBtn").disabled = false;
+    $("logoutBtn").textContent = "Cerrar sesión";
 
-      await migrateLocalDataIfNecessary();
+    try {
 
       await loadMonthsFromFirestore();
 
       const month =
         currentMonthValue();
 
-      $("monthPicker")
-        .value =
+      $("monthPicker").value =
         month;
 
       ensureMonth(month);
@@ -848,29 +635,23 @@ onAuthStateChanged(
       alert(
         "No se pudieron cargar tus datos desde Firebase. Revisá las reglas de Firestore."
       );
-
     }
-
   }
 );
 
 
-/* ==========================================
-   RENDER
-========================================== */
+/* =========================================================
+   RENDER PRINCIPAL
+========================================================= */
 
 function render() {
 
-  if (!currentUser) {
-    return;
-  }
+  if (!currentUser) return;
 
   const month =
     $("monthPicker").value;
 
-  if (!month) {
-    return;
-  }
+  if (!month) return;
 
   const current =
     ensureMonth(month);
@@ -879,32 +660,25 @@ function render() {
     previousMonth(month);
 
   const previous =
-    data.months[prevMonth]
-      || emptyMonth();
+    data.months[prevMonth] ||
+    emptyMonth();
 
   const total =
     current.expenses.reduce(
       (sum, expense) =>
-        sum +
-        Number(
-          expense.amount || 0
-        ),
+        sum + Number(expense.amount || 0),
       0
     );
 
   const previousTotal =
     previous.expenses.reduce(
       (sum, expense) =>
-        sum +
-        Number(
-          expense.amount || 0
-        ),
+        sum + Number(expense.amount || 0),
       0
     );
 
   const difference =
-    total -
-    previousTotal;
+    total - previousTotal;
 
   const percentage =
     previousTotal
@@ -915,89 +689,67 @@ function render() {
         )
       : 0;
 
+
   $("budgetInput").value =
     current.budget || "";
 
-  $("totalSpent")
-    .textContent =
+  $("totalSpent").textContent =
     money(total);
 
-  $("previousSpent")
-    .textContent =
+  $("previousSpent").textContent =
     money(previousTotal);
 
-  $("budgetTotal")
-    .textContent =
+  $("budgetTotal").textContent =
     money(current.budget);
 
-  $("previousMonthLabel")
-    .textContent =
+  $("previousMonthLabel").textContent =
     monthName(prevMonth);
 
-  $("monthPill")
-    .textContent =
+  $("monthPill").textContent =
     monthName(month);
 
-  $("totalMonthName")
-    .textContent =
-    shortMonthName(month)
-      .toUpperCase();
+  $("totalMonthName").textContent =
+    shortMonthName(month).toUpperCase();
 
-  $("tableTotal")
-    .textContent =
+  $("tableTotal").textContent =
     money(total);
 
-  $("expenseCount")
-    .textContent =
+  $("expenseCount").textContent =
     `${current.expenses.length} ${
       current.expenses.length === 1
         ? "gasto registrado"
         : "gastos registrados"
     }`;
 
+
+  /* DIFERENCIA */
+
   const differenceElement =
     $("difference");
 
-  if (
-    previousTotal === 0
-  ) {
+  if (previousTotal === 0) {
 
-    differenceElement
-      .textContent =
+    differenceElement.textContent =
       "—";
 
-    $("differenceLabel")
-      .textContent =
+    $("differenceLabel").textContent =
       "Sin datos comparables";
 
-    differenceElement.className =
-      "";
+    differenceElement.className = "";
 
   } else {
 
-    differenceElement
-      .textContent =
+    differenceElement.textContent =
       `${
         difference <= 0
           ? "- "
           : "+ "
-      }${
-        money(
-          Math.abs(
-            difference
-          )
-        )
-      }`;
+      }${money(Math.abs(difference))}`;
 
-    $("differenceLabel")
-      .textContent =
+    $("differenceLabel").textContent =
       difference <= 0
-        ? `↓ ${
-            percentage.toFixed(1)
-          }% menos`
-        : `↑ ${
-            percentage.toFixed(1)
-          }% más`;
+        ? `↓ ${percentage.toFixed(1)}% menos`
+        : `↑ ${percentage.toFixed(1)}% más`;
 
     differenceElement.className =
       difference <= 0
@@ -1005,41 +757,30 @@ function render() {
         : "result-bad";
   }
 
-  $("budgetStatus")
-    .textContent =
+
+  /* PRESUPUESTO */
+
+  $("budgetStatus").textContent =
     current.budget
-
       ? total <= current.budget
-
         ? `${money(
-            current.budget -
-            total
+            current.budget - total
           )} disponibles`
-
         : `${money(
-            total -
-            current.budget
+            total - current.budget
           )} excedido`
-
       : "Sin presupuesto";
 
-  $("budgetStatus")
-    .className =
+  $("budgetStatus").className =
     total <= current.budget ||
     !current.budget
       ? ""
       : "result-bad";
 
-  renderExpenses(
-    current.expenses
-  );
 
+  renderExpenses(current.expenses);
   renderHistory();
-
-  renderCategories(
-    current.expenses
-  );
-
+  renderCategories(current.expenses);
   renderTrend(
     month,
     total,
@@ -1048,295 +789,225 @@ function render() {
 }
 
 
-/* ==========================================
+/* =========================================================
    GASTOS
-========================================== */
+========================================================= */
 
 function renderExpenses(expenses) {
 
   const table =
     $("expenseTable");
 
-  table.innerHTML =
-    "";
+  table.innerHTML = "";
 
-  $("emptyState")
-    .style.display =
+  $("emptyState").style.display =
     expenses.length
       ? "none"
       : "grid";
+
 
   expenses
     .slice()
     .sort(
       (a, b) =>
-        a.date.localeCompare(
-          b.date
-        )
+        String(a.date || "")
+          .localeCompare(
+            String(b.date || "")
+          )
     )
-    .forEach(
-      expense => {
+    .forEach(expense => {
 
-        const row =
-          document.createElement(
-            "tr"
-          );
+      const row =
+        document.createElement("tr");
 
-        row.innerHTML = `
+      row.innerHTML = `
 
-          <td>
-            ${formatDate(
-              expense.date
-            )}
-          </td>
+        <td>
+          ${formatDate(expense.date)}
+        </td>
 
-          <td>
-            ${escapeHtml(
-              expense.description
-            )}
+        <td>
+          ${escapeHtml(expense.description)}
 
-            ${
-              expense.recurringId
-                ? `<small class="recurring-badge">🔁</small>`
-                : ""
-            }
+          ${
+            expense.recurringId
+              ? `<small class="recurring-badge">🔁</small>`
+              : ""
+          }
 
-            ${
-              expense.installment
-                ? `<small class="installment-info">
-                    Cuota ${expense.installment.current}/${expense.installment.total}
-                   </small>`
-                : ""
-            }
-          </td>
+          ${
+            expense.installment
+              ? `<small class="installment-info">
+                  Cuota ${expense.installment.current}/${expense.installment.total}
+                 </small>`
+              : ""
+          }
+        </td>
 
-          <td>
+        <td>
+          <span class="category">
+            ${escapeHtml(expense.category)}
+          </span>
+        </td>
 
-            <span class="category">
+        <td class="amount">
+          ${money(expense.amount)}
+        </td>
 
-              ${escapeHtml(
-                expense.category
-              )}
+        <td class="actions">
 
-            </span>
+          <button
+            class="edit-btn"
+            title="Editar gasto"
+            data-id="${expense.id}"
+            type="button"
+          >
+            ✏️
+          </button>
 
-          </td>
+          <button
+            class="delete-btn"
+            title="Eliminar gasto"
+            data-id="${expense.id}"
+            type="button"
+          >
+            ×
+          </button>
 
-          <td class="amount">
+        </td>
+      `;
 
-            ${money(
-              expense.amount
-            )}
-
-          </td>
-
-          <td class="actions">
-
-            <button
-              class="edit-btn"
-              title="Editar gasto"
-              data-id="${
-                expense.id
-              }"
-              type="button"
-            >
-              ✏️
-            </button>
-
-            <button
-              class="delete-btn"
-              title="Eliminar gasto"
-              data-id="${
-                expense.id
-              }"
-              type="button"
-            >
-              ×
-            </button>
-
-          </td>
-
-        `;
-
-        table.appendChild(row);
-
-      }
-    );
+      table.appendChild(row);
+    });
 
 
   /* EDITAR */
 
   table
-    .querySelectorAll(
-      ".edit-btn"
-    )
-    .forEach(
-      button => {
+    .querySelectorAll(".edit-btn")
+    .forEach(button => {
 
-        button.addEventListener(
-          "click",
-          () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-            const month =
-              $("monthPicker")
-                .value;
+          const month =
+            $("monthPicker").value;
 
-            const expense =
-              data
-                .months[month]
-                ?.expenses
-                .find(
-                  item =>
-                    item.id ===
-                    button.dataset.id
-                );
+          const expense =
+            data.months[month]?.expenses.find(
+              item =>
+                item.id === button.dataset.id
+            );
 
-            if (!expense) {
-              return;
-            }
+          if (!expense) return;
 
-            $("expenseDate")
-              .value =
-              expense.date;
+          resetExpenseModal();
 
-            $("expenseDescription")
-              .value =
-              expense.description;
+          $("expenseDate").value =
+            expense.date;
 
-            $("expenseCategory")
-              .value =
-              expense.category;
+          $("expenseDescription").value =
+            expense.description;
 
-            $("expenseAmount")
-              .value =
-              expense.amount;
+          $("expenseCategory").value =
+            expense.category;
 
-            $("expenseForm")
-              .dataset
-              .editingId =
-              expense.id;
+          $("expenseAmount").value =
+            expense.amount;
 
-            $("modalEyebrow")
-              .textContent =
-              "EDITAR REGISTRO";
+          $("expenseForm").dataset.editingId =
+            expense.id;
 
-            $("modalTitle")
-              .textContent =
-              "Editar gasto";
+          $("modalEyebrow").textContent =
+            "EDITAR REGISTRO";
 
-            $("submitExpenseBtn")
-              .textContent =
-              "Guardar cambios";
+          $("modalTitle").textContent =
+            "Editar gasto";
 
-            if ($("expenseRecurring")) {
-              $("expenseRecurring").checked = false;
-            }
+          $("submitExpenseBtn").textContent =
+            "Guardar cambios";
 
-            if ($("recurringOptions")) {
-              $("recurringOptions").classList.add("hidden");
-            }
-
-            $("expenseDialog")
-              .showModal();
-
-          }
-        );
-
-      }
-    );
+          $("expenseDialog").showModal();
+        }
+      );
+    });
 
 
   /* ELIMINAR */
 
   table
-    .querySelectorAll(
-      ".delete-btn"
-    )
-    .forEach(
-      button => {
+    .querySelectorAll(".delete-btn")
+    .forEach(button => {
 
-        button.addEventListener(
-          "click",
-          async () => {
+      button.addEventListener(
+        "click",
+        async () => {
 
-            const confirmed =
-              confirm(
-                "¿Querés eliminar este gasto?"
-              );
+          const confirmed =
+            confirm(
+              "¿Querés eliminar este gasto?"
+            );
 
-            if (!confirmed) {
-              return;
-            }
+          if (!confirmed) return;
 
-            const month =
-              $("monthPicker")
-                .value;
+          const month =
+            $("monthPicker").value;
 
-            const monthData =
-              data.months[month];
+          const monthData =
+            data.months[month];
 
-            if (!monthData) {
-              return;
-            }
+          if (!monthData) return;
 
-            const oldExpenses =
-              [...monthData.expenses];
+          const oldExpenses =
+            [...monthData.expenses];
+
+          monthData.expenses =
+            monthData.expenses.filter(
+              expense =>
+                expense.id !== button.dataset.id
+            );
+
+          render();
+
+          try {
+
+            await saveMonthToFirestore(
+              month
+            );
+
+          } catch (error) {
+
+            console.error(error);
 
             monthData.expenses =
-              monthData.expenses.filter(
-                expense =>
-                  expense.id !==
-                  button.dataset.id
-              );
+              oldExpenses;
 
             render();
 
-            try {
-
-              await saveMonthToFirestore(
-                month
-              );
-
-            } catch (error) {
-
-              console.error(error);
-
-              monthData.expenses =
-                oldExpenses;
-
-              render();
-
-              alert(
-                "No se pudo eliminar el gasto."
-              );
-
-            }
-
+            alert(
+              "No se pudo eliminar el gasto."
+            );
           }
-        );
-
-      }
-    );
-
+        }
+      );
+    });
 }
 
 
-/* ==========================================
+/* =========================================================
    HISTORIAL
-========================================== */
+========================================================= */
 
 function renderHistory() {
 
   const table =
     $("historyTable");
 
-  table.innerHTML =
-    "";
+  table.innerHTML = "";
 
   const months =
-    Object.keys(
-      data.months
-    )
+    Object.keys(data.months)
       .sort()
       .reverse()
       .slice(0, 6);
@@ -1344,130 +1015,98 @@ function renderHistory() {
   if (!months.length) {
 
     table.innerHTML = `
-
       <tr>
-
         <td colspan="4">
           Todavía no hay historial.
         </td>
-
       </tr>
-
     `;
 
     return;
   }
 
-  months.forEach(
-    month => {
 
-      const current =
-        data.months[month];
+  months.forEach(month => {
 
-      const total =
-        current.expenses.reduce(
-          (sum, expense) =>
-            sum +
-            Number(
-              expense.amount || 0
-            ),
-          0
-        );
+    const current =
+      data.months[month];
 
-      const result =
-        Number(
-          current.budget || 0
-        ) -
-        total;
+    const total =
+      current.expenses.reduce(
+        (sum, expense) =>
+          sum + Number(expense.amount || 0),
+        0
+      );
 
-      const row =
-        document.createElement(
-          "tr"
-        );
+    const result =
+      Number(current.budget || 0) -
+      total;
 
-      row.innerHTML = `
+    const row =
+      document.createElement("tr");
 
-        <td>
-          <b>
-            ${monthName(month)}
-          </b>
-        </td>
+    row.innerHTML = `
 
-        <td>
-          ${money(
-            current.budget
-          )}
-        </td>
+      <td>
+        <b>${monthName(month)}</b>
+      </td>
 
-        <td>
-          ${money(total)}
-        </td>
+      <td>
+        ${money(current.budget)}
+      </td>
 
-        <td class="${
+      <td>
+        ${money(total)}
+      </td>
+
+      <td class="${
+        result >= 0
+          ? "result-good"
+          : "result-bad"
+      }">
+
+        ${
           result >= 0
-            ? "result-good"
-            : "result-bad"
-        }">
+            ? "+"
+            : "-"
+        }
 
-          ${
-            result >= 0
-              ? "+"
-              : "-"
-          }
+        ${money(Math.abs(result))}
 
-          ${money(
-            Math.abs(result)
-          )}
+        ${
+          result >= 0
+            ? "a favor"
+            : "excedido"
+        }
 
-          ${
-            result >= 0
-              ? "a favor"
-              : "excedido"
-          }
+      </td>
+    `;
 
-        </td>
-
-      `;
-
-      table.appendChild(row);
-
-    }
-  );
-
+    table.appendChild(row);
+  });
 }
 
 
-/* ==========================================
+/* =========================================================
    CATEGORÍAS
-========================================== */
+========================================================= */
 
 function renderCategories(expenses) {
 
   const totals = {};
 
-  expenses.forEach(
-    expense => {
+  expenses.forEach(expense => {
 
-      totals[
-        expense.category
-      ] =
-        (
-          totals[
-            expense.category
-          ] || 0
-        )
-        +
-        Number(
-          expense.amount || 0
-        );
+    totals[expense.category] =
+      (
+        totals[expense.category] || 0
+      ) +
+      Number(expense.amount || 0);
+  });
 
-    }
-  );
 
   const entries =
-    Object.entries(
-      totals
-    )
+    Object.entries(totals)
       .sort(
         (a, b) =>
           b[1] - a[1]
@@ -1476,84 +1115,61 @@ function renderCategories(expenses) {
   const max =
     entries[0]?.[1] || 1;
 
-  $("categoryChart")
-    .innerHTML =
 
-      entries.length
+  $("categoryChart").innerHTML =
+    entries.length
 
-        ? entries
-            .map(
-              (
-                [
-                  category,
-                  total
-                ]
-              ) => `
+      ? entries
+          .map(
+            ([category, total]) => `
 
-                <div
-                  class="bar-row"
-                >
+              <div class="bar-row">
 
-                  <div
-                    class="bar-label"
-                  >
+                <div class="bar-label">
 
-                    <span>
-                      ${escapeHtml(
-                        category
-                      )}
-                    </span>
+                  <span>
+                    ${escapeHtml(category)}
+                  </span>
 
-                    <b>
-                      ${money(total)}
-                    </b>
-
-                  </div>
-
-                  <div
-                    class="bar-bg"
-                  >
-
-                    <div
-                      class="bar-fill"
-                      style="width:${
-                        (
-                          total /
-                          max
-                        ) *
-                        100
-                      }%"
-                    ></div>
-
-                  </div>
+                  <b>
+                    ${money(total)}
+                  </b>
 
                 </div>
 
-              `
-            )
-            .join("")
+                <div class="bar-bg">
 
-        : `
+                  <div
+                    class="bar-fill"
+                    style="width:${
+                      total / max * 100
+                    }%"
+                  ></div>
 
-            <div class="empty-state">
+                </div>
 
-              <div>
-                ♡
               </div>
+            `
+          )
+          .join("")
 
-              <span>
-                No hay categorías para mostrar.
-              </span>
+      : `
+          <div class="empty-state">
 
-            </div>
+            <div>♡</div>
 
-          `;
+            <span>
+              No hay categorías para mostrar.
+            </span>
+
+          </div>
+        `;
 }
 
 
-/* ==========================================
-   ANÁLISIS
-========================================== */
+/* =========================================================
+   TENDENCIA
+========================================================= */
 
 function renderTrend(
   month,
@@ -1564,55 +1180,39 @@ function renderTrend(
   const current =
     data.months[month];
 
+  if (!current) return;
+
   const categories = {};
 
-  current.expenses.forEach(
-    expense => {
+  current.expenses.forEach(expense => {
 
-      categories[
-        expense.category
-      ] =
-        (
-          categories[
-            expense.category
-          ] || 0
-        )
-        +
-        Number(
-          expense.amount || 0
-        );
+    categories[expense.category] =
+      (
+        categories[expense.category] || 0
+      ) +
+      Number(expense.amount || 0);
+  });
 
-    }
-  );
 
   const top =
-    Object.entries(
-      categories
-    )
+    Object.entries(categories)
       .sort(
         (a, b) =>
           b[1] - a[1]
       )[0];
 
-  if (
-    !current.expenses.length
-  ) {
 
-    $("trendText")
-      .textContent =
+  if (!current.expenses.length) {
+
+    $("trendText").textContent =
       "Agregá gastos para comenzar a analizar tus hábitos.";
 
     return;
   }
 
+
   let text =
-    `En ${
-      monthName(month)
-    }, registraste ${
-      money(total)
-    } en ${
-      current.expenses.length
-    } ${
+    `En ${monthName(month)}, registraste ${money(total)} en ${current.expenses.length} ${
       current.expenses.length === 1
         ? "gasto"
         : "gastos"
@@ -1622,79 +1222,54 @@ function renderTrend(
 
     const percentage =
       (
-        (
-          total -
-          previousTotal
-        )
-        /
+        (total - previousTotal) /
         previousTotal
-      )
-      *
+      ) *
       100;
 
-    if (
-      percentage <= 0
-    ) {
+    if (percentage <= 0) {
 
       text +=
-        ` Eso representa un ahorro del ${
-          Math.abs(
-            percentage
-          ).toFixed(1)
-        }% respecto del mes anterior.`;
+        ` Eso representa un ahorro del ${Math.abs(
+          percentage
+        ).toFixed(1)}% respecto del mes anterior.`;
 
     } else {
 
       text +=
-        ` Eso representa un aumento del ${
-          percentage.toFixed(1)
-        }% respecto del mes anterior.`;
-
+        ` Eso representa un aumento del ${percentage.toFixed(
+          1
+        )}% respecto del mes anterior.`;
     }
-
   }
+
 
   if (top) {
 
     text +=
-      ` La categoría con mayor gasto fue ${
-        escapeHtml(top[0])
-      } (${
-        money(top[1])
-      }).`;
-
+      ` La categoría con mayor gasto fue ${top[0]} (${money(
+        top[1]
+      )}).`;
   }
 
-  $("trendText")
-    .innerHTML =
+
+  $("trendText").textContent =
     text;
 }
 
 
-/* ==========================================
+/* =========================================================
    UTILIDADES
-========================================== */
+========================================================= */
 
 function formatDate(date) {
 
-  if (!date) {
-    return "—";
-  }
+  if (!date) return "—";
 
-  const [
-    year,
-    month,
-    day
-  ] =
+  const [year, month, day] =
     date.split("-");
 
-  return `${
-    day
-  }/${
-    month
-  }/${
-    year
-  }`;
+  return `${day}/${month}/${year}`;
 }
 
 
@@ -1715,9 +1290,84 @@ function escapeHtml(value) {
 }
 
 
-/* ==========================================
+function createId(prefix = "expense") {
+
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return crypto.randomUUID();
+  }
+
+  return `${prefix}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}`;
+}
+
+
+/* =========================================================
    RECURRENCIA
-========================================== */
+========================================================= */
+
+/*
+  Esta función crea dinámicamente la sección
+  para colocar un monto diferente por cada mes.
+*/
+
+function setupRecurringAmountInterface() {
+
+  const recurringOptions =
+    $("recurringOptions");
+
+  if (!recurringOptions) return;
+
+
+  if ($("recurringChangingAmount")) {
+    return;
+  }
+
+
+  const box =
+    document.createElement("div");
+
+  box.className =
+    "recurring-changing-box";
+
+  box.innerHTML = `
+
+    <label class="checkbox-label">
+
+      <input
+        id="recurringChangingAmount"
+        type="checkbox"
+      >
+
+      <span>
+        💰 Usar un monto diferente cada mes
+      </span>
+
+    </label>
+
+    <div
+      id="recurringAmounts"
+      class="recurring-amounts"
+    ></div>
+
+  `;
+
+  recurringOptions.appendChild(box);
+
+
+  $("recurringChangingAmount")
+    .addEventListener(
+      "change",
+      () => {
+
+        renderRecurringAmountInputs();
+      }
+    );
+}
+
 
 function getRecurringAmountInputs() {
 
@@ -1734,17 +1384,18 @@ function renderRecurringAmountInputs() {
   const container =
     $("recurringAmounts");
 
-  if (!container) {
-    return;
-  }
+  if (!container) return;
 
-  const recurring =
-    $("expenseRecurring")?.checked;
+  const changing =
+    $("recurringChangingAmount")?.checked;
 
-  if (!recurring) {
+  if (!changing) {
+
     container.innerHTML = "";
+
     return;
   }
+
 
   const duration =
     Math.max(
@@ -1757,29 +1408,47 @@ function renderRecurringAmountInputs() {
       )
     );
 
+
+  const everyMonths =
+    Math.max(
+      1,
+      Math.min(
+        60,
+        Number(
+          $("recurringMonths")?.value || 1
+        )
+      )
+    );
+
+
   const startMonth =
     $("monthPicker").value;
+
 
   const baseAmount =
     Number(
       $("expenseAmount").value || 0
     );
 
-  const changing =
-    $("recurringChangingAmount")?.checked;
 
-  if (!changing) {
+  /*
+    Guardamos temporalmente los valores
+    que ya había escrito el usuario.
+  */
 
-    container.innerHTML = "";
+  const previousValues = {};
 
-    return;
-  }
+  getRecurringAmountInputs()
+    .forEach(input => {
 
-  const existing =
-    getRecurringAmountInputs()
-      .map(input => input.value);
+      previousValues[
+        input.dataset.month
+      ] = input.value;
+    });
+
 
   let html = "";
+
 
   for (
     let index = 0;
@@ -1790,13 +1459,15 @@ function renderRecurringAmountInputs() {
     const targetMonth =
       addMonths(
         startMonth,
-        index
+        index * everyMonths
       );
 
-    const existingValue =
-      existing[index] !== undefined
-        ? existing[index]
+
+    const value =
+      previousValues[targetMonth] !== undefined
+        ? previousValues[targetMonth]
         : baseAmount || "";
+
 
     html += `
 
@@ -1817,7 +1488,7 @@ function renderRecurringAmountInputs() {
               type="number"
               min="0.01"
               step="0.01"
-              value="${existingValue}"
+              value="${value}"
               data-month="${targetMonth}"
               placeholder="0"
               required
@@ -1830,73 +1501,74 @@ function renderRecurringAmountInputs() {
       </div>
 
     `;
-
   }
+
 
   container.innerHTML =
     html;
 }
 
 
-/* ==========================================
+/* =========================================================
    MODAL
-========================================== */
+========================================================= */
 
 function resetExpenseModal() {
 
   $("expenseForm").reset();
 
-  delete $("expenseForm")
-    .dataset
-    .editingId;
+  delete $("expenseForm").dataset.editingId;
 
-  $("modalEyebrow")
-    .textContent =
+  $("modalEyebrow").textContent =
     "NUEVO REGISTRO";
 
-  $("modalTitle")
-    .textContent =
+  $("modalTitle").textContent =
     "Agregar gasto";
 
-  $("submitExpenseBtn")
-    .textContent =
+  $("submitExpenseBtn").textContent =
     "Guardar gasto";
 
+
   if ($("recurringOptions")) {
+
     $("recurringOptions")
       .classList.add("hidden");
   }
 
+
   if ($("recurringAmounts")) {
-    $("recurringAmounts")
-      .innerHTML = "";
+    $("recurringAmounts").innerHTML = "";
   }
+
 
   if ($("recurringChangingAmount")) {
-    $("recurringChangingAmount")
-      .checked = false;
+    $("recurringChangingAmount").checked =
+      false;
   }
+
 
   if ($("recurringMonths")) {
-    $("recurringMonths")
-      .value = 1;
+    $("recurringMonths").value = 1;
   }
+
 
   if ($("recurringDay")) {
-    $("recurringDay")
-      .value = 10;
+    $("recurringDay").value = 10;
   }
 
+
   if ($("recurringDuration")) {
-    $("recurringDuration")
-      .value = 6;
+    $("recurringDuration").value = 6;
   }
 }
 
 
-/* ==========================================
+/* =========================================================
    EVENTOS DE RECURRENCIA
-========================================== */
+========================================================= */
+
+setupRecurringAmountInterface();
+
 
 if ($("expenseRecurring")) {
 
@@ -1905,32 +1577,20 @@ if ($("expenseRecurring")) {
       "change",
       () => {
 
+        const checked =
+          $("expenseRecurring").checked;
+
         $("recurringOptions")
           ?.classList.toggle(
             "hidden",
-            !$("expenseRecurring").checked
+            !checked
           );
 
-        renderRecurringAmountInputs();
-
+        if (checked) {
+          renderRecurringAmountInputs();
+        }
       }
     );
-
-}
-
-
-if ($("recurringChangingAmount")) {
-
-  $("recurringChangingAmount")
-    .addEventListener(
-      "change",
-      () => {
-
-        renderRecurringAmountInputs();
-
-      }
-    );
-
 }
 
 
@@ -1944,56 +1604,33 @@ if ($("recurringDuration")) {
         if (
           $("recurringChangingAmount")?.checked
         ) {
-
           renderRecurringAmountInputs();
-
         }
-
       }
     );
-
 }
 
 
-if ($("recurringDay")) {
+if ($("recurringMonths")) {
 
-  $("recurringDay")
+  $("recurringMonths")
     .addEventListener(
-      "change",
+      "input",
       () => {
 
-        const value =
-          Number(
-            $("recurringDay").value
-          );
-
         if (
-          value < 1
+          $("recurringChangingAmount")?.checked
         ) {
-
-          $("recurringDay")
-            .value = 1;
-
+          renderRecurringAmountInputs();
         }
-
-        if (
-          value > 31
-        ) {
-
-          $("recurringDay")
-            .value = 31;
-
-        }
-
       }
     );
-
 }
 
 
-/* ==========================================
+/* =========================================================
    CAMBIO DE MES
-========================================== */
+========================================================= */
 
 $("monthPicker")
   .addEventListener(
@@ -2008,14 +1645,13 @@ $("monthPicker")
       }
 
       render();
-
     }
   );
 
 
-/* ==========================================
+/* =========================================================
    PRESUPUESTO
-========================================== */
+========================================================= */
 
 $("saveBudgetBtn")
   .addEventListener(
@@ -2025,17 +1661,14 @@ $("saveBudgetBtn")
       const month =
         $("monthPicker").value;
 
-      if (!month) {
-        return;
-      }
+      if (!month) return;
 
       const current =
         ensureMonth(month);
 
       current.budget =
         Number(
-          $("budgetInput")
-            .value || 0
+          $("budgetInput").value || 0
         );
 
       render();
@@ -2057,16 +1690,14 @@ $("saveBudgetBtn")
         alert(
           "No se pudo guardar el presupuesto."
         );
-
       }
-
     }
   );
 
 
-/* ==========================================
+/* =========================================================
    NUEVO GASTO
-========================================== */
+========================================================= */
 
 $("addExpenseBtn")
   .addEventListener(
@@ -2081,54 +1712,36 @@ $("addExpenseBtn")
       const today =
         new Date();
 
-      const year =
-        today.getFullYear();
-
-      const currentMonth =
-        String(
+      const todayMonth =
+        `${today.getFullYear()}-${String(
           today.getMonth() + 1
-        )
-        .padStart(
-          2,
-          "0"
-        );
+        ).padStart(2, "0")}`;
 
-      const currentDay =
-        String(
-          today.getDate()
-        )
-        .padStart(
-          2,
-          "0"
-        );
+      if (month === todayMonth) {
 
-      if (
-        month ===
-        `${year}-${currentMonth}`
-      ) {
-
-        $("expenseDate")
-          .value =
-          `${year}-${currentMonth}-${currentDay}`;
+        $("expenseDate").value =
+          `${today.getFullYear()}-${String(
+            today.getMonth() + 1
+          ).padStart(2, "0")}-${String(
+            today.getDate()
+          ).padStart(2, "0")}`;
 
       } else {
 
-        $("expenseDate")
-          .value =
+        $("expenseDate").value =
           `${month}-01`;
-
       }
+
 
       $("expenseDialog")
         .showModal();
-
     }
   );
 
 
-/* ==========================================
+/* =========================================================
    CERRAR MODAL
-========================================== */
+========================================================= */
 
 $("closeDialog")
   .addEventListener(
@@ -2137,9 +1750,7 @@ $("closeDialog")
 
       resetExpenseModal();
 
-      $("expenseDialog")
-        .close();
-
+      $("expenseDialog").close();
     }
   );
 
@@ -2151,16 +1762,14 @@ $("cancelDialog")
 
       resetExpenseModal();
 
-      $("expenseDialog")
-        .close();
-
+      $("expenseDialog").close();
     }
   );
 
 
-/* ==========================================
-   GUARDAR / EDITAR
-========================================== */
+/* =========================================================
+   GUARDAR / EDITAR GASTO
+========================================================= */
 
 $("expenseForm")
   .addEventListener(
@@ -2193,6 +1802,7 @@ $("expenseForm")
           $("expenseAmount").value
         );
 
+
       if (
         !date ||
         !description ||
@@ -2209,9 +1819,9 @@ $("expenseForm")
       }
 
 
-      /* =====================================
+      /* =====================================================
          EDITAR
-      ===================================== */
+      ===================================================== */
 
       if (editingId) {
 
@@ -2221,17 +1831,15 @@ $("expenseForm")
         const expense =
           monthData.expenses.find(
             item =>
-              item.id ===
-              editingId
+              item.id === editingId
           );
 
-        if (!expense) {
-          return;
-        }
+        if (!expense) return;
 
         const oldExpense = {
           ...expense
         };
+
 
         expense.date =
           date;
@@ -2245,6 +1853,7 @@ $("expenseForm")
         expense.amount =
           amount;
 
+
         render();
 
         try {
@@ -2255,8 +1864,7 @@ $("expenseForm")
 
           resetExpenseModal();
 
-          $("expenseDialog")
-            .close();
+          $("expenseDialog").close();
 
         } catch (error) {
 
@@ -2272,38 +1880,26 @@ $("expenseForm")
           alert(
             "No se pudieron guardar los cambios."
           );
-
         }
 
         return;
       }
 
 
-      /* =====================================
-         NUEVO GASTO
-      ===================================== */
+      /* =====================================================
+         GASTO NORMAL
+      ===================================================== */
 
       const isRecurring =
-        $("expenseRecurring")?.checked || false;
+        $("expenseRecurring")?.checked ||
+        false;
 
-
-      /* =====================================
-         GASTO NORMAL
-      ===================================== */
 
       if (!isRecurring) {
 
         const expense = {
 
-          id:
-            (
-              typeof crypto !== "undefined" &&
-              typeof crypto.randomUUID === "function"
-            )
-              ? crypto.randomUUID()
-              : String(
-                  Date.now()
-                ),
+          id: createId(),
 
           date,
 
@@ -2312,8 +1908,8 @@ $("expenseForm")
           category,
 
           amount
-
         };
+
 
         const monthData =
           ensureMonth(month);
@@ -2332,8 +1928,7 @@ $("expenseForm")
 
           resetExpenseModal();
 
-          $("expenseDialog")
-            .close();
+          $("expenseDialog").close();
 
         } catch (error) {
 
@@ -2342,8 +1937,7 @@ $("expenseForm")
           monthData.expenses =
             monthData.expenses.filter(
               item =>
-                item.id !==
-                expense.id
+                item.id !== expense.id
             );
 
           render();
@@ -2351,16 +1945,15 @@ $("expenseForm")
           alert(
             "No se pudo guardar el gasto en Firebase."
           );
-
         }
 
         return;
       }
 
 
-      /* =====================================
+      /* =====================================================
          GASTO RECURRENTE
-      ===================================== */
+      ===================================================== */
 
       const everyMonths =
         Math.max(
@@ -2373,6 +1966,7 @@ $("expenseForm")
           )
         );
 
+
       const requestedDay =
         Math.max(
           1,
@@ -2383,6 +1977,7 @@ $("expenseForm")
             )
           )
         );
+
 
       const duration =
         Math.max(
@@ -2395,42 +1990,34 @@ $("expenseForm")
           )
         );
 
+
       const changingAmount =
-        $("recurringChangingAmount")?.checked || false;
+        $("recurringChangingAmount")?.checked ||
+        false;
+
 
       const recurringId =
-        (
-          typeof crypto !== "undefined" &&
-          typeof crypto.randomUUID === "function"
-        )
-          ? crypto.randomUUID()
-          : `recurring-${Date.now()}`;
+        createId("recurring");
 
 
-      /* =====================================
-         OBTENER MONTOS
-      ===================================== */
-
-      const amountInputs =
-        getRecurringAmountInputs();
+      /* =====================================================
+         MONTOS PERSONALIZADOS
+      ===================================================== */
 
       const customAmounts = {};
 
+
       if (changingAmount) {
 
-        for (
-          let index = 0;
-          index < amountInputs.length;
-          index++
-        ) {
+        const inputs =
+          getRecurringAmountInputs();
 
-          const input =
-            amountInputs[index];
+
+        for (const input of inputs) {
 
           const value =
-            Number(
-              input.value
-            );
+            Number(input.value);
+
 
           if (
             !value ||
@@ -2438,32 +2025,29 @@ $("expenseForm")
           ) {
 
             alert(
-              `Ingresá un monto válido para ${
-                monthName(
-                  input.dataset.month
-                )
-              }.`
+              `Ingresá un monto válido para ${monthName(
+                input.dataset.month
+              )}.`
             );
 
             return;
           }
 
+
           customAmounts[
             input.dataset.month
           ] = value;
-
         }
-
       }
 
 
-      /* =====================================
+      /* =====================================================
          CREAR TODOS LOS MESES
-      ===================================== */
+      ===================================================== */
 
       const monthsToSave = {};
-
       const oldMonths = {};
+
 
       for (
         let index = 0;
@@ -2471,27 +2055,42 @@ $("expenseForm")
         index++
       ) {
 
+        /*
+          EJEMPLO:
+
+          Inicio: septiembre
+          Cada: 1 mes
+          Duración: 6
+
+          septiembre
+          octubre
+          noviembre
+          diciembre
+          enero
+          febrero
+        */
+
         const targetMonth =
           addMonths(
             month,
             index * everyMonths
           );
 
+
         const targetDate =
-          buildDateForMonth(
-            targetMonth,
-            requestedDay
-          );
+          index === 0
+            ? date
+            : buildDateForMonth(
+                targetMonth,
+                requestedDay
+              );
+
 
         const targetAmount =
           changingAmount
-
             ? Number(
-                customAmounts[
-                  targetMonth
-                ] || 0
+                customAmounts[targetMonth] || 0
               )
-
             : amount;
 
 
@@ -2501,80 +2100,77 @@ $("expenseForm")
         ) {
 
           alert(
-            `Falta el monto de ${
-              monthName(targetMonth)
-            }.`
+            `Falta el monto de ${monthName(
+              targetMonth
+            )}.`
           );
 
           return;
-
         }
 
 
-        /* Guardamos copia para poder deshacer */
+        /* Guardar copia */
+
         oldMonths[targetMonth] =
           data.months[targetMonth]
             ? {
                 budget:
-                  data.months[targetMonth].budget,
+                  data.months[targetMonth]
+                    .budget,
 
                 expenses:
                   [
-                    ...data.months[targetMonth].expenses
+                    ...data.months[targetMonth]
+                      .expenses
                   ]
               }
             : null;
 
 
         const monthData =
-          ensureMonth(
-            targetMonth
-          );
+          ensureMonth(targetMonth);
 
-        monthsToSave[
-          targetMonth
-        ] = monthData;
+
+        /*
+          IMPORTANTE:
+          No reemplazamos los gastos existentes.
+          Agregamos el recurrente.
+        */
 
 
         const expense = {
 
-          id:
-            (
-              typeof crypto !== "undefined" &&
-              typeof crypto.randomUUID === "function"
-            )
-              ? crypto.randomUUID()
-              : `${recurringId}-${index}-${Date.now()}`,
+          id: createId("expense"),
 
-          date:
-            index === 0
-              ? date
-              : targetDate,
+          date: targetDate,
 
           description,
 
           category,
 
-          amount:
-            targetAmount,
+          amount: targetAmount,
 
           recurringId,
 
           recurring: {
+
             everyMonths,
+
             requestedDay,
+
             duration,
+
             changingAmount
           },
 
           installment: {
+
             current:
               index + 1,
 
             total:
               duration
           }
-
         };
 
 
@@ -2582,15 +2178,18 @@ $("expenseForm")
           expense
         );
 
+
+        monthsToSave[targetMonth] =
+          monthData;
       }
 
 
       render();
 
 
-      /* =====================================
-         GUARDAR TODOS LOS MESES
-      ===================================== */
+      /* =====================================================
+         GUARDAR EN FIREBASE
+      ===================================================== */
 
       try {
 
@@ -2598,15 +2197,14 @@ $("expenseForm")
           monthsToSave
         );
 
+
         resetExpenseModal();
 
-        $("expenseDialog")
-          .close();
+        $("expenseDialog").close();
+
 
         alert(
-          `🔁 Gasto recurrente guardado correctamente.\n\nSe cargaron ${
-            duration
-          } ${
+          `🔁 Gasto recurrente guardado correctamente.\n\nSe cargaron ${duration} ${
             duration === 1
               ? "mes"
               : "meses"
@@ -2621,32 +2219,25 @@ $("expenseForm")
         );
 
 
-        /* Restaurar datos anteriores */
+        /* Restaurar */
 
-        Object.entries(
-          oldMonths
-        ).forEach(
-          ([
-            targetMonth,
-            oldMonth
-          ]) => {
+        Object.entries(oldMonths)
+          .forEach(
+            ([targetMonth, oldMonth]) => {
 
-            if (oldMonth) {
+              if (oldMonth) {
 
-              data.months[
-                targetMonth
-              ] = oldMonth;
+                data.months[targetMonth] =
+                  oldMonth;
 
-            } else {
+              } else {
 
-              delete data.months[
-                targetMonth
-              ];
-
+                delete data.months[
+                  targetMonth
+                ];
+              }
             }
-
-          }
-        );
+          );
 
 
         render();
@@ -2655,16 +2246,14 @@ $("expenseForm")
         alert(
           "No se pudieron guardar los gastos recurrentes en Firebase."
         );
-
       }
-
     }
   );
 
 
-/* ==========================================
+/* =========================================================
    BORRAR MES
-========================================== */
+========================================================= */
 
 $("clearMonthBtn")
   .addEventListener(
@@ -2681,38 +2270,32 @@ $("clearMonthBtn")
         monthData &&
         (
           monthData.expenses.length > 0 ||
-          Number(
-            monthData.budget
-          ) > 0
+          Number(monthData.budget) > 0
         );
+
 
       if (!hasData) {
 
         alert(
-          `No hay datos guardados en ${
-            monthName(month)
-          }.`
+          `No hay datos guardados en ${monthName(
+            month
+          )}.`
         );
 
         return;
       }
+
 
       const confirmed =
         confirm(
-
-          `¿Seguro que querés borrar TODO el registro de ${
-            monthName(month)
-          }?\n\n` +
-
-          `Se eliminarán los gastos y el presupuesto de ese mes.\n\n` +
-
-          `Esta acción no se puede deshacer.`
-
+          `¿Seguro que querés borrar TODO el registro de ${monthName(
+            month
+          )}?\n\nSe eliminarán los gastos y el presupuesto de ese mes.\n\nEsta acción no se puede deshacer.`
         );
 
-      if (!confirmed) {
-        return;
-      }
+
+      if (!confirmed) return;
+
 
       try {
 
@@ -2727,9 +2310,9 @@ $("clearMonthBtn")
         render();
 
         alert(
-          `Se borró correctamente ${
-            monthName(month)
-          }.`
+          `Se borró correctamente ${monthName(
+            month
+          )}.`
         );
 
       } catch (error) {
@@ -2739,16 +2322,14 @@ $("clearMonthBtn")
         alert(
           "No se pudo borrar el mes."
         );
-
       }
-
     }
   );
 
 
-/* ==========================================
+/* =========================================================
    EMPEZAR DE CERO
-========================================== */
+========================================================= */
 
 $("newUserBtn")
   .addEventListener(
@@ -2757,44 +2338,32 @@ $("newUserBtn")
 
       const confirmed =
         confirm(
-
           "✨ EMPEZAR DE CERO\n\n" +
-
-          "Esta opción va a borrar TODOS tus datos de MENSUALES de tu cuenta:\n\n" +
-
+          "Esta opción va a borrar TODOS tus datos de MENSUALES:\n\n" +
           "• Todos los gastos\n" +
           "• Todos los meses\n" +
           "• Todos los presupuestos\n" +
           "• Todo el historial\n\n" +
-
           "Tu cuenta seguirá existiendo.\n\n" +
-
           "¿Querés continuar?"
-
         );
 
-      if (!confirmed) {
-        return;
-      }
+
+      if (!confirmed) return;
+
 
       const secondConfirmation =
         confirm(
-
           "⚠️ ÚLTIMA CONFIRMACIÓN\n\n" +
-
           "Se eliminarán TODOS los datos de MENSUALES de esta cuenta.\n\n" +
-
           "La cuenta de acceso NO se eliminará.\n\n" +
-
           "Esta acción no se puede deshacer.\n\n" +
-
-          "¿Estás segura de que querés empezar de cero?"
-
+          "¿Estás segura?"
         );
 
-      if (!secondConfirmation) {
-        return;
-      }
+
+      if (!secondConfirmation) return;
+
 
       try {
 
@@ -2803,8 +2372,10 @@ $("newUserBtn")
             monthsCollectionRef()
           );
 
+
         const batch =
           writeBatch(db);
+
 
         snapshot.forEach(
           documentSnapshot => {
@@ -2812,26 +2383,30 @@ $("newUserBtn")
             batch.delete(
               documentSnapshot.ref
             );
-
           }
         );
 
+
         await batch.commit();
+
 
         data = {
           months: {}
         };
 
+
         const month =
           currentMonthValue();
 
-        $("monthPicker")
-          .value =
+
+        $("monthPicker").value =
           month;
+
 
         ensureMonth(month);
 
         render();
+
 
         alert(
           "✨ ¡Listo! MENSUALES está completamente limpio.\n\nTu cuenta sigue activa y ya podés comenzar un nuevo registro."
@@ -2844,25 +2419,21 @@ $("newUserBtn")
         alert(
           "No se pudieron borrar todos los datos. Volvé a intentar."
         );
-
       }
-
     }
   );
 
 
-/* ==========================================
+/* =========================================================
    PDF
-========================================== */
+========================================================= */
 
 $("pdfBtn")
   .addEventListener(
     "click",
     () => {
 
-      if (
-        !window.jspdf
-      ) {
+      if (!window.jspdf) {
 
         alert(
           "No se pudo cargar el generador de PDF."
@@ -2871,48 +2442,46 @@ $("pdfBtn")
         return;
       }
 
-      const {
-        jsPDF
-      } =
+
+      const { jsPDF } =
         window.jspdf;
+
 
       const month =
         $("monthPicker").value;
 
+
       const current =
         ensureMonth(month);
+
 
       const total =
         current.expenses.reduce(
           (sum, expense) =>
-            sum +
-            Number(
-              expense.amount || 0
-            ),
+            sum + Number(expense.amount || 0),
           0
         );
+
 
       const previous =
         data.months[
           previousMonth(month)
-        ]
-        || {
+        ] || {
           expenses: []
         };
+
 
       const previousTotal =
         previous.expenses.reduce(
           (sum, expense) =>
-            sum +
-            Number(
-              expense.amount || 0
-            ),
+            sum + Number(expense.amount || 0),
           0
         );
 
+
       const difference =
-        total -
-        previousTotal;
+        total - previousTotal;
+
 
       const pdf =
         new jsPDF({
@@ -2920,32 +2489,34 @@ $("pdfBtn")
           format: "a4"
         });
 
-      const pink =
-        [
-          245,
-          107,
-          139
-        ];
 
-      const dark =
-        [
-          85,
-          21,
-          45
-        ];
+      const pink = [
+        245,
+        107,
+        139
+      ];
 
-      const light =
-        [
-          255,
-          231,
-          236
-        ];
+
+      const dark = [
+        85,
+        21,
+        45
+      ];
+
+
+      const light = [
+        255,
+        231,
+        236
+      ];
+
 
       pdf.setFillColor(
         255,
         176,
         194
       );
+
 
       pdf.roundedRect(
         15,
@@ -2957,9 +2528,8 @@ $("pdfBtn")
         "F"
       );
 
-      pdf.setTextColor(
-        ...dark
-      );
+
+      pdf.setTextColor(...dark);
 
       pdf.setFontSize(17);
 
@@ -2968,11 +2538,13 @@ $("pdfBtn")
         "bold"
       );
 
+
       pdf.text(
         "CONTROL DE GASTOS MENSUALES",
         21,
         27
       );
+
 
       pdf.setFontSize(8);
 
@@ -2981,13 +2553,13 @@ $("pdfBtn")
         "normal"
       );
 
+
       pdf.text(
-        `Reporte · ${
-          monthName(month)
-        }`,
+        `Reporte · ${monthName(month)}`,
         21,
         34
       );
+
 
       const cards = [
 
@@ -3007,32 +2579,27 @@ $("pdfBtn")
             difference <= 0
               ? "- "
               : "+ "
-          }${
-            money(
-              Math.abs(
-                difference
-              )
-            )
-          }`
+          }${money(
+            Math.abs(difference)
+          )}`
         ]
 
       ];
 
+
       cards.forEach(
-        (
-          card,
-          index
-        ) => {
+        (card, index) => {
 
           const x =
-            15 +
-            index * 60;
+            15 + index * 60;
+
 
           pdf.setDrawColor(
             255,
             197,
             210
           );
+
 
           pdf.roundedRect(
             x,
@@ -3044,9 +2611,8 @@ $("pdfBtn")
             "S"
           );
 
-          pdf.setTextColor(
-            ...pink
-          );
+
+          pdf.setTextColor(...pink);
 
           pdf.setFontSize(7);
 
@@ -3055,32 +2621,32 @@ $("pdfBtn")
             "bold"
           );
 
+
           pdf.text(
             card[0],
             x + 4,
             57
           );
 
-          pdf.setTextColor(
-            ...dark
-          );
+
+          pdf.setTextColor(...dark);
 
           pdf.setFontSize(12);
+
 
           pdf.text(
             card[1],
             x + 4,
             66
           );
-
         }
       );
 
+
       let y = 84;
 
-      pdf.setFillColor(
-        ...pink
-      );
+
+      pdf.setFillColor(...pink);
 
       pdf.rect(
         15,
@@ -3090,11 +2656,13 @@ $("pdfBtn")
         "F"
       );
 
+
       pdf.setTextColor(
         255,
         255,
         255
       );
+
 
       pdf.setFontSize(7);
 
@@ -3103,11 +2671,13 @@ $("pdfBtn")
         "bold"
       );
 
+
       pdf.text(
         "FECHA",
         18,
         y + 5
       );
+
 
       pdf.text(
         "CONCEPTO / DESCRIPCIÓN",
@@ -3115,11 +2685,13 @@ $("pdfBtn")
         y + 5
       );
 
+
       pdf.text(
         "CATEGORÍA",
         125,
         y + 5
       );
+
 
       pdf.text(
         "MONTO ($)",
@@ -3127,99 +2699,92 @@ $("pdfBtn")
         y + 5
       );
 
+
       y += 8;
+
 
       pdf.setFont(
         "helvetica",
         "normal"
       );
 
+
       current.expenses
         .slice()
         .sort(
           (a, b) =>
-            a.date.localeCompare(
-              b.date
-            )
+            String(a.date || "")
+              .localeCompare(
+                String(b.date || "")
+              )
         )
-        .forEach(
-          expense => {
+        .forEach(expense => {
 
-            if (
-              y > 275
-            ) {
+          if (y > 275) {
 
-              pdf.addPage();
+            pdf.addPage();
 
-              y = 20;
-
-            }
-
-            pdf.setTextColor(
-              ...dark
-            );
-
-            pdf.setFontSize(7);
-
-            pdf.text(
-              formatDate(
-                expense.date
-              ),
-              18,
-              y + 5
-            );
-
-            pdf.text(
-              String(
-                expense.description
-              ).slice(
-                0,
-                35
-              ),
-              45,
-              y + 5
-            );
-
-            pdf.text(
-              String(
-                expense.category
-              ).slice(
-                0,
-                18
-              ),
-              125,
-              y + 5
-            );
-
-            pdf.text(
-              money(
-                expense.amount
-              ),
-              168,
-              y + 5
-            );
-
-            pdf.setDrawColor(
-              245,
-              220,
-              227
-            );
-
-            pdf.line(
-              15,
-              y + 8,
-              195,
-              y + 8
-            );
-
-            y += 10;
-
+            y = 20;
           }
-        );
 
-      pdf.setFillColor(
-        ...light
-      );
+
+          pdf.setTextColor(...dark);
+
+          pdf.setFontSize(7);
+
+
+          pdf.text(
+            formatDate(expense.date),
+            18,
+            y + 5
+          );
+
+
+          pdf.text(
+            String(
+              expense.description
+            ).slice(0, 35),
+            45,
+            y + 5
+          );
+
+
+          pdf.text(
+            String(
+              expense.category
+            ).slice(0, 18),
+            125,
+            y + 5
+          );
+
+
+          pdf.text(
+            money(expense.amount),
+            168,
+            y + 5
+          );
+
+
+          pdf.setDrawColor(
+            245,
+            220,
+            227
+          );
+
+
+          pdf.line(
+            15,
+            y + 8,
+            195,
+            y + 8
+          );
+
+
+          y += 10;
+        });
+
+
+      pdf.setFillColor(...light);
 
       pdf.rect(
         15,
@@ -3229,24 +2794,23 @@ $("pdfBtn")
         "F"
       );
 
-      pdf.setTextColor(
-        ...dark
-      );
+
+      pdf.setTextColor(...dark);
 
       pdf.setFont(
         "helvetica",
         "bold"
       );
 
+
       pdf.text(
-        `TOTAL GASTADO EN ${
-          shortMonthName(
-            month
-          ).toUpperCase()
-        }`,
+        `TOTAL GASTADO EN ${shortMonthName(
+          month
+        ).toUpperCase()}`,
         18,
         y + 6
       );
+
 
       pdf.text(
         money(total),
@@ -3254,7 +2818,9 @@ $("pdfBtn")
         y + 6
       );
 
+
       y += 20;
+
 
       pdf.setFontSize(10);
 
@@ -3264,16 +2830,19 @@ $("pdfBtn")
         y
       );
 
+
       pdf.setFont(
         "helvetica",
         "normal"
       );
 
+
       pdf.setFontSize(8);
 
+
       const trend =
-        $("trendText")
-          .textContent;
+        $("trendText").textContent;
+
 
       const lines =
         pdf.splitTextToSize(
@@ -3281,11 +2850,13 @@ $("pdfBtn")
           175
         );
 
+
       pdf.text(
         lines,
         15,
         y + 7
       );
+
 
       pdf.setFontSize(7);
 
@@ -3295,28 +2866,28 @@ $("pdfBtn")
         125
       );
 
+
       pdf.text(
         "MENSUALES · Reporte generado automáticamente",
         15,
         287
       );
 
+
       pdf.save(
         `MENSUALES-${month}.pdf`
       );
-
     }
   );
 
 
-/* ==========================================
+/* =========================================================
    INICIO
-========================================== */
+========================================================= */
 
 (function init() {
 
-  $("monthPicker")
-    .value =
+  $("monthPicker").value =
     currentMonthValue();
 
   updateAuthInterface();
