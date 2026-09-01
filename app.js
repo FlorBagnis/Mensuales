@@ -33,58 +33,34 @@ import {
 ========================================== */
 
 const firebaseConfig = {
-
-  apiKey:
-    "AIzaSyBGGfMzmGfRH614IT5wwG2kZOtUDBd16ok",
-
-  authDomain:
-    "mensuales-8de3d.firebaseapp.com",
-
-  projectId:
-    "mensuales-8de3d",
-
-  storageBucket:
-    "mensuales-8de3d.firebasestorage.app",
-
-  messagingSenderId:
-    "248967622199",
-
-  appId:
-    "1:248967622199:web:86e53f1b115e974bb8d9b2"
-
+  apiKey: "AIzaSyBGGfMzmGfRH614IT5wwG2kZOtUDBd16ok",
+  authDomain: "mensuales-8de3d.firebaseapp.com",
+  projectId: "mensuales-8de3d",
+  storageBucket: "mensuales-8de3d.firebasestorage.app",
+  messagingSenderId: "248967622199",
+  appId: "1:248967622199:web:86e53f1b115e974bb8d9b2"
 };
 
-
-const firebaseApp =
-  initializeApp(firebaseConfig);
-
-const auth =
-  getAuth(firebaseApp);
-
-const db =
-  getFirestore(firebaseApp);
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 
 
 /* ==========================================
    VARIABLES
 ========================================== */
 
-const STORAGE_KEY =
-  "mensuales_data_v1";
+const STORAGE_KEY = "mensuales_data_v1";
 
-const $ = id =>
-  document.getElementById(id);
+const $ = id => document.getElementById(id);
 
 let data = {
   months: {}
 };
 
 let currentUser = null;
-
 let unsubscribeMonths = null;
-
 let authMode = "login";
-
 let appReady = false;
 
 
@@ -93,18 +69,11 @@ let appReady = false;
 ========================================== */
 
 function money(value) {
-
-  return new Intl.NumberFormat(
-    "es-AR",
-    {
-      style: "currency",
-      currency: "ARS",
-      minimumFractionDigits: 2
-    }
-  ).format(
-    Number(value || 0)
-  );
-
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    minimumFractionDigits: 2
+  }).format(Number(value || 0));
 }
 
 
@@ -117,29 +86,14 @@ function monthName(month) {
   const [
     year,
     monthNumber
-  ] =
-    month.split("-").map(Number);
+  ] = month.split("-").map(Number);
 
-  return new Intl.DateTimeFormat(
-    "es-AR",
-    {
-      month: "long",
-      year: "numeric"
-    }
-  )
-    .format(
-      new Date(
-        year,
-        monthNumber - 1,
-        1
-      )
-    )
-    .replace(
-      /^./,
-      character =>
-        character.toUpperCase()
-    );
-
+  return new Intl.DateTimeFormat("es-AR", {
+    month: "long",
+    year: "numeric"
+  })
+    .format(new Date(year, monthNumber - 1, 1))
+    .replace(/^./, character => character.toUpperCase());
 }
 
 
@@ -148,28 +102,13 @@ function shortMonthName(month) {
   const [
     year,
     monthNumber
-  ] =
-    month.split("-").map(Number);
+  ] = month.split("-").map(Number);
 
-  return new Intl.DateTimeFormat(
-    "es-AR",
-    {
-      month: "long"
-    }
-  )
-    .format(
-      new Date(
-        year,
-        monthNumber - 1,
-        1
-      )
-    )
-    .replace(
-      /^./,
-      character =>
-        character.toUpperCase()
-    );
-
+  return new Intl.DateTimeFormat("es-AR", {
+    month: "long"
+  })
+    .format(new Date(year, monthNumber - 1, 1))
+    .replace(/^./, character => character.toUpperCase());
 }
 
 
@@ -178,36 +117,77 @@ function previousMonth(month) {
   const [
     year,
     monthNumber
-  ] =
-    month.split("-").map(Number);
+  ] = month.split("-").map(Number);
 
-  const date =
-    new Date(
-      year,
-      monthNumber - 2,
-      1
-    );
+  const date = new Date(
+    year,
+    monthNumber - 2,
+    1
+  );
 
-  return `${date.getFullYear()}-${
-    String(
-      date.getMonth() + 1
-    ).padStart(2, "0")
-  }`;
+  return `${date.getFullYear()}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}`;
+}
 
+
+function addMonths(month, amount) {
+
+  const [
+    year,
+    monthNumber
+  ] = month.split("-").map(Number);
+
+  const date = new Date(
+    year,
+    monthNumber - 1 + amount,
+    1
+  );
+
+  return `${date.getFullYear()}-${String(
+    date.getMonth() + 1
+  ).padStart(2, "0")}`;
 }
 
 
 function currentMonthValue() {
 
-  const today =
-    new Date();
+  const today = new Date();
 
-  return `${today.getFullYear()}-${
-    String(
-      today.getMonth() + 1
-    ).padStart(2, "0")
-  }`;
+  return `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}`;
+}
 
+
+function getLastDayOfMonth(year, monthNumber) {
+
+  return new Date(
+    year,
+    monthNumber,
+    0
+  ).getDate();
+}
+
+
+function buildDateForMonth(month, requestedDay) {
+
+  const [
+    year,
+    monthNumber
+  ] = month.split("-").map(Number);
+
+  const lastDay = getLastDayOfMonth(
+    year,
+    monthNumber
+  );
+
+  const day = Math.min(
+    Number(requestedDay || 1),
+    lastDay
+  );
+
+  return `${year}-${String(monthNumber).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
 
@@ -221,21 +201,16 @@ function emptyMonth() {
     budget: 0,
     expenses: []
   };
-
 }
 
 
 function ensureMonth(month) {
 
   if (!data.months[month]) {
-
-    data.months[month] =
-      emptyMonth();
-
+    data.months[month] = emptyMonth();
   }
 
   return data.months[month];
-
 }
 
 
@@ -255,7 +230,6 @@ function monthsCollectionRef() {
     currentUser.uid,
     "months"
   );
-
 }
 
 
@@ -272,7 +246,6 @@ function monthDocumentRef(month) {
     "months",
     month
   );
-
 }
 
 
@@ -282,26 +255,45 @@ async function saveMonthToFirestore(month) {
     return;
   }
 
-  const monthData =
-    ensureMonth(month);
+  const monthData = ensureMonth(month);
 
   await setDoc(
     monthDocumentRef(month),
     {
-      budget:
-        Number(
-          monthData.budget || 0
-        ),
-
-      expenses:
-        Array.isArray(
-          monthData.expenses
-        )
-          ? monthData.expenses
-          : []
+      budget: Number(monthData.budget || 0),
+      expenses: Array.isArray(monthData.expenses)
+        ? monthData.expenses
+        : []
     }
   );
+}
 
+
+async function saveMultipleMonths(months) {
+
+  if (!currentUser) {
+    return;
+  }
+
+  const batch = writeBatch(db);
+
+  Object.keys(months).forEach(month => {
+
+    const monthData = months[month];
+
+    batch.set(
+      monthDocumentRef(month),
+      {
+        budget: Number(monthData.budget || 0),
+        expenses: Array.isArray(monthData.expenses)
+          ? monthData.expenses
+          : []
+      }
+    );
+
+  });
+
+  await batch.commit();
 }
 
 
@@ -314,7 +306,6 @@ async function deleteMonthFromFirestore(month) {
   await deleteDoc(
     monthDocumentRef(month)
   );
-
 }
 
 
@@ -324,44 +315,37 @@ async function loadMonthsFromFirestore() {
     return;
   }
 
-  const snapshot =
-    await getDocs(
-      monthsCollectionRef()
-    );
+  const snapshot = await getDocs(
+    monthsCollectionRef()
+  );
 
   const months = {};
 
-  snapshot.forEach(
-    documentSnapshot => {
+  snapshot.forEach(documentSnapshot => {
 
-      const value =
-        documentSnapshot.data();
+    const value =
+      documentSnapshot.data();
 
-      months[
-        documentSnapshot.id
-      ] = {
+    months[
+      documentSnapshot.id
+    ] = {
 
-        budget:
-          Number(
-            value.budget || 0
-          ),
+      budget: Number(
+        value.budget || 0
+      ),
 
-        expenses:
-          Array.isArray(
-            value.expenses
-          )
-            ? value.expenses
-            : []
+      expenses:
+        Array.isArray(value.expenses)
+          ? value.expenses
+          : []
 
-      };
+    };
 
-    }
-  );
+  });
 
   data = {
     months
   };
-
 }
 
 
@@ -399,7 +383,6 @@ function loadOldLocalData() {
     return null;
 
   }
-
 }
 
 
@@ -433,7 +416,6 @@ async function migrateLocalDataIfNecessary() {
     );
 
     return;
-
   }
 
   const months =
@@ -445,18 +427,15 @@ async function migrateLocalDataIfNecessary() {
     const [
       month,
       monthData
-    ]
-    of months
+    ] of months
   ) {
 
     await setDoc(
       monthDocumentRef(month),
       {
-
-        budget:
-          Number(
-            monthData.budget || 0
-          ),
+        budget: Number(
+          monthData.budget || 0
+        ),
 
         expenses:
           Array.isArray(
@@ -464,7 +443,6 @@ async function migrateLocalDataIfNecessary() {
           )
             ? monthData.expenses
             : []
-
       }
     );
 
@@ -473,7 +451,6 @@ async function migrateLocalDataIfNecessary() {
   localStorage.removeItem(
     STORAGE_KEY
   );
-
 }
 
 
@@ -557,7 +534,6 @@ function startRealtimeSync() {
       }
 
     );
-
 }
 
 
@@ -573,7 +549,6 @@ function stopRealtimeSync() {
     unsubscribeMonths = null;
 
   }
-
 }
 
 
@@ -593,7 +568,6 @@ function setAuthMessage(
     "success",
     success
   );
-
 }
 
 
@@ -618,7 +592,6 @@ function updateAuthInterface() {
       : "new-password";
 
   setAuthMessage("");
-
 }
 
 
@@ -665,13 +638,8 @@ function firebaseErrorMessage(error) {
     messages[code] ||
     `Ocurrió un error (${code || "desconocido"}). Volvé a intentar.`
   );
-
 }
 
-
-/* ==========================================
-   LOGIN / REGISTRO
-========================================== */
 
 $("authSwitchBtn")
   .addEventListener(
@@ -715,7 +683,6 @@ $("authForm")
         );
 
         return;
-
       }
 
       const button =
@@ -772,10 +739,6 @@ $("authForm")
     }
   );
 
-
-/* ==========================================
-   CERRAR SESIÓN
-========================================== */
 
 $("logoutBtn")
   .addEventListener(
@@ -842,7 +805,6 @@ onAuthStateChanged(
         );
 
       return;
-
     }
 
     $("authSection")
@@ -918,7 +880,7 @@ function render() {
 
   const previous =
     data.months[prevMonth]
-    || emptyMonth();
+      || emptyMonth();
 
   const total =
     current.expenses.reduce(
@@ -1041,7 +1003,6 @@ function render() {
       difference <= 0
         ? "result-good"
         : "result-bad";
-
   }
 
   $("budgetStatus")
@@ -1084,7 +1045,6 @@ function render() {
     total,
     previousTotal
   );
-
 }
 
 
@@ -1136,8 +1096,16 @@ function renderExpenses(expenses) {
             )}
 
             ${
-              expense.recurring
-                ? `<small class="recurring-badge">🔁 Recurrente</small>`
+              expense.recurringId
+                ? `<small class="recurring-badge">🔁</small>`
+                : ""
+            }
+
+            ${
+              expense.installment
+                ? `<small class="installment-info">
+                    Cuota ${expense.installment.current}/${expense.installment.total}
+                   </small>`
                 : ""
             }
           </td>
@@ -1243,15 +1211,6 @@ function renderExpenses(expenses) {
               .value =
               expense.amount;
 
-            $("expenseRecurring")
-              .checked =
-              false;
-
-            $("recurringOptions")
-              .classList.add(
-                "hidden"
-              );
-
             $("expenseForm")
               .dataset
               .editingId =
@@ -1268,6 +1227,14 @@ function renderExpenses(expenses) {
             $("submitExpenseBtn")
               .textContent =
               "Guardar cambios";
+
+            if ($("expenseRecurring")) {
+              $("expenseRecurring").checked = false;
+            }
+
+            if ($("recurringOptions")) {
+              $("recurringOptions").classList.add("hidden");
+            }
 
             $("expenseDialog")
               .showModal();
@@ -1389,7 +1356,6 @@ function renderHistory() {
     `;
 
     return;
-
   }
 
   months.forEach(
@@ -1582,7 +1548,6 @@ function renderCategories(expenses) {
             </div>
 
           `;
-
 }
 
 
@@ -1638,7 +1603,6 @@ function renderTrend(
       "Agregá gastos para comenzar a analizar tus hábitos.";
 
     return;
-
   }
 
   let text =
@@ -1704,7 +1668,6 @@ function renderTrend(
   $("trendText")
     .innerHTML =
     text;
-
 }
 
 
@@ -1732,7 +1695,6 @@ function formatDate(date) {
   }/${
     year
   }`;
-
 }
 
 
@@ -1750,177 +1712,129 @@ function escapeHtml(value) {
           "'": "&#039;"
         }[character])
     );
-
 }
 
 
 /* ==========================================
-   ID
+   RECURRENCIA
 ========================================== */
 
-function createId() {
+function getRecurringAmountInputs() {
 
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.randomUUID === "function"
-  ) {
+  return Array.from(
+    document.querySelectorAll(
+      ".recurring-amount-input"
+    )
+  );
+}
 
-    return crypto.randomUUID();
 
+function renderRecurringAmountInputs() {
+
+  const container =
+    $("recurringAmounts");
+
+  if (!container) {
+    return;
   }
 
-  return String(
-    Date.now() +
-    Math.random()
-  );
+  const recurring =
+    $("expenseRecurring")?.checked;
 
-}
+  if (!recurring) {
+    container.innerHTML = "";
+    return;
+  }
 
-
-/* ==========================================
-   FECHA DE RECURRENCIA
-========================================== */
-
-function recurringDate(
-  year,
-  monthIndex,
-  requestedDay
-) {
-
-  const lastDay =
-    new Date(
-      year,
-      monthIndex + 1,
-      0
-    ).getDate();
-
-  const day =
-    Math.min(
-      Number(requestedDay),
-      lastDay
+  const duration =
+    Math.max(
+      1,
+      Math.min(
+        60,
+        Number(
+          $("recurringDuration")?.value || 1
+        )
+      )
     );
 
-  return `${year}-${
-    String(
-      monthIndex + 1
-    ).padStart(2, "0")
-  }-${
-    String(day)
-      .padStart(2, "0")
-  }`;
+  const startMonth =
+    $("monthPicker").value;
 
-}
+  const baseAmount =
+    Number(
+      $("expenseAmount").value || 0
+    );
 
+  const changing =
+    $("recurringChangingAmount")?.checked;
 
-/* ==========================================
-   AGREGAR MESES RECURRENTES
-========================================== */
+  if (!changing) {
 
-function addRecurringExpenses(
-  originalExpense,
-  startMonth,
-  repeatEvery,
-  duration,
-  day
-) {
+    container.innerHTML = "";
 
-  const createdMonths = [];
+    return;
+  }
 
-  const [
-    startYear,
-    startMonthNumber
-  ] =
-    startMonth
-      .split("-")
-      .map(Number);
+  const existing =
+    getRecurringAmountInputs()
+      .map(input => input.value);
+
+  let html = "";
 
   for (
-    let i = 1;
-    i < duration;
-    i++
+    let index = 0;
+    index < duration;
+    index++
   ) {
 
-    const totalMonths =
-      (
-        startMonthNumber - 1
-      ) +
-      (
-        i *
-        repeatEvery
-      );
-
-    const year =
-      startYear +
-      Math.floor(
-        totalMonths / 12
-      );
-
-    const monthIndex =
-      totalMonths % 12;
-
     const targetMonth =
-      `${year}-${
-        String(
-          monthIndex + 1
-        ).padStart(2, "0")
-      }`;
-
-    const expenseDate =
-      recurringDate(
-        year,
-        monthIndex,
-        day
+      addMonths(
+        startMonth,
+        index
       );
 
-    const newExpense = {
+    const existingValue =
+      existing[index] !== undefined
+        ? existing[index]
+        : baseAmount || "";
 
-      id:
-        createId(),
+    html += `
 
-      date:
-        expenseDate,
+      <div class="recurring-amount-row">
 
-      description:
-        originalExpense.description,
+        <label>
 
-      category:
-        originalExpense.category,
+          <span>
+            ${monthName(targetMonth)}
+          </span>
 
-      amount:
-        originalExpense.amount,
+          <div class="money-input">
 
-      recurring:
-        true,
+            <span>$</span>
 
-      recurringGroup:
-        originalExpense.recurringGroup,
+            <input
+              class="recurring-amount-input"
+              type="number"
+              min="0.01"
+              step="0.01"
+              value="${existingValue}"
+              data-month="${targetMonth}"
+              placeholder="0"
+              required
+            >
 
-      recurringOrigin:
-        originalExpense.id
+          </div>
 
-    };
+        </label>
 
-    const monthData =
-      ensureMonth(
-        targetMonth
-      );
+      </div>
 
-    monthData.expenses.push(
-      newExpense
-    );
-
-    createdMonths.push(
-      targetMonth
-    );
+    `;
 
   }
 
-  return [
-    ...new Set(
-      createdMonths
-    )
-  ];
-
+  container.innerHTML =
+    html;
 }
 
 
@@ -1948,31 +1862,133 @@ function resetExpenseModal() {
     .textContent =
     "Guardar gasto";
 
-  $("recurringOptions")
-    .classList.add(
-      "hidden"
+  if ($("recurringOptions")) {
+    $("recurringOptions")
+      .classList.add("hidden");
+  }
+
+  if ($("recurringAmounts")) {
+    $("recurringAmounts")
+      .innerHTML = "";
+  }
+
+  if ($("recurringChangingAmount")) {
+    $("recurringChangingAmount")
+      .checked = false;
+  }
+
+  if ($("recurringMonths")) {
+    $("recurringMonths")
+      .value = 1;
+  }
+
+  if ($("recurringDay")) {
+    $("recurringDay")
+      .value = 10;
+  }
+
+  if ($("recurringDuration")) {
+    $("recurringDuration")
+      .value = 6;
+  }
+}
+
+
+/* ==========================================
+   EVENTOS DE RECURRENCIA
+========================================== */
+
+if ($("expenseRecurring")) {
+
+  $("expenseRecurring")
+    .addEventListener(
+      "change",
+      () => {
+
+        $("recurringOptions")
+          ?.classList.toggle(
+            "hidden",
+            !$("expenseRecurring").checked
+          );
+
+        renderRecurringAmountInputs();
+
+      }
     );
 
 }
 
 
-/* ==========================================
-   RECURRENCIA - MOSTRAR / OCULTAR
-========================================== */
+if ($("recurringChangingAmount")) {
 
-$("expenseRecurring")
-  .addEventListener(
-    "change",
-    () => {
+  $("recurringChangingAmount")
+    .addEventListener(
+      "change",
+      () => {
 
-      $("recurringOptions")
-        .classList.toggle(
-          "hidden",
-          !$("expenseRecurring").checked
-        );
+        renderRecurringAmountInputs();
 
-    }
-  );
+      }
+    );
+
+}
+
+
+if ($("recurringDuration")) {
+
+  $("recurringDuration")
+    .addEventListener(
+      "input",
+      () => {
+
+        if (
+          $("recurringChangingAmount")?.checked
+        ) {
+
+          renderRecurringAmountInputs();
+
+        }
+
+      }
+    );
+
+}
+
+
+if ($("recurringDay")) {
+
+  $("recurringDay")
+    .addEventListener(
+      "change",
+      () => {
+
+        const value =
+          Number(
+            $("recurringDay").value
+          );
+
+        if (
+          value < 1
+        ) {
+
+          $("recurringDay")
+            .value = 1;
+
+        }
+
+        if (
+          value > 31
+        ) {
+
+          $("recurringDay")
+            .value = 31;
+
+        }
+
+      }
+    );
+
+}
 
 
 /* ==========================================
@@ -2103,14 +2119,6 @@ $("addExpenseBtn")
 
       }
 
-      $("recurringDay")
-        .value =
-        Number(
-          $("expenseDate")
-            .value
-            .split("-")[2]
-        );
-
       $("expenseDialog")
         .showModal();
 
@@ -2151,7 +2159,7 @@ $("cancelDialog")
 
 
 /* ==========================================
-   GUARDAR / EDITAR GASTO
+   GUARDAR / EDITAR
 ========================================== */
 
 $("expenseForm")
@@ -2198,13 +2206,12 @@ $("expenseForm")
         );
 
         return;
-
       }
 
 
-      /* =========================
+      /* =====================================
          EDITAR
-      ========================== */
+      ===================================== */
 
       if (editingId) {
 
@@ -2269,81 +2276,44 @@ $("expenseForm")
         }
 
         return;
-
       }
 
 
-      /* =========================
+      /* =====================================
          NUEVO GASTO
-      ========================== */
+      ===================================== */
 
-      const expense = {
-
-        id:
-          createId(),
-
-        date,
-
-        description,
-
-        category,
-
-        amount,
-
-        recurring:
-          $("expenseRecurring")
-            .checked
-
-      };
+      const isRecurring =
+        $("expenseRecurring")?.checked || false;
 
 
-      /* =========================
-         RECURRENCIA
-      ========================== */
+      /* =====================================
+         GASTO NORMAL
+      ===================================== */
 
-      if (
-        $("expenseRecurring")
-          .checked
-      ) {
+      if (!isRecurring) {
 
-        const repeatEvery =
-          Number(
-            $("recurringMonths")
-              .value
-          );
+        const expense = {
 
-        const duration =
-          Number(
-            $("recurringDuration")
-              .value
-          );
+          id:
+            (
+              typeof crypto !== "undefined" &&
+              typeof crypto.randomUUID === "function"
+            )
+              ? crypto.randomUUID()
+              : String(
+                  Date.now()
+                ),
 
-        const day =
-          Number(
-            $("recurringDay")
-              .value
-          );
+          date,
 
-        if (
-          !repeatEvery ||
-          repeatEvery < 1 ||
-          !duration ||
-          duration < 1 ||
-          !day ||
-          day < 1 ||
-          day > 31
-        ) {
+          description,
 
-          alert(
-            "Revisá las opciones de recurrencia."
-          );
+          category,
 
-          return;
+          amount
 
-        }
-
-        expense.recurringGroup =
-          createId();
+        };
 
         const monthData =
           ensureMonth(month);
@@ -2351,15 +2321,6 @@ $("expenseForm")
         monthData.expenses.push(
           expense
         );
-
-        const monthsCreated =
-          addRecurringExpenses(
-            expense,
-            month,
-            repeatEvery,
-            duration,
-            day
-          );
 
         render();
 
@@ -2369,60 +2330,272 @@ $("expenseForm")
             month
           );
 
-          for (
-            const targetMonth
-            of monthsCreated
-          ) {
-
-            await saveMonthToFirestore(
-              targetMonth
-            );
-
-          }
-
           resetExpenseModal();
 
           $("expenseDialog")
             .close();
 
-          alert(
-            `🔁 Gasto recurrente guardado.\n\nSe cargaron ${
-              duration
-            } registros en total.`
-          );
-
         } catch (error) {
 
           console.error(error);
 
+          monthData.expenses =
+            monthData.expenses.filter(
+              item =>
+                item.id !==
+                expense.id
+            );
+
+          render();
+
           alert(
-            "El gasto se agregó localmente, pero hubo un problema al sincronizarlo con Firebase."
+            "No se pudo guardar el gasto en Firebase."
           );
 
         }
 
         return;
+      }
+
+
+      /* =====================================
+         GASTO RECURRENTE
+      ===================================== */
+
+      const everyMonths =
+        Math.max(
+          1,
+          Math.min(
+            60,
+            Number(
+              $("recurringMonths")?.value || 1
+            )
+          )
+        );
+
+      const requestedDay =
+        Math.max(
+          1,
+          Math.min(
+            31,
+            Number(
+              $("recurringDay")?.value || 1
+            )
+          )
+        );
+
+      const duration =
+        Math.max(
+          1,
+          Math.min(
+            60,
+            Number(
+              $("recurringDuration")?.value || 1
+            )
+          )
+        );
+
+      const changingAmount =
+        $("recurringChangingAmount")?.checked || false;
+
+      const recurringId =
+        (
+          typeof crypto !== "undefined" &&
+          typeof crypto.randomUUID === "function"
+        )
+          ? crypto.randomUUID()
+          : `recurring-${Date.now()}`;
+
+
+      /* =====================================
+         OBTENER MONTOS
+      ===================================== */
+
+      const amountInputs =
+        getRecurringAmountInputs();
+
+      const customAmounts = {};
+
+      if (changingAmount) {
+
+        for (
+          let index = 0;
+          index < amountInputs.length;
+          index++
+        ) {
+
+          const input =
+            amountInputs[index];
+
+          const value =
+            Number(
+              input.value
+            );
+
+          if (
+            !value ||
+            value <= 0
+          ) {
+
+            alert(
+              `Ingresá un monto válido para ${
+                monthName(
+                  input.dataset.month
+                )
+              }.`
+            );
+
+            return;
+          }
+
+          customAmounts[
+            input.dataset.month
+          ] = value;
+
+        }
 
       }
 
 
-      /* =========================
-         GASTO NORMAL
-      ========================== */
+      /* =====================================
+         CREAR TODOS LOS MESES
+      ===================================== */
 
-      const monthData =
-        ensureMonth(month);
+      const monthsToSave = {};
 
-      monthData.expenses.push(
-        expense
-      );
+      const oldMonths = {};
+
+      for (
+        let index = 0;
+        index < duration;
+        index++
+      ) {
+
+        const targetMonth =
+          addMonths(
+            month,
+            index * everyMonths
+          );
+
+        const targetDate =
+          buildDateForMonth(
+            targetMonth,
+            requestedDay
+          );
+
+        const targetAmount =
+          changingAmount
+
+            ? Number(
+                customAmounts[
+                  targetMonth
+                ] || 0
+              )
+
+            : amount;
+
+
+        if (
+          !targetAmount ||
+          targetAmount <= 0
+        ) {
+
+          alert(
+            `Falta el monto de ${
+              monthName(targetMonth)
+            }.`
+          );
+
+          return;
+
+        }
+
+
+        /* Guardamos copia para poder deshacer */
+        oldMonths[targetMonth] =
+          data.months[targetMonth]
+            ? {
+                budget:
+                  data.months[targetMonth].budget,
+
+                expenses:
+                  [
+                    ...data.months[targetMonth].expenses
+                  ]
+              }
+            : null;
+
+
+        const monthData =
+          ensureMonth(
+            targetMonth
+          );
+
+        monthsToSave[
+          targetMonth
+        ] = monthData;
+
+
+        const expense = {
+
+          id:
+            (
+              typeof crypto !== "undefined" &&
+              typeof crypto.randomUUID === "function"
+            )
+              ? crypto.randomUUID()
+              : `${recurringId}-${index}-${Date.now()}`,
+
+          date:
+            index === 0
+              ? date
+              : targetDate,
+
+          description,
+
+          category,
+
+          amount:
+            targetAmount,
+
+          recurringId,
+
+          recurring: {
+            everyMonths,
+            requestedDay,
+            duration,
+            changingAmount
+          },
+
+          installment: {
+            current:
+              index + 1,
+
+            total:
+              duration
+          }
+
+        };
+
+
+        monthData.expenses.push(
+          expense
+        );
+
+      }
+
 
       render();
 
+
+      /* =====================================
+         GUARDAR TODOS LOS MESES
+      ===================================== */
+
       try {
 
-        await saveMonthToFirestore(
-          month
+        await saveMultipleMonths(
+          monthsToSave
         );
 
         resetExpenseModal();
@@ -2430,21 +2603,57 @@ $("expenseForm")
         $("expenseDialog")
           .close();
 
+        alert(
+          `🔁 Gasto recurrente guardado correctamente.\n\nSe cargaron ${
+            duration
+          } ${
+            duration === 1
+              ? "mes"
+              : "meses"
+          }.`
+        );
+
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "Error guardando recurrencia:",
+          error
+        );
 
-        monthData.expenses =
-          monthData.expenses.filter(
-            item =>
-              item.id !==
-              expense.id
-          );
+
+        /* Restaurar datos anteriores */
+
+        Object.entries(
+          oldMonths
+        ).forEach(
+          ([
+            targetMonth,
+            oldMonth
+          ]) => {
+
+            if (oldMonth) {
+
+              data.months[
+                targetMonth
+              ] = oldMonth;
+
+            } else {
+
+              delete data.months[
+                targetMonth
+              ];
+
+            }
+
+          }
+        );
+
 
         render();
 
+
         alert(
-          "No se pudo guardar el gasto en Firebase."
+          "No se pudieron guardar los gastos recurrentes en Firebase."
         );
 
       }
@@ -2486,7 +2695,6 @@ $("clearMonthBtn")
         );
 
         return;
-
       }
 
       const confirmed =
@@ -2661,7 +2869,6 @@ $("pdfBtn")
         );
 
         return;
-
       }
 
       const {
@@ -2734,9 +2941,6 @@ $("pdfBtn")
           236
         ];
 
-
-      /* CABECERA */
-
       pdf.setFillColor(
         255,
         176,
@@ -2784,9 +2988,6 @@ $("pdfBtn")
         21,
         34
       );
-
-
-      /* TARJETAS */
 
       const cards = [
 
@@ -2874,9 +3075,6 @@ $("pdfBtn")
 
         }
       );
-
-
-      /* TABLA */
 
       let y = 84;
 
@@ -3019,9 +3217,6 @@ $("pdfBtn")
           }
         );
 
-
-      /* TOTAL */
-
       pdf.setFillColor(
         ...light
       );
@@ -3061,9 +3256,6 @@ $("pdfBtn")
 
       y += 20;
 
-
-      /* ANÁLISIS */
-
       pdf.setFontSize(10);
 
       pdf.text(
@@ -3094,9 +3286,6 @@ $("pdfBtn")
         15,
         y + 7
       );
-
-
-      /* PIE */
 
       pdf.setFontSize(7);
 
