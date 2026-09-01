@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,9 @@
 
 <main class="app">
 
-  <!-- LOGIN -->
+  <!-- ==============================
+       LOGIN
+  =============================== -->
 
   <section id="authSection" class="auth-section">
 
@@ -35,6 +38,7 @@
 
         <label>
           Email
+
           <input
             id="authEmail"
             type="email"
@@ -46,6 +50,7 @@
 
         <label>
           Contraseña
+
           <input
             id="authPassword"
             type="password"
@@ -81,7 +86,9 @@
   </section>
 
 
-  <!-- APLICACIÓN -->
+  <!-- ==============================
+       APLICACIÓN
+  =============================== -->
 
   <section id="appContent" class="hidden">
 
@@ -116,7 +123,9 @@
     </header>
 
 
-    <!-- TOOLBAR -->
+    <!-- ==============================
+         TOOLBAR
+    =============================== -->
 
     <section class="toolbar">
 
@@ -200,7 +209,9 @@
     </section>
 
 
-    <!-- RESUMEN -->
+    <!-- ==============================
+         RESUMEN
+    =============================== -->
 
     <section class="summary-grid">
 
@@ -256,7 +267,9 @@
     </section>
 
 
-    <!-- GASTOS -->
+    <!-- ==============================
+         GASTOS
+    =============================== -->
 
     <section class="panel">
 
@@ -297,13 +310,11 @@
           <thead>
 
             <tr>
-
               <th>Fecha</th>
               <th>Descripción</th>
               <th>Categoría</th>
               <th>Monto</th>
               <th>Acciones</th>
-
             </tr>
 
           </thead>
@@ -329,7 +340,9 @@
     </section>
 
 
-    <!-- DOS COLUMNAS -->
+    <!-- ==============================
+         DOS COLUMNAS
+    =============================== -->
 
     <section class="two-columns">
 
@@ -357,12 +370,10 @@
             <thead>
 
               <tr>
-
                 <th>Mes</th>
                 <th>Presupuesto</th>
                 <th>Gastado</th>
                 <th>Resultado</th>
-
               </tr>
 
             </thead>
@@ -403,7 +414,9 @@
     </section>
 
 
-    <!-- TENDENCIA -->
+    <!-- ==============================
+         TENDENCIA
+    =============================== -->
 
     <section class="trend-box">
 
@@ -417,17 +430,19 @@
 
 
     <footer>
-  <strong>MENSUALES</strong> · Tus gastos, organizados.
-  <br>
-  <span>© 2026 · Florencia Bagnis💗</span>
-</footer>
+      MENSUALES · Tus gastos, organizados.
+      <br>
+      <small>Creado por Florencia Bagnis</small>
+    </footer>
 
   </section>
 
 </main>
 
 
-<!-- MODAL GASTO -->
+<!-- ==============================
+     MODAL GASTO
+=============================== -->
 
 <dialog id="expenseDialog">
 
@@ -507,8 +522,7 @@
         <option value="Educación">Educación</option>
         <option value="Mascotas">Mascotas</option>
         <option value="Otros">Otros</option>
-        <option value="Cuotas">Cuotas</option>
-        <option value="Personal">Personal</option>
+
       </select>
 
     </label>
@@ -530,7 +544,9 @@
     </label>
 
 
-    <!-- RECURRENCIA -->
+    <!-- ==============================
+         RECURRENCIA
+    =============================== -->
 
     <div class="recurring-box">
 
@@ -614,32 +630,40 @@
         </div>
 
 
-       <div class="recurring-changing-box">
+        <!-- CAMBIO DE MONTO -->
 
-  <label class="checkbox-label">
+        <label class="checkbox-label recurring-changing-label">
 
-    <input
-      id="recurringChangingAmount"
-      type="checkbox"
-    >
+          <input
+            id="recurringChangingAmount"
+            type="checkbox"
+          >
 
-    <span>
-      💰 El monto cambia según el mes
-    </span>
+          <span>
+            💰 Quiero usar un monto diferente en cada mes
+          </span>
 
-  </label>
+        </label>
 
-  <p class="recurring-help">
-    Activá esta opción si, por ejemplo, tenés cuotas de tarjeta
-    con importes diferentes.
-  </p>
 
-  <div
-    id="recurringAmounts"
-    class="recurring-amounts"
-  ></div>
+        <div
+          id="recurringAmounts"
+          class="recurring-amounts"
+        ></div>
 
-</div>
+
+        <p class="recurring-help">
+
+          Podés usar el mismo monto todos los meses o ingresar
+          un monto diferente para cada cuota.
+
+          Por ejemplo, una compra con tarjeta puede tener
+          importes diferentes.
+
+          Si elegís el día 31 y un mes no tiene 31,
+          se utilizará el último día disponible de ese mes.
+
+        </p>
 
       </div>
 
