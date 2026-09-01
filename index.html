@@ -505,6 +505,7 @@
         <option value="Educación">Educación</option>
         <option value="Mascotas">Mascotas</option>
         <option value="Otros">Otros</option>
+        <option value="Cuotas">Cuotas</option>
 
       </select>
 
@@ -611,11 +612,32 @@
         </div>
 
 
-        <p class="recurring-help">
-          El gasto se cargará automáticamente en los meses siguientes.
-          Si elegís el día 31 y un mes no tiene 31, se utilizará el último
-          día disponible de ese mes.
-        </p>
+       <div class="recurring-changing-box">
+
+  <label class="checkbox-label">
+
+    <input
+      id="recurringChangingAmount"
+      type="checkbox"
+    >
+
+    <span>
+      💰 El monto cambia según el mes
+    </span>
+
+  </label>
+
+  <p class="recurring-help">
+    Activá esta opción si, por ejemplo, tenés cuotas de tarjeta
+    con importes diferentes.
+  </p>
+
+  <div
+    id="recurringAmounts"
+    class="recurring-amounts"
+  ></div>
+
+</div>
 
       </div>
 
