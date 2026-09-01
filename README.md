@@ -335,3 +335,14 @@ Desarrollado como proyecto web utilizando HTML, CSS, JavaScript y Firebase.
 ### 💗 MENSUALES
 
 **Tus gastos, organizados.**
+
+## 👩‍💻 Autora
+
+**Florencia Bagnis**
+
+- 💼 LinkedIn: https://www.linkedin.com/in/florencia-bagnis-5043aa152/
+- 💻 Portfolio: https://florbagnis.github.io/Portfolio-FlorBagnis/
+- 📧 Email: florenciasoledadbagnis@gmail.com
+
+---
+
