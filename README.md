@@ -324,6 +324,23 @@ Algunas funcionalidades que podrían incorporarse en futuras versiones:
 
 ---
 
+---
+
+## 🚀 Actualizaciones
+
+### 🌸 Acceso directo a Gastos Próximos
+Se integró un botón de acceso directo en la barra superior para navegar hacia la aplicación web compañera **[Gastos Próximos](https://gastos-proximos.vercel.app/)**. 
+
+* **Navegación en un clic:** Pasá del balance mensual a tus pagos futuros y deudas pendientes sin cerrar tu sesión activa.
+* **Diseño adaptado:** Botón personalizado en tono translúcido integrado a la paleta estética rosada de la aplicación.
+
+<img width="1487" height="362" alt="image" src="https://github.com/user-attachments/assets/07899cb3-cb17-442d-abed-eab8c0b89985" />
+
+---
+
+
+
+
 ## 👩‍💻 Proyecto
 
 **MENSUALES · Control de gastos**
