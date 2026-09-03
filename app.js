@@ -3178,7 +3178,7 @@ $("pdfBtn")
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Lógica para Ocultar/Mostrar Montos General
+  // 1. Ocultar/Mostrar Montos General
   const toggleAmountsBtn = document.getElementById('toggleAmountsBtn');
   const isHidden = localStorage.getItem('mensuales_hide_amounts') === 'true';
   
@@ -3204,19 +3204,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const isCollapsed = localStorage.getItem(storageKey) === 'true';
     if (isCollapsed) {
       containerElement.classList.add('collapsed');
-      btn.textContent = `🔽 Mostrar ${labelName}`;
+      btn.textContent = `▼ Mostrar ${labelName}`;
     }
 
     btn.addEventListener('click', () => {
       const collapsed = containerElement.classList.toggle('collapsed');
       localStorage.setItem(storageKey, collapsed);
-      btn.textContent = collapsed ? `🔽 Mostrar ${labelName}` : `🔼 Ocultar ${labelName}`;
+      btn.textContent = collapsed ? `▼ Mostrar ${labelName}` : `▲ Ocultar ${labelName}`;
     });
   }
 
-  // 2. Aplicar a Presupuesto, Tabla de Gastos e Historial
+  // 2. Aplicar a Barra superior, Resumen/Presupuesto, Tabla e Historial
+  setupCollapsible('toggleToolbarBtn', document.getElementById('toolbarContainer'), 'mensuales_toolbar_collapsed', 'barra');
   setupCollapsible('toggleBudgetBtn', document.getElementById('budgetContainer'), 'mensuales_budget_collapsed', 'presupuesto');
   setupCollapsible('toggleTableBtn', document.querySelector('.table-wrap'), 'mensuales_table_collapsed', 'tabla');
   setupCollapsible('toggleHistoryBtn', document.getElementById('historyContainer'), 'mensuales_history_collapsed', 'historial');
 });
-
