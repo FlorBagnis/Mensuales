@@ -338,7 +338,27 @@ Se integró un botón de acceso directo en la barra superior para navegar hacia 
 
 ---
 
+# 💗 MENSUALES — Control de Presupuesto & Finanzas Personales
 
+Aplicación web progresiva e intuitiva diseñada para el seguimiento mensual de gastos personales, presupuestos, proyecciones y análisis de hábitos financieros.
+
+---
+
+## 🚀 Novedades: Ecosistema Integrado con "Gastos Próximos" 🌸
+
+Se integró **MENSUALES** con la aplicación complementaria **[Gastos Próximos](https://gastos-proximos.vercel.app/)** (agenda de vencimientos, pagos a realizar y deudas), creando un flujo financiero unificado bajo el mismo proyecto de Firebase[cite: 1].
+
+### 🔗 Acceso Rápido entre Aplicaciones
+* Se añadió un **botón directo de navegación en la cabecera** de ambas aplicaciones que permite alternar entre **MENSUALES** y **Gastos Próximos** al instante y en la misma pestaña, sin abrir ventanas adicionales ni perder contexto[cite: 1].
+
+<img width="1569" height="699" alt="image" src="https://github.com/user-attachments/assets/f06b3276-3339-4ef1-8881-aeb1207cbd7e" />
+
+
+---
+
+## 🔄 Flujo de Sincronización Bidireccional en Tiempo Real
+
+Ambas aplicaciones comparten la misma base de datos en **Cloud Firestore** y el mismo sistema de credenciales en **Firebase Authentication**[cite: 1]. Esto habilita una sincronización inteligente y automática:
 
 
 ## 👩‍💻 Proyecto
