@@ -654,7 +654,7 @@ function renderExpenses(expenses) {
     });
   });
 
-  /* ELIMINAR */
+  /* ELIMINAR CON SINCRONIZACIÓN INVERSA */
   table.querySelectorAll(".delete-btn").forEach(button => {
     button.addEventListener("click", async () => {
       const confirmed = confirm("¿Querés eliminar este gasto?");
@@ -664,17 +664,28 @@ function renderExpenses(expenses) {
       const monthData = data.months[month];
       if (!monthData) return;
 
+      const expenseId = button.dataset.id;
       const oldExpenses = [...monthData.expenses];
+
+      // 1. Quitar de la lista local
       monthData.expenses = monthData.expenses.filter(
-        expense => expense.id !== button.dataset.id
+        expense => expense.id !== expenseId
       );
 
       render();
 
       try {
+        // 2. Guardar el mes actualizado
         await saveMonthToFirestore(month);
+
+        // 3. Si provino de Gastos Próximos (id inicia con 'gp-'), revertirlo a pendiente
+        if (expenseId && expenseId.startsWith("gp-")) {
+          const proximosId = expenseId.replace("gp-", "");
+          const proximosDocRef = doc(db, "users", currentUser.uid, "proximos", proximosId);
+          await setDoc(proximosDocRef, { paid: false }, { merge: true });
+        }
       } catch (error) {
-        console.error(error);
+        console.error("Error al eliminar gasto:", error);
         monthData.expenses = oldExpenses;
         render();
         alert("No se pudo eliminar el gasto.");
