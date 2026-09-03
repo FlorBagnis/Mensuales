@@ -3172,4 +3172,37 @@ $("pdfBtn")
 
 })();
 
+// ==============================
+// LÓGICA DE OCULTAR / MOSTRAR MONTOS
+// ==============================
+
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('toggleAmountsBtn');
+  if (!toggleBtn) return;
+
+  // Recuperar preferencia guardada en el navegador
+  const isHidden = localStorage.getItem('mensuales_hide_amounts') === 'true';
+  if (isHidden) {
+    document.body.classList.add('amounts-hidden');
+    toggleBtn.textContent = '👁️ Mostrar montos';
+  }
+
+  // Evento al hacer click en el botón
+  toggleBtn.addEventListener('click', () => {
+    const hidden = document.body.classList.toggle('amounts-hidden');
+    
+    // Guardar preferencia
+    localStorage.setItem('mensuales_hide_amounts', hidden);
+    
+    // Cambiar texto e ícono del botón
+    if (hidden) {
+      toggleBtn.textContent = '👁️ Mostrar montos';
+    } else {
+      toggleBtn.textContent = '👁️ Ocultar montos';
+    }
+  });
+});
+
+
+
 
