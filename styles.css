@@ -730,3 +730,57 @@ body.amounts-hidden #tableTotal {
   visibility: hidden;
 }
 */
+
+
+/* ==============================
+   ESTILOS: OCULTAR MONTOS
+=============================== */
+body.amounts-hidden .money,
+body.amounts-hidden #totalSpent,
+body.amounts-hidden #previousSpent,
+body.amounts-hidden #difference,
+body.amounts-hidden #budgetTotal,
+body.amounts-hidden #tableTotal,
+body.amounts-hidden .expense-amount,
+body.amounts-hidden td:nth-child(4), /* Columna de monto en la tabla */
+body.amounts-hidden .history-amount,
+body.amounts-hidden .category-amount,
+body.amounts-hidden .budget-remaining-text {
+  color: transparent !important;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.5); /* Efecto privacidad difuminado elegante */
+  user-select: none;
+}
+
+/* Si preferís los puntos suspensivos exactos •••••• */
+body.amounts-hidden .money::after,
+body.amounts-hidden #totalSpent::after,
+body.amounts-hidden #previousSpent::after,
+body.amounts-hidden #difference::after,
+body.amounts-hidden #budgetTotal::after,
+body.amounts-hidden #tableTotal::after {
+  content: "••••••";
+  color: #d1517a !important; /* Mantiene el color rosa de tu diseño */
+  visibility: visible;
+  display: inline-block;
+  margin-left: -100%;
+}
+
+/* ==============================
+   ESTILOS: COLAPSAR TABLA DE GASTOS
+=============================== */
+.table-container-collapsible {
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  max-height: 2000px; /* Altura máxima estimada cuando está abierto */
+  opacity: 1;
+}
+
+.table-container-collapsible.collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  pointer-events: none;
+}
