@@ -805,3 +805,29 @@ body.amounts-hidden .summary-card small::after {
   padding-bottom: 0 !important;
   pointer-events: none;
 }
+
+
+
+/* ==========================================
+   BOTÓN ENLACE A GASTOS PRÓXIMOS
+========================================== */
+
+.btn-app-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.45);
+  color: #55152d;
+  border: 1px solid rgba(85, 21, 45, 0.18);
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-app-link:hover {
+  background: rgba(255, 255, 255, 0.75);
+  transform: translateY(-1px);
+}
