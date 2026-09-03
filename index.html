@@ -124,16 +124,10 @@
 
 
     <!-- ==============================
-         TOOLBAR
-    =============================== -->
-
-    <section class="toolbar">
-
-    
-<!-- ==============================
          BARRA DE HERRAMIENTAS (Colapsable)
     =============================== -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 8px;">
       <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
       <button id="toggleToolbarBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
         ▲ Ocultar barra
@@ -145,18 +139,23 @@
 
         <div class="field">
           <label for="monthPicker">MES</label>
+
           <input
             id="monthPicker"
             type="month"
           >
+
         </div>
 
 
         <div class="field">
+
           <label for="budgetInput">PRESUPUESTO</label>
 
           <div class="money-input">
+
             <span>$</span>
+
             <input
               id="budgetInput"
               type="number"
@@ -164,7 +163,9 @@
               step="0.01"
               placeholder="0"
             >
+
           </div>
+
         </div>
 
 
@@ -235,39 +236,39 @@
          RESUMEN Y PRESUPUESTO (Colapsable)
     =============================== -->
 
-    <div class="section-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-      <h3 style="margin: 0; font-size: 1rem; color: #d1517a;">Resumen y Presupuesto</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+      <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Resumen y Presupuesto</h3>
       <button id="toggleBudgetBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
-        🔼 Ocultar presupuesto
+        ▲ Ocultar presupuesto
       </button>
     </div>
 
     <div id="budgetContainer" class="collapsible-section">
       <section class="summary-grid">
 
-      <article class="summary-card">
-        <span>TOTAL GASTADO</span>
-        <strong id="totalSpent">$0,00</strong>
-        <small id="expenseCount">0 gastos registrados</small>
-      </article>
+        <article class="summary-card">
+          <span>TOTAL GASTADO</span>
+          <strong id="totalSpent">$0,00</strong>
+          <small id="expenseCount">0 gastos registrados</small>
+        </article>
 
-      <article class="summary-card">
-        <span>MES ANTERIOR</span>
-        <strong id="previousSpent">$0,00</strong>
-        <small id="previousMonthLabel">—</small>
-      </article>
+        <article class="summary-card">
+          <span>MES ANTERIOR</span>
+          <strong id="previousSpent">$0,00</strong>
+          <small id="previousMonthLabel">—</small>
+        </article>
 
-      <article class="summary-card">
-        <span>DIFERENCIA</span>
-        <strong id="difference">—</strong>
-        <small id="differenceLabel">Sin datos comparables</small>
-      </article>
+        <article class="summary-card">
+          <span>DIFERENCIA</span>
+          <strong id="difference">—</strong>
+          <small id="differenceLabel">Sin datos comparables</small>
+        </article>
 
-      <article class="summary-card">
-        <span>PRESUPUESTO</span>
-        <strong id="budgetTotal">$0,00</strong>
-        <small id="budgetStatus">Sin presupuesto</small>
-      </article>
+        <article class="summary-card">
+          <span>PRESUPUESTO</span>
+          <strong id="budgetTotal">$0,00</strong>
+          <small id="budgetStatus">Sin presupuesto</small>
+        </article>
 
       </section>
     </div>
@@ -277,9 +278,6 @@
          GASTOS DEL MES (Colapsable)
     =============================== -->
 
-    <!-- ==============================
-         GASTOS DEL MES (Ancho completo arriba)
-    =============================== -->
     <section class="panel" style="margin-top: 1.5rem;">
 
       <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
@@ -331,12 +329,12 @@
 
 
     <!-- ==============================
-         DOS COLUMNAS (Abajo: Historial y Categorías lado a lado)
+         DOS COLUMNAS (Historial y Categorías)
     =============================== -->
 
     <section class="two-columns">
 
-      <!-- HISTORIAL (Columna Izquierda) -->
+      <!-- HISTORIAL (Colapsable) -->
       <section class="panel">
         <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
           <div>
@@ -366,7 +364,7 @@
       </section>
 
 
-      <!-- GASTOS POR CATEGORÍA (Columna Derecha) -->
+      <!-- CATEGORÍAS -->
       <section class="panel">
         <div class="section-heading">
           <div>
