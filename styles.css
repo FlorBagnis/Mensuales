@@ -616,7 +616,6 @@ dialog::backdrop {
 /* RESPONSIVE */
 
 @media (max-width: 900px) {
-
   .summary-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -636,7 +635,6 @@ dialog::backdrop {
 }
 
 @media (max-width: 600px) {
-
   .app {
     width: calc(100% - 18px);
     margin-top: 9px;
@@ -695,46 +693,34 @@ dialog::backdrop {
 
 
 /* ==============================
-   ESTILOS PARA OCULTAR MONTOS
+   ESTILOS: BOTONES DE COLAPSAR (Rosa y Prolijo)
 =============================== */
-
-/* Cuando el body tiene la clase, ocultamos visualmente todos los textos y valores numéricos/monetarios */
-body.amounts-hidden .money,
-body.amounts-hidden #totalSpent,
-body.amounts-hidden #previousSpent,
-body.amounts-hidden #difference,
-body.amounts-hidden #tableTotal,
-body.amounts-hidden .expense-amount,
-body.amounts-hidden td.amount-cell,
-body.amounts-hidden .history-amount {
-  filter: blur(5px);
-  transition: filter 0.2s ease;
-  user-select: none;
+.custom-collapse-btn {
+  background-color: #fff !important;
+  color: var(--pink-700) !important;
+  border: 1px solid var(--pink-300) !important;
+  padding: 0.25rem 0.6rem !important;
+  font-size: 0.85rem !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
-/* Alternativa limpia tipo •••••• (si preferís los puntitos en lugar de blur, descomentá la línea de abajo y comentá el filter de arriba): */
-/*
-body.amounts-hidden .money::after,
-body.amounts-hidden #totalSpent::after,
-body.amounts-hidden #previousSpent::after,
-body.amounts-hidden #difference::after,
-body.amounts-hidden #tableTotal::after {
-  content: "••••••";
-  visibility: visible;
+.custom-collapse-btn:hover {
+  background-color: var(--pink-50) !important;
 }
-body.amounts-hidden .money,
-body.amounts-hidden #totalSpent,
-body.amounts-hidden #previousSpent,
-body.amounts-hidden #difference,
-body.amounts-hidden #tableTotal {
-  visibility: hidden;
-}
-*/
 
 
 /* ==============================
-   ESTILOS: OCULTAR MONTOS
+   ESTILOS: OCULTAR MONTOS (Versión Prolija ••••••)
 =============================== */
+body.amounts-hidden .card,
+body.amounts-hidden table,
+body.amounts-hidden .summary-card {
+  position: relative;
+}
+
 body.amounts-hidden .money,
 body.amounts-hidden #totalSpent,
 body.amounts-hidden #previousSpent,
@@ -742,39 +728,46 @@ body.amounts-hidden #difference,
 body.amounts-hidden #budgetTotal,
 body.amounts-hidden #tableTotal,
 body.amounts-hidden .expense-amount,
-body.amounts-hidden td:nth-child(4), /* Columna de monto en la tabla */
+body.amounts-hidden td.amount,
 body.amounts-hidden .history-amount,
-body.amounts-hidden .category-amount,
-body.amounts-hidden .budget-remaining-text {
+body.amounts-hidden #budgetStatus {
   color: transparent !important;
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.5); /* Efecto privacidad difuminado elegante */
   user-select: none;
 }
 
-/* Si preferís los puntos suspensivos exactos •••••• */
-body.amounts-hidden .money::after,
 body.amounts-hidden #totalSpent::after,
 body.amounts-hidden #previousSpent::after,
 body.amounts-hidden #difference::after,
 body.amounts-hidden #budgetTotal::after,
-body.amounts-hidden #tableTotal::after {
+body.amounts-hidden #tableTotal::after,
+body.amounts-hidden td.amount::after,
+body.amounts-hidden #budgetStatus::after {
   content: "••••••";
-  color: #d1517a !important; /* Mantiene el color rosa de tu diseño */
+  color: var(--pink-700) !important;
   visibility: visible;
-  display: inline-block;
-  margin-left: -100%;
+  position: absolute;
+  left: 15px;
+  z-index: 10;
+  font-weight: 700;
 }
 
+body.amounts-hidden td.amount::after {
+  left: 10px;
+}
+
+
 /* ==============================
-   ESTILOS: COLAPSAR TABLA DE GASTOS
+   ESTILOS: ANIMACIÓN DE COLAPSAR (Acordeones)
 =============================== */
+.collapsible-section,
 .table-container-collapsible {
   overflow: hidden;
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  max-height: 2000px; /* Altura máxima estimada cuando está abierto */
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, margin 0.3s ease;
+  max-height: 2000px;
   opacity: 1;
 }
 
+.collapsible-section.collapsed,
 .table-container-collapsible.collapsed {
   max-height: 0 !important;
   opacity: 0;
