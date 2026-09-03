@@ -3172,12 +3172,13 @@ $("pdfBtn")
 
 })();
 
+
 // ==========================================
-// OCULTAR MONTOS Y COLAPSAR TABLA DE GASTOS
+// CONTROL DE VISIBILIDAD, MONTOS Y ACORDEONES
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Lógica para Ocultar/Mostrar Montos
+  // 1. Lógica para Ocultar/Mostrar Montos General
   const toggleAmountsBtn = document.getElementById('toggleAmountsBtn');
   const isHidden = localStorage.getItem('mensuales_hide_amounts') === 'true';
   
@@ -3194,33 +3195,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. Lógica para Colapsar/Expandir la solapa de Gastos del mes
-  const toggleTableBtn = document.getElementById('toggleTableBtn');
-  const tableContainer = document.querySelector('.table-responsive') || document.querySelector('table').parentElement;
-  
-  if (tableContainer) {
-    tableContainer.classList.add('table-container-collapsible');
-  }
+  // Función genérica para manejar los botones colapsables (Acordeones)
+  function setupCollapsible(btnId, containerElement, storageKey, labelName) {
+    const btn = document.getElementById(btnId);
+    
+    if (!btn || !containerElement) return;
 
-  const isTableCollapsed = localStorage.getItem('mensuales_table_collapsed') === 'true';
-  if (isTableCollapsed && tableContainer && toggleTableBtn) {
-    tableContainer.classList.add('collapsed');
-    toggleTableBtn.textContent = '🔽 Mostrar tabla';
-  }
+    const isCollapsed = localStorage.getItem(storageKey) === 'true';
+    if (isCollapsed) {
+      containerElement.classList.add('collapsed');
+      btn.textContent = `🔽 Mostrar ${labelName}`;
+    }
 
-  if (toggleTableBtn && tableContainer) {
-    toggleTableBtn.addEventListener('click', () => {
-      const collapsed = tableContainer.classList.toggle('collapsed');
-      localStorage.setItem('mensuales_table_collapsed', collapsed);
-      toggleTableBtn.textContent = collapsed ? '🔽 Mostrar tabla' : '🔼 Ocultar tabla';
+    btn.addEventListener('click', () => {
+      const collapsed = containerElement.classList.toggle('collapsed');
+      localStorage.setItem(storageKey, collapsed);
+      btn.textContent = collapsed ? `🔽 Mostrar ${labelName}` : `🔼 Ocultar ${labelName}`;
     });
   }
+
+  // 2. Aplicar a Presupuesto, Tabla de Gastos e Historial
+  setupCollapsible('toggleBudgetBtn', document.getElementById('budgetContainer'), 'mensuales_budget_collapsed', 'presupuesto');
+  setupCollapsible('toggleTableBtn', document.querySelector('.table-wrap'), 'mensuales_table_collapsed', 'tabla');
+  setupCollapsible('toggleHistoryBtn', document.getElementById('historyContainer'), 'mensuales_history_collapsed', 'historial');
 });
-   
-
-
-
-
-
-
 
