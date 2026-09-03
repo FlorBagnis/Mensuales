@@ -3172,36 +3172,51 @@ $("pdfBtn")
 
 })();
 
-// ==============================
-// LÓGICA DE OCULTAR / MOSTRAR MONTOS
-// ==============================
+// ==========================================
+// OCULTAR MONTOS Y COLAPSAR TABLA DE GASTOS
+// ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  const toggleBtn = document.getElementById('toggleAmountsBtn');
-  if (!toggleBtn) return;
-
-  // Recuperar preferencia guardada en el navegador
+  // 1. Lógica para Ocultar/Mostrar Montos
+  const toggleAmountsBtn = document.getElementById('toggleAmountsBtn');
   const isHidden = localStorage.getItem('mensuales_hide_amounts') === 'true';
-  if (isHidden) {
+  
+  if (isHidden && toggleAmountsBtn) {
     document.body.classList.add('amounts-hidden');
-    toggleBtn.textContent = '👁️ Mostrar montos';
+    toggleAmountsBtn.textContent = '👁️ Mostrar montos';
   }
 
-  // Evento al hacer click en el botón
-  toggleBtn.addEventListener('click', () => {
-    const hidden = document.body.classList.toggle('amounts-hidden');
-    
-    // Guardar preferencia
-    localStorage.setItem('mensuales_hide_amounts', hidden);
-    
-    // Cambiar texto e ícono del botón
-    if (hidden) {
-      toggleBtn.textContent = '👁️ Mostrar montos';
-    } else {
-      toggleBtn.textContent = '👁️ Ocultar montos';
-    }
-  });
+  if (toggleAmountsBtn) {
+    toggleAmountsBtn.addEventListener('click', () => {
+      const hidden = document.body.classList.toggle('amounts-hidden');
+      localStorage.setItem('mensuales_hide_amounts', hidden);
+      toggleAmountsBtn.textContent = hidden ? '👁️ Mostrar montos' : '👁️ Ocultar montos';
+    });
+  }
+
+  // 2. Lógica para Colapsar/Expandir la solapa de Gastos del mes
+  const toggleTableBtn = document.getElementById('toggleTableBtn');
+  const tableContainer = document.querySelector('.table-responsive') || document.querySelector('table').parentElement;
+  
+  if (tableContainer) {
+    tableContainer.classList.add('table-container-collapsible');
+  }
+
+  const isTableCollapsed = localStorage.getItem('mensuales_table_collapsed') === 'true';
+  if (isTableCollapsed && tableContainer && toggleTableBtn) {
+    tableContainer.classList.add('collapsed');
+    toggleTableBtn.textContent = '🔽 Mostrar tabla';
+  }
+
+  if (toggleTableBtn && tableContainer) {
+    toggleTableBtn.addEventListener('click', () => {
+      const collapsed = tableContainer.classList.toggle('collapsed');
+      localStorage.setItem('mensuales_table_collapsed', collapsed);
+      toggleTableBtn.textContent = collapsed ? '🔽 Mostrar tabla' : '🔼 Ocultar tabla';
+    });
+  }
 });
+   
 
 
 
