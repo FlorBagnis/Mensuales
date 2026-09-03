@@ -2690,405 +2690,27 @@ $("newUserBtn")
    PDF
 ========================================================= */
 
-$("pdfBtn")
-  .addEventListener(
-    "click",
-    () => {
+// ==========================================
+      // LÍNEA TOTAL EN PDF (Corregida para que no se encime)
+      // ==========================================
 
-      if (!window.jspdf) {
-
-        alert(
-          "No se pudo cargar el generador de PDF."
-        );
-
-        return;
+      if (y > 265) {
+        pdf.addPage();
+        y = 20;
       }
 
-
-      const { jsPDF } =
-        window.jspdf;
-
-
-      const month =
-        $("monthPicker").value;
-
-
-      const current =
-        ensureMonth(month);
-
-
-      const total =
-        current.expenses.reduce(
-          (sum, expense) =>
-            sum + Number(
-              expense.amount || 0
-            ),
-          0
-        );
-
-
-      const previous =
-        data.months[
-          previousMonth(month)
-        ] || {
-          expenses: []
-        };
-
-
-      const previousTotal =
-        previous.expenses.reduce(
-          (sum, expense) =>
-            sum + Number(
-              expense.amount || 0
-            ),
-          0
-        );
-
-
-      const difference =
-        total - previousTotal;
-
-
-      const pdf =
-        new jsPDF({
-          unit: "mm",
-          format: "a4"
-        });
-
-
-      const pink = [
-        245,
-        107,
-        139
-      ];
-
-      const dark = [
-        85,
-        21,
-        45
-      ];
-
-      const light = [
-        255,
-        231,
-        236
-      ];
-
-
-      pdf.setFillColor(
-        255,
-        176,
-        194
-      );
-
-
-      pdf.roundedRect(
-        15,
-        15,
-        180,
-        28,
-        4,
-        4,
-        "F"
-      );
-
-
-      pdf.setTextColor(
-        ...dark
-      );
-
-      pdf.setFontSize(17);
-
-      pdf.setFont(
-        "helvetica",
-        "bold"
-      );
-
-
-      pdf.text(
-        "CONTROL DE GASTOS MENSUALES",
-        21,
-        27
-      );
-
-
-      pdf.setFontSize(8);
-
-      pdf.setFont(
-        "helvetica",
-        "normal"
-      );
-
-
-      pdf.text(
-        `Reporte · ${monthName(month)}`,
-        21,
-        34
-      );
-
-
-      const cards = [
-
-        [
-          "TOTAL GASTADO",
-          money(total)
-        ],
-
-        [
-          "MES ANTERIOR",
-          money(previousTotal)
-        ],
-
-        [
-          "DIFERENCIA",
-          `${
-            difference <= 0
-              ? "- "
-              : "+ "
-          }${money(
-            Math.abs(difference)
-          )}`
-        ]
-
-      ];
-
-
-      cards.forEach(
-        (card, index) => {
-
-          const x =
-            15 + index * 60;
-
-
-          pdf.setDrawColor(
-            255,
-            197,
-            210
-          );
-
-
-          pdf.roundedRect(
-            x,
-            49,
-            56,
-            25,
-            3,
-            3,
-            "S"
-          );
-
-
-          pdf.setTextColor(
-            ...pink
-          );
-
-          pdf.setFontSize(7);
-
-          pdf.setFont(
-            "helvetica",
-            "bold"
-          );
-
-
-          pdf.text(
-            card[0],
-            x + 4,
-            57
-          );
-
-
-          pdf.setTextColor(
-            ...dark
-          );
-
-          pdf.setFontSize(12);
-
-
-          pdf.text(
-            card[1],
-            x + 4,
-            66
-          );
-        }
-      );
-
-
-      let y = 84;
-
-
-      pdf.setFillColor(
-        ...pink
-      );
-
-      pdf.rect(
-        15,
-        y,
-        180,
-        8,
-        "F"
-      );
-
-
-      pdf.setTextColor(
-        255,
-        255,
-        255
-      );
-
-
+      pdf.setFillColor(...light);
+      pdf.rect(15, y, 180, 10, "F");
+
+      pdf.setTextColor(...dark);
+      pdf.setFont("helvetica", "bold");
       pdf.setFontSize(7);
 
-      pdf.setFont(
-        "helvetica",
-        "bold"
-      );
-
-
       pdf.text(
-        "FECHA",
-        18,
-        y + 5
-      );
-
-
-      pdf.text(
-        "CONCEPTO / DESCRIPCIÓN",
-        45,
-        y + 5
-      );
-
-
-      pdf.text(
-        "CATEGORÍA",
-        125,
-        y + 5
-      );
-
-
-      pdf.text(
-        "MONTO ($)",
-        168,
-        y + 5
-      );
-
-
-      y += 8;
-
-
-      pdf.setFont(
-        "helvetica",
-        "normal"
-      );
-
-
-      current.expenses
-        .slice()
-        .sort(
-          (a, b) =>
-            String(a.date || "")
-              .localeCompare(
-                String(b.date || "")
-              )
-        )
-        .forEach(expense => {
-
-          if (y > 275) {
-
-            pdf.addPage();
-
-            y = 20;
-          }
-
-
-          pdf.setTextColor(
-            ...dark
-          );
-
-          pdf.setFontSize(7);
-
-
-          pdf.text(
-            formatDate(expense.date),
-            18,
-            y + 5
-          );
-
-
-          pdf.text(
-            String(
-              expense.description
-            ).slice(0, 35),
-            45,
-            y + 5
-          );
-
-
-          pdf.text(
-            String(
-              expense.category
-            ).slice(0, 18),
-            125,
-            y + 5
-          );
-
-
-          pdf.text(
-            money(expense.amount),
-            168,
-            y + 5
-          );
-
-
-          pdf.setDrawColor(
-            245,
-            220,
-            227
-          );
-
-
-          pdf.line(
-            15,
-            y + 8,
-            195,
-            y + 8
-          );
-
-
-          y += 10;
-        });
-
-
-      pdf.setFillColor(
-        ...light
-      );
-
-      pdf.rect(
-        15,
-        y,
-        180,
-        10,
-        "F"
-      );
-
-
-      pdf.setTextColor(
-        ...dark
-      );
-
-      pdf.setFont(
-        "helvetica",
-        "bold"
-      );
-
-
-      pdf.text(
-        `TOTAL GASTADO EN ${shortMonthName(
-          month
-        ).toUpperCase()}`,
+        `TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`,
         18,
         y + 6
       );
-
 
       pdf.text(
         money(total),
@@ -3096,54 +2718,27 @@ $("pdfBtn")
         y + 6
       );
 
+      // Espaciado seguro antes del análisis de tendencia para que no se encime
+      y += 18;
 
-      y += 20;
-
+      if (y > 260) {
+        pdf.addPage();
+        y = 20;
+      }
 
       pdf.setFontSize(10);
+      pdf.text("Análisis de tendencia", 15, y);
 
-      pdf.text(
-        "Análisis de tendencia",
-        15,
-        y
-      );
-
-
-      pdf.setFont(
-        "helvetica",
-        "normal"
-      );
-
-
+      pdf.setFont("helvetica", "normal");
       pdf.setFontSize(8);
 
+      const trend = $("trendText").textContent;
+      const lines = pdf.splitTextToSize(trend, 175);
 
-      const trend =
-        $("trendText").textContent;
-
-
-      const lines =
-        pdf.splitTextToSize(
-          trend,
-          175
-        );
-
-
-      pdf.text(
-        lines,
-        15,
-        y + 7
-      );
-
+      pdf.text(lines, 15, y + 7);
 
       pdf.setFontSize(7);
-
-      pdf.setTextColor(
-        160,
-        110,
-        125
-      );
-
+      pdf.setTextColor(160, 110, 125);
 
       pdf.text(
         "MENSUALES · Reporte generado automáticamente",
@@ -3151,10 +2746,7 @@ $("pdfBtn")
         287
       );
 
-
-      pdf.save(
-        `MENSUALES-${month}.pdf`
-      );
+      pdf.save(`MENSUALES-${month}.pdf`);
     }
   );
 
