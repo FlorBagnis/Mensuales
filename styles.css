@@ -738,6 +738,9 @@ dialog::backdrop {
 /* ==============================
    OCULTAR MONTOS (Versión limpia sin desalinearse)
 =============================== */
+/* ==============================
+   OCULTAR MONTOS (Incluyendo el input de presupuesto)
+=============================== */
 body.amounts-hidden .money,
 body.amounts-hidden #totalSpent,
 body.amounts-hidden #previousSpent,
@@ -745,7 +748,8 @@ body.amounts-hidden #difference,
 body.amounts-hidden #budgetTotal,
 body.amounts-hidden #tableTotal,
 body.amounts-hidden .amount,
-body.amounts-hidden #budgetStatus {
+body.amounts-hidden #budgetStatus,
+body.amounts-hidden #budgetInput {
   color: transparent !important;
   position: relative;
   user-select: none;
@@ -758,19 +762,19 @@ body.amounts-hidden #difference::after,
 body.amounts-hidden #budgetTotal::after,
 body.amounts-hidden #tableTotal::after,
 body.amounts-hidden .amount::after,
-body.amounts-hidden #budgetStatus::after {
+body.amounts-hidden #budgetStatus::after,
+body.amounts-hidden #budgetInput::after {
   content: "••••••";
   color: var(--pink-700) !important;
   visibility: visible;
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  background-color: inherit;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 5;
+  font-weight: 700;
+  background-color: white; /* Para tapar bien el número del input por detrás */
+  padding: 0 4px;
 }
 
 /* Alineaciones específicas para que los puntos no se muevan */
