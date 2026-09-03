@@ -692,3 +692,41 @@ dialog::backdrop {
     white-space: nowrap;
   }
 }
+
+
+/* ==============================
+   ESTILOS PARA OCULTAR MONTOS
+=============================== */
+
+/* Cuando el body tiene la clase, ocultamos visualmente todos los textos y valores numéricos/monetarios */
+body.amounts-hidden .money,
+body.amounts-hidden #totalSpent,
+body.amounts-hidden #previousSpent,
+body.amounts-hidden #difference,
+body.amounts-hidden #tableTotal,
+body.amounts-hidden .expense-amount,
+body.amounts-hidden td.amount-cell,
+body.amounts-hidden .history-amount {
+  filter: blur(5px);
+  transition: filter 0.2s ease;
+  user-select: none;
+}
+
+/* Alternativa limpia tipo •••••• (si preferís los puntitos en lugar de blur, descomentá la línea de abajo y comentá el filter de arriba): */
+/*
+body.amounts-hidden .money::after,
+body.amounts-hidden #totalSpent::after,
+body.amounts-hidden #previousSpent::after,
+body.amounts-hidden #difference::after,
+body.amounts-hidden #tableTotal::after {
+  content: "••••••";
+  visibility: visible;
+}
+body.amounts-hidden .money,
+body.amounts-hidden #totalSpent,
+body.amounts-hidden #previousSpent,
+body.amounts-hidden #difference,
+body.amounts-hidden #tableTotal {
+  visibility: hidden;
+}
+*/
