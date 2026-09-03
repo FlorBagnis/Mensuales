@@ -210,7 +210,7 @@
 
 
     <!-- ==============================
-         OCULTAR MONTOS
+         OCULTAR MONTOS GENERAL
     =============================== -->
 
     <div class="amounts-toggle" style="margin-bottom: 1rem; text-align: right;">
@@ -223,111 +223,79 @@
       </button>
     </div>
 
+
     <!-- ==============================
-         RESUMEN
+         RESUMEN Y PRESUPUESTO (Colapsable)
     =============================== -->
 
-    <section class="summary-grid">
+    <div class="section-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+      <h3 style="margin: 0; font-size: 1rem; color: #d1517a;">Resumen y Presupuesto</h3>
+      <button id="toggleBudgetBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
+        🔼 Ocultar presupuesto
+      </button>
+    </div>
+
+    <div id="budgetContainer" class="collapsible-section">
+      <section class="summary-grid">
 
       <article class="summary-card">
-
         <span>TOTAL GASTADO</span>
-
         <strong id="totalSpent">$0,00</strong>
-
-        <small id="expenseCount">
-          0 gastos registrados
-        </small>
-
+        <small id="expenseCount">0 gastos registrados</small>
       </article>
 
-
       <article class="summary-card">
-
         <span>MES ANTERIOR</span>
-
         <strong id="previousSpent">$0,00</strong>
-
         <small id="previousMonthLabel">—</small>
-
       </article>
 
-
       <article class="summary-card">
-
         <span>DIFERENCIA</span>
-
         <strong id="difference">—</strong>
-
-        <small id="differenceLabel">
-          Sin datos comparables
-        </small>
-
+        <small id="differenceLabel">Sin datos comparables</small>
       </article>
-
 
       <article class="summary-card">
-
         <span>PRESUPUESTO</span>
-
         <strong id="budgetTotal">$0,00</strong>
-
-        <small id="budgetStatus">
-          Sin presupuesto
-        </small>
-
+        <small id="budgetStatus">Sin presupuesto</small>
       </article>
 
-    </section>
+      </section>
+    </div>
 
 
     <!-- ==============================
-         GASTOS
+         GASTOS DEL MES (Colapsable)
     =============================== -->
 
-    <section class="panel">
+    <section class="panel" style="margin-top: 1.5rem;">
 
-      <div class="section-heading">
-
+      <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-
-          <h2>Gastos del mes</h2> <div class="section-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-  <h3 style="margin: 0;">Gastos del mes <span id="currentMonthLabel" style="font-size: 0.85rem; font-weight: normal; opacity: 0.8;">(Septiembre de 2026)</span></h3>
-  <button id="toggleTableBtn" class="btn btn-outline btn-sm" type="button" style="padding: 0.25rem 0.6rem; font-size: 0.85rem;">
-    🔽 Ocultar tabla
-  </button>
-</div>
-
-          <p>
-            Todos tus gastos registrados en este período.
-          </p>
-
+          <h2>Gastos del mes</h2>
+          <p>Todos tus gastos registrados en este período.</p>
         </div>
-
-        <span id="monthPill" class="month-pill">—</span>
-
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button id="toggleTableBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
+            🔼 Ocultar tabla
+          </button>
+          <span id="monthPill" class="month-pill">—</span>
+        </div>
       </div>
 
 
       <div id="emptyState" class="empty-state">
-
         <div>♡</div>
-
         <strong>Todavía no hay gastos</strong>
-
-        <span>
-          Agregá tu primer gasto del mes.
-        </span>
-
+        <span>Agregá tu primer gasto del mes.</span>
       </div>
 
 
-      <div class="table-wrap">
-
+      <div class="table-wrap table-container-collapsible">
         <table>
-
           <thead>
-
             <tr>
               <th>Fecha</th>
               <th>Descripción</th>
@@ -335,99 +303,68 @@
               <th>Monto</th>
               <th>Acciones</th>
             </tr>
-
           </thead>
-
           <tbody id="expenseTable"></tbody>
-
         </table>
-
       </div>
 
 
       <div class="table-total">
-
         <span>
           TOTAL ·
           <span id="totalMonthName">—</span>
         </span>
-
         <strong id="tableTotal">$0,00</strong>
-
       </div>
 
     </section>
 
 
     <!-- ==============================
-         DOS COLUMNAS
+         DOS COLUMNAS (Historial y Categorías)
     =============================== -->
 
     <section class="two-columns">
 
+      <!-- HISTORIAL (Colapsable) -->
       <section class="panel">
-
-        <div class="section-heading">
-
+        <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
           <div>
-
             <h2>Historial</h2>
-
-            <p>
-              Resumen de tus últimos meses.
-            </p>
-
+            <p>Resumen de tus últimos meses.</p>
           </div>
-
+          <button id="toggleHistoryBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
+            🔼 Ocultar historial
+          </button>
         </div>
 
-
-        <div class="table-wrap">
-
-          <table>
-
-            <thead>
-
-              <tr>
-                <th>Mes</th>
-                <th>Presupuesto</th>
-                <th>Gastado</th>
-                <th>Resultado</th>
-              </tr>
-
-            </thead>
-
-            <tbody id="historyTable"></tbody>
-
-          </table>
-
+        <div id="historyContainer" class="collapsible-section">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mes</th>
+                  <th>Presupuesto</th>
+                  <th>Gastado</th>
+                  <th>Resultado</th>
+                </tr>
+              </thead>
+              <tbody id="historyTable"></tbody>
+            </table>
+          </div>
         </div>
-
       </section>
 
 
+      <!-- CATEGORÍAS -->
       <section class="panel">
-
         <div class="section-heading">
-
           <div>
-
             <h2>Gastos por categoría</h2>
-
-            <p>
-              Distribución de tus gastos.
-            </p>
-
+            <p>Distribución de tus gastos.</p>
           </div>
-
         </div>
-
-
-        <div
-          id="categoryChart"
-          class="category-chart"
-        ></div>
-
+        <div id="categoryChart" class="category-chart"></div>
       </section>
 
     </section>
@@ -438,13 +375,8 @@
     =============================== -->
 
     <section class="trend-box">
-
       <h2>📊 Análisis de tendencia</h2>
-
-      <p id="trendText">
-        Agregá gastos para comenzar a analizar tus hábitos.
-      </p>
-
+      <p id="trendText">Agregá gastos para comenzar a analizar tus hábitos.</p>
     </section>
 
 
@@ -452,7 +384,7 @@
       MENSUALES · Tus gastos, organizados.
       <br>
       <small>Creado por Florencia Bagnis💗</small>
-    </footer>
+  </footer>
 
   </section>
 
@@ -464,73 +396,27 @@
 =============================== -->
 
 <dialog id="expenseDialog">
-
   <form id="expenseForm" class="modal">
-
-    <button
-      id="closeDialog"
-      type="button"
-      class="close"
-      aria-label="Cerrar"
-    >
-      ×
-    </button>
-
-
+    <button id="closeDialog" type="button" class="close" aria-label="Cerrar">×</button>
     <div>
-
-      <p id="modalEyebrow" class="eyebrow">
-        NUEVO REGISTRO
-      </p>
-
-      <h2 id="modalTitle">
-        Agregar gasto
-      </h2>
-
+      <p id="modalEyebrow" class="eyebrow">NUEVO REGISTRO</p>
+      <h2 id="modalTitle">Agregar gasto</h2>
     </div>
 
-
     <label>
-
       Fecha
-
-      <input
-        id="expenseDate"
-        type="date"
-        required
-      >
-
+      <input id="expenseDate" type="date" required>
     </label>
 
-
     <label>
-
       Descripción
-
-      <input
-        id="expenseDescription"
-        type="text"
-        placeholder="Ej. Supermercado"
-        maxlength="100"
-        required
-      >
-
+      <input id="expenseDescription" type="text" placeholder="Ej. Supermercado" maxlength="100" required>
     </label>
 
-
     <label>
-
       Categoría
-
-      <select
-        id="expenseCategory"
-        required
-      >
-
-        <option value="">
-          Seleccioná una categoría
-        </option>
-
+      <select id="expenseCategory" required>
+        <option value="">Seleccioná una categoría</option>
         <option value="Alimentos">Alimentos</option>
         <option value="Transporte">Transporte</option>
         <option value="Hogar">Hogar</option>
@@ -543,184 +429,65 @@
         <option value="Otros">Otros</option>
         <option value="Cuotas">Cuotas</option>
         <option value="Personal">Personal</option>
-        
       </select>
-
     </label>
-
 
     <label>
-
       Monto
-
-      <input
-        id="expenseAmount"
-        type="number"
-        min="0.01"
-        step="0.01"
-        placeholder="0"
-        required
-      >
-
+      <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
     </label>
 
-
-    <!-- ==============================
-         RECURRENCIA
-    =============================== -->
-
     <div class="recurring-box">
-
       <label class="checkbox-label">
-
-        <input
-          id="expenseRecurring"
-          type="checkbox"
-        >
-
-        <span>
-          🔁 Repetir este gasto
-        </span>
-
+        <input id="expenseRecurring" type="checkbox">
+        <span>🔁 Repetir este gasto</span>
       </label>
 
-
-      <div
-        id="recurringOptions"
-        class="recurring-options hidden"
-      >
-
+      <div id="recurringOptions" class="recurring-options hidden">
         <div class="recurring-grid">
-
           <label>
-
             Repetir cada
-
             <div class="inline-input">
-
-              <input
-                id="recurringMonths"
-                type="number"
-                min="1"
-                max="60"
-                value="1"
-              >
-
+              <input id="recurringMonths" type="number" min="1" max="60" value="1">
               <span>mes(es)</span>
-
             </div>
-
           </label>
 
-
           <label>
-
             Día del mes
-
-            <input
-              id="recurringDay"
-              type="number"
-              min="1"
-              max="31"
-              value="10"
-            >
-
+            <input id="recurringDay" type="number" min="1" max="31" value="10">
           </label>
-
 
           <label>
-
             Durante
-
             <div class="inline-input">
-
-              <input
-                id="recurringDuration"
-                type="number"
-                min="1"
-                max="60"
-                value="6"
-              >
-
+              <input id="recurringDuration" type="number" min="1" max="60" value="6">
               <span>mes(es)</span>
-
             </div>
-
           </label>
-
         </div>
 
-
-        <!-- CAMBIO DE MONTO -->
-
         <label class="checkbox-label recurring-changing-label">
-
-          <input
-            id="recurringChangingAmount"
-            type="checkbox"
-          >
-
-          <span>
-            💰 Quiero usar un monto diferente en cada mes
-          </span>
-
+          <input id="recurringChangingAmount" type="checkbox">
+          <span>💰 Quiero usar un monto diferente en cada mes</span>
         </label>
 
-
-        <div
-          id="recurringAmounts"
-          class="recurring-amounts"
-        ></div>
-
+        <div id="recurringAmounts" class="recurring-amounts"></div>
 
         <p class="recurring-help">
-
-          Podés usar el mismo monto todos los meses o ingresar
-          un monto diferente para cada cuota.
-
-          Por ejemplo, una compra con tarjeta puede tener
-          importes diferentes.
-
-          Si elegís el día 31 y un mes no tiene 31,
-          se utilizará el último día disponible de ese mes.
-
+          Podés usar el mismo monto todos los meses o ingresar un monto diferente para cada cuota.
         </p>
-
       </div>
-
     </div>
-
 
     <div class="modal-actions">
-
-      <button
-        id="cancelDialog"
-        type="button"
-        class="btn btn-outline"
-      >
-        Cancelar
-      </button>
-
-
-      <button
-        id="submitExpenseBtn"
-        type="submit"
-        class="btn btn-pink"
-      >
-        Guardar gasto
-      </button>
-
+      <button id="cancelDialog" type="button" class="btn btn-outline">Cancelar</button>
+      <button id="submitExpenseBtn" type="submit" class="btn btn-pink">Guardar gasto</button>
     </div>
-
   </form>
-
 </dialog>
 
-
-<script
-  type="module"
-  src="app.js"
-></script>
+<script type="module" src="app.js"></script>
 
 </body>
 </html>
