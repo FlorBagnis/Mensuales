@@ -129,10 +129,11 @@
 
     <section class="toolbar">
 
-      <!-- ==============================
+    
+<!-- ==============================
          BARRA DE HERRAMIENTAS (Colapsable)
     =============================== -->
-    <div class="section-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
       <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
       <button id="toggleToolbarBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
         ▲ Ocultar barra
@@ -140,105 +141,79 @@
     </div>
 
     <div id="toolbarContainer" class="collapsible-section">
-      <section class="toolbar">
-        <!-- Tus campos de mes, presupuesto, guardar, nuevo gasto, pdf, borrar mes, empezar de cero -->
+      <section class="toolbar" style="margin-top: 0;">
+
         <div class="field">
           <label for="monthPicker">MES</label>
-          <input id="monthPicker" type="month">
+          <input
+            id="monthPicker"
+            type="month"
+          >
         </div>
+
+
         <div class="field">
           <label for="budgetInput">PRESUPUESTO</label>
+
           <div class="money-input">
             <span>$</span>
-            <input id="budgetInput" type="number" min="0" step="0.01" placeholder="0">
+            <input
+              id="budgetInput"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0"
+            >
           </div>
         </div>
-        <button id="saveBudgetBtn" class="btn btn-pink" type="button">Guardar presupuesto</button>
-        <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
-        <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
-        <button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
-        <button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
+
+
+        <button
+          id="saveBudgetBtn"
+          class="btn btn-pink"
+          type="button"
+        >
+          Guardar presupuesto
+        </button>
+
+
+        <button
+          id="addExpenseBtn"
+          class="btn btn-dark"
+          type="button"
+        >
+          + Nuevo gasto
+        </button>
+
+
+        <button
+          id="pdfBtn"
+          class="btn btn-outline"
+          type="button"
+        >
+          📄 PDF
+        </button>
+
+
+        <button
+          id="clearMonthBtn"
+          class="btn btn-danger"
+          type="button"
+        >
+          Borrar mes
+        </button>
+
+
+        <button
+          id="newUserBtn"
+          class="btn btn-outline"
+          type="button"
+        >
+          ✨ Empezar de cero
+        </button>
+
       </section>
     </div>
-
-      <div class="field">
-
-        <label for="monthPicker">MES</label>
-
-        <input
-          id="monthPicker"
-          type="month"
-        >
-
-      </div>
-
-
-      <div class="field">
-
-        <label for="budgetInput">PRESUPUESTO</label>
-
-        <div class="money-input">
-
-          <span>$</span>
-
-          <input
-            id="budgetInput"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="0"
-          >
-
-        </div>
-
-      </div>
-
-
-      <button
-        id="saveBudgetBtn"
-        class="btn btn-pink"
-        type="button"
-      >
-        Guardar presupuesto
-      </button>
-
-
-      <button
-        id="addExpenseBtn"
-        class="btn btn-dark"
-        type="button"
-      >
-        + Nuevo gasto
-      </button>
-
-
-      <button
-        id="pdfBtn"
-        class="btn btn-outline"
-        type="button"
-      >
-        📄 PDF
-      </button>
-
-
-      <button
-        id="clearMonthBtn"
-        class="btn btn-danger"
-        type="button"
-      >
-        Borrar mes
-      </button>
-
-
-      <button
-        id="newUserBtn"
-        class="btn btn-outline"
-        type="button"
-      >
-        ✨ Empezar de cero
-      </button>
-
-    </section>
 
 
     <!-- ==============================
