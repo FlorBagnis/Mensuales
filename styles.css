@@ -713,10 +713,10 @@ dialog::backdrop {
 
 
 /* ==============================
-   BOTONES COLAPSABLES (Rosa y prolijo sin azul)
+   BOTONES COLAPSABLES (Rosa y prolijo sin azul nativo)
 =============================== */
 .custom-collapse-btn {
-  background-color: #fff !important;
+  background-color: #ffffff !important;
   color: var(--pink-700) !important;
   border: 1px solid var(--pink-300) !important;
   padding: 0.25rem 0.6rem !important;
@@ -726,6 +726,8 @@ dialog::backdrop {
   display: inline-flex !important;
   align-items: center !important;
   gap: 5px !important;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .custom-collapse-btn:hover {
