@@ -1,7 +1,7 @@
 /* =========================================================
    MENSUALES
    FIREBASE + FIRESTORE
-   GASTOS RECURRENTES + MONTOS VARIABLES + DÓLARES
+   GASTOS RECURRENTES + MONTOS VARIABLES + DÓLARES + MODO OSCURO
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
@@ -1606,11 +1606,12 @@ $("pdfBtn").addEventListener("click", () => {
 })();
 
 
-// ==========================================
-// CONTROL DE VISIBILIDAD, MONTOS Y ACORDEONES
-// ==========================================
+// =========================================================
+// VISIBILIDAD, MONTOS, MODO OSCURO Y ACORDEONES
+// =========================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Ocultar / Mostrar montos
   const toggleAmountsBtn = document.getElementById('toggleAmountsBtn');
   const isHidden = localStorage.getItem('mensuales_hide_amounts') === 'true';
 
@@ -1627,6 +1628,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Modo Oscuro (Persistencia en localStorage)
+  const toggleThemeBtn = document.getElementById('toggleThemeBtn');
+  const isDark = localStorage.getItem('mensuales_theme') === 'dark';
+
+  if (isDark) {
+    document.body.classList.add('dark-mode');
+    if (toggleThemeBtn) toggleThemeBtn.textContent = '☀️ Modo claro';
+  }
+
+  if (toggleThemeBtn) {
+    toggleThemeBtn.addEventListener('click', () => {
+      const activeDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('mensuales_theme', activeDark ? 'dark' : 'light');
+      toggleThemeBtn.textContent = activeDark ? '☀️ Modo claro' : '🌙 Modo oscuro';
+    });
+  }
+
+  // Acordeones colapsables
   function setupCollapsible(btnId, containerElement, storageKey, labelName) {
     const btn = document.getElementById(btnId);
     if (!btn || !containerElement) return;
