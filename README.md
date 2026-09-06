@@ -404,6 +404,50 @@ Esta actualización incorpora arquitectura multimoneda a la suite de gestión fi
 
 <img width="1843" height="875" alt="image" src="https://github.com/user-attachments/assets/7a8416a8-2629-4c8b-91fa-77b335fd67aa" />
 
+# 🌙 Release Notes: Dark Mode Aesthetic & Soporte Bimonetario (ARS / USD)
+
+Actualización integral para la suite de finanzas personales (**MENSUALES** y **Gastos Próximos**). Se incorpora un selector de **Modo Oscuro** con estética personalizada que preserva los detalles en tonos rosa, junto con la arquitectura completa para la gestión de gastos en dos monedas (**ARS** y **USD**).
+
+---
+
+## ✨ Novedades Principales
+
+### 1. Modo Oscuro Opcional (*Dark Pink Aesthetic*)
+* **Alternancia en un clic:** Botón toggle integrado en la barra de acciones superior de ambas aplicaciones (`☀️ Modo claro` / `🌙 Modo oscuro`).
+* **Preservación de identidad visual:** Los fondos se adaptan a tonos grafito/berenjena profundo (`#140e13` / `#211620`), manteniendo intactos los acentos, bordes, íconos y botones rosa característicos.
+* **Persistencia local:** La preferencia del usuario se almacena en `localStorage` (`mensuales_theme` y `gastos_proximos_theme`), garantizando que la app recuerde la configuración en visitas futuras.
+
+### 2. Soporte Multimoneda Completo (ARS & USD)
+* **Carga en moneda extranjera:** Selector de divisa en modales de carga y edición para alternar entre pesos y dólares.
+* **Balances independientes:** Las tarjetas de resumen, análisis de tendencias y tablas desglosan los acumuladores sin conversiones fijas arbitrarias.
+* **Sincronización Firestore bidireccional:** Al marcar pagos en *Gastos Próximos*, el registro viaja a la colección mensual de *MENSUALES* conservando el tag `currency`.
+* **Reportes PDF adaptados:** Los balances impresos generados con `jsPDF` discriminan consumos locales de moneda extranjera.
+
+---
+
+## 🛠️ Resumen de Archivos Modificados
+
+| Aplicación | Archivos | Cambios implementados |
+| :--- | :--- | :--- |
+| **MENSUALES** | `index.html` | Botón `#toggleThemeBtn` agregado y selector de moneda en modal. |
+| | `styles.css` | Reglas bajo la clase `body.dark-mode` y contraste ajustado para tablas y paneles. |
+| | `app.js` | Lógica de lectura/escritura en `localStorage` para el tema y acumuladores bimonetarios. |
+| **Gastos Próximos** | `index.html` | Botón `#toggleThemeBtn` en cabecera y selector de divisa en formulario. |
+| | `style.css` | Paleta oscura aplicada a tarjetas de deuda, badges, filtros y modales. |
+| | `app.js` | Función `setupThemeToggle()`, mapeo del símbolo monetario y persistencia. |
+
+---
+
+## 🚀 Stack Técnico
+* **Lenguajes:** Vanilla JavaScript (ES6+), HTML5, CSS3.
+* **BaaS:** Firebase (Firestore en tiempo real & Firebase Authentication).
+* **Librerías:** jsPDF (v2.5.1).
+* **Almacenamiento del cliente:** `localStorage` API.
+
+ <img width="1844" height="830" alt="image" src="https://github.com/user-attachments/assets/38c18a24-21c6-45c3-b098-8b8bcbf1847f" />
+
+<img width="1750" height="729" alt="image" src="https://github.com/user-attachments/assets/60910be6-84f6-4658-b9d9-744e2d940a3f" />
+
 
 
 
