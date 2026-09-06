@@ -1,7 +1,7 @@
 /* =========================================================
    MENSUALES
    FIREBASE + FIRESTORE
-   GASTOS RECURRENTES + MONTOS VARIABLES
+   GASTOS RECURRENTES + MONTOS VARIABLES + DÓLARES
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
@@ -62,13 +62,14 @@ const $ = id => document.getElementById(id);
 
 
 /* =========================================================
-   DINERO
+   DINERO Y FORMATO MULTIMONEDA
 ========================================================= */
 
-function money(value) {
+function money(value, currency = "ARS") {
+  const isUSD = currency === "USD";
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: "ARS",
+    currency: isUSD ? "USD" : "ARS",
     minimumFractionDigits: 2
   }).format(Number(value || 0));
 }
@@ -525,66 +526,97 @@ function render() {
   const prevMonth = previousMonth(month);
   const previous = data.months[prevMonth] || emptyMonth();
 
-  const total = current.expenses.reduce(
-    (sum, expense) => sum + Number(expense.amount || 0),
-    0
-  );
+  // Acumuladores separados ARS y USD
+  let totalARS = 0;
+  let totalUSD = 0;
 
-  const previousTotal = previous.expenses.reduce(
-    (sum, expense) => sum + Number(expense.amount || 0),
-    0
-  );
+  current.expenses.forEach(expense => {
+    const amt = Number(expense.amount || 0);
+    if (expense.currency === "USD") {
+      totalUSD += amt;
+    } else {
+      totalARS += amt;
+    }
+  });
 
-  const difference = total - previousTotal;
+  let prevARS = 0;
+  let prevUSD = 0;
 
-  const percentage = previousTotal
-    ? Math.abs((difference / previousTotal) * 100)
-    : 0;
+  previous.expenses.forEach(expense => {
+    const amt = Number(expense.amount || 0);
+    if (expense.currency === "USD") {
+      prevUSD += amt;
+    } else {
+      prevARS += amt;
+    }
+  });
+
+  const diffARS = totalARS - prevARS;
+  const percentageARS = prevARS ? Math.abs((diffARS / prevARS) * 100) : 0;
 
   $("budgetInput").value = current.budget || "";
-  $("totalSpent").textContent = money(total);
-  $("previousSpent").textContent = money(previousTotal);
+
+  // Visualización del total gastado
+  $("totalSpent").innerHTML = totalUSD > 0 
+    ? `${money(totalARS)}<br><small style="font-size: 0.8em; font-weight: normal; color: var(--pink-700);">${money(totalUSD, "USD")}</small>`
+    : money(totalARS);
+
+  $("previousSpent").innerHTML = prevUSD > 0
+    ? `${money(prevARS)}<br><small style="font-size: 0.8em; font-weight: normal; color: var(--pink-700);">${money(prevUSD, "USD")}</small>`
+    : money(prevARS);
+
   $("budgetTotal").textContent = money(current.budget);
   $("previousMonthLabel").textContent = monthName(prevMonth);
   $("monthPill").textContent = monthName(month);
   $("totalMonthName").textContent = shortMonthName(month).toUpperCase();
-  $("tableTotal").textContent = money(total);
+
+  // Totales de la tabla principal
+  $("tableTotal").textContent = money(totalARS);
+  const tableTotalUSD = $("tableTotalUSD");
+  if (tableTotalUSD) {
+    if (totalUSD > 0) {
+      tableTotalUSD.textContent = `+ ${money(totalUSD, "USD")}`;
+      tableTotalUSD.style.display = "block";
+    } else {
+      tableTotalUSD.textContent = "";
+      tableTotalUSD.style.display = "none";
+    }
+  }
+
   $("expenseCount").textContent = `${current.expenses.length} ${
     current.expenses.length === 1 ? "gasto registrado" : "gastos registrados"
   }`;
 
-  /* DIFERENCIA */
+  /* DIFERENCIA (Base ARS) */
   const differenceElement = $("difference");
 
-  if (previousTotal === 0) {
+  if (prevARS === 0) {
     differenceElement.textContent = "—";
     $("differenceLabel").textContent = "Sin datos comparables";
     differenceElement.className = "";
   } else {
-    differenceElement.textContent = `${difference <= 0 ? "- " : "+ "}${money(
-      Math.abs(difference)
-    )}`;
-    $("differenceLabel").textContent = difference <= 0
-      ? `↓ ${percentage.toFixed(1)}% menos`
-      : `↑ ${percentage.toFixed(1)}% más`;
+    differenceElement.textContent = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
+    $("differenceLabel").textContent = diffARS <= 0
+      ? `↓ ${percentageARS.toFixed(1)}% menos (ARS)`
+      : `↑ ${percentageARS.toFixed(1)}% más (ARS)`;
 
-    differenceElement.className = difference <= 0 ? "result-good" : "result-bad";
+    differenceElement.className = diffARS <= 0 ? "result-good" : "result-bad";
   }
 
-  /* PRESUPUESTO */
+  /* PRESUPUESTO (Comparado contra ARS) */
   $("budgetStatus").textContent = current.budget
-    ? total <= current.budget
-      ? `${money(current.budget - total)} disponibles`
-      : `${money(total - current.budget)} excedido`
+    ? totalARS <= current.budget
+      ? `${money(current.budget - totalARS)} disponibles`
+      : `${money(totalARS - current.budget)} excedido`
     : "Sin presupuesto";
 
   $("budgetStatus").className =
-    total <= current.budget || !current.budget ? "" : "result-bad";
+    totalARS <= current.budget || !current.budget ? "" : "result-bad";
 
   renderExpenses(current.expenses);
   renderHistory();
   renderCategories(current.expenses);
-  renderTrend(month, total, previousTotal);
+  renderTrend(month, totalARS, prevARS, totalUSD);
 }
 
 
@@ -603,6 +635,7 @@ function renderExpenses(expenses) {
     .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")))
     .forEach(expense => {
       const row = document.createElement("tr");
+      const curr = expense.currency || "ARS";
 
       row.innerHTML = `
         <td>${formatDate(expense.date)}</td>
@@ -618,7 +651,7 @@ function renderExpenses(expenses) {
         <td>
           <span class="category">${escapeHtml(expense.category)}</span>
         </td>
-        <td class="amount">${money(expense.amount)}</td>
+        <td class="amount">${money(expense.amount, curr)}</td>
         <td class="actions">
           <button class="edit-btn" title="Editar gasto" data-id="${expense.id}" type="button">✏️</button>
           <button class="delete-btn" title="Eliminar gasto" data-id="${expense.id}" type="button">×</button>
@@ -644,6 +677,9 @@ function renderExpenses(expenses) {
       $("expenseDescription").value = expense.description;
       $("expenseCategory").value = expense.category;
       $("expenseAmount").value = expense.amount;
+      if ($("expenseCurrency")) {
+        $("expenseCurrency").value = expense.currency || "ARS";
+      }
       $("expenseForm").dataset.editingId = expense.id;
 
       $("modalEyebrow").textContent = "EDITAR REGISTRO";
@@ -716,18 +752,29 @@ function renderHistory() {
 
   months.forEach(month => {
     const current = data.months[month];
-    const total = current.expenses.reduce(
-      (sum, expense) => sum + Number(expense.amount || 0),
-      0
-    );
+    
+    let totalARS = 0;
+    let totalUSD = 0;
 
-    const result = Number(current.budget || 0) - total;
+    current.expenses.forEach(e => {
+      if (e.currency === "USD") {
+        totalUSD += Number(e.amount || 0);
+      } else {
+        totalARS += Number(e.amount || 0);
+      }
+    });
+
+    const result = Number(current.budget || 0) - totalARS;
     const row = document.createElement("tr");
+
+    const formattedSpent = totalUSD > 0 
+      ? `${money(totalARS)} <br><small style="color: var(--pink-700);">${money(totalUSD, "USD")}</small>` 
+      : money(totalARS);
 
     row.innerHTML = `
       <td><b>${monthName(month)}</b></td>
       <td>${money(current.budget)}</td>
-      <td>${money(total)}</td>
+      <td>${formattedSpent}</td>
       <td class="${result >= 0 ? "result-good" : "result-bad"}">
         ${result >= 0 ? "+" : "-"}${money(Math.abs(result))} ${result >= 0 ? "a favor" : "excedido"}
       </td>
@@ -739,34 +786,46 @@ function renderHistory() {
 
 
 /* =========================================================
-   CATEGORÍAS
+   CATEGORÍAS (Separadas por moneda si existen)
 ========================================================= */
 
 function renderCategories(expenses) {
   const totals = {};
 
   expenses.forEach(expense => {
-    totals[expense.category] =
-      (totals[expense.category] || 0) + Number(expense.amount || 0);
+    const curr = expense.currency || "ARS";
+    const cat = expense.category;
+    if (!totals[cat]) totals[cat] = { ARS: 0, USD: 0 };
+    totals[cat][curr] += Number(expense.amount || 0);
   });
 
-  const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-  const max = entries[0]?.[1] || 1;
+  const entries = Object.entries(totals).sort((a, b) => (b[1].ARS + b[1].USD) - (a[1].ARS + a[1].USD));
+  const max = entries[0] ? Math.max(entries[0][1].ARS, entries[0][1].USD) : 1;
 
   $("categoryChart").innerHTML = entries.length
     ? entries
         .map(
-          ([category, total]) => `
-          <div class="bar-row">
-            <div class="bar-label">
-              <span>${escapeHtml(category)}</span>
-              <b>${money(total)}</b>
-            </div>
-            <div class="bar-bg">
-              <div class="bar-fill" style="width:${(total / max) * 100}%"></div>
-            </div>
-          </div>
-        `
+          ([category, values]) => {
+            const labelStr = values.USD > 0 && values.ARS > 0
+              ? `${money(values.ARS)} + ${money(values.USD, "USD")}`
+              : values.USD > 0
+                ? money(values.USD, "USD")
+                : money(values.ARS);
+
+            const displayAmount = values.ARS > 0 ? values.ARS : values.USD;
+
+            return `
+              <div class="bar-row">
+                <div class="bar-label">
+                  <span>${escapeHtml(category)}</span>
+                  <b>${labelStr}</b>
+                </div>
+                <div class="bar-bg">
+                  <div class="bar-fill" style="width:${Math.min(100, (displayAmount / max) * 100)}%"></div>
+                </div>
+              </div>
+            `;
+          }
         )
         .join("")
     : `
@@ -782,7 +841,7 @@ function renderCategories(expenses) {
    TENDENCIA
 ========================================================= */
 
-function renderTrend(month, total, previousTotal) {
+function renderTrend(month, totalARS, previousTotalARS, totalUSD = 0) {
   const current = data.months[month];
   if (!current) return;
 
@@ -800,21 +859,21 @@ function renderTrend(month, total, previousTotal) {
     return;
   }
 
-  let text = `En ${monthName(month)}, registraste ${money(total)} en ${current.expenses.length} ${
+  let text = `En ${monthName(month)}, registraste ${money(totalARS)}${totalUSD > 0 ? ` y ${money(totalUSD, "USD")}` : ""} en ${current.expenses.length} ${
     current.expenses.length === 1 ? "gasto" : "gastos"
   }.`;
 
-  if (previousTotal) {
-    const percentage = ((total - previousTotal) / previousTotal) * 100;
+  if (previousTotalARS) {
+    const percentage = ((totalARS - previousTotalARS) / previousTotalARS) * 100;
     if (percentage <= 0) {
-      text += ` Eso representa un ahorro del ${Math.abs(percentage).toFixed(1)}% respecto del mes anterior.`;
+      text += ` Eso representa un ahorro en pesos del ${Math.abs(percentage).toFixed(1)}% respecto del mes anterior.`;
     } else {
-      text += ` Eso representa un aumento del ${percentage.toFixed(1)}% respecto del mes anterior.`;
+      text += ` Eso representa un aumento en pesos del ${percentage.toFixed(1)}% respecto del mes anterior.`;
     }
   }
 
   if (top) {
-    text += ` La categoría con mayor gasto fue ${top[0]} (${money(top[1])}).`;
+    text += ` La categoría con mayor movimiento fue ${top[0]}.`;
   }
 
   $("trendText").textContent = text;
@@ -901,6 +960,7 @@ function renderRecurringAmountInputs(preservedValues = null) {
 
   const baseAmount = Number($("expenseAmount").value || 0);
   const previousValues = preservedValues || getCurrentCustomAmountValues();
+  const symbol = $("expenseCurrency")?.value === "USD" ? "u$s" : "$";
 
   let html = "";
 
@@ -919,7 +979,7 @@ function renderRecurringAmountInputs(preservedValues = null) {
         <label>
           <span>${monthName(targetMonth)}</span>
           <div class="money-input">
-            <span>$</span>
+            <span>${symbol}</span>
             <input
               class="recurring-amount-input"
               type="number"
@@ -945,6 +1005,7 @@ function setupRecurringAmountInterface() {
   const durationInput = $("recurringDuration");
   const everyMonthsInput = $("recurringMonths");
   const amountInput = $("expenseAmount");
+  const currencySelect = $("expenseCurrency");
 
   if (changingCheckbox) {
     changingCheckbox.addEventListener("change", () => {
@@ -953,6 +1014,15 @@ function setupRecurringAmountInterface() {
       } else {
         const container = $("recurringAmounts");
         if (container) container.innerHTML = "";
+      }
+    });
+  }
+
+  if (currencySelect) {
+    currencySelect.addEventListener("change", () => {
+      if (changingCheckbox?.checked) {
+        const values = getCurrentCustomAmountValues();
+        renderRecurringAmountInputs(values);
       }
     });
   }
@@ -996,6 +1066,10 @@ function resetExpenseModal() {
   $("modalEyebrow").textContent = "NUEVO REGISTRO";
   $("modalTitle").textContent = "Agregar gasto";
   $("submitExpenseBtn").textContent = "Guardar gasto";
+
+  if ($("expenseCurrency")) {
+    $("expenseCurrency").value = "ARS";
+  }
 
   if ($("recurringOptions")) {
     $("recurringOptions").classList.add("hidden");
@@ -1126,6 +1200,7 @@ $("expenseForm").addEventListener("submit", async event => {
   const description = $("expenseDescription").value.trim();
   const category = $("expenseCategory").value;
   const amount = Number($("expenseAmount").value);
+  const currency = $("expenseCurrency")?.value || "ARS";
 
   if (!date || !description || !category || !amount || amount <= 0) {
     alert("Completá todos los campos correctamente.");
@@ -1144,6 +1219,7 @@ $("expenseForm").addEventListener("submit", async event => {
     expense.description = description;
     expense.category = category;
     expense.amount = amount;
+    expense.currency = currency;
 
     render();
 
@@ -1169,7 +1245,8 @@ $("expenseForm").addEventListener("submit", async event => {
       date,
       description,
       category,
-      amount
+      amount,
+      currency
     };
 
     const monthData = ensureMonth(month);
@@ -1244,6 +1321,7 @@ $("expenseForm").addEventListener("submit", async event => {
       description,
       category,
       amount: targetAmount,
+      currency,
       recurringId,
       recurring: {
         everyMonths,
@@ -1371,18 +1449,27 @@ $("pdfBtn").addEventListener("click", () => {
   const month = $("monthPicker").value;
   const current = ensureMonth(month);
 
-  const total = current.expenses.reduce(
-    (sum, expense) => sum + Number(expense.amount || 0),
-    0
-  );
+  let totalARS = 0;
+  let totalUSD = 0;
+
+  current.expenses.forEach(e => {
+    if (e.currency === "USD") {
+      totalUSD += Number(e.amount || 0);
+    } else {
+      totalARS += Number(e.amount || 0);
+    }
+  });
 
   const previous = data.months[previousMonth(month)] || { expenses: [] };
-  const previousTotal = previous.expenses.reduce(
-    (sum, expense) => sum + Number(expense.amount || 0),
-    0
-  );
+  let previousTotalARS = 0;
 
-  const difference = total - previousTotal;
+  previous.expenses.forEach(e => {
+    if (e.currency !== "USD") {
+      previousTotalARS += Number(e.amount || 0);
+    }
+  });
+
+  const diffARS = totalARS - previousTotalARS;
 
   const pdf = new jsPDF({
     unit: "mm",
@@ -1405,10 +1492,12 @@ $("pdfBtn").addEventListener("click", () => {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte · ${monthName(month)}`, 21, 34);
 
+  const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
+
   const cards = [
-    ["TOTAL GASTADO", money(total)],
-    ["MES ANTERIOR", money(previousTotal)],
-    ["DIFERENCIA", `${difference <= 0 ? "- " : "+ "}${money(Math.abs(difference))}`]
+    ["TOTAL GASTADO", cardSpentText],
+    ["MES ANTERIOR (ARS)", money(previousTotalARS)],
+    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`]
   ];
 
   cards.forEach((card, index) => {
@@ -1422,7 +1511,7 @@ $("pdfBtn").addEventListener("click", () => {
     pdf.text(card[0], x + 4, 57);
 
     pdf.setTextColor(...dark);
-    pdf.setFontSize(12);
+    pdf.setFontSize(10);
     pdf.text(card[1], x + 4, 66);
   });
 
@@ -1436,8 +1525,8 @@ $("pdfBtn").addEventListener("click", () => {
   pdf.setFont("helvetica", "bold");
   pdf.text("FECHA", 18, y + 5);
   pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);
-  pdf.text("CATEGORÍA", 125, y + 5);
-  pdf.text("MONTO ($)", 168, y + 5);
+  pdf.text("CATEGORÍA", 120, y + 5);
+  pdf.text("MONTO", 165, y + 5);
 
   y += 8;
 
@@ -1452,12 +1541,13 @@ $("pdfBtn").addEventListener("click", () => {
         y = 20;
       }
 
+      const curr = expense.currency || "ARS";
       pdf.setTextColor(...dark);
       pdf.setFontSize(7);
       pdf.text(formatDate(expense.date), 18, y + 5);
       pdf.text(String(expense.description).slice(0, 35), 45, y + 5);
-      pdf.text(String(expense.category).slice(0, 18), 125, y + 5);
-      pdf.text(money(expense.amount), 168, y + 5);
+      pdf.text(String(expense.category).slice(0, 18), 120, y + 5);
+      pdf.text(money(expense.amount, curr), 165, y + 5);
 
       pdf.setDrawColor(245, 220, 227);
       pdf.line(15, y + 8, 195, y + 8);
@@ -1476,7 +1566,7 @@ $("pdfBtn").addEventListener("click", () => {
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7);
   pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);
-  pdf.text(money(total), 168, y + 6);
+  pdf.text(cardSpentText, 160, y + 6);
 
   y += 18;
 
