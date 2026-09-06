@@ -693,27 +693,7 @@ dialog::backdrop {
 
 
 /* ==============================
-   ESTILOS: BOTONES DE COLAPSAR (Rosa y Prolijo)
-=============================== */
-.custom-collapse-btn {
-  background-color: #fff !important;
-  color: var(--pink-700) !important;
-  border: 1px solid var(--pink-300) !important;
-  padding: 0.25rem 0.6rem !important;
-  font-size: 0.85rem !important;
-  border-radius: 8px !important;
-  cursor: pointer;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-.custom-collapse-btn:hover {
-  background-color: var(--pink-50) !important;
-}
-
-
-/* ==============================
-   BOTONES COLAPSABLES (Rosa y prolijo sin azul nativo)
+   BOTONES COLAPSABLES (Rosa y prolijo)
 =============================== */
 .custom-collapse-btn {
   background-color: #ffffff !important;
@@ -728,6 +708,8 @@ dialog::backdrop {
   gap: 5px !important;
   -webkit-appearance: none;
   appearance: none;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .custom-collapse-btn:hover {
@@ -736,10 +718,7 @@ dialog::backdrop {
 
 
 /* ==============================
-   OCULTAR MONTOS (Versión limpia sin desalinearse)
-=============================== */
-/* ==============================
-   OCULTAR MONTOS (Incluyendo el input de presupuesto)
+   OCULTAR MONTOS
 =============================== */
 body.amounts-hidden .money,
 body.amounts-hidden #totalSpent,
@@ -773,11 +752,10 @@ body.amounts-hidden #budgetInput::after {
   transform: translateY(-50%);
   z-index: 5;
   font-weight: 700;
-  background-color: white; /* Para tapar bien el número del input por detrás */
+  background-color: white;
   padding: 0 4px;
 }
 
-/* Alineaciones específicas para que los puntos no se muevan */
 body.amounts-hidden .summary-card strong::after,
 body.amounts-hidden .summary-card small::after {
   left: 0;
@@ -807,11 +785,9 @@ body.amounts-hidden .summary-card small::after {
 }
 
 
-
 /* ==========================================
    BOTÓN ENLACE A GASTOS PRÓXIMOS
 ========================================== */
-
 .btn-app-link {
   display: inline-flex;
   align-items: center;
@@ -830,4 +806,154 @@ body.amounts-hidden .summary-card small::after {
 .btn-app-link:hover {
   background: rgba(255, 255, 255, 0.75);
   transform: translateY(-1px);
+}
+
+
+/* ==========================================
+   MODO OSCURO (Dark Aesthetic Pink)
+========================================== */
+body.dark-mode {
+  background: #140e13;
+  color: #fceef3;
+}
+
+body.dark-mode .auth-card,
+body.dark-mode .summary-card,
+body.dark-mode .panel,
+body.dark-mode dialog,
+body.dark-mode .modal {
+  background: #211620;
+  border-color: #3b2334;
+  color: #fceef3;
+}
+
+body.dark-mode .toolbar {
+  background: rgba(33, 22, 32, 0.85);
+  border-color: #3b2334;
+}
+
+body.dark-mode .hero {
+  background: linear-gradient(110deg, #42182b, #2e111e);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .hero h1 {
+  color: #ffdbe4;
+}
+
+body.dark-mode .hero .subtitle,
+body.dark-mode .hero .user-email {
+  color: #e5a7be;
+}
+
+body.dark-mode .eyebrow {
+  color: #ff9db4;
+}
+
+body.dark-mode .auth-subtitle,
+body.dark-mode .section-heading p,
+body.dark-mode .summary-card small,
+body.dark-mode footer {
+  color: #b893a4;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode .money-input {
+  background: #170f16;
+  border-color: #3b2334;
+  color: #fceef3;
+}
+
+body.dark-mode .money-input span {
+  color: #ff9db4;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus {
+  border-color: var(--pink-500);
+}
+
+body.dark-mode .btn-outline {
+  background: #211620;
+  color: #ff9db4;
+  border-color: #592e47;
+}
+
+body.dark-mode .btn-outline:hover {
+  background: #331d2b;
+}
+
+body.dark-mode .custom-collapse-btn {
+  background-color: #211620 !important;
+  color: #ff9db4 !important;
+  border-color: #592e47 !important;
+}
+
+body.dark-mode .custom-collapse-btn:hover {
+  background-color: #331d2b !important;
+}
+
+body.dark-mode .btn-app-link {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffdbe4;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+body.dark-mode .btn-app-link:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+body.dark-mode table td {
+  border-bottom: 1px solid #331f2c;
+  color: #fceef3;
+}
+
+body.dark-mode tbody tr:nth-child(even) {
+  background: #281b26;
+}
+
+body.dark-mode .table-total {
+  background: #2d1825;
+  color: #ffdbe4;
+}
+
+body.dark-mode .month-pill,
+body.dark-mode .category {
+  background: #3d1b2e;
+  color: #ffb0c2;
+}
+
+body.dark-mode .bar-bg {
+  background: #2d1825;
+}
+
+body.dark-mode .bar-label {
+  color: #e5a7be;
+}
+
+body.dark-mode .trend-box {
+  background: #211620;
+  border-color: #592e47;
+}
+
+body.dark-mode .trend-box p {
+  color: #d1abbc;
+}
+
+body.dark-mode .empty-state strong {
+  color: #ffdbe4;
+}
+
+body.dark-mode body.amounts-hidden #totalSpent::after,
+body.dark-mode.amounts-hidden #previousSpent::after,
+body.dark-mode.amounts-hidden #difference::after,
+body.amounts-hidden.dark-mode #budgetTotal::after,
+body.amounts-hidden.dark-mode #tableTotal::after,
+body.amounts-hidden.dark-mode .amount::after,
+body.amounts-hidden.dark-mode #budgetStatus::after,
+body.amounts-hidden.dark-mode #budgetInput::after {
+  background-color: #211620;
+  color: #ff9db4 !important;
 }
