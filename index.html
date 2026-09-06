@@ -111,13 +111,12 @@
         <span id="userEmail" class="user-email"></span>
 
         <!-- ENLACE DIRECTO A GASTOS PRÓXIMOS -->
-       <a 
-  href="https://gastos-proximos.vercel.app/" 
-  class="btn-app-link" 
-
->
-  🌸 Gastos Próximos
-</a>
+        <a 
+          href="https://gastos-proximos.vercel.app/" 
+          class="btn-app-link"
+        >
+          🌸 Gastos Próximos
+        </a>
 
         <button
           id="logoutBtn"
@@ -325,12 +324,15 @@
       </div>
 
 
-      <div class="table-total">
+      <div class="table-total" style="display: flex; justify-content: space-between; align-items: center;">
         <span>
           TOTAL ·
           <span id="totalMonthName">—</span>
         </span>
-        <strong id="tableTotal">$0,00</strong>
+        <div style="text-align: right;">
+          <strong id="tableTotal" style="display: block;">$0,00</strong>
+          <small id="tableTotalUSD" style="display: block; font-size: 0.95rem; color: var(--pink-700); font-weight: 600;"></small>
+        </div>
       </div>
 
     </section>
@@ -448,10 +450,20 @@
       </select>
     </label>
 
-    <label>
-      Monto
-      <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
-    </label>
+    <div style="display: grid; grid-template-columns: 1fr 140px; gap: 10px; align-items: end;">
+      <label style="margin-bottom: 0;">
+        Monto
+        <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
+      </label>
+
+      <label style="margin-bottom: 0;">
+        Moneda
+        <select id="expenseCurrency" required>
+          <option value="ARS" selected>ARS ($)</option>
+          <option value="USD">USD (u$s)</option>
+        </select>
+      </label>
+    </div>
 
     <div class="recurring-box">
       <label class="checkbox-label">
