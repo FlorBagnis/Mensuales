@@ -360,6 +360,53 @@ Se integró **MENSUALES** con la aplicación complementaria **[Gastos Próximos]
 
 Ambas aplicaciones comparten la misma base de datos en **Cloud Firestore** y el mismo sistema de credenciales en **Firebase Authentication**[cite: 1]. Esto habilita una sincronización inteligente y automática:
 
+# 🚀 Release Notes: Soporte Bimonetario (ARS / USD) & Sincronización Bidireccional
+
+Esta actualización incorpora arquitectura multimoneda a la suite de gestión financiera personal (**MENSUALES** y **Gastos Próximos**), permitiendo registrar y clasificar movimientos tanto en pesos argentinos (ARS) como en dólares estadounidenses (USD) sin dependencias externas ni alteraciones de datos previos.
+
+---
+
+## 🛠️ Principales Cambios y Funcionalidades
+
+### 1. Gestión Bimonetaria (ARS & USD)
+* **Selector de divisa en modales de carga:** Incorporación de control para elegir entre `ARS` y `USD` al momento de ingresar cualquier movimiento.
+* **Formateo numérico nativo:** Uso de la API nativa `Intl.NumberFormat` para formatear montos con sus respectivos códigos y símbolos monetarios (`$` para ARS, `u$s` / `USD` para dólares).
+* **Totales paralelos e independientes:** Los cálculos de gastos mensuales, pendientes y deudas separan los acumuladores por divisa. Se evitan conversiones ficticias con tipo de cambio fijo, mostrando un desglose bimonetario real en pantalla.
+
+### 2. Retrocompatibilidad de Datos (Firestore)
+* Los registros previos almacenados en Firebase carecen del campo `currency`. El sistema aplica automáticamente un valor por defecto (`ARS`) durante la renderización y cálculo, previniendo errores de tipo *undefined* o corrupción de balance.
+
+### 3. Sincronización Bidireccional
+* Al marcar un gasto como **pagado** en *Gastos Próximos*, la propiedad `currency` se traslada íntegramente hacia el documento mensual correspondiente en *MENSUALES*.
+* Al revertir el estado o eliminar el gasto desde cualquiera de las dos plataformas, la sincronización se mantiene coherente y limpia el registro con su divisa original.
+
+### 4. Actualización en la Generación de PDFs
+* Los reportes impresos generados mediante `jsPDF` ahora desglosan los subtotales y conceptos diferenciando claramente si el consumo fue en moneda local o extranjera.
+
+---
+
+## 💻 Cambios Técnicos en el Código
+
+| Archivo modificado | Detalle del cambio |
+| :--- | :--- |
+| `index.html` (ambas apps) | Modales de creación/edición actualizados con selectores de moneda. Indicadores de totales adaptados para doble línea. |
+| `app.js` (Mensuales) | Función `render()` y acumuladores actualizados con lógica bimonetaria (`totalARS` / `totalUSD`). Soporte de `currency` en payload de Firestore. |
+| `app.js` (Gastos Próximos) | Tarjetas de balance (`totalPending`, `nextSevenDays`, `thisMonth`, `totalDebts`) actualizadas para renderizar montos duales. Mapeo del campo `currency` hacia la colección `months`. |
+
+---
+
+## 📌 Tecnologías Utilizadas
+* **Lenguajes:** Vanilla JavaScript (ES6+), HTML5 semántico, CSS3.
+* **Base de datos & Auth:** Firebase v12 (Firestore & Firebase Authentication).
+* **Librerías externas:** jsPDF (v2.5.1).
+
+
+
+<img width="1843" height="875" alt="image" src="https://github.com/user-attachments/assets/7a8416a8-2629-4c8b-91fa-77b335fd67aa" />
+
+
+
+
 
 ## 👩‍💻 Proyecto
 
