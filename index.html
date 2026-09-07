@@ -341,6 +341,16 @@
     </footer>
 
   </section>
+
+  <!-- Script anti-flicker instantáneo (se ejecuta antes del primer paint del navegador) -->
+  <script>
+    try {
+      if (localStorage.getItem('user_logged_in') === 'true') {
+        document.getElementById('authSection')?.classList.add('hidden');
+        document.getElementById('appContent')?.classList.remove('hidden');
+      }
+    } catch(e) {}
+  </script>
 </main>
 
 
