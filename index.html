@@ -128,10 +128,12 @@
       background-color: #2a161d !important;
     }
 
-    /* Corrección para ocultar montos (amounts-hidden) en modo oscuro */
-    body.dark-mode.amounts-hidden *, 
-    body.dark-mode .amounts-hidden * {
+    /* SOLUCIÓN DEFINITIVA: Neutralizar el fondo blanco de los montos ocultos en modo oscuro */
+    body.amounts-hidden.dark-mode .summary-card *,
+    body.dark-mode.amounts-hidden .summary-card * {
+      background: transparent !important;
       background-color: transparent !important;
+      color: #ffb6c1 !important;
     }
   </style>
 
