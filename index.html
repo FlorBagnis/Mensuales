@@ -82,6 +82,34 @@
       transform: translateY(-2px) !important;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
     }
+
+    /* --- CORRECCIONES EXTRAS PARA MODO OSCURO --- */
+    body.dark-mode .summary-card,
+    body.dark-mode .panel,
+    body.dark-mode .toolbar,
+    body.dark-mode .trend-box,
+    body.dark-mode .auth-card {
+      background-color: #2a161d !important;
+      color: #ffb6c1 !important;
+      border-color: #4e2b37 !important;
+    }
+
+    body.dark-mode .summary-card strong,
+    body.dark-mode .summary-card span,
+    body.dark-mode .summary-card small {
+      color: #ffb6c1 !important;
+    }
+
+    body.dark-mode input, 
+    body.dark-mode select {
+      background-color: #1f1015 !important;
+      color: #ffb6c1 !important;
+      border-color: #4e2b37 !important;
+    }
+
+    body.dark-mode input::placeholder {
+      color: #a37584 !important;
+    }
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
