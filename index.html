@@ -4,11 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MENSUALES · Control & Gastos Próximos</title>
 
-  <title>MENSUALES · Control de gastos</title>
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff7597">
+  <link rel="apple-touch-icon" href="https://api.iconify.design/twemoji:cherry-blossom.svg">
 
   <link rel="stylesheet" href="styles.css">
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
@@ -17,410 +20,320 @@
 <main class="app">
 
   <!-- ==============================
-       LOGIN
+        LOGIN / REGISTRO
   =============================== -->
-
   <section id="authSection" class="auth-section">
-
     <div class="auth-card">
-
       <div class="auth-logo">♡</div>
-
       <p class="eyebrow">MENSUALES</p>
-
       <h1>Controlá tus gastos</h1>
-
-      <p class="auth-subtitle">
-        Ingresá a tu cuenta para guardar y sincronizar tus gastos.
-      </p>
+      <p class="auth-subtitle">Ingresá a tu cuenta para gestionar tu presupuesto y pagos pendientes.</p>
 
       <form id="authForm">
-
         <label>
           Email
-
-          <input
-            id="authEmail"
-            type="email"
-            placeholder="tu@email.com"
-            autocomplete="email"
-            required
-          >
+          <input id="authEmail" type="email" placeholder="tu@email.com" autocomplete="email" required>
         </label>
 
         <label>
           Contraseña
-
-          <input
-            id="authPassword"
-            type="password"
-            placeholder="••••••••"
-            autocomplete="current-password"
-            minlength="6"
-            required
-          >
+          <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
         </label>
 
-        <button
-          id="authSubmitBtn"
-          type="submit"
-          class="btn btn-pink auth-submit"
-        >
+        <button id="authSubmitBtn" type="submit" class="btn btn-pink auth-submit">
           Iniciar sesión
         </button>
-
       </form>
 
       <p id="authMessage" class="auth-message"></p>
 
-      <button
-        id="authSwitchBtn"
-        type="button"
-        class="auth-switch"
-      >
+      <button id="authSwitchBtn" type="button" class="auth-switch">
         ¿No tenés una cuenta? Registrate
       </button>
-
     </div>
-
   </section>
 
 
   <!-- ==============================
-       APLICACIÓN
+        APLICACIÓN PRINCIPAL
   =============================== -->
-
   <section id="appContent" class="hidden">
 
+    <!-- HERO HEADER -->
     <header class="hero">
-
       <div>
-
-        <p class="eyebrow">MENSUALES</p>
-
-        <h1>Controlá tus gastos</h1>
-
-        <p class="subtitle">
-          Organizá tus gastos y llevá el control de tu presupuesto.
-        </p>
-
+        <p class="eyebrow">MI ORGANIZACIÓN 💗</p>
+        <h1>Control de Gastos</h1>
+        <p class="subtitle">Presupuesto mensual y agenda de pagos próximos unificados.</p>
+        
+        <div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878);">
+          💵 Dólar Blue: cargando...
+        </div>
       </div>
 
       <div class="header-actions">
-
         <span id="userEmail" class="user-email"></span>
-
-        <!-- ENLACE DIRECTO A GASTOS PRÓXIMOS -->
-        <a 
-          href="https://gastos-proximos.vercel.app/" 
-          class="btn-app-link"
-        >
-          🌸 Gastos Próximos
-        </a>
-
-        <button
-          id="logoutBtn"
-          class="btn btn-dark"
-          type="button"
-        >
-          Cerrar sesión
-        </button>
-
+        <button id="logoutBtn" class="btn btn-dark" type="button">Cerrar sesión</button>
       </div>
     </header>
 
-
-    <!-- ==============================
-         BARRA DE HERRAMIENTAS (Colapsable)
-    =============================== -->
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 8px;">
-      <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
-      <button id="toggleToolbarBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
-        ▲ Ocultar barra
+    <!-- NAVEGACIÓN ENTRE PESTAÑAS (TABS) -->
+    <nav class="app-tabs" style="display: flex; gap: 10px; margin: 18px 0; border-bottom: 2px solid rgba(232, 93, 158, 0.2); padding-bottom: 12px;">
+      <button id="tabMensualesBtn" class="btn btn-pink" style="border-radius: 999px; padding: 8px 20px; font-weight: bold;" type="button">
+        💗 Gastos del Mes
       </button>
-    </div>
+      <button id="tabProximosBtn" class="btn btn-outline" style="border-radius: 999px; padding: 8px 20px; font-weight: bold;" type="button">
+        🌸 Próximos & Deudas
+      </button>
+    </nav>
 
-    <div id="toolbarContainer" class="collapsible-section">
-      <section class="toolbar" style="margin-top: 0;">
-
-        <div class="field">
-          <label for="monthPicker">MES</label>
-
-          <input
-            id="monthPicker"
-            type="month"
-          >
-
-        </div>
-
-
-        <div class="field">
-
-          <label for="budgetInput">PRESUPUESTO</label>
-
-          <div class="money-input">
-
-            <span>$</span>
-
-            <input
-              id="budgetInput"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="0"
-            >
-
-          </div>
-
-        </div>
-
-
-        <button
-          id="saveBudgetBtn"
-          class="btn btn-pink"
-          type="button"
-        >
-          Guardar presupuesto
-        </button>
-
-
-        <button
-          id="addExpenseBtn"
-          class="btn btn-dark"
-          type="button"
-        >
-          + Nuevo gasto
-        </button>
-
-
-        <button
-          id="pdfBtn"
-          class="btn btn-outline"
-          type="button"
-        >
-          📄 PDF
-        </button>
-
-
-        <button
-          id="clearMonthBtn"
-          class="btn btn-danger"
-          type="button"
-        >
-          Borrar mes
-        </button>
-
-
-        <button
-          id="newUserBtn"
-          class="btn btn-outline"
-          type="button"
-        >
-          ✨ Empezar de cero
-        </button>
-
-      </section>
-    </div>
-
-
-    <!-- ==============================
-         CONTROLES DE VISTA (TEMA Y MONTOS)
-    =============================== -->
-
+    <!-- CONTROLES GENERALES (MODO OSCURO Y MONTOS) -->
     <div class="amounts-toggle" style="margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
-      <button
-        id="toggleThemeBtn"
-        class="btn btn-outline"
-        type="button"
-      >
-        🌙 Modo oscuro
-      </button>
-
-      <button
-        id="toggleAmountsBtn"
-        class="btn btn-outline"
-        type="button"
-      >
-        👁️ Ocultar montos
-      </button>
+      <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
+      <button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
     </div>
 
 
-    <!-- ==============================
-         RESUMEN Y PRESUPUESTO (Colapsable)
-    =============================== -->
+    <!-- =========================================================
+          VISTA 1: MENSUALES (TAB)
+    ========================================================= -->
+    <div id="viewMensuales">
 
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-      <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Resumen y Presupuesto</h3>
-      <button id="toggleBudgetBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
-        ▲ Ocultar presupuesto
-      </button>
-    </div>
-
-    <div id="budgetContainer" class="collapsible-section">
-      <section class="summary-grid">
-
-        <article class="summary-card">
-          <span>TOTAL GASTADO</span>
-          <strong id="totalSpent">$0,00</strong>
-          <small id="expenseCount">0 gastos registrados</small>
-        </article>
-
-        <article class="summary-card">
-          <span>MES ANTERIOR</span>
-          <strong id="previousSpent">$0,00</strong>
-          <small id="previousMonthLabel">—</small>
-        </article>
-
-        <article class="summary-card">
-          <span>DIFERENCIA</span>
-          <strong id="difference">—</strong>
-          <small id="differenceLabel">Sin datos comparables</small>
-        </article>
-
-        <article class="summary-card">
-          <span>PRESUPUESTO</span>
-          <strong id="budgetTotal">$0,00</strong>
-          <small id="budgetStatus">Sin presupuesto</small>
-        </article>
-
-      </section>
-    </div>
-
-
-    <!-- ==============================
-         GASTOS DEL MES (Colapsable)
-    =============================== -->
-
-    <section class="panel" style="margin-top: 1.5rem;">
-
-      <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h2>Gastos del mes</h2>
-          <p>Todos tus gastos registrados en este período.</p>
-        </div>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <button id="toggleTableBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
-            ▲ Ocultar tabla
-          </button>
-          <span id="monthPill" class="month-pill">—</span>
-        </div>
+      <!-- HERRAMIENTAS Y PRESUPUESTO (COLAPSABLE) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
+        <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
+        <button id="toggleToolbarBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar barra</button>
       </div>
 
+      <div id="toolbarContainer" class="collapsible-section">
+        <section class="toolbar" style="margin-top: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+          <div class="field">
+            <label for="monthPicker">MES</label>
+            <input id="monthPicker" type="month">
+          </div>
 
-      <div id="emptyState" class="empty-state">
-        <div>♡</div>
-        <strong>Todavía no hay gastos</strong>
-        <span>Agregá tu primer gasto del mes.</span>
+          <div class="field">
+            <label for="budgetInput">PRESUPUESTO</label>
+            <div class="money-input">
+              <span>$</span>
+              <input id="budgetInput" type="number" min="0" step="0.01" placeholder="0">
+            </div>
+          </div>
+
+          <button id="saveBudgetBtn" class="btn btn-pink" type="button">Guardar presupuesto</button>
+          <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
+          <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
+          <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
+          <button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
+          <button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
+        </section>
       </div>
 
-
-      <div class="table-wrap table-container-collapsible">
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Descripción</th>
-              <th>Categoría</th>
-              <th>Monto</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="expenseTable"></tbody>
-        </table>
+      <!-- RESUMEN DE PRESUPUESTO (COLAPSABLE) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 0.5rem;">
+        <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Resumen</h3>
+        <button id="toggleBudgetBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar resumen</button>
       </div>
 
+      <div id="budgetContainer" class="collapsible-section">
+        <section class="summary-grid">
+          <article class="summary-card">
+            <span>TOTAL GASTADO</span>
+            <strong id="totalSpent">$0,00</strong>
+            <small id="expenseCount">0 gastos registrados</small>
+          </article>
 
-      <div class="table-total" style="display: flex; justify-content: space-between; align-items: center;">
-        <span>
-          TOTAL ·
-          <span id="totalMonthName">—</span>
-        </span>
-        <div style="text-align: right;">
-          <strong id="tableTotal" style="display: block;">$0,00</strong>
-          <small id="tableTotalUSD" style="display: block; font-size: 0.95rem; color: var(--pink-700); font-weight: 600;"></small>
-        </div>
+          <article class="summary-card">
+            <span>MES ANTERIOR</span>
+            <strong id="previousSpent">$0,00</strong>
+            <small id="previousMonthLabel">—</small>
+          </article>
+
+          <article class="summary-card">
+            <span>DIFERENCIA</span>
+            <strong id="difference">—</strong>
+            <small id="differenceLabel">Sin datos comparables</small>
+          </article>
+
+          <article class="summary-card">
+            <span>PRESUPUESTO</span>
+            <strong id="budgetTotal">$0,00</strong>
+            <small id="budgetStatus">Sin presupuesto</small>
+          </article>
+        </section>
       </div>
 
-    </section>
-
-
-    <!-- ==============================
-         DOS COLUMNAS (Historial y Categorías)
-    =============================== -->
-
-    <section class="two-columns">
-
-      <!-- HISTORIAL (Colapsable) -->
-      <section class="panel">
-        <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
+      <!-- TABLA DE GASTOS DEL MES -->
+      <section class="panel" style="margin-top: 1.5rem;">
+        <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
-            <h2>Historial</h2>
-            <p>Resumen de tus últimos meses.</p>
+            <h2>Gastos del mes</h2>
+            <p>Todos tus gastos registrados en este período.</p>
           </div>
-          <button id="toggleHistoryBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">
-            ▲ Ocultar historial
-          </button>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="search" id="searchMensualesInput" placeholder="🔍 Buscar gasto..." style="padding: 6px 14px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem;">
+            <button id="toggleTableBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar tabla</button>
+            <span id="monthPill" class="month-pill">—</span>
+          </div>
         </div>
 
-        <div id="historyContainer" class="collapsible-section">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Mes</th>
-                  <th>Presupuesto</th>
-                  <th>Gastado</th>
-                  <th>Resultado</th>
-                </tr>
-              </thead>
-              <tbody id="historyTable"></tbody>
-            </table>
+        <div id="emptyState" class="empty-state">
+          <div>♡</div>
+          <strong>Todavía no hay gastos</strong>
+          <span>Agregá tu primer gasto del mes.</span>
+        </div>
+
+        <div class="table-wrap table-container-collapsible">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Monto</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="expenseTable"></tbody>
+          </table>
+        </div>
+
+        <div class="table-total" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>TOTAL · <span id="totalMonthName">—</span></span>
+          <div style="text-align: right;">
+            <strong id="tableTotal" style="display: block;">$0,00</strong>
+            <small id="tableTotalUSD" style="display: block; font-size: 0.95rem; color: var(--pink-700); font-weight: 600;"></small>
           </div>
         </div>
       </section>
 
+      <!-- HISTORIAL Y CATEGORÍAS -->
+      <section class="two-columns" style="margin-top: 1.5rem;">
+        <section class="panel">
+          <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h2>Historial</h2>
+              <p>Resumen de tus últimos meses.</p>
+            </div>
+            <button id="toggleHistoryBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar historial</button>
+          </div>
+          <div id="historyContainer" class="collapsible-section">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mes</th>
+                    <th>Presupuesto</th>
+                    <th>Gastado</th>
+                    <th>Resultado</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
 
-      <!-- CATEGORÍAS -->
-      <section class="panel">
-        <div class="section-heading">
+        <section class="panel">
+          <div class="section-heading">
+            <div>
+              <h2>Gastos por categoría</h2>
+              <p>Distribución de tus gastos.</p>
+            </div>
+          </div>
+          <div id="categoryChart" class="category-chart"></div>
+        </section>
+      </section>
+
+      <!-- TENDENCIA -->
+      <section class="trend-box" style="margin-top: 1.5rem;">
+        <h2>📊 Análisis de tendencia</h2>
+        <p id="trendText">Agregá gastos para comenzar a analizar tus hábitos.</p>
+      </section>
+    </div>
+
+
+    <!-- =========================================================
+          VISTA 2: GASTOS PRÓXIMOS & DEUDAS (TAB)
+    ========================================================= -->
+    <div id="viewProximos" class="hidden">
+
+      <!-- RESUMEN PRÓXIMOS -->
+      <section class="summary-grid" style="margin-top: 10px;">
+        <article class="summary-card main-card">
+          <div class="card-icon" style="font-size: 1.6rem;">💰</div>
           <div>
-            <h2>Gastos por categoría</h2>
-            <p>Distribución de tus gastos.</p>
+            <span>Total pendiente</span>
+            <strong id="gpTotalPending">$0</strong>
           </div>
-        </div>
-        <div id="categoryChart" class="category-chart"></div>
+        </article>
+
+        <article class="summary-card">
+          <div class="small-icon" style="font-size: 1.3rem;">📅</div>
+          <span>Próximos 7 días</span>
+          <strong id="gpNextSevenDays">$0</strong>
+        </article>
+
+        <article class="summary-card">
+          <div class="small-icon" style="font-size: 1.3rem;">📆</div>
+          <span>Este mes</span>
+          <strong id="gpThisMonth">$0</strong>
+        </article>
+
+        <article class="summary-card">
+          <div class="small-icon" style="font-size: 1.3rem;">💸</div>
+          <span>Deudas</span>
+          <strong id="gpTotalDebts">$0</strong>
+        </article>
       </section>
 
-    </section>
+      <!-- BARRA DE ACCIONES Y FILTROS -->
+      <section class="panel" style="margin-top: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem;">
+          <div>
+            <h2 style="margin: 0;">Mis pendientes</h2>
+            <span id="gpItemsCount" style="color: #888; font-size: 0.85rem;">0 registros</span>
+          </div>
 
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <input type="search" id="gpSearchInput" placeholder="🔍 Buscar pendiente..." style="padding: 6px 14px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem;">
+            <button id="gpCsvBtn" class="btn btn-outline btn-sm" type="button">📊 CSV</button>
+            <button id="gpPdfBtn" class="btn btn-outline btn-sm" type="button">📄 PDF</button>
+            <button id="gpOpenModalBtn" class="btn btn-pink btn-sm" type="button">＋ Agregar pendiente</button>
+          </div>
+        </div>
 
-    <!-- ==============================
-         TENDENCIA
-    =============================== -->
+        <div class="filters" style="display: flex; gap: 8px; margin-bottom: 1rem;">
+          <button class="btn btn-pink btn-sm gp-filter" data-filter="all">Todos</button>
+          <button class="btn btn-outline btn-sm gp-filter" data-filter="pending">Pendientes</button>
+          <button class="btn btn-outline btn-sm gp-filter" data-filter="debt">Deudas</button>
+          <button class="btn btn-outline btn-sm gp-filter" data-filter="paid">Pagados</button>
+        </div>
 
-    <section class="trend-box">
-      <h2>📊 Análisis de tendencia</h2>
-      <p id="trendText">Agregá gastos para comenzar a analizar tus hábitos.</p>
-    </section>
+        <div id="gpExpensesList" class="expenses-list" style="display: grid; gap: 12px;"></div>
 
+        <div id="gpEmptyState" class="empty-state" style="display: none;">
+          <div>🌸</div>
+          <strong>No tenés pendientes</strong>
+          <span>Agregá un gasto futuro o una deuda para recordar.</span>
+        </div>
+      </section>
+    </div>
 
-    <footer>
-      MENSUALES · Tus gastos, organizados.
+    <!-- FOOTER -->
+    <footer style="margin-top: 2rem;">
+      MENSUALES · Tus gastos y pagos organizados en un solo lugar.
       <br>
       <small>Creado por Florencia Bagnis💗</small>
     </footer>
 
   </section>
-
 </main>
 
 
-<!-- ==============================
-     MODAL GASTO
-=============================== -->
-
+<!-- =========================================================
+      MODAL 1: GASTO MENSUAL
+========================================================= -->
 <dialog id="expenseDialog">
   <form id="expenseForm" class="modal">
     <button id="closeDialog" type="button" class="close" aria-label="Cerrar">×</button>
@@ -457,7 +370,6 @@
         <option value="Personal">Personal</option>
         <option value="Gimnasio">Gimnasio</option>
         <option value="Agua">Agua</option>
-        
       </select>
     </label>
 
@@ -512,10 +424,6 @@
         </label>
 
         <div id="recurringAmounts" class="recurring-amounts"></div>
-
-        <p class="recurring-help">
-          Podés usar el mismo monto todos los meses o ingresar un monto diferente para cada cuota.
-        </p>
       </div>
     </div>
 
@@ -526,7 +434,88 @@
   </form>
 </dialog>
 
-<script type="module" src="app.js"></script>
 
+<!-- =========================================================
+      MODAL 2: GASTO PRÓXIMO / PENDIENTE
+========================================================= -->
+<dialog id="gpModal">
+  <form id="gpExpenseForm" class="modal">
+    <button id="gpCloseModalBtn" type="button" class="close" aria-label="Cerrar">×</button>
+    <div>
+      <p class="eyebrow">PENDIENTES & DEUDAS</p>
+      <h2 id="gpModalTitle">Agregar pendiente</h2>
+    </div>
+
+    <input type="hidden" id="gpExpenseId">
+
+    <label>¿Qué querés registrar?</label>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+      <label style="border: 1px solid #f2cfdf; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+        <input type="radio" name="gpType" value="expense" checked>
+        <span>🧾 Gasto próximo</span>
+      </label>
+      <label style="border: 1px solid #f2cfdf; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+        <input type="radio" name="gpType" value="debt">
+        <span>💸 Deuda</span>
+      </label>
+    </div>
+
+    <label>
+      Concepto
+      <input type="text" id="gpDescription" placeholder="Ej: Bidones de agua" required>
+    </label>
+
+    <label>
+      Categoría
+      <select id="gpCategory">
+        <option value="Hogar">🏠 Hogar</option>
+        <option value="Servicios">💡 Servicios</option>
+        <option value="Comida">🍔 Comida</option>
+        <option value="Mascotas">🐾 Mascotas</option>
+        <option value="Deudas">💸 Deudas</option>
+        <option value="Salud">💊 Salud</option>
+        <option value="Transporte">🚗 Transporte</option>
+        <option value="Otros">📦 Otros</option>
+        <option value="Gimnasio">💪 Gimnasio</option>
+        <option value="Agua">💧 Agua</option>
+      </select>
+    </label>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
+      <label>
+        Monto
+        <input type="number" id="gpAmount" min="0" step="0.01" placeholder="0">
+      </label>
+      <label>
+        Moneda
+        <select id="gpCurrency">
+          <option value="ARS" selected>ARS</option>
+          <option value="USD">USD</option>
+        </select>
+      </label>
+      <label>
+        Cantidad
+        <input type="number" id="gpQuantity" min="1" value="1">
+      </label>
+    </div>
+
+    <label>
+      ¿Cuándo lo tengo que pagar?
+      <input type="date" id="gpDate" required>
+    </label>
+
+    <label>
+      Notas
+      <textarea id="gpNotes" rows="2" placeholder="Opcional..."></textarea>
+    </label>
+
+    <div class="modal-actions">
+      <button id="gpCancelBtn" type="button" class="btn btn-outline">Cancelar</button>
+      <button type="submit" class="btn btn-pink">Guardar registro</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="app.js"></script>
 </body>
 </html>
