@@ -610,47 +610,47 @@ function renderProximos() {
 
   list.forEach(item => {
     const card = document.createElement("article");
-    card.className = "expense";
-    card.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:12px; border-radius:12px; background:rgba(232,93,158,0.06); border:1px solid #f2cfdf;";
+    card.className = "gp-expense-card";
     
     const icon = getCategoryIcon(item.category);
     const catName = getCategoryName(item.category);
     const alert = getDueBadge(item.date, item.paid);
-    const alertTag = alert ? `<span style="font-size:0.75rem; font-weight:bold; padding:2px 8px; border-radius:999px; background:${alert.bg}; color:${alert.color}; margin-left:6px;">${alert.text}</span>` : "";
+    const alertTag = alert ? `<span class="gp-tag" style="background:${alert.bg}; color:${alert.color};">${alert.text}</span>` : "";
+    const statusTag = `<span class="gp-tag gp-status-${item.paid ? "paid" : item.type === "debt" ? "debt" : "pending"}">${item.paid ? "Pagado" : item.type === "debt" ? "Deuda" : "Pendiente"}</span>`;
 
     card.innerHTML = `
-      <div style="display:flex; align-items:center; gap:12px;">
-        <div style="font-size:1.8rem;">${icon}</div>
-        <div>
-          <h3 style="margin:0; font-size:1rem;">${escapeHtml(item.description)}</h3>
-          <p style="margin:2px 0 0; font-size:0.8rem; color:#666;">${catName} · Cant: ${item.quantity || 1} ${item.notes ? `· <i>${escapeHtml(item.notes)}</i>` : ""}</p>
-          <div style="margin-top:4px;">
-            <span class="badge ${item.paid ? "paid" : item.type === "debt" ? "debt" : "pending"}">${item.paid ? "Pagado" : item.type === "debt" ? "Deuda" : "Pendiente"}</span>
+      <div class="gp-card-left">
+        <div class="gp-card-icon">${icon}</div>
+        <div class="gp-card-details">
+          <h3>${escapeHtml(item.description)}</h3>
+          <p>${catName} · Cantidad: ${item.quantity || 1} ${item.notes ? `· <i>${escapeHtml(item.notes)}</i>` : ""}</p>
+          <div class="gp-tags-wrap">
+            ${statusTag}
             ${alertTag}
           </div>
         </div>
       </div>
 
-      <div style="text-align:right;">
-        <div style="font-size:0.8rem; color:#888;">Pagar <b>${formatDate(item.date)}</b></div>
-        <div style="font-size:1.1rem; font-weight:bold; margin:4px 0;">${item.amount !== null ? money(item.amount, item.currency || "ARS") : "Pendiente"}</div>
-        <div style="display:flex; gap:6px; justify-content:flex-end;">
-          <button class="btn btn-sm ${item.paid ? "btn-outline" : "btn-pink"} gp-action-pay" data-id="${item.id}" title="${item.paid ? "Volver a pendiente" : "Marcar pagado y enviar a Mensuales"}">${item.paid ? "✖" : "✓"}</button>
-          <button class="btn btn-sm btn-outline gp-action-edit" data-id="${item.id}">✏️</button>
-          <button class="btn btn-sm btn-danger gp-action-del" data-id="${item.id}">🗑️</button>
+      <div class="gp-card-right">
+        <div class="gp-card-date">Pagar <strong>${formatDate(item.date)}</strong></div>
+        <div class="gp-card-amount">${item.amount !== null ? money(item.amount, item.currency || "ARS") : "A definir"}</div>
+        <div class="gp-card-actions">
+          <button class="gp-btn-action gp-btn-pay ${item.paid ? "is-paid" : ""}" data-id="${item.id}" title="${item.paid ? "Volver a pendiente" : "Marcar pagado y enviar a Mensuales"}">${item.paid ? "✖" : "✓"}</button>
+          <button class="gp-btn-action gp-btn-edit" data-id="${item.id}" title="Editar">✏️</button>
+          <button class="gp-btn-action gp-btn-delete" data-id="${item.id}" title="Eliminar">🗑️</button>
         </div>
       </div>
     `;
     container.appendChild(card);
   });
 
-  container.querySelectorAll(".gp-action-pay").forEach(btn => {
+  container.querySelectorAll(".gp-btn-pay").forEach(btn => {
     btn.onclick = () => togglePayProximo(btn.dataset.id);
   });
-  container.querySelectorAll(".gp-action-edit").forEach(btn => {
+  container.querySelectorAll(".gp-btn-edit").forEach(btn => {
     btn.onclick = () => editProximo(btn.dataset.id);
   });
-  container.querySelectorAll(".gp-action-del").forEach(btn => {
+  container.querySelectorAll(".gp-btn-delete").forEach(btn => {
     btn.onclick = () => deleteProximo(btn.dataset.id);
   });
 }
