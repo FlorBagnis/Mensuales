@@ -3,6 +3,19 @@
    FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
 ========================================================= */
 
+// Verificación instantánea de sesión en localStorage para evitar el pantallazo de login
+const authSection = document.getElementById('authSection');
+const appContent = document.getElementById('appContent');
+
+// Detecta si hay una sesión guardada (por ejemplo, la clave típica de Firebase o una propia)
+const hasActiveSession = Object.keys(localStorage).some(key => key.startsWith('firebase:authUser:') || key.includes('auth'));
+
+if (hasActiveSession && authSection && appContent) {
+  // Oculta el login y muestra la app de inmediato antes de que cargue el resto del script
+  authSection.classList.add('hidden');
+  appContent.classList.remove('hidden');
+}
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import {
   getAuth,
