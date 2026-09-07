@@ -36,21 +36,6 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
-// Oculta ambas secciones de entrada de forma preventiva para evitar parpadeos visuales al recargar
-const authSection = document.getElementById('authSection');
-const appContent = document.getElementById('appContent');
-if (authSection) authSection.classList.add('hidden');
-if (appContent) appContent.classList.add('hidden');
-
-// Espera a que Firebase lea la sesión interna de forma segura antes de mostrar pantallas
-auth.authStateReady().then(() => {
-  if (!auth.currentUser) {
-    if (authSection) authSection.classList.remove('hidden');
-  } else {
-    if (appContent) appContent.classList.remove('hidden');
-  }
-});
-
 // Service Worker (PWA)
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
@@ -186,6 +171,7 @@ function updateAuthInterface() {
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   if (!user) {
+    localStorage.removeItem('user_logged_in'); // Limpia la bandera al salir
     stopAllSync();
     data = { months: {} };
     proximosExpenses = [];
@@ -196,6 +182,7 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
+  localStorage.setItem('user_logged_in', 'true'); // Activa la bandera para evitar parpadeos
   $("authSection")?.classList.add("hidden");
   $("appContent")?.classList.remove("hidden");
   if ($("userEmail")) $("userEmail").textContent = user.email || "";
@@ -1115,6 +1102,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("logoutBtn")?.addEventListener("click", async () => {
     if (!confirm("¿Querés cerrar sesión?")) return;
     try {
+      localStorage.removeItem('user_logged_in'); // Limpia la bandera al cerrar sesión
       stopAllSync();
       await signOut(auth);
     } catch (err) {
