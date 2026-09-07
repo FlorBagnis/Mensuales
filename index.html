@@ -13,7 +13,7 @@
 
   <link rel="stylesheet" href="styles.css">
   
-  <!-- Estilos adaptados para Modo Claro y Modo Oscuro -->
+  <!-- Estilos adaptados para Modo Claro, Modo Oscuro y Hover de botones -->
   <style>
     /* --- MODO CLARO --- */
     thead, th, .table-wrap th {
@@ -43,7 +43,14 @@
       box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
     }
 
-    /* --- MODO OSCURO (Adapta automáticamente los colores) --- */
+    /* Efecto hover rosita clarito para los botones outline (CSV, PDF, etc.) en Modo Claro */
+    .btn-outline:hover {
+      background-color: #fbc4d4 !important;
+      color: #5a2337 !important;
+      border-color: #f29cb5 !important;
+    }
+
+    /* --- MODO OSCURO --- */
     body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
     body.dark thead, body.dark th, body.dark .table-wrap th {
       background-color: #3d222b !important;
@@ -59,6 +66,13 @@
     body.dark-theme .pastel-btn:hover, body.dark .pastel-btn:hover {
       background: #4e2b37 !important;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    /* Hover para botones outline en Modo Oscuro */
+    body.dark-theme .btn-outline:hover, body.dark .btn-outline:hover {
+      background-color: #3d222b !important;
+      color: #ffb6c1 !important;
+      border-color: #6b3b4a !important;
     }
   </style>
 
