@@ -7,7 +7,7 @@
   --pink-100: #ffe3ea;
   --pink-200: #ffc5d2;
   --pink-300: #ff9db4;
-  --pink-500: #e85d9e; /* Tonalidad rosada/fucsia suave alineada a la imagen */
+  --pink-500: #f56b8b;
   --pink-700: #9f2449;
 
   --ink: #55152d;
@@ -22,7 +22,7 @@
 
 body {
   margin: 0;
-  background: #fdf5f8;
+  background: #f9eef2;
   color: var(--ink);
   font-family: Inter, Arial, sans-serif;
   min-height: 100vh;
@@ -194,7 +194,6 @@ h1 {
 .btn-pink {
   background: var(--pink-500);
   color: white;
-  box-shadow: 0 4px 12px rgba(232, 93, 158, 0.3);
 }
 
 .btn-dark {
@@ -259,7 +258,7 @@ select {
 input:focus,
 select:focus {
   border-color: var(--pink-500);
-  box-shadow: 0 0 0 3px rgba(232, 93, 158, .12);
+  box-shadow: 0 0 0 3px rgba(245, 107, 139, .12);
 }
 
 .money-input {
@@ -947,7 +946,7 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
 
 
 /* =========================================================
-   GASTOS PRÓXIMOS: ENCUADRE, MODAL Y TARJETAS
+   GASTOS PRÓXIMOS: ESTILO ESPECÍFICO (Fucsia intenso de referencia)
 ========================================================= */
 
 /* Modal de Pendientes */
@@ -956,13 +955,13 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
   border-radius: 16px;
   padding: 0;
   width: min(440px, calc(100% - 30px));
-  box-shadow: 0 25px 80px rgba(75, 19, 39, .25);
+  box-shadow: 0 25px 80px rgba(236, 64, 122, .25);
   background: white;
   overflow: hidden;
 }
 
 #gpModal::backdrop {
-  background: rgba(65, 15, 32, .35);
+  background: rgba(236, 64, 122, .25);
   backdrop-filter: blur(3px);
 }
 
@@ -983,7 +982,7 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
   gap: 6px;
   font-size: 11px;
   font-weight: 800;
-  color: var(--pink-700);
+  color: #ec407a;
 }
 
 #gpExpenseForm input[type="text"],
@@ -992,7 +991,7 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
 #gpExpenseForm select,
 #gpExpenseForm textarea {
   width: 100%;
-  border: 1px solid var(--line);
+  border: 1px solid #f8bbd0;
   border-radius: 9px;
   background: white;
   color: var(--ink);
@@ -1004,8 +1003,8 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
 #gpExpenseForm input:focus,
 #gpExpenseForm select:focus,
 #gpExpenseForm textarea:focus {
-  border-color: var(--pink-500);
-  box-shadow: 0 0 0 3px rgba(232, 93, 158, .12);
+  border-color: #ec407a;
+  box-shadow: 0 0 0 3px rgba(236, 64, 122, .15);
 }
 
 #gpExpenseForm .modal-actions {
@@ -1015,9 +1014,10 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
   margin-top: 5px;
 }
 
-/* Panel contenedor de Mis Pendientes */
+/* Panel contenedor y tarjetas en Mis Pendientes */
 #viewProximos .panel {
   padding: 18px 20px 22px;
+  border: 1px solid #f8bbd0;
 }
 
 #viewProximos .filters {
@@ -1032,6 +1032,28 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
   font-size: 11px;
 }
 
+/* Botón de Agregar pendiente exclusivo con el fucsia intenso */
+#viewProximos #gpOpenModalBtn {
+  background-color: #ec407a !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(236, 64, 122, 0.35);
+}
+
+#viewProximos #gpOpenModalBtn:hover {
+  background-color: #d81b60 !important;
+}
+
+/* Botones de filtro activos en Próximos */
+#viewProximos .filters .btn-pink {
+  background-color: #ec407a !important;
+}
+
+#viewProximos .filters .btn-outline:hover {
+  border-color: #ec407a;
+  color: #ec407a;
+}
+
 /* Lista y Tarjetas de Pendientes */
 #gpExpensesList {
   display: grid;
@@ -1043,10 +1065,11 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
   justify-content: space-between;
   align-items: center;
   background: white;
-  border: 1px solid var(--pink-200);
+  border: 1px solid #f8bbd0;
+  border-left: 4px solid #ec407a;
   border-radius: 12px;
   padding: 12px 18px;
-  box-shadow: 0 2px 8px rgba(132, 38, 67, .04);
+  box-shadow: 0 2px 8px rgba(236, 64, 122, .06);
   transition: transform .15s ease;
 }
 
@@ -1068,7 +1091,7 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
   min-width: 44px;
   display: grid;
   place-items: center;
-  background: var(--pink-50);
+  background: #fff0f3;
   border-radius: 10px;
 }
 
@@ -1101,8 +1124,8 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
 }
 
 .gp-status-pending {
-  background: var(--pink-100);
-  color: var(--pink-700);
+  background: #ffe3ea;
+  color: #ec407a;
 }
 
 .gp-status-debt {
@@ -1147,7 +1170,7 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
 }
 
 .gp-btn-action {
-  border: 1px solid var(--pink-300);
+  border: 1px solid #f8bbd0;
   background: white;
   border-radius: 7px;
   width: 28px;
@@ -1164,8 +1187,8 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
 }
 
 .gp-btn-pay {
-  background: var(--pink-500);
-  border-color: var(--pink-500);
+  background: #ec407a;
+  border-color: #ec407a;
   color: white;
 }
 
