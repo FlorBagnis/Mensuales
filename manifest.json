@@ -1,13 +1,13 @@
 {
-  "name": "Mensuales & Gastos Próximos",
+  "name": "MENSUALES · Control & Gastos Próximos",
   "short_name": "Mensuales",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#f56b8b",
+  "theme_color": "#ff7597",
   "icons": [
     {
-      "src": "./icono.jpg",
+      "src": "./icono-app.jpg",
       "sizes": "512x512",
       "type": "image/jpeg"
     }
