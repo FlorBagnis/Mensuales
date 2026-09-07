@@ -163,12 +163,12 @@ function updateAuthInterface() {
   setAuthMessage("");
 }
 
-$("authSwitchBtn").addEventListener("click", () => {
+$("authSwitchBtn")?.addEventListener("click", () => {
   authMode = authMode === "login" ? "register" : "login";
   updateAuthInterface();
 });
 
-$("authForm").addEventListener("submit", async e => {
+$("authForm")?.addEventListener("submit", async e => {
   e.preventDefault();
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
@@ -191,7 +191,7 @@ $("authForm").addEventListener("submit", async e => {
   }
 });
 
-$("logoutBtn").addEventListener("click", async () => {
+$("logoutBtn")?.addEventListener("click", async () => {
   if (!confirm("¿Querés cerrar sesión?")) return;
   try {
     stopAllSync();
@@ -208,16 +208,16 @@ onAuthStateChanged(auth, async user => {
     data = { months: {} };
     proximosExpenses = [];
     appReady = false;
-    $("authSection").classList.remove("hidden");
-    $("appContent").classList.add("hidden");
-    $("userEmail").textContent = "";
+    $("authSection")?.classList.remove("hidden");
+    $("appContent")?.classList.add("hidden");
+    if ($("userEmail")) $("userEmail").textContent = "";
     updateAuthInterface();
     return;
   }
 
-  $("authSection").classList.add("hidden");
-  $("appContent").classList.remove("hidden");
-  $("userEmail").textContent = user.email || "";
+  $("authSection")?.classList.add("hidden");
+  $("appContent")?.classList.remove("hidden");
+  if ($("userEmail")) $("userEmail").textContent = user.email || "";
 
   fetchDolarBlue();
   startMonthsSync();
@@ -234,18 +234,18 @@ const tabProximosBtn = $("tabProximosBtn");
 const viewMensuales = $("viewMensuales");
 const viewProximos = $("viewProximos");
 
-tabMensualesBtn.addEventListener("click", () => {
+tabMensualesBtn?.addEventListener("click", () => {
   tabMensualesBtn.className = "btn btn-pink";
   tabProximosBtn.className = "btn btn-outline";
-  viewMensuales.classList.remove("hidden");
-  viewProximos.classList.add("hidden");
+  viewMensuales?.classList.remove("hidden");
+  viewProximos?.classList.add("hidden");
 });
 
-tabProximosBtn.addEventListener("click", () => {
+tabProximosBtn?.addEventListener("click", () => {
   tabProximosBtn.className = "btn btn-pink";
   tabMensualesBtn.className = "btn btn-outline";
-  viewProximos.classList.remove("hidden");
-  viewMensuales.classList.add("hidden");
+  viewProximos?.classList.remove("hidden");
+  viewMensuales?.classList.add("hidden");
 });
 
 
@@ -319,44 +319,56 @@ function renderMensuales() {
   const diffARS = totalARS - prevARS;
   const percentageARS = prevARS ? Math.abs((diffARS / prevARS) * 100) : 0;
 
-  $("budgetInput").value = current.budget || "";
-  $("totalSpent").innerHTML = totalUSD > 0
-    ? `${money(totalARS)}<br><small style="font-size:0.8em; color:var(--pink-700);">${money(totalUSD, "USD")}</small>`
-    : money(totalARS);
+  if ($("budgetInput")) $("budgetInput").value = current.budget || "";
+  if ($("totalSpent")) {
+    $("totalSpent").innerHTML = totalUSD > 0
+      ? `${money(totalARS)}<br><small style="font-size:0.8em; color:var(--pink-700);">${money(totalUSD, "USD")}</small>`
+      : money(totalARS);
+  }
 
-  $("previousSpent").innerHTML = prevUSD > 0
-    ? `${money(prevARS)}<br><small style="font-size:0.8em; color:var(--pink-700);">${money(prevUSD, "USD")}</small>`
-    : money(prevARS);
+  if ($("previousSpent")) {
+    $("previousSpent").innerHTML = prevUSD > 0
+      ? `${money(prevARS)}<br><small style="font-size:0.8em; color:var(--pink-700);">${money(prevUSD, "USD")}</small>`
+      : money(prevARS);
+  }
 
-  $("budgetTotal").textContent = money(current.budget);
-  $("previousMonthLabel").textContent = monthName(prevMonth);
-  $("monthPill").textContent = monthName(month);
-  $("totalMonthName").textContent = shortMonthName(month).toUpperCase();
+  if ($("budgetTotal")) $("budgetTotal").textContent = money(current.budget);
+  if ($("previousMonthLabel")) $("previousMonthLabel").textContent = monthName(prevMonth);
+  if ($("monthPill")) $("monthPill").textContent = monthName(month);
+  if ($("totalMonthName")) $("totalMonthName").textContent = shortMonthName(month).toUpperCase();
 
-  $("tableTotal").textContent = money(totalARS);
+  if ($("tableTotal")) $("tableTotal").textContent = money(totalARS);
   const tableUSD = $("tableTotalUSD");
   if (tableUSD) {
     tableUSD.style.display = totalUSD > 0 ? "block" : "none";
     tableUSD.textContent = totalUSD > 0 ? `+ ${money(totalUSD, "USD")}` : "";
   }
 
-  $("expenseCount").textContent = `${current.expenses.length} ${current.expenses.length === 1 ? "gasto registrado" : "gastos registrados"}`;
-
-  const diffEl = $("difference");
-  if (prevARS === 0) {
-    diffEl.textContent = "—";
-    $("differenceLabel").textContent = "Sin datos comparables";
-    diffEl.className = "";
-  } else {
-    diffEl.textContent = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
-    $("differenceLabel").textContent = diffARS <= 0 ? `↓ ${percentageARS.toFixed(1)}% menos (ARS)` : `↑ ${percentageARS.toFixed(1)}% más (ARS)`;
-    diffEl.className = diffARS <= 0 ? "result-good" : "result-bad";
+  if ($("expenseCount")) {
+    $("expenseCount").textContent = `${current.expenses.length} ${current.expenses.length === 1 ? "gasto registrado" : "gastos registrados"}`;
   }
 
-  $("budgetStatus").textContent = current.budget
-    ? totalARS <= current.budget ? `${money(current.budget - totalARS)} disponibles` : `${money(totalARS - current.budget)} excedido`
-    : "Sin presupuesto";
-  $("budgetStatus").className = totalARS <= current.budget || !current.budget ? "" : "result-bad";
+  const diffEl = $("difference");
+  if (diffEl) {
+    if (prevARS === 0) {
+      diffEl.textContent = "—";
+      if ($("differenceLabel")) $("differenceLabel").textContent = "Sin datos comparables";
+      diffEl.className = "";
+    } else {
+      diffEl.textContent = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
+      if ($("differenceLabel")) {
+        $("differenceLabel").textContent = diffARS <= 0 ? `↓ ${percentageARS.toFixed(1)}% menos (ARS)` : `↑ ${percentageARS.toFixed(1)}% más (ARS)`;
+      }
+      diffEl.className = diffARS <= 0 ? "result-good" : "result-bad";
+    }
+  }
+
+  if ($("budgetStatus")) {
+    $("budgetStatus").textContent = current.budget
+      ? totalARS <= current.budget ? `${money(current.budget - totalARS)} disponibles` : `${money(totalARS - current.budget)} excedido`
+      : "Sin presupuesto";
+    $("budgetStatus").className = totalARS <= current.budget || !current.budget ? "" : "result-bad";
+  }
 
   renderMensualesExpensesTable(current.expenses);
   renderHistory();
@@ -366,6 +378,7 @@ function renderMensuales() {
 
 function renderMensualesExpensesTable(expenses) {
   const table = $("expenseTable");
+  if (!table) return;
   table.innerHTML = "";
 
   let list = expenses.slice();
@@ -374,7 +387,7 @@ function renderMensualesExpensesTable(expenses) {
     list = list.filter(e => (e.description || "").toLowerCase().includes(q) || (e.category || "").toLowerCase().includes(q));
   }
 
-  $("emptyState").style.display = list.length ? "none" : "grid";
+  if ($("emptyState")) $("emptyState").style.display = list.length ? "none" : "grid";
 
   list.sort((a, b) => String(a.date || "").localeCompare(String(b.date || ""))).forEach(e => {
     const row = document.createElement("tr");
@@ -438,6 +451,7 @@ $("searchMensualesInput")?.addEventListener("input", e => {
 
 function renderHistory() {
   const table = $("historyTable");
+  if (!table) return;
   table.innerHTML = "";
   const months = Object.keys(data.months).sort().reverse().slice(0, 6);
   if (!months.length) {
@@ -461,6 +475,8 @@ function renderHistory() {
 }
 
 function renderCategories(expenses) {
+  const chart = $("categoryChart");
+  if (!chart) return;
   const totals = {};
   expenses.forEach(e => {
     const curr = e.currency || "ARS";
@@ -470,7 +486,7 @@ function renderCategories(expenses) {
   const entries = Object.entries(totals).sort((a, b) => (b[1].ARS + b[1].USD) - (a[1].ARS + a[1].USD));
   const max = entries[0] ? Math.max(entries[0][1].ARS, entries[0][1].USD) : 1;
 
-  $("categoryChart").innerHTML = entries.length ? entries.map(([cat, vals]) => {
+  chart.innerHTML = entries.length ? entries.map(([cat, vals]) => {
     const label = vals.USD > 0 && vals.ARS > 0 ? `${money(vals.ARS)} + ${money(vals.USD, "USD")}` : vals.USD > 0 ? money(vals.USD, "USD") : money(vals.ARS);
     const val = vals.ARS > 0 ? vals.ARS : vals.USD;
     return `
@@ -483,9 +499,11 @@ function renderCategories(expenses) {
 }
 
 function renderTrend(month, totalARS, prevARS, totalUSD) {
+  const trendEl = $("trendText");
+  if (!trendEl) return;
   const cur = data.months[month];
   if (!cur || !cur.expenses.length) {
-    $("trendText").textContent = "Agregá gastos para analizar tus hábitos.";
+    trendEl.textContent = "Agregá gastos para analizar tus hábitos.";
     return;
   }
   let text = `En ${monthName(month)}, registraste ${money(totalARS)}${totalUSD > 0 ? ` y ${money(totalUSD, "USD")}` : ""} en ${cur.expenses.length} gastos.`;
@@ -493,7 +511,7 @@ function renderTrend(month, totalARS, prevARS, totalUSD) {
     const pct = ((totalARS - prevARS) / prevARS) * 100;
     text += pct <= 0 ? ` Representa un ahorro del ${Math.abs(pct).toFixed(1)}% respecto al mes anterior.` : ` Representa un incremento del ${pct.toFixed(1)}% respecto al mes anterior.`;
   }
-  $("trendText").textContent = text;
+  trendEl.textContent = text;
 }
 
 
@@ -563,8 +581,12 @@ function renderProximos() {
     else { totalARS += a; if (e.type === "debt") debtARS += a; }
   });
 
-  $("gpTotalPending").innerHTML = totalUSD > 0 ? `${money(totalARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(totalUSD, "USD")}</small>` : money(totalARS);
-  $("gpTotalDebts").innerHTML = debtUSD > 0 ? `${money(debtARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(debtUSD, "USD")}</small>` : money(debtARS);
+  if ($("gpTotalPending")) {
+    $("gpTotalPending").innerHTML = totalUSD > 0 ? `${money(totalARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(totalUSD, "USD")}</small>` : money(totalARS);
+  }
+  if ($("gpTotalDebts")) {
+    $("gpTotalDebts").innerHTML = debtUSD > 0 ? `${money(debtARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(debtUSD, "USD")}</small>` : money(debtARS);
+  }
 
   const today = new Date(); today.setHours(0,0,0,0);
   const next7 = new Date(today); next7.setDate(next7.getDate() + 7);
@@ -576,7 +598,9 @@ function renderProximos() {
     if (e.currency === "USD") n7USD += Number(e.amount || 0);
     else n7ARS += Number(e.amount || 0);
   });
-  $("gpNextSevenDays").innerHTML = n7USD > 0 ? `${money(n7ARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(n7USD, "USD")}</small>` : money(n7ARS);
+  if ($("gpNextSevenDays")) {
+    $("gpNextSevenDays").innerHTML = n7USD > 0 ? `${money(n7ARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(n7USD, "USD")}</small>` : money(n7ARS);
+  }
 
   const curM = today.getMonth();
   const curY = today.getFullYear();
@@ -588,7 +612,9 @@ function renderProximos() {
     if (e.currency === "USD") mUSD += Number(e.amount || 0);
     else mARS += Number(e.amount || 0);
   });
-  $("gpThisMonth").innerHTML = mUSD > 0 ? `${money(mARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(mUSD, "USD")}</small>` : money(mARS);
+  if ($("gpThisMonth")) {
+    $("gpThisMonth").innerHTML = mUSD > 0 ? `${money(mARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(mUSD, "USD")}</small>` : money(mARS);
+  }
 
   // Filtrado de lista
   let list = proximosExpenses.slice();
@@ -603,10 +629,11 @@ function renderProximos() {
 
   list.sort((a, b) => new Date(a.date) - new Date(b.date));
   const container = $("gpExpensesList");
+  if (!container) return;
   container.innerHTML = "";
 
-  $("gpItemsCount").textContent = `${list.length} registros`;
-  $("gpEmptyState").style.display = list.length === 0 ? "block" : "none";
+  if ($("gpItemsCount")) $("gpItemsCount").textContent = `${list.length} registros`;
+  if ($("gpEmptyState")) $("gpEmptyState").style.display = list.length === 0 ? "block" : "none";
 
   list.forEach(item => {
     const card = document.createElement("article");
@@ -887,7 +914,7 @@ $("pdfBtn")?.addEventListener("click", () => {
 
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
 
-  // Tarjetas métricas superiores
+  // Tarjetas métricas superiores con comas válidas
   const cards = [
     ["TOTAL GASTADO", cardSpentText],[cite: 2]
     ["MES ANTERIOR (ARS)", money(previousTotalARS)],[cite: 2]
@@ -976,7 +1003,7 @@ $("pdfBtn")?.addEventListener("click", () => {
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
 
-  const trend = $("trendText").textContent;
+  const trend = $("trendText") ? $("trendText").textContent : "";
   const lines = pdf.splitTextToSize(trend, 175);
   pdf.text(lines, 15, y + 7);
 
@@ -1043,7 +1070,7 @@ $("gpPdfBtn")?.addEventListener("click", () => {
   const strPending = totalPendingUSD > 0 ? `${money(totalPendingARS)} + ${money(totalPendingUSD, "USD")}` : money(totalPendingARS);
   const strDebts = debtsUSD > 0 ? `${money(debtsARS)} + ${money(debtsUSD, "USD")}` : money(debtsARS);
 
-  // 3 Tarjetas métricas superiores
+  // 3 Tarjetas métricas superiores con comas válidas
   const cards = [
     ["PENDIENTE TOTAL", strPending],
     ["DEUDAS", strDebts],
@@ -1212,7 +1239,7 @@ $("newUserBtn")?.addEventListener("click", async () => {
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-  $("monthPicker").value = currentMonthValue();
+  if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
 
   const toggleAmountsBtn = $("toggleAmountsBtn");
   if (localStorage.getItem("mensuales_hide_amounts") === "true") {
