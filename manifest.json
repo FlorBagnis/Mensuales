@@ -9,7 +9,8 @@
     {
       "src": "./icono-app.jpg",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any maskable"
     }
   ]
 }
