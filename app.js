@@ -1408,34 +1408,3 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCollapsible("toggleTableBtn", document.querySelector(".table-container-collapsible"), "mensuales_table_collapsed", "tabla");
   setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
 });
-
-// --- LÓGICA PARA EL BOTÓN DE INSTALACIÓN PWA CON MOÑO ROSA ---
-let deferredPrompt;
-const installBtn = document.getElementById('installAppBtn');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
-
-if (installBtn) {
-  installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        console.log('¡Usuario aceptó instalar la app!');
-      }
-      deferredPrompt = null;
-    } else {
-      alert('Para instalar la app en tu PC, hacé clic en el ícono de instalación en la barra de direcciones o en el menú del navegador (tres rayitas/puntitos). En iPhone, usá el botón Compartir > Añadir a pantalla de inicio.');
-    }
-  });
-}
-
-window.addEventListener('appinstalled', () => {
-  if (installBtn) {
-    installBtn.style.display = 'none';
-  }
-  console.log('¡La PWA fue instalada con éxito!');
-});
