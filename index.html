@@ -105,7 +105,6 @@
     body.dark-mode .summary-card span,
     body.dark-mode .summary-card small {
       color: #ffb6c1 !important;
-      background-color: transparent !important;
     }
 
     body.dark-mode input, 
@@ -119,20 +118,17 @@
       color: #a37584 !important;
     }
 
-    /* Forzar que ningún elemento interno de las tarjetas de resumen tenga fondo blanco en modo oscuro */
-    body.dark-mode .summary-card,
-    body.dark-mode .summary-card * {
-      background-color: transparent !important;
-    }
+    /* Forzar tarjetas de resumen limpias en modo oscuro */
     body.dark-mode .summary-card {
       background-color: #2a161d !important;
     }
 
-    /* SOLUCIÓN DEFINITIVA: Neutralizar el fondo blanco de los montos ocultos en modo oscuro */
-    body.amounts-hidden.dark-mode .summary-card *,
-    body.dark-mode.amounts-hidden .summary-card * {
-      background: transparent !important;
-      background-color: transparent !important;
+    /* SOLUCIÓN DEFINITIVA PARA LA BARRA DE OCULTAR MONTOS EN MODO OSCURO */
+    body.dark-mode.amounts-hidden .summary-card strong,
+    body.amounts-hidden.dark-mode .summary-card strong,
+    body.dark-mode.amounts-hidden strong,
+    body.amounts-hidden.dark-mode strong {
+      background-color: #4e2b37 !important;
       color: #ffb6c1 !important;
     }
   </style>
