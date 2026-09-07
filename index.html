@@ -110,6 +110,15 @@
     body.dark-mode input::placeholder {
       color: #a37584 !important;
     }
+
+    /* Forzar que ningún elemento interno de las tarjetas de resumen tenga fondo blanco en modo oscuro */
+    body.dark-mode .summary-card,
+    body.dark-mode .summary-card * {
+      background-color: transparent !important;
+    }
+    body.dark-mode .summary-card {
+      background-color: #2a161d !important;
+    }
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
