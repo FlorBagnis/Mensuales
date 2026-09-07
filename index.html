@@ -13,7 +13,23 @@
 
   <link rel="stylesheet" href="styles.css">
   
-  <!-- Estilos adaptados con sombras y animaciones unificadas para todos los botones -->
+  <!-- Control instantáneo para evitar el parpadeo del login al recargar -->
+  <script>
+    try {
+      const hasSession = Object.keys(localStorage).some(k => k.includes('firebase:authUser') || k.includes('auth'));
+      if (hasSession) {
+        document.documentElement.classList.add('preload-logged-in');
+      } else {
+        document.documentElement.classList.add('preload-logged-out');
+      }
+    } catch(e) {}
+  </script>
+  <style>
+    .preload-logged-in #authSection { display: none !important; }
+    .preload-logged-out #appContent { display: none !important; }
+  </style>
+
+  <!-- Estilos adaptados para Modo Claro, Modo Oscuro y Hover de botones -->
   <style>
     /* --- MODO CLARO --- */
     thead, th, .table-wrap th {
