@@ -927,20 +927,10 @@ body.dark-mode .empty-state strong {
   color: #ffdbe4;
 }
 
-body.dark-mode body.amounts-hidden #totalSpent::after,
-body.dark-mode.amounts-hidden #previousSpent::after,
-body.dark-mode.amounts-hidden #difference::after,
-body.amounts-hidden.dark-mode #budgetTotal::after,
-body.amounts-hidden.dark-mode #tableTotal::after,
-body.amounts-hidden.dark-mode .amount::after,
-body.amounts-hidden.dark-mode #budgetStatus::after,
-body.amounts-hidden.dark-mode #budgetInput::after,
-body.amounts-hidden.dark-mode #gpTotalPending::after,
-body.amounts-hidden.dark-mode #gpNextSevenDays::after,
-body.amounts-hidden.dark-mode #gpThisMonth::after,
-body.amounts-hidden.dark-mode #gpTotalDebts::after,
-body.amounts-hidden.dark-mode .gp-card-amount::after {
-  background-color: #211620;
+/* REEMPLAZO UNIVERSAL: Solución definitiva para el fondo de ocultar montos en modo oscuro */
+body.dark-mode.amounts-hidden *::after,
+body.amounts-hidden.dark-mode *::after {
+  background-color: #211620 !important;
   color: #ff9db4 !important;
 }
 
