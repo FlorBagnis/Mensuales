@@ -849,7 +849,6 @@ function generateMensualesPDF() {
       }
 
       const curr = expense.currency || "ARS";
-      // Elimina el emoji 🔄 para el PDF y deja exclusivamente el formato "Cuota X/Y"
       const cleanDescription = String(expense.description || "").replace("🔄 ", "").trim();
 
       pdf.setTextColor(...dark);
@@ -1205,7 +1204,6 @@ document.addEventListener("DOMContentLoaded", () => {
   $("closeDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
   $("cancelDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
 
-  // SUBMIT CON EMOJI EN LA WEB Y FORMATO LIMPIO DE CUOTAS
   $("expenseForm")?.addEventListener("submit", async e => {
     e.preventDefault();
     const editingId = $("expenseForm").dataset.editingId;
@@ -1257,7 +1255,6 @@ document.addEventListener("DOMContentLoaded", () => {
             amount = Number(customInputs[i].value) || baseAmount;
           }
 
-          // Formato: 🔄 Descripción (Cuota X/Y) para la app web
           const finalDescription = `🔄 ${description} (Cuota ${i + 1}/${count})`;
 
           const expense = { id: createId("expense"), date: dateStr, description: finalDescription, category, amount, currency };
@@ -1412,14 +1409,9 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
 });
 
-// --- LÓGICA PARA EL BOTÓN DE INSTALACIÓN PWA ---
+// --- LÓGICA PARA EL BOTÓN DE INSTALACIÓN PWA CON MOÑO ROSA ---
 let deferredPrompt;
 const installBtn = document.getElementById('installAppBtn');
-
-// Forzamos a que el botón se muestre siempre para que tengas acceso directo
-if (installBtn) {
-  installBtn.style.display = 'inline-flex';
-}
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -1429,7 +1421,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 if (installBtn) {
   installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
-      // Muestra el cartel nativo de instalación si el navegador lo tiene listo
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
@@ -1437,13 +1428,11 @@ if (installBtn) {
       }
       deferredPrompt = null;
     } else {
-      // Si el navegador bloqueó el evento automático, te avisa dónde instalarla
       alert('Para instalar la app en tu PC, hacé clic en el ícono de instalación en la barra de direcciones o en el menú del navegador (tres rayitas/puntitos). En iPhone, usá el botón Compartir > Añadir a pantalla de inicio.');
     }
   });
 }
 
-// Si la app ya está instalada, oculta el botón
 window.addEventListener('appinstalled', () => {
   if (installBtn) {
     installBtn.style.display = 'none';
