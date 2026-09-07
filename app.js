@@ -3,19 +3,6 @@
    FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
 ========================================================= */
 
-// Verificación instantánea de sesión en localStorage para evitar el pantallazo de login
-const authSection = document.getElementById('authSection');
-const appContent = document.getElementById('appContent');
-
-// Detecta si hay una sesión guardada (por ejemplo, la clave típica de Firebase o una propia)
-const hasActiveSession = Object.keys(localStorage).some(key => key.startsWith('firebase:authUser:') || key.includes('auth'));
-
-if (hasActiveSession && authSection && appContent) {
-  // Oculta el login y muestra la app de inmediato antes de que cargue el resto del script
-  authSection.classList.add('hidden');
-  appContent.classList.remove('hidden');
-}
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import {
   getAuth,
@@ -48,6 +35,21 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+
+// Oculta ambas secciones de entrada de forma preventiva para evitar parpadeos visuales al recargar
+const authSection = document.getElementById('authSection');
+const appContent = document.getElementById('appContent');
+if (authSection) authSection.classList.add('hidden');
+if (appContent) appContent.classList.add('hidden');
+
+// Espera a que Firebase lea la sesión interna de forma segura antes de mostrar pantallas
+auth.authStateReady().then(() => {
+  if (!auth.currentUser) {
+    if (authSection) authSection.classList.remove('hidden');
+  } else {
+    if (appContent) appContent.classList.remove('hidden');
+  }
+});
 
 // Service Worker (PWA)
 if ("serviceWorker" in navigator) {
@@ -350,13 +352,11 @@ function renderMensualesExpensesTable(expenses) {
 
   let list = expenses.slice();
 
-  // Filtro por texto de búsqueda
   if (searchMensualesTerm.trim() !== "") {
     const q = searchMensualesTerm.toLowerCase();
     list = list.filter(e => (e.description || "").toLowerCase().includes(q) || (e.category || "").toLowerCase().includes(q));
   }
 
-  // Filtro por categoría seleccionada (lectura directa y segura del select)
   const categoryFilterValue = $("filterCategorySelect")?.value || "";
   if (categoryFilterValue.trim() !== "") {
     const targetCat = categoryFilterValue.trim().toLowerCase();
@@ -599,7 +599,6 @@ function renderProximos() {
     $("gpThisMonth").innerHTML = mUSD > 0 ? `${money(mARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(mUSD, "USD")}</small>` : money(mARS);
   }
 
-  // Filtrado
   let list = proximosExpenses.slice();
   if (gpCurrentFilter === "pending") list = list.filter(e => !e.paid);
   else if (gpCurrentFilter === "paid") list = list.filter(e => e.paid);
@@ -770,7 +769,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (LIMPIOS Y SIN CARACTERES ROTOS)
+   REPORTES PDF
 ========================================================= */
 
 function generateMensualesPDF() {
