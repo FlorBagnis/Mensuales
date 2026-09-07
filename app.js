@@ -780,9 +780,9 @@ function generateMensualesPDF() {
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
 
   const cards = [
-    ["TOTAL GASTADO", cardSpentText],[cite: 2]
-    ["MES ANTERIOR (ARS)", money(previousTotalARS)],[cite: 2]
-    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`][cite: 2]
+    ["TOTAL GASTADO", cardSpentText],
+    ["MES ANTERIOR (ARS)", money(previousTotalARS)],
+    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`]
   ];
 
   cards.forEach((card, index) => {
@@ -1032,10 +1032,8 @@ function generateProximosPDF() {
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicialización de Inputs
   if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
 
-  // Autenticación
   $("authSwitchBtn")?.addEventListener("click", () => {
     authMode = authMode === "login" ? "register" : "login";
     updateAuthInterface();
@@ -1076,7 +1074,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Pestañas
   $("tabMensualesBtn")?.addEventListener("click", () => {
     $("tabMensualesBtn").className = "btn btn-pink";
     if ($("tabProximosBtn")) $("tabProximosBtn").className = "btn btn-outline";
@@ -1091,16 +1088,13 @@ document.addEventListener("DOMContentLoaded", () => {
     $("viewMensuales")?.classList.add("hidden");
   });
 
-  // Búsqueda y Mes
   $("monthPicker")?.addEventListener("change", () => renderMensuales());
   $("searchMensualesInput")?.addEventListener("input", e => {
     searchMensualesTerm = e.target.value;
     renderMensuales();
   });
 
-  // ---------------------------------------------------------
-  // LÓGICA DE REPETIR GASTO EN MODAL
-  // ---------------------------------------------------------
+  // GASTO RECURRENTE (REPETIR GASTO)
   const expenseRecurring = $("expenseRecurring");
   const recurringOptions = $("recurringOptions");
   const recurringChangingAmount = $("recurringChangingAmount");
@@ -1160,8 +1154,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-
-  // Acciones Mensuales
   $("saveBudgetBtn")?.addEventListener("click", async () => {
     const month = $("monthPicker")?.value;
     if (!month) return;
@@ -1185,7 +1177,6 @@ document.addEventListener("DOMContentLoaded", () => {
   $("closeDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
   $("cancelDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
 
-  // SUBMIT DEL FORMULARIO DE GASTO MENSUAL (INCLUYE REPETICIÓN)
   $("expenseForm")?.addEventListener("submit", async e => {
     e.preventDefault();
     const editingId = $("expenseForm").dataset.editingId;
@@ -1212,7 +1203,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const isRecurring = expenseRecurring?.checked;
       
       if (!isRecurring) {
-        // Gasto único normal
         const expense = { id: createId("expense"), date: baseDateStr, description, category, amount: baseAmount, currency };
         const month = baseDateStr.slice(0, 7);
         const monthData = ensureMonth(month);
@@ -1220,7 +1210,6 @@ document.addEventListener("DOMContentLoaded", () => {
         renderMensuales();
         await saveMonthToFirestore(month);
       } else {
-        // Gasto recurrente (repetir en varios meses)
         const count = Number(recurringDuration?.value) || 6;
         const interval = Number(recurringMonthsInput?.value) || 1;
         const dayNum = Number(recurringDay?.value) || 10;
@@ -1271,7 +1260,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
   });
 
-  // Acciones Próximos
   document.querySelectorAll(".gp-filter").forEach(b => {
     b.onclick = () => {
       document.querySelectorAll(".gp-filter").forEach(x => x.className = "btn btn-outline btn-sm gp-filter");
@@ -1321,7 +1309,6 @@ document.addEventListener("DOMContentLoaded", () => {
     $("gpModal")?.close();
   });
 
-  // Exportaciones
   $("mensualesCsvBtn")?.addEventListener("click", () => {
     const month = $("monthPicker")?.value;
     const current = ensureMonth(month);
@@ -1349,7 +1336,6 @@ document.addEventListener("DOMContentLoaded", () => {
   $("pdfBtn")?.addEventListener("click", generateMensualesPDF);
   $("gpPdfBtn")?.addEventListener("click", generateProximosPDF);
 
-  // Ocultar Montos
   const toggleAmountsBtn = $("toggleAmountsBtn");
   if (localStorage.getItem("mensuales_hide_amounts") === "true") {
     document.body.classList.add("amounts-hidden");
@@ -1362,7 +1348,6 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleAmountsBtn.textContent = hidden ? "👁️ Mostrar montos" : "👁️ Ocultar montos";
   });
 
-  // Modo Oscuro
   const toggleThemeBtn = $("toggleThemeBtn");
   if (localStorage.getItem("mensuales_theme") === "dark") {
     document.body.classList.add("dark-mode");
@@ -1375,7 +1360,6 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleThemeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
   });
 
-  // Acordeones colapsables
   function setupCollapsible(btnId, container, storageKey, label) {
     const btn = $(btnId);
     if (!btn || !container) return;
