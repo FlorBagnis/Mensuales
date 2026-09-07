@@ -1416,42 +1416,37 @@ document.addEventListener("DOMContentLoaded", () => {
 let deferredPrompt;
 const installBtn = document.getElementById('installAppBtn');
 
+// Forzamos a que el botón se muestre siempre para que tengas acceso directo
+if (installBtn) {
+  installBtn.style.display = 'inline-flex';
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
-  // Previene que aparezca el banner automático feo del navegador
   e.preventDefault();
-  // Guarda el evento para usarlo después cuando toquen tu botón
   deferredPrompt = e;
-  
-  // Muestra tu botón personalizado
-  if (installBtn) {
-    installBtn.style.display = 'inline-flex';
-  }
 });
 
 if (installBtn) {
   installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    
-    // Muestra el cartel nativo de instalación
-    deferredPrompt.prompt();
-    
-    // Espera a que el usuario elija
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      console.log('¡Usuario aceptó instalar la app!');
+    if (deferredPrompt) {
+      // Muestra el cartel nativo de instalación si el navegador lo tiene listo
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        console.log('¡Usuario aceptó instalar la app!');
+      }
+      deferredPrompt = null;
+    } else {
+      // Si el navegador de escritorio bloqueó el evento automático, te avisa cómo instalarla
+      alert('Para instalar la app en tu PC, hacé clic en el ícono de instalación en la barra de direcciones o en el menú del navegador (tres rayitas/puntitos). En iPhone, usá el botón Compartir > Añadir a pantalla de inicio.');
     }
-    
-    // Limpia el evento porque ya se usó
-    deferredPrompt = null;
-    installBtn.style.display = 'none';
   });
 }
 
-// Si la app ya está instalada, oculta el botón por las dudas
+// Si la app ya está instalada, oculta el botón
 window.addEventListener('appinstalled', () => {
   if (installBtn) {
     installBtn.style.display = 'none';
   }
   console.log('¡La PWA fue instalada con éxito!');
 });
-
