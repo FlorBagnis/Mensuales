@@ -1411,3 +1411,47 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCollapsible("toggleTableBtn", document.querySelector(".table-container-collapsible"), "mensuales_table_collapsed", "tabla");
   setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
 });
+
+// --- LÓGICA PARA EL BOTÓN DE INSTALACIÓN PWA ---
+let deferredPrompt;
+const installBtn = document.getElementById('installAppBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Previene que aparezca el banner automático feo del navegador
+  e.preventDefault();
+  // Guarda el evento para usarlo después cuando toquen tu botón
+  deferredPrompt = e;
+  
+  // Muestra tu botón personalizado
+  if (installBtn) {
+    installBtn.style.display = 'inline-flex';
+  }
+});
+
+if (installBtn) {
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    
+    // Muestra el cartel nativo de instalación
+    deferredPrompt.prompt();
+    
+    // Espera a que el usuario elija
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      console.log('¡Usuario aceptó instalar la app!');
+    }
+    
+    // Limpia el evento porque ya se usó
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+  });
+}
+
+// Si la app ya está instalada, oculta el botón por las dudas
+window.addEventListener('appinstalled', () => {
+  if (installBtn) {
+    installBtn.style.display = 'none';
+  }
+  console.log('¡La PWA fue instalada con éxito!');
+});
+
