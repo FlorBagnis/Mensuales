@@ -1,6 +1,6 @@
 /* =========================================================
-   MENSUALES & GASTOS PRÓXIMOS (SISTEMA UNIFICADO)
-   FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
+    MENSUALES & GASTOS PRÓXIMOS (SISTEMA UNIFICADO)
+    FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
@@ -60,7 +60,7 @@ const $ = id => document.getElementById(id);
 
 
 /* =========================================================
-   UTILIDADES Y FORMATOS
+    UTILIDADES Y FORMATOS
 ========================================================= */
 
 function money(value, currency = "ARS") {
@@ -124,7 +124,7 @@ function createId(prefix = "expense") {
 
 
 /* =========================================================
-   COTIZACIÓN DÓLAR BLUE
+    COTIZACIÓN DÓLAR BLUE
 ========================================================= */
 
 async function fetchDolarBlue() {
@@ -143,7 +143,7 @@ async function fetchDolarBlue() {
 
 
 /* =========================================================
-   AUTENTICACIÓN
+    AUTENTICACIÓN
 ========================================================= */
 
 function setAuthMessage(message, success = false) {
@@ -171,7 +171,7 @@ function updateAuthInterface() {
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   if (!user) {
-    localStorage.removeItem('user_logged_in'); // Limpia la bandera al salir
+    localStorage.removeItem('user_logged_in');
     stopAllSync();
     data = { months: {} };
     proximosExpenses = [];
@@ -182,7 +182,7 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  localStorage.setItem('user_logged_in', 'true'); // Activa la bandera para evitar parpadeos
+  localStorage.setItem('user_logged_in', 'true');
   $("authSection")?.classList.add("hidden");
   $("appContent")?.classList.remove("hidden");
   if ($("userEmail")) $("userEmail").textContent = user.email || "";
@@ -198,7 +198,7 @@ onAuthStateChanged(auth, async user => {
 
 
 /* =========================================================
-   FIRESTORE: MENSUALES
+    FIRESTORE: MENSUALES
 ========================================================= */
 
 function ensureMonth(month) {
@@ -249,7 +249,7 @@ function stopAllSync() {
 
 
 /* =========================================================
-   RENDER: MENSUALES
+    RENDER: MENSUALES
 ========================================================= */
 
 function renderMensuales() {
@@ -292,13 +292,6 @@ function renderMensuales() {
   if ($("previousMonthLabel")) $("previousMonthLabel").textContent = monthName(prevMonth);
   if ($("monthPill")) $("monthPill").textContent = monthName(month);
   if ($("totalMonthName")) $("totalMonthName").textContent = shortMonthName(month).toUpperCase();
-
-  if ($("tableTotal")) $("tableTotal").textContent = money(totalARS);
-  const tableUSD = $("tableTotalUSD");
-  if (tableUSD) {
-    tableUSD.style.display = totalUSD > 0 ? "block" : "none";
-    tableUSD.textContent = totalUSD > 0 ? `+ ${money(totalUSD, "USD")}` : "";
-  }
 
   if ($("expenseCount")) {
     $("expenseCount").textContent = `${current.expenses.length} ${current.expenses.length === 1 ? "gasto registrado" : "gastos registrados"}`;
@@ -349,6 +342,22 @@ function renderMensualesExpensesTable(expenses) {
     const targetCat = categoryFilterValue.trim().toLowerCase();
     list = list.filter(e => String(e.category || "").trim().toLowerCase() === targetCat);
   }
+
+  // --- CÁLCULO DE TOTALES SEGÚN EL FILTRADO ACTUAL ---
+  let filteredARS = 0;
+  let filteredUSD = 0;
+  list.forEach(e => {
+    if (e.currency === "USD") filteredUSD += Number(e.amount || 0);
+    else filteredARS += Number(e.amount || 0);
+  });
+
+  if ($("tableTotal")) $("tableTotal").textContent = money(filteredARS);
+  const tableUSD = $("tableTotalUSD");
+  if (tableUSD) {
+    tableUSD.style.display = filteredUSD > 0 ? "block" : "none";
+    tableUSD.textContent = filteredUSD > 0 ? `+ ${money(filteredUSD, "USD")}` : "";
+  }
+  // ---------------------------------------------------
 
   if ($("emptyState")) $("emptyState").style.display = list.length ? "none" : "grid";
 
@@ -482,7 +491,7 @@ function renderTrend(month, totalARS, prevARS, totalUSD) {
 
 
 /* =========================================================
-   FIRESTORE: GASTOS PRÓXIMOS
+    FIRESTORE: GASTOS PRÓXIMOS
 ========================================================= */
 
 function startProximosSync() {
@@ -739,7 +748,7 @@ async function deleteProximo(id) {
 
 
 /* =========================================================
-   EXPORTAR CSV
+    EXPORTAR CSV
 ========================================================= */
 
 function downloadCSV(rows, filename) {
@@ -756,7 +765,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF
+    REPORTES PDF
 ========================================================= */
 
 function generateMensualesPDF() {
@@ -1063,7 +1072,7 @@ function generateProximosPDF() {
 
 
 /* =========================================================
-   INICIALIZACIÓN SEGURA DE EVENTOS
+    INICIALIZACIÓN SEGURA DE EVENTOS
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1102,7 +1111,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("logoutBtn")?.addEventListener("click", async () => {
     if (!confirm("¿Querés cerrar sesión?")) return;
     try {
-      localStorage.removeItem('user_logged_in'); // Limpia la bandera al cerrar sesión
+      localStorage.removeItem('user_logged_in');
       stopAllSync();
       await signOut(auth);
     } catch (err) {
