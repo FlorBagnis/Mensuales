@@ -1437,7 +1437,7 @@ if (installBtn) {
       }
       deferredPrompt = null;
     } else {
-      // Si el navegador de escritorio bloqueó el evento automático, te avisa cómo instalarla
+      // Si el navegador bloqueó el evento automático, te avisa dónde instalarla
       alert('Para instalar la app en tu PC, hacé clic en el ícono de instalación en la barra de direcciones o en el menú del navegador (tres rayitas/puntitos). En iPhone, usá el botón Compartir > Añadir a pantalla de inicio.');
     }
   });
