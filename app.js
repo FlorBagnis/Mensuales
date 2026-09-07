@@ -748,7 +748,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF
+   REPORTES PDF (LIMPIOS Y SIN CARACTERES ROTOS)
 ========================================================= */
 
 function generateMensualesPDF() {
@@ -849,10 +849,13 @@ function generateMensualesPDF() {
       }
 
       const curr = expense.currency || "ARS";
+      // Elimina el emoji 🔄 para el PDF y deja exclusivamente el formato "Cuota X/Y"
+      const cleanDescription = String(expense.description || "").replace("🔄 ", "").trim();
+
       pdf.setTextColor(...dark);
       pdf.setFontSize(7);
       pdf.text(formatDate(expense.date), 18, y + 5);
-      pdf.text(String(expense.description).slice(0, 35), 45, y + 5);
+      pdf.text(cleanDescription.slice(0, 35), 45, y + 5);
       pdf.text(String(expense.category).slice(0, 18), 120, y + 5);
       pdf.text(money(expense.amount, curr), 165, y + 5);
 
@@ -901,7 +904,8 @@ function generateMensualesPDF() {
     trendString += ` La categoría con mayor gasto fue ${topCategory[0]} (${money(topCategory[1])}).`;
   }
   if (highestExpense) {
-    trendString += ` El concepto en el que más gastaste fue "${highestExpense.description}" (${money(highestExpense.amount, highestExpense.currency || "ARS")}).`;
+    const cleanHighDesc = String(highestExpense.description || "").replace("🔄 ", "").trim();
+    trendString += ` El concepto en el que más gastaste fue "${cleanHighDesc}" (${money(highestExpense.amount, highestExpense.currency || "ARS")}).`;
   }
 
   const lines = pdf.splitTextToSize(trendString, 175);
@@ -1015,11 +1019,12 @@ function generateProximosPDF() {
     const state = expense.paid ? "Pagado" : expense.type === "debt" ? "Deuda" : "Pendiente";
     const curr = expense.currency || "ARS";
     const amountStr = expense.amount !== null ? money(expense.amount, curr) : "A definir";
+    const cleanDesc = String(expense.description || "").replace("🔄 ", "").trim();
 
     pdf.setTextColor(...dark);
     pdf.setFontSize(7);
     pdf.text(formatDate(expense.date), 18, y + 5);
-    pdf.text(String(expense.description || "").slice(0, 38), 42, y + 5);
+    pdf.text(cleanDesc.slice(0, 38), 42, y + 5);
     pdf.text(getCategoryName(expense.category), 115, y + 5);
     pdf.text(state, 145, y + 5);
     pdf.text(amountStr, 170, y + 5);
@@ -1117,7 +1122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
   });
 
-  // LÓGICA DE REPETIR GASTO (CON CAMPOS DE MESES, DÍA Y MONTO DINÁMICO)
+  // LÓGICA DE REPETIR GASTO
   const expenseRecurring = $("expenseRecurring");
   const recurringOptions = $("recurringOptions");
   const recurringChangingAmount = $("recurringChangingAmount");
@@ -1200,7 +1205,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("closeDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
   $("cancelDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
 
-  // SUBMIT DEL FORMULARIO CON INCLUSIÓN AUTOMÁTICA DE EMOJI DE REPETIR Y CUOTAS
+  // SUBMIT CON EMOJI EN LA WEB Y FORMATO LIMPIO DE CUOTAS
   $("expenseForm")?.addEventListener("submit", async e => {
     e.preventDefault();
     const editingId = $("expenseForm").dataset.editingId;
@@ -1252,7 +1257,7 @@ document.addEventListener("DOMContentLoaded", () => {
             amount = Number(customInputs[i].value) || baseAmount;
           }
 
-          // Se agrega el emoji de repetir y el contador de cuotas en formato limpio (Ej: "🔄 Prestamo mama (Cuota 1/6)")
+          // Formato: 🔄 Descripción (Cuota X/Y) para la app web
           const finalDescription = `🔄 ${description} (Cuota ${i + 1}/${count})`;
 
           const expense = { id: createId("expense"), date: dateStr, description: finalDescription, category, amount, currency };
