@@ -855,11 +855,9 @@ function generateMensualesPDF() {
   const lines = pdf.splitTextToSize(trend, 175);
   pdf.text(lines, 15, y + 7);
 
- pdf.setFontSize(7);
+  pdf.setFontSize(7);
   pdf.setTextColor(160, 110, 125);
-  pdf.text("MENSUALES · Creado por Flor Bagnis ", 15, 287);
-  pdf.setTextColor(245, 107, 139); // Color rosa
-  pdf.text("\u2665", 63, 287); // Corazón rosa ♥
+  pdf.text("MENSUALES · Creado por Flor Bagnis ♥", 15, 287);
 
   pdf.save(`MENSUALES-${month}.pdf`);
 }
@@ -992,11 +990,9 @@ function generateProximosPDF() {
   pdf.text("TOTAL PENDIENTE DE PAGO", 18, y + 6);
   pdf.text(strPending, 150, y + 6);
 
- pdf.setFontSize(7);
+  pdf.setFontSize(7);
   pdf.setTextColor(160, 140, 150);
-  pdf.text("Gastos Próximos · Creado por Flor Bagnis ", 15, 287);
-  pdf.setTextColor(232, 93, 158); // Color rosa
-  pdf.text("\u2665", 68, 287); // Corazón rosa ♥
+  pdf.text("Gastos Próximos · Creado por Flor Bagnis ♥", 15, 287);
 
   pdf.save(`Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
