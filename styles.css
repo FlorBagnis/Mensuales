@@ -1044,3 +1044,176 @@ body.dark-mode #gpExpensesList .expense {
   border-color: #3d2d39 !important;
 }
 
+/* =========================================================
+   DISEÑO PROLIJO: TARJETAS DE GASTOS PRÓXIMOS
+========================================================= */
+
+#gpExpensesList {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.gp-expense-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #ffccd9;
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 15px rgba(132, 38, 67, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gp-expense-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(132, 38, 67, 0.08);
+}
+
+.gp-card-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gp-card-icon {
+  font-size: 2rem;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pink-50, #fff3f6);
+  border-radius: 12px;
+}
+
+.gp-card-details h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink, #55152d);
+}
+
+.gp-card-details p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted, #8f6876);
+}
+
+.gp-tags-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.gp-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.gp-status-pending {
+  background: #fff0f4;
+  color: var(--pink-700, #9f2449);
+}
+
+.gp-status-debt {
+  background: #ffe3ea;
+  color: var(--red, #c63b55);
+}
+
+.gp-status-paid {
+  background: #e8f5e9;
+  color: var(--green, #269b58);
+}
+
+.gp-card-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.gp-card-date {
+  font-size: 0.8rem;
+  color: var(--muted, #8f6876);
+}
+
+.gp-card-date strong {
+  color: var(--ink, #55152d);
+}
+
+.gp-card-amount {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ink, #55152d);
+}
+
+.gp-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.gp-btn-action {
+  border: 1px solid var(--pink-300, #ff9db4);
+  background: #ffffff;
+  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.gp-btn-action:hover {
+  transform: scale(1.08);
+}
+
+.gp-btn-pay {
+  background: var(--pink-500, #f56b8b);
+  border-color: var(--pink-500, #f56b8b);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.gp-btn-pay.is-paid {
+  background: #ffffff;
+  border-color: #f3c9d4;
+  color: #c63b55;
+}
+
+.gp-btn-delete {
+  color: var(--red, #c63b55);
+}
+
+/* Compatibilidad con Modo Oscuro */
+body.dark-mode .gp-expense-card {
+  background: #211620;
+  border-color: #3b2334;
+}
+
+body.dark-mode .gp-card-icon {
+  background: #2d1825;
+}
+
+body.dark-mode .gp-card-details h3,
+body.dark-mode .gp-card-amount,
+body.dark-mode .gp-card-date strong {
+  color: #ffdbe4;
+}
+
+body.dark-mode .gp-btn-action {
+  background: #281b26;
+  border-color: #4a293b;
+  color: #ffdbe4;
+}
+
