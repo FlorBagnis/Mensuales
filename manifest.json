@@ -1,17 +1,15 @@
 {
-  "name": "MENSUALES",
+  "name": "Mensuales & Gastos Próximos",
   "short_name": "Mensuales",
-  "description": "Control de gastos y pagos pendientes",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ff7597",
+  "theme_color": "#f56b8b",
   "icons": [
     {
-      "src": "https://api.iconify.design/twemoji:cherry-blossom.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "./icono-app.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
     }
   ]
 }
