@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mensuales-cache-v1';
+const CACHE_NAME = 'mensuales-cache-v2';
 const urlsToCache = [
   "./",
   "./index.html",
@@ -8,7 +8,7 @@ const urlsToCache = [
   "./icono.png"
 ];
 
-// Instalación segura del Service Worker
+// Instalación segura (sin usar addAll estricto para que no se rompa si falta algo)
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
@@ -16,7 +16,7 @@ self.addEventListener('install', event => {
         try {
           await cache.add(url);
         } catch (err) {
-          console.warn('No se pudo guardar en caché el archivo:', url, err);
+          console.warn('Archivo omitido en caché:', url);
         }
       }
     })
@@ -24,7 +24,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Activación y limpieza de cachés antiguas
+// Activación y limpieza de versiones viejas
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -37,16 +37,14 @@ self.addEventListener('activate', event => {
       );
     })
   );
-  self.clientsClaim();
+  self.clients.claim(); // <-- Corregido correctamente con el punto
 });
 
-// Interceptar peticiones para que funcione offline
+// Interceptar peticiones
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
-    }).catch(() => {
-      // Si falla la red y no está en caché, puedes retornar una página offline si lo deseas
-    })
+    }).catch(() => {})
   );
 });
