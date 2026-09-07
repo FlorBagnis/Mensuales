@@ -13,16 +13,39 @@
 
   <link rel="stylesheet" href="styles.css">
   
-  <!-- Estilos para suavizar los elementos de abajo a tonos pasteles -->
+  <!-- Estilos para suavizar elementos y darles el efecto de movimiento a los botones -->
   <style>
-    /* Suaviza las cabeceras de tablas y fondos fuertes a tono pastel */
+    /* Cabeceras de tablas y fondos pasteles */
     thead, th, .table-wrap th {
       background-color: #fbc4d4 !important;
       color: #5a2337 !important;
     }
-    /* Suaviza las barras de progreso de las categorías */
+    /* Barras de progreso de categorías */
     .category-chart div, .category-bar, progress {
       background-color: #fbc4d4 !important;
+    }
+
+    /* Clase para los botones pasteles con el rebote/movimiento idéntico al de los demás */
+    .pastel-btn {
+      background: #fbc4d4 !important;
+      color: #5a2337 !important;
+      border: 1px solid #f29cb5 !important;
+      border-radius: 12px !important;
+      padding: 11px 18px !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      font-size: 13px !important;
+      box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
+      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+      cursor: pointer !important;
+    }
+    .pastel-btn:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
     }
   </style>
 
@@ -54,7 +77,7 @@
           <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
         </label>
 
-        <button id="authSubmitBtn" type="submit" style="background: #fbc4d4; color: #5a2337; border: 1px solid #f29cb5; border-radius: 12px; padding: 12px; font-weight: 700; width: 100%; cursor: pointer;" class="auth-submit">
+        <button id="authSubmitBtn" type="submit" class="pastel-btn auth-submit" style="width: 100%;">
           Iniciar sesión
         </button>
       </form>
@@ -88,8 +111,8 @@
       <div class="header-actions" style="margin-top: 12px;">
         <span id="userEmail" class="user-email"></span>
         
-        <!-- Botón con estética suave, pastel y armoniosa -->
-        <a href="https://gastos-proximos.vercel.app/" style="background: #fbc4d4; color: #5a2337; border: 1px solid #f29cb5; border-radius: 12px; padding: 12px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08);">
+        <!-- Botón con estética suave, pastel y con animación de movimiento -->
+        <a href="https://gastos-proximos.vercel.app/" class="pastel-btn">
           🌸 Próximos & Deudas
         </a>
 
@@ -126,7 +149,9 @@
             </div>
           </div>
 
-          <button id="saveBudgetBtn" style="background: #fbc4d4; color: #5a2337; border: 1px solid #f29cb5; border-radius: 12px; padding: 11px 18px; font-weight: 700; cursor: pointer;" type="button">Guardar presupuesto</button>
+          <!-- Botón Guardar presupuesto con movimiento -->
+          <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
+          
           <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
           <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
           <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
@@ -380,7 +405,7 @@
 
     <div class="modal-actions">
       <button id="cancelDialog" type="button" class="btn btn-outline">Cancelar</button>
-      <button id="submitExpenseBtn" style="background: #fbc4d4; color: #5a2337; border: 1px solid #f29cb5; border-radius: 12px; padding: 12px 20px; font-weight: 700; cursor: pointer;" type="submit">Guardar gasto</button>
+      <button id="submitExpenseBtn" class="pastel-btn" type="submit">Guardar gasto</button>
     </div>
   </form>
 </dialog>
