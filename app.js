@@ -1051,7 +1051,7 @@ function generateProximosPDF() {
 
 
 /* =========================================================
-   INICIALIZACIÓN SEGURA DE EVENTOS (CON REPETICIÓN RESTAURADA)
+   INICIALIZACIÓN SEGURA DE EVENTOS
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1117,9 +1117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
   });
 
-  // ---------------------------------------------------------
-  // LÓGICA DE REPETIR GASTO (RESTAURADA Y SEGURA)
-  // ---------------------------------------------------------
+  // LÓGICA DE REPETIR GASTO (CON CAMPOS DE MESES, DÍA Y MONTO DINÁMICO)
   const expenseRecurring = $("expenseRecurring");
   const recurringOptions = $("recurringOptions");
   const recurringChangingAmount = $("recurringChangingAmount");
@@ -1179,7 +1177,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-
   $("saveBudgetBtn")?.addEventListener("click", async () => {
     const month = $("monthPicker")?.value;
     if (!month) return;
@@ -1203,7 +1200,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("closeDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
   $("cancelDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
 
-  // SUBMIT DEL FORMULARIO DE GASTOS (CON SOPORTE PARA REPETICIÓN)
+  // SUBMIT DEL FORMULARIO CON INCLUSIÓN AUTOMÁTICA DE EMOJI DE REPETIR Y CUOTAS
   $("expenseForm")?.addEventListener("submit", async e => {
     e.preventDefault();
     const editingId = $("expenseForm").dataset.editingId;
@@ -1255,7 +1252,10 @@ document.addEventListener("DOMContentLoaded", () => {
             amount = Number(customInputs[i].value) || baseAmount;
           }
 
-          const expense = { id: createId("expense"), date: dateStr, description, category, amount, currency };
+          // Se agrega el emoji de repetir y el contador de cuotas en formato limpio (Ej: "🔄 Prestamo mama (Cuota 1/6)")
+          const finalDescription = `🔄 ${description} (Cuota ${i + 1}/${count})`;
+
+          const expense = { id: createId("expense"), date: dateStr, description: finalDescription, category, amount, currency };
           const monthData = ensureMonth(monthKey);
           monthData.expenses.push(expense);
           await saveMonthToFirestore(monthKey);
