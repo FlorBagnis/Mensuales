@@ -827,97 +827,305 @@ $("gpCsvBtn")?.addEventListener("click", () => {
 
 
 /* =========================================================
-   REPORTES PDF (MENSUALES & PRÓXIMOS)
+   REPORTES PDF (ESTRUCTURA ORIGINAL RESTAURADA)
 ========================================================= */
 
+// PDF 1: MENSUALES
 $("pdfBtn")?.addEventListener("click", () => {
-  if (!window.jspdf) { alert("No se pudo cargar jsPDF."); return; }
+  if (!window.jspdf) {
+    alert("No se pudo cargar el generador de PDF.");
+    return;
+  }
+
   const { jsPDF } = window.jspdf;
   const month = $("monthPicker").value;
   const current = ensureMonth(month);
 
-  let ars = 0, usd = 0;
-  current.expenses.forEach(e => { if (e.currency === "USD") usd += Number(e.amount || 0); else ars += Number(e.amount || 0); });
-
-  const pdf = new jsPDF({ unit: "mm", format: "a4" });
-  pdf.setFillColor(255, 176, 194);
-  pdf.roundedRect(15, 15, 180, 24, 4, 4, "F");
-  pdf.setTextColor(85, 21, 45);
-  pdf.setFontSize(16);
-  pdf.setFont("helvetica", "bold");
-  pdf.text("CONTROL DE GASTOS MENSUALES", 20, 26);
-  pdf.setFontSize(9);
-  pdf.setFont("helvetica", "normal");
-  pdf.text(`Período: ${monthName(month)} · Emitido el ${new Date().toLocaleDateString("es-AR")}`, 20, 33);
-
-  let y = 48;
-  pdf.setFillColor(245, 107, 139);
-  pdf.rect(15, y, 180, 7, "F");
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18, y + 5);
-  pdf.text("CONCEPTO", 45, y + 5);
-  pdf.text("CATEGORÍA", 120, y + 5);
-  pdf.text("MONTO", 165, y + 5);
-
-  y += 7;
-  pdf.setFont("helvetica", "normal");
-  pdf.setTextColor(51, 41, 52);
+  let totalARS = 0;
+  let totalUSD = 0;
 
   current.expenses.forEach(e => {
-    if (y > 275) { pdf.addPage(); y = 20; }
-    pdf.text(formatDate(e.date), 18, y + 5);
-    pdf.text(String(e.description).slice(0, 35), 45, y + 5);
-    pdf.text(String(e.category).slice(0, 18), 120, y + 5);
-    pdf.text(money(e.amount, e.currency || "ARS"), 165, y + 5);
-    pdf.setDrawColor(245, 220, 227);
-    pdf.line(15, y + 8, 195, y + 8);
-    y += 9;
+    if (e.currency === "USD") {
+      totalUSD += Number(e.amount || 0);
+    } else {
+      totalARS += Number(e.amount || 0);
+    }
   });
+
+  const previous = data.months[previousMonth(month)] || { expenses: [] };
+  let previousTotalARS = 0;
+
+  previous.expenses.forEach(e => {
+    if (e.currency !== "USD") {
+      previousTotalARS += Number(e.amount || 0);
+    }
+  });
+
+  const diffARS = totalARS - previousTotalARS;
+
+  const pdf = new jsPDF({
+    unit: "mm",
+    format: "a4"
+  });
+
+  const pink = [245, 107, 139];
+  const dark = [85, 21, 45];
+  const light = [255, 231, 236];
+
+  // Encabezado
+  pdf.setFillColor(255, 176, 194);
+  pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
+
+  pdf.setTextColor(...dark);
+  pdf.setFontSize(17);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);[cite: 2]
+
+  pdf.setFontSize(8);
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Reporte · ${monthName(month)}`, 21, 34);[cite: 2]
+
+  const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
+
+  // Tarjetas métricas superiores
+  const cards = [
+    ["TOTAL GASTADO", cardSpentText],[cite: 2]
+    ["MES ANTERIOR (ARS)", money(previousTotalARS)],[cite: 2]
+    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`][cite: 2]
+  ];
+
+  cards.forEach((card, index) => {
+    const x = 15 + index * 60;
+    pdf.setDrawColor(255, 197, 210);
+    pdf.roundedRect(x, 49, 56, 25, 3, 3, "S");
+
+    pdf.setTextColor(...pink);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(card[0], x + 4, 57);
+
+    pdf.setTextColor(...dark);
+    pdf.setFontSize(10);
+    pdf.text(card[1], x + 4, 66);
+  });
+
+  let y = 84;
+
+  // Cabecera de la tabla
+  pdf.setFillColor(...pink);
+  pdf.rect(15, y, 180, 8, "F");
+
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFontSize(7);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("FECHA", 18, y + 5);[cite: 2]
+  pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);[cite: 2]
+  pdf.text("CATEGORÍA", 120, y + 5);[cite: 2]
+  pdf.text("MONTO", 165, y + 5);[cite: 2]
+
+  y += 8;
+  pdf.setFont("helvetica", "normal");
+
+  current.expenses
+    .slice()
+    .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")))
+    .forEach(expense => {
+      if (y > 270) {
+        pdf.addPage();
+        y = 20;
+      }
+
+      const curr = expense.currency || "ARS";
+      pdf.setTextColor(...dark);
+      pdf.setFontSize(7);
+      pdf.text(formatDate(expense.date), 18, y + 5);
+      pdf.text(String(expense.description).slice(0, 35), 45, y + 5);
+      pdf.text(String(expense.category).slice(0, 18), 120, y + 5);
+      pdf.text(money(expense.amount, curr), 165, y + 5);
+
+      pdf.setDrawColor(245, 220, 227);
+      pdf.line(15, y + 8, 195, y + 8);
+      y += 10;
+    });
+
+  if (y > 250) {
+    pdf.addPage();
+    y = 20;
+  }
+
+  // Barra de Total
+  pdf.setFillColor(...light);
+  pdf.rect(15, y, 180, 10, "F");
+  pdf.setTextColor(...dark);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7);
+  pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);[cite: 2]
+  pdf.text(cardSpentText, 160, y + 6);[cite: 2]
+
+  y += 18;
+
+  if (y > 255) {
+    pdf.addPage();
+    y = 20;
+  }
+
+  // Cuadro de Tendencia
+  pdf.setFontSize(10);
+  pdf.text("Análisis de tendencia", 15, y);[cite: 2]
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8);
+
+  const trend = $("trendText").textContent;
+  const lines = pdf.splitTextToSize(trend, 175);
+  pdf.text(lines, 15, y + 7);
+
+  // Pie de página
+  pdf.setFontSize(7);
+  pdf.setTextColor(160, 110, 125);
+  pdf.text("MENSUALES · Creado por Flor Bagnis 💗", 15, 287);
 
   pdf.save(`MENSUALES-${month}.pdf`);
 });
 
+
+// PDF 2: GASTOS PRÓXIMOS
 $("gpPdfBtn")?.addEventListener("click", () => {
-  if (!window.jspdf) { alert("No se pudo cargar jsPDF."); return; }
+  if (!window.jspdf) {
+    alert("No se pudo cargar la librería para generar el PDF.");
+    return;
+  }
+
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
+
+  const pink = [232, 93, 158];
+  const dark = [51, 41, 52];
+  const light = [255, 240, 247];
+
+  // Encabezado
   pdf.setFillColor(255, 227, 240);
-  pdf.roundedRect(15, 15, 180, 24, 4, 4, "F");
-  pdf.setTextColor(51, 41, 52);
+  pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
+
+  pdf.setTextColor(...dark);
   pdf.setFontSize(16);
   pdf.setFont("helvetica", "bold");
-  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 20, 26);
-  pdf.setFontSize(9);
-  pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte emitido el ${new Date().toLocaleDateString("es-AR")}`, 20, 33);
+  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);[cite: 1]
 
-  let y = 48;
-  pdf.setFillColor(232, 93, 158);
+  const todayStr = new Date().toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
+
+  pdf.setFontSize(8);
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Reporte emitido el ${todayStr}`, 21, 33);[cite: 1]
+
+  const pendingItems = proximosExpenses.filter(e => !e.paid);
+
+  let totalPendingARS = 0;
+  let totalPendingUSD = 0;
+  let debtsARS = 0;
+  let debtsUSD = 0;
+
+  pendingItems.forEach(e => {
+    const amt = Number(e.amount || 0);
+    if (e.currency === "USD") {
+      totalPendingUSD += amt;
+      if (e.type === "debt") debtsUSD += amt;
+    } else {
+      totalPendingARS += amt;
+      if (e.type === "debt") debtsARS += amt;
+    }
+  });
+
+  const strPending = totalPendingUSD > 0 ? `${money(totalPendingARS)} + ${money(totalPendingUSD, "USD")}` : money(totalPendingARS);
+  const strDebts = debtsUSD > 0 ? `${money(debtsARS)} + ${money(debtsUSD, "USD")}` : money(debtsARS);
+
+  // 3 Tarjetas métricas superiores
+  const cards = [
+    ["PENDIENTE TOTAL", strPending],
+    ["DEUDAS", strDebts],
+    ["ITEMS PENDIENTES", `${pendingItems.length}`]
+  ];
+
+  cards.forEach((card, index) => {
+    const x = 15 + index * 60;
+    pdf.setDrawColor(240, 223, 232);
+    pdf.roundedRect(x, 46, 56, 22, 3, 3, "S");
+
+    pdf.setTextColor(...pink);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(card[0], x + 4, 53);
+
+    pdf.setTextColor(...dark);
+    pdf.setFontSize(9);
+    pdf.text(card[1], x + 4, 62);
+  });
+
+  let y = 76;
+
+  // Cabecera de la tabla
+  pdf.setFillColor(...pink);
   pdf.rect(15, y, 180, 7, "F");
+
   pdf.setTextColor(255, 255, 255);
+  pdf.setFontSize(7);
   pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18, y + 5);
-  pdf.text("CONCEPTO", 42, y + 5);
-  pdf.text("CATEGORÍA", 115, y + 5);
-  pdf.text("ESTADO", 145, y + 5);
-  pdf.text("MONTO", 170, y + 5);
+  pdf.text("FECHA", 18, y + 5);[cite: 1]
+  pdf.text("CONCEPTO / DETALLE", 42, y + 5);[cite: 1]
+  pdf.text("CATEGORÍA", 115, y + 5);[cite: 1]
+  pdf.text("ESTADO", 145, y + 5);[cite: 1]
+  pdf.text("MONTO", 170, y + 5);[cite: 1]
 
   y += 7;
   pdf.setFont("helvetica", "normal");
-  pdf.setTextColor(51, 41, 52);
 
-  proximosExpenses.forEach(e => {
-    if (y > 275) { pdf.addPage(); y = 20; }
-    pdf.text(formatDate(e.date), 18, y + 5);
-    pdf.text(String(e.description || "").slice(0, 36), 42, y + 5);
-    pdf.text(getCategoryName(e.category), 115, y + 5);
-    pdf.text(e.paid ? "Pagado" : "Pendiente", 145, y + 5);
-    pdf.text(e.amount !== null ? money(e.amount, e.currency || "ARS") : "A definir", 170, y + 5);
+  const sortedExpenses = [...proximosExpenses].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  sortedExpenses.forEach(expense => {
+    if (y > 270) {
+      pdf.addPage();
+      y = 20;
+    }
+
+    const state = expense.paid ? "Pagado" : expense.type === "debt" ? "Deuda" : "Pendiente";[cite: 1]
+    const curr = expense.currency || "ARS";
+    const amountStr = expense.amount !== null ? money(expense.amount, curr) : "A definir";
+
+    pdf.setTextColor(...dark);
+    pdf.setFontSize(7);
+    pdf.text(formatDate(expense.date), 18, y + 5);
+    pdf.text(String(expense.description || "").slice(0, 38), 42, y + 5);
+    pdf.text(getCategoryName(expense.category), 115, y + 5);
+    pdf.text(state, 145, y + 5);
+    pdf.text(amountStr, 170, y + 5);
+
     pdf.setDrawColor(245, 230, 238);
     pdf.line(15, y + 8, 195, y + 8);
     y += 9;
   });
+
+  if (y > 255) {
+    pdf.addPage();
+    y = 20;
+  }
+
+  // Barra de Total Pendiente
+  pdf.setFillColor(...light);
+  pdf.rect(15, y, 180, 9, "F");
+  pdf.setTextColor(...dark);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7);
+  pdf.text("TOTAL PENDIENTE DE PAGO", 18, y + 6);
+  pdf.text(strPending, 150, y + 6);
+
+  // Pie de página
+  pdf.setFontSize(7);
+  pdf.setTextColor(160, 140, 150);
+  pdf.text("Gastos Próximos · Creado por Flor Bagnis 💗", 15, 287);
 
   pdf.save(`Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.pdf`);
 });
