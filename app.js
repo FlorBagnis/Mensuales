@@ -857,7 +857,7 @@ function generateMensualesPDF() {
 
   pdf.setFontSize(7);
   pdf.setTextColor(160, 110, 125);
-  pdf.text("MENSUALES · Creado por Flor Bagnis ♥", 15, 287);
+  pdf.text("MENSUALES · Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`MENSUALES-${month}.pdf`);
 }
@@ -992,7 +992,7 @@ function generateProximosPDF() {
 
   pdf.setFontSize(7);
   pdf.setTextColor(160, 140, 150);
-  pdf.text("Gastos Próximos · Creado por Flor Bagnis ♥", 15, 287);
+  pdf.text("Gastos Próximos · Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
