@@ -344,7 +344,7 @@ function renderMensualesExpensesTable(expenses) {
     list = list.filter(e => (e.description || "").toLowerCase().includes(q) || (e.category || "").toLowerCase().includes(q));
   }
 
-  // Filtro por categoría seleccionada (flexible y seguro)
+  // Filtro por categoría seleccionada (corregido y robusto)
   if (filterCategoryTerm && filterCategoryTerm !== "") {
     const targetCat = filterCategoryTerm.trim().toLowerCase();
     list = list.filter(e => String(e.category || "").trim().toLowerCase() === targetCat);
