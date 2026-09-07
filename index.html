@@ -127,6 +127,12 @@
     body.dark-mode .summary-card {
       background-color: #2a161d !important;
     }
+
+    /* Corrección para ocultar montos (amounts-hidden) en modo oscuro */
+    body.dark-mode.amounts-hidden *, 
+    body.dark-mode .amounts-hidden * {
+      background-color: transparent !important;
+    }
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
