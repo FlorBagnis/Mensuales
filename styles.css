@@ -728,7 +728,12 @@ body.amounts-hidden #budgetTotal,
 body.amounts-hidden #tableTotal,
 body.amounts-hidden .amount,
 body.amounts-hidden #budgetStatus,
-body.amounts-hidden #budgetInput {
+body.amounts-hidden #budgetInput,
+body.amounts-hidden #gpTotalPending,
+body.amounts-hidden #gpNextSevenDays,
+body.amounts-hidden #gpThisMonth,
+body.amounts-hidden #gpTotalDebts,
+body.amounts-hidden .gp-card-amount {
   color: transparent !important;
   position: relative;
   user-select: none;
@@ -742,7 +747,12 @@ body.amounts-hidden #budgetTotal::after,
 body.amounts-hidden #tableTotal::after,
 body.amounts-hidden .amount::after,
 body.amounts-hidden #budgetStatus::after,
-body.amounts-hidden #budgetInput::after {
+body.amounts-hidden #budgetInput::after,
+body.amounts-hidden #gpTotalPending::after,
+body.amounts-hidden #gpNextSevenDays::after,
+body.amounts-hidden #gpThisMonth::after,
+body.amounts-hidden #gpTotalDebts::after,
+body.amounts-hidden .gp-card-amount::after {
   content: "••••••";
   color: var(--pink-700) !important;
   visibility: visible;
@@ -759,6 +769,11 @@ body.amounts-hidden #budgetInput::after {
 body.amounts-hidden .summary-card strong::after,
 body.amounts-hidden .summary-card small::after {
   left: 0;
+}
+
+body.amounts-hidden .gp-card-amount::after {
+  left: auto;
+  right: 0;
 }
 
 
@@ -782,30 +797,6 @@ body.amounts-hidden .summary-card small::after {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
   pointer-events: none;
-}
-
-
-/* ==========================================
-   BOTÓN ENLACE A GASTOS PRÓXIMOS
-========================================== */
-.btn-app-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.45);
-  color: #55152d;
-  border: 1px solid rgba(85, 21, 45, 0.18);
-  padding: 10px 18px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.btn-app-link:hover {
-  background: rgba(255, 255, 255, 0.75);
-  transform: translateY(-1px);
 }
 
 
@@ -895,16 +886,6 @@ body.dark-mode .custom-collapse-btn:hover {
   background-color: #331d2b !important;
 }
 
-body.dark-mode .btn-app-link {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffdbe4;
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-body.dark-mode .btn-app-link:hover {
-  background: rgba(255, 255, 255, 0.16);
-}
-
 body.dark-mode table td {
   border-bottom: 1px solid #331f2c;
   color: #fceef3;
@@ -953,47 +934,55 @@ body.amounts-hidden.dark-mode #budgetTotal::after,
 body.amounts-hidden.dark-mode #tableTotal::after,
 body.amounts-hidden.dark-mode .amount::after,
 body.amounts-hidden.dark-mode #budgetStatus::after,
-body.amounts-hidden.dark-mode #budgetInput::after {
+body.amounts-hidden.dark-mode #budgetInput::after,
+body.amounts-hidden.dark-mode #gpTotalPending::after,
+body.amounts-hidden.dark-mode #gpNextSevenDays::after,
+body.amounts-hidden.dark-mode #gpThisMonth::after,
+body.amounts-hidden.dark-mode #gpTotalDebts::after,
+body.amounts-hidden.dark-mode .gp-card-amount::after {
   background-color: #211620;
   color: #ff9db4 !important;
 }
 
+
 /* =========================================================
-   AJUSTES DE PROPORCIÓN: GASTOS PRÓXIMOS & MODAL
+   GASTOS PRÓXIMOS: ENCUADRE, MODAL Y TARJETAS
 ========================================================= */
 
-/* Modal de Pendientes proporcionado y centrado */
+/* Modal de Pendientes */
 #gpModal {
-  border: none;
-  border-radius: 20px;
+  border: 0;
+  border-radius: 16px;
   padding: 0;
-  max-width: 480px;
-  width: 90%;
-  box-shadow: 0 15px 35px rgba(232, 93, 158, 0.2);
+  width: min(440px, calc(100% - 30px));
+  box-shadow: 0 25px 80px rgba(75, 19, 39, .25);
+  background: white;
   overflow: hidden;
 }
 
 #gpModal::backdrop {
-  background: rgba(85, 21, 45, 0.4);
-  backdrop-filter: blur(4px);
+  background: rgba(65, 15, 32, .35);
+  backdrop-filter: blur(3px);
 }
 
 #gpExpenseForm {
   padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-sizing: border-box;
-  width: 100%;
+  display: grid;
+  gap: 13px;
+  position: relative;
+}
+
+#gpExpenseForm h2 {
+  margin: 0;
+  font-size: 20px;
 }
 
 #gpExpenseForm label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--pink-700, #c43878);
+  display: grid;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--pink-700);
 }
 
 #gpExpenseForm input[type="text"],
@@ -1002,133 +991,127 @@ body.amounts-hidden.dark-mode #budgetInput::after {
 #gpExpenseForm select,
 #gpExpenseForm textarea {
   width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: white;
+  color: var(--ink);
   padding: 10px 12px;
-  border: 1.5px solid #f2cfdf;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  box-sizing: border-box;
-  outline: none;
-  background: #fff;
-  transition: border-color 0.2s;
+  font: inherit;
+  font-size: 13px;
 }
 
 #gpExpenseForm input:focus,
 #gpExpenseForm select:focus,
 #gpExpenseForm textarea:focus {
-  border-color: var(--pink-500, #ff7597);
+  border-color: var(--pink-500);
+  box-shadow: 0 0 0 3px rgba(245, 107, 139, .12);
 }
 
-/* Acciones del Modal bien alineadas */
-#gpModal .modal-actions {
+#gpExpenseForm .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 5px;
 }
 
-/* Tarjetas de Pendientes mejor proporcionadas */
-#gpExpensesList .expense {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 16px 20px !important;
-  border-radius: 16px !important;
-  background: #ffffff !important;
-  border: 1px solid #fce4ec !important;
-  box-shadow: 0 4px 12px rgba(232, 93, 158, 0.05);
-  margin-bottom: 8px;
+/* Panel contenedor de Mis Pendientes */
+#viewProximos .panel {
+  padding: 18px 20px 22px;
 }
 
-body.dark-mode #gpExpensesList .expense {
-  background: #2a2028 !important;
-  border-color: #3d2d39 !important;
+#viewProximos .filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0 16px;
 }
 
-/* =========================================================
-   DISEÑO PROLIJO: TARJETAS DE GASTOS PRÓXIMOS
-========================================================= */
+#viewProximos .btn-sm {
+  padding: 7px 14px;
+  font-size: 11px;
+}
 
+/* Lista y Tarjetas de Pendientes */
 #gpExpensesList {
   display: grid;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 10px;
 }
 
 .gp-expense-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #ffffff;
-  border: 1px solid #ffccd9;
-  border-radius: 14px;
-  padding: 16px 20px;
-  box-shadow: 0 4px 15px rgba(132, 38, 67, 0.04);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  background: white;
+  border: 1px solid var(--pink-200);
+  border-radius: 12px;
+  padding: 12px 18px;
+  box-shadow: 0 2px 8px rgba(132, 38, 67, .04);
+  transition: transform .15s ease;
 }
 
 .gp-expense-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(132, 38, 67, 0.08);
+  transform: translateY(-1px);
 }
 
 .gp-card-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
+  min-width: 0;
 }
 
 .gp-card-icon {
-  font-size: 2rem;
-  width: 46px;
-  height: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--pink-50, #fff3f6);
-  border-radius: 12px;
+  font-size: 1.8rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--pink-50);
+  border-radius: 10px;
 }
 
 .gp-card-details h3 {
-  margin: 0 0 4px 0;
-  font-size: 1.05rem;
+  margin: 0 0 3px;
+  font-size: 14px;
   font-weight: 700;
-  color: var(--ink, #55152d);
+  color: var(--ink);
 }
 
 .gp-card-details p {
   margin: 0;
-  font-size: 0.85rem;
-  color: var(--muted, #8f6876);
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .gp-tags-wrap {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
 .gp-tag {
-  font-size: 0.72rem;
+  font-size: 9px;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 2px 8px;
   border-radius: 999px;
   display: inline-block;
 }
 
 .gp-status-pending {
-  background: #fff0f4;
-  color: var(--pink-700, #9f2449);
+  background: var(--pink-100);
+  color: var(--pink-700);
 }
 
 .gp-status-debt {
   background: #ffe3ea;
-  color: var(--red, #c63b55);
+  color: var(--red);
 }
 
 .gp-status-paid {
-  background: #e8f5e9;
-  color: var(--green, #269b58);
+  background: #e8f8ee;
+  color: var(--green);
 }
 
 .gp-card-right {
@@ -1136,66 +1119,79 @@ body.dark-mode #gpExpensesList .expense {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: 2px;
+  margin-left: 14px;
+  white-space: nowrap;
 }
 
 .gp-card-date {
-  font-size: 0.8rem;
-  color: var(--muted, #8f6876);
+  font-size: 10px;
+  color: var(--muted);
 }
 
 .gp-card-date strong {
-  color: var(--ink, #55152d);
+  color: var(--ink);
 }
 
 .gp-card-amount {
-  font-size: 1.25rem;
+  font-size: 16px;
   font-weight: 800;
-  color: var(--ink, #55152d);
+  color: var(--ink);
 }
 
 .gp-card-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 6px;
+  margin-top: 3px;
 }
 
 .gp-btn-action {
-  border: 1px solid var(--pink-300, #ff9db4);
-  background: #ffffff;
-  border-radius: 8px;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.95rem;
+  border: 1px solid var(--pink-300);
+  background: white;
+  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
   cursor: pointer;
-  transition: 0.15s ease;
+  transition: .15s ease;
 }
 
 .gp-btn-action:hover {
-  transform: scale(1.08);
+  transform: scale(1.1);
 }
 
 .gp-btn-pay {
-  background: var(--pink-500, #f56b8b);
-  border-color: var(--pink-500, #f56b8b);
-  color: #ffffff;
-  font-weight: bold;
+  background: var(--pink-500);
+  border-color: var(--pink-500);
+  color: white;
 }
 
 .gp-btn-pay.is-paid {
-  background: #ffffff;
-  border-color: #f3c9d4;
-  color: #c63b55;
+  background: white;
+  border-color: var(--line);
+  color: var(--red);
 }
 
 .gp-btn-delete {
-  color: var(--red, #c63b55);
+  color: var(--red);
 }
 
-/* Compatibilidad con Modo Oscuro */
+/* Modo Oscuro en Pendientes */
+body.dark-mode #gpModal {
+  background: #211620;
+  border: 1px solid #3b2334;
+}
+
+body.dark-mode #gpExpenseForm input,
+body.dark-mode #gpExpenseForm select,
+body.dark-mode #gpExpenseForm textarea {
+  background: #170f16;
+  border-color: #3b2334;
+  color: #fceef3;
+}
+
 body.dark-mode .gp-expense-card {
   background: #211620;
   border-color: #3b2334;
@@ -1216,4 +1212,3 @@ body.dark-mode .gp-btn-action {
   border-color: #4a293b;
   color: #ffdbe4;
 }
-
