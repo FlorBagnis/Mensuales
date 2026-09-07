@@ -344,9 +344,10 @@ function renderMensualesExpensesTable(expenses) {
     list = list.filter(e => (e.description || "").toLowerCase().includes(q) || (e.category || "").toLowerCase().includes(q));
   }
 
-  // Filtro por categoría seleccionada
+  // Filtro por categoría seleccionada (flexible y seguro)
   if (filterCategoryTerm && filterCategoryTerm !== "") {
-    list = list.filter(e => e.category === filterCategoryTerm);
+    const targetCat = filterCategoryTerm.trim().toLowerCase();
+    list = list.filter(e => String(e.category || "").trim().toLowerCase() === targetCat);
   }
 
   if ($("emptyState")) $("emptyState").style.display = list.length ? "none" : "grid";
