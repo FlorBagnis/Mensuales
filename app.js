@@ -438,7 +438,22 @@ function renderTrend(month, totalARS, prevARS, totalUSD) {
     trendEl.textContent = "Agregá gastos para analizar tus hábitos.";
     return;
   }
-  let text = `En ${monthName(month)}, registraste ${money(totalARS)}${totalUSD > 0 ? ` y ${money(totalUSD, "USD")}` : ""} en ${cur.expenses.length} gastos.`;
+
+  // 1. Encontrar el gasto individual más alto
+  const highestExpense = [...cur.expenses].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+  const maxExpenseText = highestExpense 
+    ? ` Tu mayor gasto registrado fue "${highestExpense.description}" con ${money(highestExpense.amount, highestExpense.currency || "ARS")}.`
+    : "";
+
+  // 2. Encontrar la categoría con mayor gasto acumulado
+  const catTotals = {};
+  cur.expenses.forEach(e => {
+    catTotals[e.category] = (catTotals[e.category] || 0) + Number(e.amount || 0);
+  });
+  const topCategory = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
+  const topCatText = topCategory ? ` La categoría con mayor gasto fue ${topCategory[0]} (${money(topCategory[1])}).` : "";
+
+  let text = `En ${monthName(month)}, registraste ${money(totalARS)}${totalUSD > 0 ? ` y ${money(totalUSD, "USD")}` : ""} en ${cur.expenses.length} gastos.${topCatText}${maxExpenseText}`;
   if (prevARS) {
     const pct = ((totalARS - prevARS) / prevARS) * 100;
     text += pct <= 0 ? ` Representa un ahorro del ${Math.abs(pct).toFixed(1)}% respecto al mes anterior.` : ` Representa un incremento del ${pct.toFixed(1)}% respecto al mes anterior.`;
@@ -758,18 +773,18 @@ function generateMensualesPDF() {
   pdf.setTextColor(...dark);
   pdf.setFontSize(17);
   pdf.setFont("helvetica", "bold");
-  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);
+  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);[cite: 2]
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte · ${monthName(month)}`, 21, 34);
+  pdf.text(`Reporte · ${monthName(month)}`, 21, 34);[cite: 2]
 
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
 
   const cards = [
-    ["TOTAL GASTADO", cardSpentText],
-    ["MES ANTERIOR (ARS)", money(previousTotalARS)],
-    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`]
+    ["TOTAL GASTADO", cardSpentText],[cite: 2]
+    ["MES ANTERIOR (ARS)", money(previousTotalARS)],[cite: 2]
+    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`][cite: 2]
   ];
 
   cards.forEach((card, index) => {
@@ -795,10 +810,10 @@ function generateMensualesPDF() {
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(7);
   pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18, y + 5);
-  pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);
-  pdf.text("CATEGORÍA", 120, y + 5);
-  pdf.text("MONTO", 165, y + 5);
+  pdf.text("FECHA", 18, y + 5);[cite: 2]
+  pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);[cite: 2]
+  pdf.text("CATEGORÍA", 120, y + 5);[cite: 2]
+  pdf.text("MONTO", 165, y + 5);[cite: 2]
 
   y += 8;
   pdf.setFont("helvetica", "normal");
@@ -835,8 +850,8 @@ function generateMensualesPDF() {
   pdf.setTextColor(...dark);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7);
-  pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);
-  pdf.text(cardSpentText, 160, y + 6);
+  pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);[cite: 2]
+  pdf.text(cardSpentText, 160, y + 6);[cite: 2]
 
   y += 18;
 
@@ -845,15 +860,32 @@ function generateMensualesPDF() {
     y = 20;
   }
 
+  // Cuadro de Tendencia detallado
   pdf.setFontSize(10);
-  pdf.text("Análisis de tendencia", 15, y);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(...dark);
+  pdf.text("Análisis de tendencia", 15, y);[cite: 2]
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
 
-  const trend = $("trendText") ? $("trendText").textContent : "";
-  const lines = pdf.splitTextToSize(trend, 175);
-  pdf.text(lines, 15, y + 7);
+  const highestExpense = [...current.expenses].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+  const catTotals = {};
+  current.expenses.forEach(e => {
+    catTotals[e.category] = (catTotals[e.category] || 0) + Number(e.amount || 0);
+  });
+  const topCategory = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
+
+  let trendString = `En ${monthName(month)}, registraste ${cardSpentText} en ${current.expenses.length} gastos.`;
+  if (topCategory) {
+    trendString += ` La categoría con mayor gasto fue ${topCategory[0]} (${money(topCategory[1])}).`;
+  }
+  if (highestExpense) {
+    trendString += ` El concepto en el que más gastaste fue "${highestExpense.description}" (${money(highestExpense.amount, highestExpense.currency || "ARS")}).`;
+  }
+
+  const lines = pdf.splitTextToSize(trendString, 175);
+  pdf.text(lines, 15, y + 6);
 
   pdf.setFontSize(7);
   pdf.setTextColor(160, 110, 125);
@@ -881,7 +913,7 @@ function generateProximosPDF() {
   pdf.setTextColor(...dark);
   pdf.setFontSize(16);
   pdf.setFont("helvetica", "bold");
-  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);
+  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);[cite: 1]
 
   const todayStr = new Date().toLocaleDateString("es-AR", {
     day: "2-digit",
@@ -891,7 +923,7 @@ function generateProximosPDF() {
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte emitido el ${todayStr}`, 21, 33);
+  pdf.text(`Reporte emitido el ${todayStr}`, 21, 33);[cite: 1]
 
   const pendingItems = proximosExpenses.filter(e => !e.paid);
 
@@ -943,11 +975,11 @@ function generateProximosPDF() {
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(7);
   pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18, y + 5);
-  pdf.text("CONCEPTO / DETALLE", 42, y + 5);
-  pdf.text("CATEGORÍA", 115, y + 5);
-  pdf.text("ESTADO", 145, y + 5);
-  pdf.text("MONTO", 170, y + 5);
+  pdf.text("FECHA", 18, y + 5);[cite: 1]
+  pdf.text("CONCEPTO / DETALLE", 42, y + 5);[cite: 1]
+  pdf.text("CATEGORÍA", 115, y + 5);[cite: 1]
+  pdf.text("ESTADO", 145, y + 5);[cite: 1]
+  pdf.text("MONTO", 170, y + 5);[cite: 1]
 
   y += 7;
   pdf.setFont("helvetica", "normal");
@@ -960,7 +992,7 @@ function generateProximosPDF() {
       y = 20;
     }
 
-    const state = expense.paid ? "Pagado" : expense.type === "debt" ? "Deuda" : "Pendiente";
+    const state = expense.paid ? "Pagado" : expense.type === "debt" ? "Deuda" : "Pendiente";[cite: 1]
     const curr = expense.currency || "ARS";
     const amountStr = expense.amount !== null ? money(expense.amount, curr) : "A definir";
 
