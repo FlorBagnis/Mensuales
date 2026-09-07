@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MENSUALES · Control & Gastos Próximos</title>
+  <title>MENSUALES · Control de Gastos</title>
 
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="./manifest.json">
@@ -27,7 +27,7 @@
       <div class="auth-logo">♡</div>
       <p class="eyebrow">MENSUALES</p>
       <h1>Controlá tus gastos</h1>
-      <p class="auth-subtitle">Ingresá a tu cuenta para gestionar tu presupuesto y pagos pendientes.</p>
+      <p class="auth-subtitle">Ingresá a tu cuenta para gestionar tu presupuesto mensual.</p>
 
       <form id="authForm">
         <label>
@@ -64,7 +64,7 @@
       <div>
         <p class="eyebrow">MI ORGANIZACIÓN 💗</p>
         <h1>Control de Gastos</h1>
-        <p class="subtitle">Presupuesto mensual y agenda de pagos próximos unificados.</p>
+        <p class="subtitle">Presupuesto mensual y control de egresos.</p>
         
         <div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878);">
           💵 Dólar Blue: cargando...
@@ -73,32 +73,24 @@
 
       <div class="header-actions">
         <span id="userEmail" class="user-email"></span>
-        <!-- Botón para ir a Próximos (reemplazá la URL cuando subas la otra app a GitHub) -->
-        <a href="https://TU-USUARIO.github.io/gastos-proximos/" class="btn btn-outline" style="border-radius: 999px; padding: 7px 14px; font-weight: bold; text-decoration: none; font-size: 11px;">
-          🌸 Ir a Próximos
+        
+        <!-- Botón exclusivo para saltar a la app de Gastos Próximos -->
+        <a href="https://gastos-proximos.vercel.app/" class="btn btn-outline" style="border-radius: 999px; padding: 7px 14px; font-weight: bold; text-decoration: none; font-size: 11px;">
+          🌸 Próximos & Deudas
         </a>
+
         <button id="logoutBtn" class="btn btn-dark" type="button">Cerrar sesión</button>
       </div>
     </header>
 
-    <!-- NAVEGACIÓN ENTRE PESTAÑAS (TABS) -->
-    <nav class="app-tabs" style="display: flex; gap: 10px; margin: 18px 0; border-bottom: 2px solid rgba(232, 93, 158, 0.2); padding-bottom: 12px;">
-      <button id="tabMensualesBtn" class="btn btn-pink" style="border-radius: 999px; padding: 8px 20px; font-weight: bold;" type="button">
-        💗 Gastos del Mes
-      </button>
-      <button id="tabProximosBtn" class="btn btn-outline" style="border-radius: 999px; padding: 8px 20px; font-weight: bold;" type="button">
-        🌸 Próximos & Deudas
-      </button>
-    </nav>
-
     <!-- CONTROLES GENERALES -->
-    <div class="amounts-toggle" style="margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+    <div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
       <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
       <button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
     </div>
 
 
-    <!-- VISTA 1: MENSUALES -->
+    <!-- VISTA: MENSUALES -->
     <div id="viewMensuales">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
         <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
@@ -268,71 +260,8 @@
       </section>
     </div>
 
-
-    <!-- VISTA 2: GASTOS PRÓXIMOS -->
-    <div id="viewProximos" class="hidden">
-      <section class="summary-grid" style="margin-top: 10px;">
-        <article class="summary-card main-card">
-          <div class="card-icon" style="font-size: 1.6rem;">💰</div>
-          <div>
-            <span>Total pendiente</span>
-            <strong id="gpTotalPending">$0</strong>
-          </div>
-        </article>
-
-        <article class="summary-card">
-          <div class="small-icon" style="font-size: 1.3rem;">📅</div>
-          <span>Próximos 7 días</span>
-          <strong id="gpNextSevenDays">$0</strong>
-        </article>
-
-        <article class="summary-card">
-          <div class="small-icon" style="font-size: 1.3rem;">📆</div>
-          <span>Este mes</span>
-          <strong id="gpThisMonth">$0</strong>
-        </article>
-
-        <article class="summary-card">
-          <div class="small-icon" style="font-size: 1.3rem;">💸</div>
-          <span>Deudas</span>
-          <strong id="gpTotalDebts">$0</strong>
-        </article>
-      </section>
-
-      <section class="panel" style="margin-top: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem;">
-          <div>
-            <h2 style="margin: 0;">Mis pendientes</h2>
-            <span id="gpItemsCount" style="color: #888; font-size: 0.85rem;">0 registros</span>
-          </div>
-
-          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-            <input type="search" id="gpSearchInput" placeholder="🔍 Buscar pendiente..." style="padding: 6px 14px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem;">
-            <button id="gpCsvBtn" class="btn btn-outline btn-sm" type="button">📊 CSV</button>
-            <button id="gpPdfBtn" class="btn btn-outline btn-sm" type="button">📄 PDF</button>
-            <button id="gpOpenModalBtn" class="btn btn-pink btn-sm" type="button">＋ Agregar pendiente</button>
-          </div>
-        </div>
-
-        <div class="filters" style="display: flex; gap: 8px; margin-bottom: 1rem;">
-          <button class="btn btn-pink btn-sm gp-filter" data-filter="all">Todos</button>
-          <button class="btn btn-outline btn-sm gp-filter" data-filter="pending">Pendientes</button>
-          <button class="btn btn-outline btn-sm gp-filter" data-filter="debt">Deudas</button>
-          <button class="btn btn-outline btn-sm gp-filter" data-filter="paid">Pagados</button>
-        </div>
-
-        <div id="gpExpensesList" class="expenses-list" style="display: grid; gap: 12px;"></div>
-
-        <div id="gpEmptyState" class="empty-state" style="display: none;">
-          <div>🌸</div>
-          <strong>No tenés pendientes</strong>
-          <span>Agregá un gasto futuro o una deuda para recordar.</span>
-        </div>
-      </section>
-    </div>
-
     <footer style="margin-top: 2rem;">
-      MENSUALES · Tus gastos y pagos organizados en un solo lugar.
+      MENSUALES · Tus gastos organizados mes a mes.
       <br>
       <small>Creado por Florencia Bagnis💗</small>
     </footer>
@@ -341,7 +270,7 @@
 </main>
 
 
-<!-- MODALES -->
+<!-- MODAL -->
 <dialog id="expenseDialog">
   <form id="expenseForm" class="modal">
     <button id="closeDialog" type="button" class="close" aria-label="Cerrar">×</button>
@@ -438,84 +367,6 @@
     <div class="modal-actions">
       <button id="cancelDialog" type="button" class="btn btn-outline">Cancelar</button>
       <button id="submitExpenseBtn" type="submit" class="btn btn-pink">Guardar gasto</button>
-    </div>
-  </form>
-</dialog>
-
-<dialog id="gpModal">
-  <form id="gpExpenseForm" class="modal">
-    <button id="gpCloseModalBtn" type="button" class="close" aria-label="Cerrar">×</button>
-    <div>
-      <p class="eyebrow">PENDIENTES & DEUDAS</p>
-      <h2 id="gpModalTitle">Agregar pendiente</h2>
-    </div>
-
-    <input type="hidden" id="gpExpenseId">
-
-    <label>¿Qué querés registrar?</label>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-      <label style="border: 1px solid #f2cfdf; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-        <input type="radio" name="gpType" value="expense" checked>
-        <span>🧾 Gasto próximo</span>
-      </label>
-      <label style="border: 1px solid #f2cfdf; border-radius: 8px; padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-        <input type="radio" name="gpType" value="debt">
-        <span>💸 Deuda</span>
-      </label>
-    </div>
-
-    <label>
-      Concepto
-      <input type="text" id="gpDescription" placeholder="Ej: Bidones de agua" required>
-    </label>
-
-    <label>
-      Categoría
-      <select id="gpCategory">
-        <option value="Hogar">🏠 Hogar</option>
-        <option value="Servicios">💡 Servicios</option>
-        <option value="Comida">🍔 Comida</option>
-        <option value="Mascotas">🐾 Mascotas</option>
-        <option value="Deudas">💸 Deudas</option>
-        <option value="Salud">💊 Salud</option>
-        <option value="Transporte">🚗 Transporte</option>
-        <option value="Otros">📦 Otros</option>
-        <option value="Gimnasio">💪 Gimnasio</option>
-        <option value="Agua">💧 Agua</option>
-      </select>
-    </label>
-
-    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
-      <label>
-        Monto
-        <input type="number" id="gpAmount" min="0" step="0.01" placeholder="0">
-      </label>
-      <label>
-        Moneda
-        <select id="gpCurrency">
-          <option value="ARS" selected>ARS</option>
-          <option value="USD">USD</option>
-        </select>
-      </label>
-      <label>
-        Cantidad
-        <input type="number" id="gpQuantity" min="1" value="1">
-      </label>
-    </div>
-
-    <label>
-      ¿Cuándo lo tengo que pagar?
-      <input type="date" id="gpDate" required>
-    </label>
-
-    <label>
-      Notas
-      <textarea id="gpNotes" rows="2" placeholder="Opcional..."></textarea>
-    </label>
-
-    <div class="modal-actions">
-      <button id="gpCancelBtn" type="button" class="btn btn-outline">Cancelar</button>
-      <button type="submit" class="btn btn-pink">Guardar registro</button>
     </div>
   </form>
 </dialog>
