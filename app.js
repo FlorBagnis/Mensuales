@@ -185,9 +185,13 @@ onAuthStateChanged(auth, async user => {
   $("appContent")?.classList.remove("hidden");
   if ($("userEmail")) $("userEmail").textContent = user.email || "";
 
-  fetchDolarBlue();
-  startMonthsSync();
-  startProximosSync();
+  try {
+    fetchDolarBlue();
+    startMonthsSync();
+    startProximosSync();
+  } catch (e) {
+    console.error("Error al iniciar sincronización:", e);
+  }
 });
 
 
@@ -204,28 +208,36 @@ function ensureMonth(month) {
 
 function startMonthsSync() {
   if (!currentUser) return;
-  const col = collection(db, "users", currentUser.uid, "months");
-  unsubscribeMonths = onSnapshot(col, snapshot => {
-    const months = {};
-    snapshot.forEach(docSnap => {
-      const v = docSnap.data();
-      months[docSnap.id] = {
-        budget: Number(v.budget || 0),
-        expenses: Array.isArray(v.expenses) ? v.expenses : []
-      };
-    });
-    data.months = months;
-    const currentM = $("monthPicker")?.value || currentMonthValue();
-    ensureMonth(currentM);
-    renderMensuales();
-  }, err => console.error("Error sync meses:", err));
+  try {
+    const col = collection(db, "users", currentUser.uid, "months");
+    unsubscribeMonths = onSnapshot(col, snapshot => {
+      const months = {};
+      snapshot.forEach(docSnap => {
+        const v = docSnap.data();
+        months[docSnap.id] = {
+          budget: Number(v.budget || 0),
+          expenses: Array.isArray(v.expenses) ? v.expenses : []
+        };
+      });
+      data.months = months;
+      const currentM = $("monthPicker")?.value || currentMonthValue();
+      ensureMonth(currentM);
+      renderMensuales();
+    }, err => console.error("Error sync meses:", err));
+  } catch (e) {
+    console.error("Excepción en startMonthsSync:", e);
+  }
 }
 
 async function saveMonthToFirestore(month) {
   if (!currentUser) return;
-  const docRef = doc(db, "users", currentUser.uid, "months", month);
-  const m = ensureMonth(month);
-  await setDoc(docRef, { budget: Number(m.budget || 0), expenses: m.expenses }, { merge: true });
+  try {
+    const docRef = doc(db, "users", currentUser.uid, "months", month);
+    const m = ensureMonth(month);
+    await setDoc(docRef, { budget: Number(m.budget || 0), expenses: m.expenses }, { merge: true });
+  } catch (e) {
+    console.error("Error guardando mes:", e);
+  }
 }
 
 function stopAllSync() {
@@ -466,12 +478,16 @@ function renderTrend(month, totalARS, prevARS, totalUSD) {
 
 function startProximosSync() {
   if (!currentUser) return;
-  const col = collection(db, "users", currentUser.uid, "proximos");
-  unsubscribeProximos = onSnapshot(col, snapshot => {
-    proximosExpenses = [];
-    snapshot.forEach(d => proximosExpenses.push({ id: d.id, ...d.data() }));
-    renderProximos();
-  }, err => console.error("Error sync proximos:", err));
+  try {
+    const col = collection(db, "users", currentUser.uid, "proximos");
+    unsubscribeProximos = onSnapshot(col, snapshot => {
+      proximosExpenses = [];
+      snapshot.forEach(d => proximosExpenses.push({ id: d.id, ...d.data() }));
+      renderProximos();
+    }, err => console.error("Error sync proximos:", err));
+  } catch (e) {
+    console.error("Excepción en startProximosSync:", e);
+  }
 }
 
 function getCategoryIcon(cat) {
@@ -1041,8 +1057,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   $("authForm")?.addEventListener("submit", async e => {
     e.preventDefault();
-    const email = $("authEmail").value.trim();
-    const password = $("authPassword").value;
+    const email = $("authEmail")?.value.trim() || "";
+    const password = $("authPassword")?.value || "";
 
     const button = $("authSubmitBtn");
     if (button) {
