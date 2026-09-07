@@ -73,6 +73,13 @@
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
     }
 
+    /* Botón Borrar mes y danger en Modo Oscuro */
+    body.dark-theme .btn-danger, body.dark .btn-danger, body.dark-mode .btn-danger {
+      background-color: #3d222b !important;
+      color: #ffb6c1 !important;
+      border: 1px solid #6b3b4a !important;
+    }
+
     /* Hover con sombra para botones outline y Borrar mes en Modo Oscuro */
     body.dark-theme .btn-outline:hover, body.dark .btn-outline:hover, body.dark-mode .btn-outline:hover,
     body.dark-theme .btn-danger:hover, body.dark .btn-danger:hover, body.dark-mode .btn-danger:hover {
@@ -98,6 +105,7 @@
     body.dark-mode .summary-card span,
     body.dark-mode .summary-card small {
       color: #ffb6c1 !important;
+      background-color: transparent !important;
     }
 
     body.dark-mode input, 
