@@ -13,19 +13,14 @@
 
   <link rel="stylesheet" href="styles.css">
   
-  <!-- Estilos para suavizar elementos y darles el efecto de movimiento a los botones -->
+  <!-- Estilos adaptados para Modo Claro y Modo Oscuro -->
   <style>
-    /* Cabeceras de tablas y fondos pasteles */
+    /* --- MODO CLARO --- */
     thead, th, .table-wrap th {
       background-color: #fbc4d4 !important;
       color: #5a2337 !important;
     }
-    /* Barras de progreso de categorías */
-    .category-chart div, .category-bar, progress {
-      background-color: #fbc4d4 !important;
-    }
 
-    /* Clase para los botones pasteles con el rebote/movimiento idéntico al de los demás */
     .pastel-btn {
       background: #fbc4d4 !important;
       color: #5a2337 !important;
@@ -46,6 +41,24 @@
     .pastel-btn:hover {
       transform: translateY(-2px) !important;
       box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
+    }
+
+    /* --- MODO OSCURO (Adapta automáticamente los colores) --- */
+    body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
+    body.dark thead, body.dark th, body.dark .table-wrap th {
+      background-color: #3d222b !important;
+      color: #ffb6c1 !important;
+    }
+
+    body.dark-theme .pastel-btn, body.dark .pastel-btn {
+      background: #3d222b !important;
+      color: #ffb6c1 !important;
+      border: 1px solid #6b3b4a !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    }
+    body.dark-theme .pastel-btn:hover, body.dark .pastel-btn:hover {
+      background: #4e2b37 !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
     }
   </style>
 
@@ -111,7 +124,7 @@
       <div class="header-actions" style="margin-top: 12px;">
         <span id="userEmail" class="user-email"></span>
         
-        <!-- Botón con estética suave, pastel y con animación de movimiento -->
+        <!-- Botón de Próximos -->
         <a href="https://gastos-proximos.vercel.app/" class="pastel-btn">
           🌸 Próximos & Deudas
         </a>
@@ -149,7 +162,6 @@
             </div>
           </div>
 
-          <!-- Botón Guardar presupuesto con movimiento -->
           <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
           
           <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
