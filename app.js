@@ -343,7 +343,7 @@ function renderMensualesExpensesTable(expenses) {
     list = list.filter(e => (e.description || "").toLowerCase().includes(q) || (e.category || "").toLowerCase().includes(q));
   }
 
-  // Filtro por categoría seleccionada leyendo directamente del elemento HTML
+  // Filtro por categoría seleccionada (lectura directa y segura del select)
   const categoryFilterValue = $("filterCategorySelect")?.value || "";
   if (categoryFilterValue.trim() !== "") {
     const targetCat = categoryFilterValue.trim().toLowerCase();
