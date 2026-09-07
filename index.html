@@ -7,9 +7,9 @@
   <title>MENSUALES · Control & Gastos Próximos</title>
 
   <!-- PWA Meta Tags -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#ff7597">
-  <link rel="apple-touch-icon" href="https://api.iconify.design/twemoji:cherry-blossom.svg">
+  <link rel="apple-touch-icon" href="./icono-app.jpg">
 
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -21,7 +21,7 @@
 
   <!-- ==============================
         LOGIN / REGISTRO
-  =============================== -->
+  ================ -->
   <section id="authSection" class="auth-section">
     <div class="auth-card">
       <div class="auth-logo">♡</div>
@@ -56,7 +56,7 @@
 
   <!-- ==============================
         APLICACIÓN PRINCIPAL
-  =============================== -->
+  ================ -->
   <section id="appContent" class="hidden">
 
     <!-- HERO HEADER -->
@@ -87,19 +87,15 @@
       </button>
     </nav>
 
-    <!-- CONTROLES GENERALES (MODO OSCURO Y MONTOS) -->
+    <!-- CONTROLES GENERALES -->
     <div class="amounts-toggle" style="margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
       <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
       <button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
     </div>
 
 
-    <!-- =========================================================
-          VISTA 1: MENSUALES (TAB)
-    ========================================================= -->
+    <!-- VISTA 1: MENSUALES -->
     <div id="viewMensuales">
-
-      <!-- HERRAMIENTAS Y PRESUPUESTO (COLAPSABLE) -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
         <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
         <button id="toggleToolbarBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar barra</button>
@@ -129,7 +125,6 @@
         </section>
       </div>
 
-      <!-- RESUMEN DE PRESUPUESTO (COLAPSABLE) -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 0.5rem;">
         <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Resumen</h3>
         <button id="toggleBudgetBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar resumen</button>
@@ -163,7 +158,6 @@
         </section>
       </div>
 
-      <!-- TABLA DE GASTOS DEL MES -->
       <section class="panel" style="margin-top: 1.5rem;">
         <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
@@ -207,7 +201,6 @@
         </div>
       </section>
 
-      <!-- HISTORIAL Y CATEGORÍAS -->
       <section class="two-columns" style="margin-top: 1.5rem;">
         <section class="panel">
           <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
@@ -245,7 +238,6 @@
         </section>
       </section>
 
-      <!-- TENDENCIA -->
       <section class="trend-box" style="margin-top: 1.5rem;">
         <h2>📊 Análisis de tendencia</h2>
         <p id="trendText">Agregá gastos para comenzar a analizar tus hábitos.</p>
@@ -253,12 +245,8 @@
     </div>
 
 
-    <!-- =========================================================
-          VISTA 2: GASTOS PRÓXIMOS & DEUDAS (TAB)
-    ========================================================= -->
+    <!-- VISTA 2: GASTOS PRÓXIMOS -->
     <div id="viewProximos" class="hidden">
-
-      <!-- RESUMEN PRÓXIMOS -->
       <section class="summary-grid" style="margin-top: 10px;">
         <article class="summary-card main-card">
           <div class="card-icon" style="font-size: 1.6rem;">💰</div>
@@ -287,7 +275,6 @@
         </article>
       </section>
 
-      <!-- BARRA DE ACCIONES Y FILTROS -->
       <section class="panel" style="margin-top: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem;">
           <div>
@@ -320,7 +307,6 @@
       </section>
     </div>
 
-    <!-- FOOTER -->
     <footer style="margin-top: 2rem;">
       MENSUALES · Tus gastos y pagos organizados en un solo lugar.
       <br>
@@ -331,9 +317,7 @@
 </main>
 
 
-<!-- =========================================================
-      MODAL 1: GASTO MENSUAL
-========================================================= -->
+<!-- MODALES -->
 <dialog id="expenseDialog">
   <form id="expenseForm" class="modal">
     <button id="closeDialog" type="button" class="close" aria-label="Cerrar">×</button>
@@ -434,10 +418,6 @@
   </form>
 </dialog>
 
-
-<!-- =========================================================
-      MODAL 2: GASTO PRÓXIMO / PENDIENTE
-========================================================= -->
 <dialog id="gpModal">
   <form id="gpExpenseForm" class="modal">
     <button id="gpCloseModalBtn" type="button" class="close" aria-label="Cerrar">×</button>
