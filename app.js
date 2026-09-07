@@ -685,7 +685,14 @@ async function togglePayProximo(id) {
     const mensualId = item.linkedMensualId || `gp-${item.id}`;
 
     item.paid = false;
-    await setDoc(doc(db, "users", currentUser.uid, "proximos", item.id), { paid: false }, { merge: true });
+    item.linkedMensualId = null;
+    item.linkedMonthKey = null;
+    
+    await setDoc(doc(db, "users", currentUser.uid, "proximos", item.id), { 
+      paid: false, 
+      linkedMensualId: null, 
+      linkedMonthKey: null 
+    }, { merge: true });
 
     const monthRef = doc(db, "users", currentUser.uid, "months", monthKey);
     const snap = await getDoc(monthRef);
@@ -741,7 +748,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (IDÉNTICOS AL ORIGINAL)
+   REPORTES PDF
 ========================================================= */
 
 function generateMensualesPDF() {
@@ -787,11 +794,11 @@ function generateMensualesPDF() {
   pdf.setTextColor(...dark);
   pdf.setFontSize(17);
   pdf.setFont("helvetica", "bold");
-  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);[cite: 2]
+  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte · ${monthName(month)}`, 21, 34);[cite: 2]
+  pdf.text(`Reporte · ${monthName(month)}`, 21, 34);
 
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
 
@@ -824,10 +831,10 @@ function generateMensualesPDF() {
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(7);
   pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18, y + 5);[cite: 2]
-  pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);[cite: 2]
-  pdf.text("CATEGORÍA", 120, y + 5);[cite: 2]
-  pdf.text("MONTO", 165, y + 5);[cite: 2]
+  pdf.text("FECHA", 18, y + 5);
+  pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);
+  pdf.text("CATEGORÍA", 120, y + 5);
+  pdf.text("MONTO", 165, y + 5);
 
   y += 8;
   pdf.setFont("helvetica", "normal");
@@ -864,8 +871,8 @@ function generateMensualesPDF() {
   pdf.setTextColor(...dark);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7);
-  pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);[cite: 2]
-  pdf.text(cardSpentText, 160, y + 6);[cite: 2]
+  pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);
+  pdf.text(cardSpentText, 160, y + 6);
 
   y += 18;
 
@@ -877,7 +884,7 @@ function generateMensualesPDF() {
   pdf.setFontSize(10);
   pdf.setFont("helvetica", "bold");
   pdf.setTextColor(...dark);
-  pdf.text("Análisis de tendencia", 15, y);[cite: 2]
+  pdf.text("Análisis de tendencia", 15, y);
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
@@ -926,7 +933,7 @@ function generateProximosPDF() {
   pdf.setTextColor(...dark);
   pdf.setFontSize(16);
   pdf.setFont("helvetica", "bold");
-  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);[cite: 1]
+  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);
 
   const todayStr = new Date().toLocaleDateString("es-AR", {
     day: "2-digit",
@@ -936,7 +943,7 @@ function generateProximosPDF() {
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte emitido el ${todayStr}`, 21, 33);[cite: 1]
+  pdf.text(`Reporte emitido el ${todayStr}`, 21, 33);
 
   const pendingItems = proximosExpenses.filter(e => !e.paid);
 
@@ -988,11 +995,11 @@ function generateProximosPDF() {
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(7);
   pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18, y + 5);[cite: 1]
-  pdf.text("CONCEPTO / DETALLE", 42, y + 5);[cite: 1]
-  pdf.text("CATEGORÍA", 115, y + 5);[cite: 1]
-  pdf.text("ESTADO", 145, y + 5);[cite: 1]
-  pdf.text("MONTO", 170, y + 5);[cite: 1]
+  pdf.text("FECHA", 18, y + 5);
+  pdf.text("CONCEPTO / DETALLE", 42, y + 5);
+  pdf.text("CATEGORÍA", 115, y + 5);
+  pdf.text("ESTADO", 145, y + 5);
+  pdf.text("MONTO", 170, y + 5);
 
   y += 7;
   pdf.setFont("helvetica", "normal");
@@ -1005,7 +1012,7 @@ function generateProximosPDF() {
       y = 20;
     }
 
-    const state = expense.paid ? "Pagado" : expense.type === "debt" ? "Deuda" : "Pendiente";[cite: 1]
+    const state = expense.paid ? "Pagado" : expense.type === "debt" ? "Deuda" : "Pendiente";
     const curr = expense.currency || "ARS";
     const amountStr = expense.amount !== null ? money(expense.amount, curr) : "A definir";
 
@@ -1044,7 +1051,7 @@ function generateProximosPDF() {
 
 
 /* =========================================================
-   INICIALIZACIÓN SEGURA DE EVENTOS (DOM CONTENT LOADED)
+   INICIALIZACIÓN SEGURA DE EVENTOS
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
