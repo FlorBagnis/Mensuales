@@ -771,19 +771,18 @@ function generateMensualesPDF() {
   pdf.setTextColor(...dark);
   pdf.setFontSize(17);
   pdf.setFont("helvetica", "bold");
-  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);
+  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);[cite: 2]
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte · ${monthName(month)}`, 21, 34);
+  pdf.text(`Reporte · ${monthName(month)}`, 21, 34);[cite: 2]
 
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
 
-  // Tarjetas con comas corregidas para evitar errores de sintaxis
   const cards = [
-    ["TOTAL GASTADO", cardSpentText],
-    ["MES ANTERIOR (ARS)", money(previousTotalARS)],
-    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`]
+    ["TOTAL GASTADO", cardSpentText],[cite: 2]
+    ["MES ANTERIOR (ARS)", money(previousTotalARS)],[cite: 2]
+    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`][cite: 2]
   ];
 
   cards.forEach((card, index) => {
@@ -809,10 +808,10 @@ function generateMensualesPDF() {
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(7);
   pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18, y + 5);
-  pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);
-  pdf.text("CATEGORÍA", 120, y + 5);
-  pdf.text("MONTO", 165, y + 5);
+  pdf.text("FECHA", 18, y + 5);[cite: 2]
+  pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);[cite: 2]
+  pdf.text("CATEGORÍA", 120, y + 5);[cite: 2]
+  pdf.text("MONTO", 165, y + 5);[cite: 2]
 
   y += 8;
   pdf.setFont("helvetica", "normal");
@@ -849,8 +848,8 @@ function generateMensualesPDF() {
   pdf.setTextColor(...dark);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7);
-  pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);
-  pdf.text(cardSpentText, 160, y + 6);
+  pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);[cite: 2]
+  pdf.text(cardSpentText, 160, y + 6);[cite: 2]
 
   y += 18;
 
@@ -859,11 +858,10 @@ function generateMensualesPDF() {
     y = 20;
   }
 
-  // Cuadro de Tendencia detallado con el mayor gasto y categoría líder
   pdf.setFontSize(10);
   pdf.setFont("helvetica", "bold");
   pdf.setTextColor(...dark);
-  pdf.text("Análisis de tendencia", 15, y);
+  pdf.text("Análisis de tendencia", 15, y);[cite: 2]
 
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(8);
@@ -912,7 +910,7 @@ function generateProximosPDF() {
   pdf.setTextColor(...dark);
   pdf.setFontSize(16);
   pdf.setFont("helvetica", "bold");
-  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);
+  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);[cite: 1]
 
   const todayStr = new Date().toLocaleDateString("es-AR", {
     day: "2-digit",
@@ -922,7 +920,7 @@ function generateProximosPDF() {
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte emitido el ${todayStr}`, 21, 33);
+  pdf.text(`Reporte emitido el ${todayStr}`, 21, 33);[cite: 1]
 
   const pendingItems = proximosExpenses.filter(e => !e.paid);
 
@@ -974,11 +972,11 @@ function generateProximosPDF() {
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(7);
   pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18, y + 5);
-  pdf.text("CONCEPTO / DETALLE", 42, y + 5);
-  pdf.text("CATEGORÍA", 115, y + 5);
-  pdf.text("ESTADO", 145, y + 5);
-  pdf.text("MONTO", 170, y + 5);
+  pdf.text("FECHA", 18, y + 5);[cite: 1]
+  pdf.text("CONCEPTO / DETALLE", 42, y + 5);[cite: 1]
+  pdf.text("CATEGORÍA", 115, y + 5);[cite: 1]
+  pdf.text("ESTADO", 145, y + 5);[cite: 1]
+  pdf.text("MONTO", 170, y + 5);[cite: 1]
 
   y += 7;
   pdf.setFont("helvetica", "normal");
@@ -991,7 +989,7 @@ function generateProximosPDF() {
       y = 20;
     }
 
-    const state = expense.paid ? "Pagado" : expense.type === "debt" ? "Deuda" : "Pendiente";
+    const state = expense.paid ? "Pagado" : expense.type === "debt" ? "Deuda" : "Pendiente";[cite: 1]
     const curr = expense.currency || "ARS";
     const amountStr = expense.amount !== null ? money(expense.amount, curr) : "A definir";
 
@@ -1100,6 +1098,69 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
   });
 
+  // ---------------------------------------------------------
+  // LÓGICA DE REPETIR GASTO EN MODAL
+  // ---------------------------------------------------------
+  const expenseRecurring = $("expenseRecurring");
+  const recurringOptions = $("recurringOptions");
+  const recurringChangingAmount = $("recurringChangingAmount");
+  const recurringAmounts = $("recurringAmounts");
+  const recurringDuration = $("recurringDuration");
+  const recurringMonthsInput = $("recurringMonths");
+  const recurringDay = $("recurringDay");
+
+  expenseRecurring?.addEventListener("change", () => {
+    recurringOptions?.classList.toggle("hidden", !expenseRecurring.checked);
+    if (expenseRecurring.checked) updateRecurringInputs();
+  });
+
+  recurringChangingAmount?.addEventListener("change", () => {
+    recurringAmounts?.classList.toggle("hidden", !recurringChangingAmount.checked);
+    if (recurringChangingAmount.checked) updateRecurringInputs();
+  });
+
+  function updateRecurringInputs() {
+    if (!recurringAmounts) return;
+    recurringAmounts.innerHTML = "";
+    if (!expenseRecurring?.checked || !recurringChangingAmount?.checked) return;
+
+    const count = Number(recurringDuration?.value) || 6;
+    const baseAmount = Number($("expenseAmount")?.value) || 0;
+    const interval = Number(recurringMonthsInput?.value) || 1;
+    let baseDate = new Date(($("expenseDate")?.value || currentMonthValue() + "-01") + "T00:00:00");
+
+    for (let i = 0; i < count; i++) {
+      const d = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), Number(recurringDay?.value || 10));
+      const mLabel = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" }).format(d);
+
+      const label = document.createElement("label");
+      label.style.cssText = "display:grid; grid-template-columns: 1fr 120px; gap:8px; align-items:center; font-size:11px; margin-top:6px;";
+      label.innerHTML = `
+        <span>${mLabel.charAt(0).toUpperCase() + mLabel.slice(1)}</span>
+        <input type="number" min="0" step="0.01" class="rec-amount-input" data-index="${i}" value="${baseAmount}" required style="padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-size:12px;">
+      `;
+      recurringAmounts.appendChild(label);
+    }
+  }
+
+  recurringDuration?.addEventListener("input", updateRecurringInputs);
+  recurringMonthsInput?.addEventListener("input", updateRecurringInputs);
+  recurringDay?.addEventListener("input", updateRecurringInputs);
+  $("expenseAmount")?.addEventListener("input", () => {
+    if (!recurringChangingAmount?.checked) return;
+    const baseAmount = Number($("expenseAmount")?.value) || 0;
+    recurringAmounts?.querySelectorAll(".rec-amount-input").forEach(inp => {
+      if (!inp.dataset.userEdited) inp.value = baseAmount;
+    });
+  });
+
+  recurringAmounts?.addEventListener("input", e => {
+    if (e.target.classList.contains("rec-amount-input")) {
+      e.target.dataset.userEdited = "true";
+    }
+  });
+
+
   // Acciones Mensuales
   $("saveBudgetBtn")?.addEventListener("click", async () => {
     const month = $("monthPicker")?.value;
@@ -1116,36 +1177,76 @@ document.addEventListener("DOMContentLoaded", () => {
     if ($("expenseForm")) delete $("expenseForm").dataset.editingId;
     if ($("expenseDate")) $("expenseDate").value = new Date().toISOString().slice(0, 10);
     if ($("modalTitle")) $("modalTitle").textContent = "Agregar gasto";
+    recurringOptions?.classList.add("hidden");
+    recurringAmounts?.classList.add("hidden");
     $("expenseDialog")?.showModal();
   });
 
   $("closeDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
   $("cancelDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
 
+  // SUBMIT DEL FORMULARIO DE GASTO MENSUAL (INCLUYE REPETICIÓN)
   $("expenseForm")?.addEventListener("submit", async e => {
     e.preventDefault();
-    const month = $("monthPicker")?.value;
     const editingId = $("expenseForm").dataset.editingId;
-    const date = $("expenseDate").value;
+    const baseDateStr = $("expenseDate").value;
     const description = $("expenseDescription").value.trim();
     const category = $("expenseCategory").value;
-    const amount = Number($("expenseAmount").value);
+    const baseAmount = Number($("expenseAmount").value);
     const currency = $("expenseCurrency")?.value || "ARS";
 
     if (editingId) {
+      const month = baseDateStr.slice(0, 7);
       const monthData = ensureMonth(month);
       const exp = monthData.expenses.find(x => x.id === editingId);
       if (exp) {
-        exp.date = date; exp.description = description; exp.category = category; exp.amount = amount; exp.currency = currency;
+        exp.date = baseDateStr; 
+        exp.description = description; 
+        exp.category = category; 
+        exp.amount = baseAmount; 
+        exp.currency = currency;
         renderMensuales();
         await saveMonthToFirestore(month);
       }
     } else {
-      const expense = { id: createId("expense"), date, description, category, amount, currency };
-      const monthData = ensureMonth(month);
-      monthData.expenses.push(expense);
-      renderMensuales();
-      await saveMonthToFirestore(month);
+      const isRecurring = expenseRecurring?.checked;
+      
+      if (!isRecurring) {
+        // Gasto único normal
+        const expense = { id: createId("expense"), date: baseDateStr, description, category, amount: baseAmount, currency };
+        const month = baseDateStr.slice(0, 7);
+        const monthData = ensureMonth(month);
+        monthData.expenses.push(expense);
+        renderMensuales();
+        await saveMonthToFirestore(month);
+      } else {
+        // Gasto recurrente (repetir en varios meses)
+        const count = Number(recurringDuration?.value) || 6;
+        const interval = Number(recurringMonthsInput?.value) || 1;
+        const dayNum = Number(recurringDay?.value) || 10;
+        const changing = recurringChangingAmount?.checked;
+        const customInputs = recurringAmounts?.querySelectorAll(".rec-amount-input");
+
+        let baseDate = new Date(baseDateStr + "T00:00:00");
+
+        for (let i = 0; i < count; i++) {
+          const targetDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), dayNum);
+          const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}`;
+          const dateStr = `${monthKey}-${String(targetDate.getDate()).padStart(2, "0")}`;
+
+          let amount = baseAmount;
+          if (changing && customInputs && customInputs[i]) {
+            amount = Number(customInputs[i].value) || baseAmount;
+          }
+
+          const expense = { id: createId("expense"), date: dateStr, description, category, amount, currency };
+          const monthData = ensureMonth(monthKey);
+          monthData.expenses.push(expense);
+          await saveMonthToFirestore(monthKey);
+        }
+        renderMensuales();
+        alert(`✓ Gasto repetido exitosamente durante ${count} período(s).`);
+      }
     }
 
     $("expenseDialog")?.close();
