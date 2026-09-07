@@ -1,11 +1,9 @@
 /* =========================================================
-   MENSUALES
-   FIREBASE + FIRESTORE
-   GASTOS RECURRENTES + MONTOS VARIABLES + DÓLARES + MODO OSCURO
+   MENSUALES & GASTOS PRÓXIMOS (SISTEMA UNIFICADO)
+   FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -13,7 +11,6 @@ import {
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-
 import {
   getFirestore,
   collection,
@@ -25,11 +22,6 @@ import {
   writeBatch,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
-
-
-/* =========================================================
-   FIREBASE
-========================================================= */
 
 const firebaseConfig = {
   apiKey: "AIzaSyBGGfMzmGfRH614IT5wwG2kZOtUDBd16ok",
@@ -44,25 +36,34 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
+// Service Worker (PWA)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(e => console.log("SW:", e));
+  });
+}
 
-/* =========================================================
-   VARIABLES
-========================================================= */
-
-let data = {
-  months: {}
-};
-
+// Variables Globales
 let currentUser = null;
 let unsubscribeMonths = null;
+let unsubscribeProximos = null;
 let authMode = "login";
 let appReady = false;
+
+// Datos de Mensuales
+let data = { months: {} };
+let searchMensualesTerm = "";
+
+// Datos de Gastos Próximos
+let proximosExpenses = [];
+let gpCurrentFilter = "all";
+let gpSearchTerm = "";
 
 const $ = id => document.getElementById(id);
 
 
 /* =========================================================
-   DINERO Y FORMATO MULTIMONEDA
+   FORMATOS DE MONEDA Y FECHAS
 ========================================================= */
 
 function money(value, currency = "ARS") {
@@ -74,275 +75,72 @@ function money(value, currency = "ARS") {
   }).format(Number(value || 0));
 }
 
-
-/* =========================================================
-   MESES
-========================================================= */
-
 function currentMonthValue() {
   const today = new Date();
-
-  return `${today.getFullYear()}-${String(
-    today.getMonth() + 1
-  ).padStart(2, "0")}`;
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
 }
-
 
 function monthName(month) {
+  if (!month) return "";
   const [year, monthNumber] = month.split("-").map(Number);
-
-  return new Intl.DateTimeFormat("es-AR", {
-    month: "long",
-    year: "numeric"
-  })
+  return new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" })
     .format(new Date(year, monthNumber - 1, 1))
     .replace(/^./, c => c.toUpperCase());
 }
-
 
 function shortMonthName(month) {
+  if (!month) return "";
   const [year, monthNumber] = month.split("-").map(Number);
-
-  return new Intl.DateTimeFormat("es-AR", {
-    month: "long"
-  })
+  return new Intl.DateTimeFormat("es-AR", { month: "long" })
     .format(new Date(year, monthNumber - 1, 1))
     .replace(/^./, c => c.toUpperCase());
 }
-
 
 function addMonths(month, amount) {
   const [year, monthNumber] = month.split("-").map(Number);
-
-  const date = new Date(
-    year,
-    monthNumber - 1 + amount,
-    1
-  );
-
-  return `${date.getFullYear()}-${String(
-    date.getMonth() + 1
-  ).padStart(2, "0")}`;
+  const date = new Date(year, monthNumber - 1 + amount, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
-
 
 function previousMonth(month) {
   return addMonths(month, -1);
 }
 
-
-function getLastDayOfMonth(year, monthNumber) {
-  return new Date(year, monthNumber, 0).getDate();
+function formatDate(date) {
+  if (!date) return "—";
+  const [year, month, day] = date.split("-");
+  return `${day}/${month}/${year}`;
 }
 
-
-function buildDateForMonth(month, requestedDay) {
-  const [year, monthNumber] = month.split("-").map(Number);
-
-  const lastDay = getLastDayOfMonth(
-    year,
-    monthNumber
-  );
-
-  const day = Math.min(
-    Number(requestedDay || 1),
-    lastDay
-  );
-
-  return `${year}-${String(monthNumber).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+  }[c]));
 }
 
-
-/* =========================================================
-   DATOS
-========================================================= */
-
-function emptyMonth() {
-  return {
-    budget: 0,
-    expenses: []
-  };
-}
-
-
-function ensureMonth(month) {
-  if (!data.months[month]) {
-    data.months[month] = emptyMonth();
+function createId(prefix = "expense") {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
   }
-
-  return data.months[month];
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
 
 /* =========================================================
-   FIRESTORE
+   COTIZACIÓN DÓLAR BLUE EN VIVO
 ========================================================= */
 
-function monthsCollectionRef() {
-  if (!currentUser) return null;
-
-  return collection(
-    db,
-    "users",
-    currentUser.uid,
-    "months"
-  );
-}
-
-
-function monthDocumentRef(month) {
-  if (!currentUser) return null;
-
-  return doc(
-    db,
-    "users",
-    currentUser.uid,
-    "months",
-    month
-  );
-}
-
-
-async function saveMonthToFirestore(month) {
-  if (!currentUser) return;
-
-  const monthData = ensureMonth(month);
-
-  await setDoc(
-    monthDocumentRef(month),
-    {
-      budget: Number(monthData.budget || 0),
-      expenses: Array.isArray(monthData.expenses)
-        ? monthData.expenses
-        : []
+async function fetchDolarBlue() {
+  const badge = $("dolarBadge");
+  if (!badge) return;
+  try {
+    const res = await fetch("https://dolarapi.com/v1/dolares/blue");
+    const json = await res.json();
+    if (json?.venta) {
+      badge.textContent = `💵 Dólar Blue: $${json.venta}`;
     }
-  );
-}
-
-
-async function saveMultipleMonths(months) {
-  if (!currentUser) return;
-
-  const entries = Object.entries(months);
-
-  if (!entries.length) return;
-
-  const batch = writeBatch(db);
-
-  entries.forEach(([month, monthData]) => {
-    batch.set(
-      monthDocumentRef(month),
-      {
-        budget: Number(monthData.budget || 0),
-        expenses: Array.isArray(monthData.expenses)
-          ? monthData.expenses
-          : []
-      }
-    );
-  });
-
-  await batch.commit();
-}
-
-
-async function deleteMonthFromFirestore(month) {
-  if (!currentUser) return;
-
-  await deleteDoc(
-    monthDocumentRef(month)
-  );
-}
-
-
-/* =========================================================
-   CARGAR DATOS
-========================================================= */
-
-async function loadMonthsFromFirestore() {
-  if (!currentUser) return;
-
-  const snapshot = await getDocs(
-    monthsCollectionRef()
-  );
-
-  const months = {};
-
-  snapshot.forEach(documentSnapshot => {
-    const value = documentSnapshot.data();
-
-    months[documentSnapshot.id] = {
-      budget: Number(value.budget || 0),
-      expenses: Array.isArray(value.expenses)
-        ? value.expenses
-        : []
-    };
-  });
-
-  data = {
-    months
-  };
-}
-
-
-/* =========================================================
-   SINCRONIZACIÓN EN TIEMPO REAL
-========================================================= */
-
-function startRealtimeSync() {
-  stopRealtimeSync();
-
-  if (!currentUser) return;
-
-  unsubscribeMonths = onSnapshot(
-    monthsCollectionRef(),
-    snapshot => {
-      const months = {};
-
-      snapshot.forEach(documentSnapshot => {
-        const value = documentSnapshot.data();
-
-        months[documentSnapshot.id] = {
-          budget: Number(value.budget || 0),
-          expenses: Array.isArray(value.expenses)
-            ? value.expenses
-            : []
-        };
-      });
-
-      data = {
-        months
-      };
-
-      const month =
-        $("monthPicker")?.value ||
-        currentMonthValue();
-
-      ensureMonth(month);
-
-      if (!appReady) {
-        appReady = true;
-      }
-
-      render();
-    },
-    error => {
-      console.error(
-        "Error sincronizando Firestore:",
-        error
-      );
-
-      alert(
-        "No se pudieron sincronizar los datos con Firebase. Revisá las reglas de Firestore."
-      );
-    }
-  );
-}
-
-
-function stopRealtimeSync() {
-  if (typeof unsubscribeMonths === "function") {
-    unsubscribeMonths();
-    unsubscribeMonths = null;
+  } catch (err) {
+    badge.textContent = `💵 Dólar Blue: no disponible`;
   }
 }
 
@@ -356,76 +154,28 @@ function setAuthMessage(message, success = false) {
   $("authMessage").classList.toggle("success", success);
 }
 
-
 function updateAuthInterface() {
   const isLogin = authMode === "login";
-
   $("authSubmitBtn").disabled = false;
-  $("authSubmitBtn").textContent = isLogin
-    ? "Iniciar sesión"
-    : "Crear cuenta";
-
-  $("authSwitchBtn").textContent = isLogin
-    ? "¿No tenés una cuenta? Registrate"
-    : "¿Ya tenés una cuenta? Iniciá sesión";
-
-  $("authPassword").autocomplete = isLogin
-    ? "current-password"
-    : "new-password";
-
+  $("authSubmitBtn").textContent = isLogin ? "Iniciar sesión" : "Crear cuenta";
+  $("authSwitchBtn").textContent = isLogin ? "¿No tenés una cuenta? Registrate" : "¿Ya tenés una cuenta? Iniciá sesión";
+  $("authPassword").autocomplete = isLogin ? "current-password" : "new-password";
   setAuthMessage("");
 }
-
-
-function firebaseErrorMessage(error) {
-  const code = error?.code || "";
-
-  const messages = {
-    "auth/invalid-email": "El email no es válido.",
-    "auth/missing-password": "Ingresá una contraseña.",
-    "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.",
-    "auth/email-already-in-use": "Ya existe una cuenta con ese email.",
-    "auth/invalid-credential": "El email o la contraseña son incorrectos.",
-    "auth/user-not-found": "No existe una cuenta con ese email.",
-    "auth/wrong-password": "La contraseña es incorrecta.",
-    "auth/too-many-requests": "Hubo demasiados intentos. Esperá un momento y volvé a intentar.",
-    "auth/network-request-failed": "No hay conexión con Firebase.",
-    "auth/operation-not-allowed": "El inicio de sesión con email no está habilitado en Firebase."
-  };
-
-  return (
-    messages[code] ||
-    `Ocurrió un error (${code || "desconocido"}). Volvé a intentar.`
-  );
-}
-
-
-/* =========================================================
-   LOGIN / REGISTRO
-========================================================= */
 
 $("authSwitchBtn").addEventListener("click", () => {
   authMode = authMode === "login" ? "register" : "login";
   updateAuthInterface();
 });
 
-
-$("authForm").addEventListener("submit", async event => {
-  event.preventDefault();
-
+$("authForm").addEventListener("submit", async e => {
+  e.preventDefault();
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
 
-  if (!email || !password) {
-    setAuthMessage("Completá email y contraseña.");
-    return;
-  }
-
   const button = $("authSubmitBtn");
   button.disabled = true;
-  button.textContent = authMode === "login"
-    ? "Ingresando..."
-    : "Creando cuenta...";
+  button.textContent = authMode === "login" ? "Ingresando..." : "Creando cuenta...";
 
   try {
     if (authMode === "register") {
@@ -434,57 +184,33 @@ $("authForm").addEventListener("submit", async event => {
       await signInWithEmailAndPassword(auth, email, password);
     }
   } catch (error) {
-    console.error("Firebase Auth:", error);
-    setAuthMessage(firebaseErrorMessage(error));
+    console.error("Auth Error:", error);
+    setAuthMessage(error.message);
     button.disabled = false;
     updateAuthInterface();
   }
 });
 
-
-/* =========================================================
-   CERRAR SESIÓN
-========================================================= */
-
 $("logoutBtn").addEventListener("click", async () => {
-  const confirmed = confirm("¿Querés cerrar sesión?");
-  if (!confirmed) return;
-
-  const button = $("logoutBtn");
-  button.disabled = true;
-  button.textContent = "Cerrando sesión...";
-
+  if (!confirm("¿Querés cerrar sesión?")) return;
   try {
-    stopRealtimeSync();
-    appReady = false;
+    stopAllSync();
     await signOut(auth);
-  } catch (error) {
-    console.error("Error cerrando sesión:", error);
-    button.disabled = false;
-    button.textContent = "Cerrar sesión";
+  } catch (err) {
     alert("No se pudo cerrar la sesión.");
   }
 });
 
-
-/* =========================================================
-   ESTADO DE AUTENTICACIÓN
-========================================================= */
-
 onAuthStateChanged(auth, async user => {
   currentUser = user;
-
   if (!user) {
-    stopRealtimeSync();
+    stopAllSync();
     data = { months: {} };
+    proximosExpenses = [];
     appReady = false;
-
     $("authSection").classList.remove("hidden");
     $("appContent").classList.add("hidden");
     $("userEmail").textContent = "";
-    $("logoutBtn").disabled = false;
-    $("logoutBtn").textContent = "Cerrar sesión";
-    $("authSubmitBtn").disabled = false;
     updateAuthInterface();
     return;
   }
@@ -492,77 +218,114 @@ onAuthStateChanged(auth, async user => {
   $("authSection").classList.add("hidden");
   $("appContent").classList.remove("hidden");
   $("userEmail").textContent = user.email || "";
-  $("logoutBtn").disabled = false;
-  $("logoutBtn").textContent = "Cerrar sesión";
 
-  try {
-    await loadMonthsFromFirestore();
-
-    const month = currentMonthValue();
-    if ($("monthPicker")) {
-      $("monthPicker").value = month;
-    }
-
-    ensureMonth(month);
-    startRealtimeSync();
-  } catch (error) {
-    console.error("Error inicializando MENSUALES:", error);
-    alert("No se pudieron cargar tus datos desde Firebase. Revisá las reglas de Firestore.");
-  }
+  fetchDolarBlue();
+  startMonthsSync();
+  startProximosSync();
 });
 
 
 /* =========================================================
-   RENDER PRINCIPAL
+   SISTEMA DE PESTAÑAS (TABS)
 ========================================================= */
 
-function render() {
+const tabMensualesBtn = $("tabMensualesBtn");
+const tabProximosBtn = $("tabProximosBtn");
+const viewMensuales = $("viewMensuales");
+const viewProximos = $("viewProximos");
+
+tabMensualesBtn.addEventListener("click", () => {
+  tabMensualesBtn.className = "btn btn-pink";
+  tabProximosBtn.className = "btn btn-outline";
+  viewMensuales.classList.remove("hidden");
+  viewProximos.classList.add("hidden");
+});
+
+tabProximosBtn.addEventListener("click", () => {
+  tabProximosBtn.className = "btn btn-pink";
+  tabMensualesBtn.className = "btn btn-outline";
+  viewProximos.classList.remove("hidden");
+  viewMensuales.classList.add("hidden");
+});
+
+
+/* =========================================================
+   FIRESTORE: MENSUALES
+========================================================= */
+
+function ensureMonth(month) {
+  if (!data.months[month]) {
+    data.months[month] = { budget: 0, expenses: [] };
+  }
+  return data.months[month];
+}
+
+function startMonthsSync() {
   if (!currentUser) return;
+  const col = collection(db, "users", currentUser.uid, "months");
+  unsubscribeMonths = onSnapshot(col, snapshot => {
+    const months = {};
+    snapshot.forEach(docSnap => {
+      const v = docSnap.data();
+      months[docSnap.id] = {
+        budget: Number(v.budget || 0),
+        expenses: Array.isArray(v.expenses) ? v.expenses : []
+      };
+    });
+    data.months = months;
+    const currentM = $("monthPicker")?.value || currentMonthValue();
+    ensureMonth(currentM);
+    renderMensuales();
+  });
+}
 
-  const month = $("monthPicker")?.value;
-  if (!month) return;
+async function saveMonthToFirestore(month) {
+  if (!currentUser) return;
+  const docRef = doc(db, "users", currentUser.uid, "months", month);
+  const m = ensureMonth(month);
+  await setDoc(docRef, { budget: Number(m.budget || 0), expenses: m.expenses }, { merge: true });
+}
 
+function stopAllSync() {
+  if (typeof unsubscribeMonths === "function") { unsubscribeMonths(); unsubscribeMonths = null; }
+  if (typeof unsubscribeProximos === "function") { unsubscribeProximos(); unsubscribeProximos = null; }
+}
+
+
+/* =========================================================
+   RENDER: MENSUALES
+========================================================= */
+
+function renderMensuales() {
+  const month = $("monthPicker")?.value || currentMonthValue();
   const current = ensureMonth(month);
   const prevMonth = previousMonth(month);
-  const previous = data.months[prevMonth] || emptyMonth();
+  const previous = data.months[prevMonth] || { budget: 0, expenses: [] };
 
-  // Acumuladores separados ARS y USD
   let totalARS = 0;
   let totalUSD = 0;
-
-  current.expenses.forEach(expense => {
-    const amt = Number(expense.amount || 0);
-    if (expense.currency === "USD") {
-      totalUSD += amt;
-    } else {
-      totalARS += amt;
-    }
+  current.expenses.forEach(e => {
+    if (e.currency === "USD") totalUSD += Number(e.amount || 0);
+    else totalARS += Number(e.amount || 0);
   });
 
   let prevARS = 0;
   let prevUSD = 0;
-
-  previous.expenses.forEach(expense => {
-    const amt = Number(expense.amount || 0);
-    if (expense.currency === "USD") {
-      prevUSD += amt;
-    } else {
-      prevARS += amt;
-    }
+  previous.expenses.forEach(e => {
+    if (e.currency === "USD") prevUSD += Number(e.amount || 0);
+    else prevARS += Number(e.amount || 0);
   });
 
   const diffARS = totalARS - prevARS;
   const percentageARS = prevARS ? Math.abs((diffARS / prevARS) * 100) : 0;
 
   $("budgetInput").value = current.budget || "";
-
-  // Visualización del total gastado
-  $("totalSpent").innerHTML = totalUSD > 0 
-    ? `${money(totalARS)}<br><small style="font-size: 0.8em; font-weight: normal; color: var(--pink-700);">${money(totalUSD, "USD")}</small>`
+  $("totalSpent").innerHTML = totalUSD > 0
+    ? `${money(totalARS)}<br><small style="font-size:0.8em; color:var(--pink-700);">${money(totalUSD, "USD")}</small>`
     : money(totalARS);
 
   $("previousSpent").innerHTML = prevUSD > 0
-    ? `${money(prevARS)}<br><small style="font-size: 0.8em; font-weight: normal; color: var(--pink-700);">${money(prevUSD, "USD")}</small>`
+    ? `${money(prevARS)}<br><small style="font-size:0.8em; color:var(--pink-700);">${money(prevUSD, "USD")}</small>`
     : money(prevARS);
 
   $("budgetTotal").textContent = money(current.budget);
@@ -570,1101 +333,720 @@ function render() {
   $("monthPill").textContent = monthName(month);
   $("totalMonthName").textContent = shortMonthName(month).toUpperCase();
 
-  // Totales de la tabla principal
   $("tableTotal").textContent = money(totalARS);
-  const tableTotalUSD = $("tableTotalUSD");
-  if (tableTotalUSD) {
-    if (totalUSD > 0) {
-      tableTotalUSD.textContent = `+ ${money(totalUSD, "USD")}`;
-      tableTotalUSD.style.display = "block";
-    } else {
-      tableTotalUSD.textContent = "";
-      tableTotalUSD.style.display = "none";
-    }
+  const tableUSD = $("tableTotalUSD");
+  if (tableUSD) {
+    tableUSD.style.display = totalUSD > 0 ? "block" : "none";
+    tableUSD.textContent = totalUSD > 0 ? `+ ${money(totalUSD, "USD")}` : "";
   }
 
-  $("expenseCount").textContent = `${current.expenses.length} ${
-    current.expenses.length === 1 ? "gasto registrado" : "gastos registrados"
-  }`;
+  $("expenseCount").textContent = `${current.expenses.length} ${current.expenses.length === 1 ? "gasto registrado" : "gastos registrados"}`;
 
-  /* DIFERENCIA (Base ARS) */
-  const differenceElement = $("difference");
-
+  const diffEl = $("difference");
   if (prevARS === 0) {
-    differenceElement.textContent = "—";
+    diffEl.textContent = "—";
     $("differenceLabel").textContent = "Sin datos comparables";
-    differenceElement.className = "";
+    diffEl.className = "";
   } else {
-    differenceElement.textContent = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
-    $("differenceLabel").textContent = diffARS <= 0
-      ? `↓ ${percentageARS.toFixed(1)}% menos (ARS)`
-      : `↑ ${percentageARS.toFixed(1)}% más (ARS)`;
-
-    differenceElement.className = diffARS <= 0 ? "result-good" : "result-bad";
+    diffEl.textContent = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
+    $("differenceLabel").textContent = diffARS <= 0 ? `↓ ${percentageARS.toFixed(1)}% menos (ARS)` : `↑ ${percentageARS.toFixed(1)}% más (ARS)`;
+    diffEl.className = diffARS <= 0 ? "result-good" : "result-bad";
   }
 
-  /* PRESUPUESTO (Comparado contra ARS) */
   $("budgetStatus").textContent = current.budget
-    ? totalARS <= current.budget
-      ? `${money(current.budget - totalARS)} disponibles`
-      : `${money(totalARS - current.budget)} excedido`
+    ? totalARS <= current.budget ? `${money(current.budget - totalARS)} disponibles` : `${money(totalARS - current.budget)} excedido`
     : "Sin presupuesto";
+  $("budgetStatus").className = totalARS <= current.budget || !current.budget ? "" : "result-bad";
 
-  $("budgetStatus").className =
-    totalARS <= current.budget || !current.budget ? "" : "result-bad";
-
-  renderExpenses(current.expenses);
+  renderMensualesExpensesTable(current.expenses);
   renderHistory();
   renderCategories(current.expenses);
   renderTrend(month, totalARS, prevARS, totalUSD);
 }
 
-
-/* =========================================================
-   GASTOS
-========================================================= */
-
-function renderExpenses(expenses) {
+function renderMensualesExpensesTable(expenses) {
   const table = $("expenseTable");
   table.innerHTML = "";
 
-  $("emptyState").style.display = expenses.length ? "none" : "grid";
+  let list = expenses.slice();
+  if (searchMensualesTerm.trim() !== "") {
+    const q = searchMensualesTerm.toLowerCase();
+    list = list.filter(e => (e.description || "").toLowerCase().includes(q) || (e.category || "").toLowerCase().includes(q));
+  }
 
-  expenses
-    .slice()
-    .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")))
-    .forEach(expense => {
-      const row = document.createElement("tr");
-      const curr = expense.currency || "ARS";
+  $("emptyState").style.display = list.length ? "none" : "grid";
 
-      row.innerHTML = `
-        <td>${formatDate(expense.date)}</td>
-        <td>
-          ${escapeHtml(expense.description)}
-          ${expense.recurringId ? `<small class="recurring-badge">🔁</small>` : ""}
-          ${
-            expense.installment
-              ? `<small class="installment-info">Cuota ${expense.installment.current}/${expense.installment.total}</small>`
-              : ""
-          }
-        </td>
-        <td>
-          <span class="category">${escapeHtml(expense.category)}</span>
-        </td>
-        <td class="amount">${money(expense.amount, curr)}</td>
-        <td class="actions">
-          <button class="edit-btn" title="Editar gasto" data-id="${expense.id}" type="button">✏️</button>
-          <button class="delete-btn" title="Eliminar gasto" data-id="${expense.id}" type="button">×</button>
-        </td>
-      `;
+  list.sort((a, b) => String(a.date || "").localeCompare(String(b.date || ""))).forEach(e => {
+    const row = document.createElement("tr");
+    const curr = e.currency || "ARS";
+    row.innerHTML = `
+      <td>${formatDate(e.date)}</td>
+      <td>${escapeHtml(e.description)}</td>
+      <td><span class="category">${escapeHtml(e.category)}</span></td>
+      <td class="amount">${money(e.amount, curr)}</td>
+      <td class="actions">
+        <button class="edit-btn" data-id="${e.id}" type="button">✏️</button>
+        <button class="delete-btn" data-id="${e.id}" type="button">×</button>
+      </td>
+    `;
+    table.appendChild(row);
+  });
 
-      table.appendChild(row);
-    });
-
-  /* EDITAR */
-  table.querySelectorAll(".edit-btn").forEach(button => {
-    button.addEventListener("click", () => {
+  table.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.onclick = () => {
       const month = $("monthPicker").value;
-      const expense = data.months[month]?.expenses.find(
-        item => item.id === button.dataset.id
-      );
-
+      const expense = data.months[month]?.expenses.find(x => x.id === btn.dataset.id);
       if (!expense) return;
-
-      resetExpenseModal();
-
       $("expenseDate").value = expense.date;
       $("expenseDescription").value = expense.description;
       $("expenseCategory").value = expense.category;
       $("expenseAmount").value = expense.amount;
-      if ($("expenseCurrency")) {
-        $("expenseCurrency").value = expense.currency || "ARS";
-      }
+      $("expenseCurrency").value = expense.currency || "ARS";
       $("expenseForm").dataset.editingId = expense.id;
-
-      $("modalEyebrow").textContent = "EDITAR REGISTRO";
       $("modalTitle").textContent = "Editar gasto";
-      $("submitExpenseBtn").textContent = "Guardar cambios";
-
       $("expenseDialog").showModal();
-    });
+    };
   });
 
-  /* ELIMINAR CON SINCRONIZACIÓN INVERSA */
-  table.querySelectorAll(".delete-btn").forEach(button => {
-    button.addEventListener("click", async () => {
-      const confirmed = confirm("¿Querés eliminar este gasto?");
-      if (!confirmed) return;
-
+  table.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.onclick = async () => {
+      if (!confirm("¿Eliminar este gasto?")) return;
       const month = $("monthPicker").value;
       const monthData = data.months[month];
       if (!monthData) return;
-
-      const expenseId = button.dataset.id;
-      const oldExpenses = [...monthData.expenses];
-
-      // 1. Quitar de la lista local
-      monthData.expenses = monthData.expenses.filter(
-        expense => expense.id !== expenseId
-      );
-
-      render();
-
-      try {
-        // 2. Guardar el mes actualizado
-        await saveMonthToFirestore(month);
-
-        // 3. Si provino de Gastos Próximos (id inicia con 'gp-'), revertirlo a pendiente
-        if (expenseId && expenseId.startsWith("gp-")) {
-          const proximosId = expenseId.replace("gp-", "");
-          const proximosDocRef = doc(db, "users", currentUser.uid, "proximos", proximosId);
-          await setDoc(proximosDocRef, { paid: false }, { merge: true });
-        }
-      } catch (error) {
-        console.error("Error al eliminar gasto:", error);
-        monthData.expenses = oldExpenses;
-        render();
-        alert("No se pudo eliminar el gasto.");
+      const id = btn.dataset.id;
+      monthData.expenses = monthData.expenses.filter(x => x.id !== id);
+      renderMensuales();
+      await saveMonthToFirestore(month);
+      if (id && id.startsWith("gp-")) {
+        const pId = id.replace("gp-", "");
+        await setDoc(doc(db, "users", currentUser.uid, "proximos", pId), { paid: false }, { merge: true });
       }
-    });
+    };
   });
 }
 
+$("searchMensualesInput")?.addEventListener("input", e => {
+  searchMensualesTerm = e.target.value;
+  renderMensuales();
+});
+
 
 /* =========================================================
-   HISTORIAL
+   HISTORIAL, CATEGORÍAS Y TENDENCIA
 ========================================================= */
 
 function renderHistory() {
   const table = $("historyTable");
   table.innerHTML = "";
-
   const months = Object.keys(data.months).sort().reverse().slice(0, 6);
-
   if (!months.length) {
-    table.innerHTML = `
-      <tr>
-        <td colspan="4">Todavía no hay historial.</td>
-      </tr>
-    `;
+    table.innerHTML = `<tr><td colspan="4">Sin historial disponible.</td></tr>`;
     return;
   }
-
-  months.forEach(month => {
-    const current = data.months[month];
-    
-    let totalARS = 0;
-    let totalUSD = 0;
-
-    current.expenses.forEach(e => {
-      if (e.currency === "USD") {
-        totalUSD += Number(e.amount || 0);
-      } else {
-        totalARS += Number(e.amount || 0);
-      }
-    });
-
-    const result = Number(current.budget || 0) - totalARS;
+  months.forEach(m => {
+    const cur = data.months[m];
+    let ars = 0, usd = 0;
+    cur.expenses.forEach(e => { if (e.currency === "USD") usd += Number(e.amount || 0); else ars += Number(e.amount || 0); });
+    const res = Number(cur.budget || 0) - ars;
     const row = document.createElement("tr");
-
-    const formattedSpent = totalUSD > 0 
-      ? `${money(totalARS)} <br><small style="color: var(--pink-700);">${money(totalUSD, "USD")}</small>` 
-      : money(totalARS);
-
     row.innerHTML = `
-      <td><b>${monthName(month)}</b></td>
-      <td>${money(current.budget)}</td>
-      <td>${formattedSpent}</td>
-      <td class="${result >= 0 ? "result-good" : "result-bad"}">
-        ${result >= 0 ? "+" : "-"}${money(Math.abs(result))} ${result >= 0 ? "a favor" : "excedido"}
-      </td>
+      <td><b>${monthName(m)}</b></td>
+      <td>${money(cur.budget)}</td>
+      <td>${usd > 0 ? `${money(ars)} <br><small style="color:var(--pink-700);">${money(usd, "USD")}</small>` : money(ars)}</td>
+      <td class="${res >= 0 ? "result-good" : "result-bad"}">${res >= 0 ? "+" : "-"}${money(Math.abs(res))}</td>
     `;
-
     table.appendChild(row);
   });
 }
 
-
-/* =========================================================
-   CATEGORÍAS (Separadas por moneda si existen)
-========================================================= */
-
 function renderCategories(expenses) {
   const totals = {};
-
-  expenses.forEach(expense => {
-    const curr = expense.currency || "ARS";
-    const cat = expense.category;
-    if (!totals[cat]) totals[cat] = { ARS: 0, USD: 0 };
-    totals[cat][curr] += Number(expense.amount || 0);
+  expenses.forEach(e => {
+    const curr = e.currency || "ARS";
+    if (!totals[e.category]) totals[e.category] = { ARS: 0, USD: 0 };
+    totals[e.category][curr] += Number(e.amount || 0);
   });
-
   const entries = Object.entries(totals).sort((a, b) => (b[1].ARS + b[1].USD) - (a[1].ARS + a[1].USD));
   const max = entries[0] ? Math.max(entries[0][1].ARS, entries[0][1].USD) : 1;
 
-  $("categoryChart").innerHTML = entries.length
-    ? entries
-        .map(
-          ([category, values]) => {
-            const labelStr = values.USD > 0 && values.ARS > 0
-              ? `${money(values.ARS)} + ${money(values.USD, "USD")}`
-              : values.USD > 0
-                ? money(values.USD, "USD")
-                : money(values.ARS);
-
-            const displayAmount = values.ARS > 0 ? values.ARS : values.USD;
-
-            return `
-              <div class="bar-row">
-                <div class="bar-label">
-                  <span>${escapeHtml(category)}</span>
-                  <b>${labelStr}</b>
-                </div>
-                <div class="bar-bg">
-                  <div class="bar-fill" style="width:${Math.min(100, (displayAmount / max) * 100)}%"></div>
-                </div>
-              </div>
-            `;
-          }
-        )
-        .join("")
-    : `
-      <div class="empty-state">
-        <div>♡</div>
-        <span>No hay categorías para mostrar.</span>
+  $("categoryChart").innerHTML = entries.length ? entries.map(([cat, vals]) => {
+    const label = vals.USD > 0 && vals.ARS > 0 ? `${money(vals.ARS)} + ${money(vals.USD, "USD")}` : vals.USD > 0 ? money(vals.USD, "USD") : money(vals.ARS);
+    const val = vals.ARS > 0 ? vals.ARS : vals.USD;
+    return `
+      <div class="bar-row">
+        <div class="bar-label"><span>${escapeHtml(cat)}</span><b>${label}</b></div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100, (val / max) * 100)}%"></div></div>
       </div>
     `;
+  }).join("") : `<div class="empty-state"><div>♡</div><span>No hay categorías registradas.</span></div>`;
 }
 
-
-/* =========================================================
-   TENDENCIA
-========================================================= */
-
-function renderTrend(month, totalARS, previousTotalARS, totalUSD = 0) {
-  const current = data.months[month];
-  if (!current) return;
-
-  const categories = {};
-
-  current.expenses.forEach(expense => {
-    categories[expense.category] =
-      (categories[expense.category] || 0) + Number(expense.amount || 0);
-  });
-
-  const top = Object.entries(categories).sort((a, b) => b[1] - a[1])[0];
-
-  if (!current.expenses.length) {
-    $("trendText").textContent = "Agregá gastos para comenzar a analizar tus hábitos.";
+function renderTrend(month, totalARS, prevARS, totalUSD) {
+  const cur = data.months[month];
+  if (!cur || !cur.expenses.length) {
+    $("trendText").textContent = "Agregá gastos para analizar tus hábitos.";
     return;
   }
-
-  let text = `En ${monthName(month)}, registraste ${money(totalARS)}${totalUSD > 0 ? ` y ${money(totalUSD, "USD")}` : ""} en ${current.expenses.length} ${
-    current.expenses.length === 1 ? "gasto" : "gastos"
-  }.`;
-
-  if (previousTotalARS) {
-    const percentage = ((totalARS - previousTotalARS) / previousTotalARS) * 100;
-    if (percentage <= 0) {
-      text += ` Eso representa un ahorro en pesos del ${Math.abs(percentage).toFixed(1)}% respecto del mes anterior.`;
-    } else {
-      text += ` Eso representa un aumento en pesos del ${percentage.toFixed(1)}% respecto del mes anterior.`;
-    }
+  let text = `En ${monthName(month)}, registraste ${money(totalARS)}${totalUSD > 0 ? ` y ${money(totalUSD, "USD")}` : ""} en ${cur.expenses.length} gastos.`;
+  if (prevARS) {
+    const pct = ((totalARS - prevARS) / prevARS) * 100;
+    text += pct <= 0 ? ` Representa un ahorro del ${Math.abs(pct).toFixed(1)}% respecto al mes anterior.` : ` Representa un incremento del ${pct.toFixed(1)}% respecto al mes anterior.`;
   }
-
-  if (top) {
-    text += ` La categoría con mayor movimiento fue ${top[0]}.`;
-  }
-
   $("trendText").textContent = text;
 }
 
 
 /* =========================================================
-   UTILIDADES
+   FIRESTORE: GASTOS PRÓXIMOS
 ========================================================= */
 
-function formatDate(date) {
-  if (!date) return "—";
-  const [year, month, day] = date.split("-");
-  return `${day}/${month}/${year}`;
-}
-
-
-function escapeHtml(value) {
-  return String(value).replace(
-    /[&<>"']/g,
-    character =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-      }[character])
-  );
-}
-
-
-function createId(prefix = "expense") {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-
-/* =========================================================
-   RECURRENCIA
-   MONTOS VARIABLES POR MES
-========================================================= */
-
-function getRecurringAmountInputs() {
-  return Array.from(document.querySelectorAll(".recurring-amount-input"));
-}
-
-
-function getCurrentCustomAmountValues() {
-  const values = {};
-  getRecurringAmountInputs().forEach(input => {
-    const month = input.dataset.month;
-    if (!month) return;
-    values[month] = input.value;
+function startProximosSync() {
+  if (!currentUser) return;
+  const col = collection(db, "users", currentUser.uid, "proximos");
+  unsubscribeProximos = onSnapshot(col, snapshot => {
+    proximosExpenses = [];
+    snapshot.forEach(d => proximosExpenses.push({ id: d.id, ...d.data() }));
+    renderProximos();
   });
-  return values;
 }
 
+function getCategoryIcon(cat) {
+  const k = String(cat || "").toLowerCase();
+  const map = {
+    hogar: "🏠", servicios: "💡", comida: "🍔", mascotas: "🐾",
+    deudas: "💸", salud: "💊", transporte: "🚗", otros: "📦",
+    gimnasio: "💪", gym: "💪", agua: "💧"
+  };
+  return map[k] || "📦";
+}
 
-function renderRecurringAmountInputs(preservedValues = null) {
-  const container = $("recurringAmounts");
-  if (!container) return;
+function getCategoryName(cat) {
+  const k = String(cat || "").toLowerCase();
+  const map = {
+    hogar: "Hogar", servicios: "Servicios", comida: "Comida", mascotas: "Mascotas",
+    deudas: "Deudas", salud: "Salud", transporte: "Transporte", otros: "Otros",
+    gimnasio: "Gimnasio", gym: "Gimnasio", agua: "Agua"
+  };
+  return map[k] || "Otros";
+}
 
-  const changing = $("recurringChangingAmount")?.checked;
-  if (!changing) {
-    container.innerHTML = "";
-    return;
+function mapCategoryToMensuales(cat) {
+  const k = String(cat || "").toLowerCase();
+  const map = {
+    comida: "Alimentos", transporte: "Transporte", hogar: "Hogar",
+    servicios: "Servicios", salud: "Salud", mascotas: "Mascotas",
+    deudas: "Otros", otros: "Otros", gimnasio: "Gimnasio",
+    gym: "Gimnasio", agua: "Agua"
+  };
+  return map[k] || "Otros";
+}
+
+function getDueBadge(dateStr, isPaid) {
+  if (isPaid || !dateStr) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(`${dateStr}T00:00:00`);
+  const diff = Math.round((target - today) / (1000 * 60 * 60 * 24));
+  if (diff < 0) return { text: "⚠️ Vencido", color: "#d32f2f", bg: "#ffebee" };
+  if (diff === 0) return { text: "⏰ Vence hoy", color: "#e65100", bg: "#fff3e0" };
+  if (diff <= 2) return { text: "⚡ Próximo", color: "#c2185b", bg: "#fce4ec" };
+  return null;
+}
+
+function renderProximos() {
+  const pending = proximosExpenses.filter(e => !e.paid);
+  let totalARS = 0, totalUSD = 0, debtARS = 0, debtUSD = 0;
+
+  pending.forEach(e => {
+    const a = Number(e.amount || 0);
+    if (e.currency === "USD") { totalUSD += a; if (e.type === "debt") debtUSD += a; }
+    else { totalARS += a; if (e.type === "debt") debtARS += a; }
+  });
+
+  $("gpTotalPending").innerHTML = totalUSD > 0 ? `${money(totalARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(totalUSD, "USD")}</small>` : money(totalARS);
+  $("gpTotalDebts").innerHTML = debtUSD > 0 ? `${money(debtARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(debtUSD, "USD")}</small>` : money(debtARS);
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const next7 = new Date(today); next7.setDate(next7.getDate() + 7);
+  let n7ARS = 0, n7USD = 0;
+  pending.filter(e => {
+    const d = new Date(`${e.date}T00:00:00`);
+    return d >= today && d <= next7;
+  }).forEach(e => {
+    if (e.currency === "USD") n7USD += Number(e.amount || 0);
+    else n7ARS += Number(e.amount || 0);
+  });
+  $("gpNextSevenDays").innerHTML = n7USD > 0 ? `${money(n7ARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(n7USD, "USD")}</small>` : money(n7ARS);
+
+  const curM = today.getMonth();
+  const curY = today.getFullYear();
+  let mARS = 0, mUSD = 0;
+  pending.filter(e => {
+    const d = new Date(`${e.date}T00:00:00`);
+    return d.getMonth() === curM && d.getFullYear() === curY;
+  }).forEach(e => {
+    if (e.currency === "USD") mUSD += Number(e.amount || 0);
+    else mARS += Number(e.amount || 0);
+  });
+  $("gpThisMonth").innerHTML = mUSD > 0 ? `${money(mARS)}<br><small style="color:var(--pink-700); font-size:0.8rem;">${money(mUSD, "USD")}</small>` : money(mARS);
+
+  // Filtrado de lista
+  let list = proximosExpenses.slice();
+  if (gpCurrentFilter === "pending") list = list.filter(e => !e.paid);
+  else if (gpCurrentFilter === "paid") list = list.filter(e => e.paid);
+  else if (gpCurrentFilter === "debt") list = list.filter(e => e.type === "debt");
+
+  if (gpSearchTerm.trim() !== "") {
+    const q = gpSearchTerm.toLowerCase();
+    list = list.filter(e => (e.description || "").toLowerCase().includes(q) || (e.notes || "").toLowerCase().includes(q) || getCategoryName(e.category).toLowerCase().includes(q));
   }
 
-  const duration = Math.max(
-    1,
-    Math.min(60, Number($("recurringDuration")?.value || 1))
-  );
+  list.sort((a, b) => new Date(a.date) - new Date(b.date));
+  const container = $("gpExpensesList");
+  container.innerHTML = "";
 
-  const everyMonths = Math.max(
-    1,
-    Math.min(60, Number($("recurringMonths")?.value || 1))
-  );
+  $("gpItemsCount").textContent = `${list.length} registros`;
+  $("gpEmptyState").style.display = list.length === 0 ? "block" : "none";
 
-  const startMonth = $("monthPicker").value;
-  if (!startMonth) return;
+  list.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "expense";
+    card.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:12px; border-radius:12px; background:rgba(232,93,158,0.06); border:1px solid #f2cfdf;";
+    
+    const icon = getCategoryIcon(item.category);
+    const catName = getCategoryName(item.category);
+    const alert = getDueBadge(item.date, item.paid);
+    const alertTag = alert ? `<span style="font-size:0.75rem; font-weight:bold; padding:2px 8px; border-radius:999px; background:${alert.bg}; color:${alert.color}; margin-left:6px;">${alert.text}</span>` : "";
 
-  const baseAmount = Number($("expenseAmount").value || 0);
-  const previousValues = preservedValues || getCurrentCustomAmountValues();
-  const symbol = $("expenseCurrency")?.value === "USD" ? "u$s" : "$";
-
-  let html = "";
-
-  for (let index = 0; index < duration; index++) {
-    const targetMonth = addMonths(startMonth, index * everyMonths);
-    let value = "";
-
-    if (Object.prototype.hasOwnProperty.call(previousValues, targetMonth)) {
-      value = previousValues[targetMonth];
-    } else if (baseAmount > 0) {
-      value = baseAmount;
-    }
-
-    html += `
-      <div class="recurring-amount-row">
-        <label>
-          <span>${monthName(targetMonth)}</span>
-          <div class="money-input">
-            <span>${symbol}</span>
-            <input
-              class="recurring-amount-input"
-              type="number"
-              min="0.01"
-              step="0.01"
-              value="${escapeHtml(value)}"
-              data-month="${targetMonth}"
-              placeholder="0"
-              required
-            >
+    card.innerHTML = `
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="font-size:1.8rem;">${icon}</div>
+        <div>
+          <h3 style="margin:0; font-size:1rem;">${escapeHtml(item.description)}</h3>
+          <p style="margin:2px 0 0; font-size:0.8rem; color:#666;">${catName} · Cant: ${item.quantity || 1} ${item.notes ? `· <i>${escapeHtml(item.notes)}</i>` : ""}</p>
+          <div style="margin-top:4px;">
+            <span class="badge ${item.paid ? "paid" : item.type === "debt" ? "debt" : "pending"}">${item.paid ? "Pagado" : item.type === "debt" ? "Deuda" : "Pendiente"}</span>
+            ${alertTag}
           </div>
-        </label>
+        </div>
+      </div>
+
+      <div style="text-align:right;">
+        <div style="font-size:0.8rem; color:#888;">Pagar <b>${formatDate(item.date)}</b></div>
+        <div style="font-size:1.1rem; font-weight:bold; margin:4px 0;">${item.amount !== null ? money(item.amount, item.currency || "ARS") : "Pendiente"}</div>
+        <div style="display:flex; gap:6px; justify-content:flex-end;">
+          <button class="btn btn-sm ${item.paid ? "btn-outline" : "btn-pink"} gp-action-pay" data-id="${item.id}" title="${item.paid ? "Volver a pendiente" : "Marcar pagado y enviar a Mensuales"}">${item.paid ? "✖" : "✓"}</button>
+          <button class="btn btn-sm btn-outline gp-action-edit" data-id="${item.id}">✏️</button>
+          <button class="btn btn-sm btn-danger gp-action-del" data-id="${item.id}">🗑️</button>
+        </div>
       </div>
     `;
-  }
+    container.appendChild(card);
+  });
 
-  container.innerHTML = html;
-}
-
-
-function setupRecurringAmountInterface() {
-  const changingCheckbox = $("recurringChangingAmount");
-  const durationInput = $("recurringDuration");
-  const everyMonthsInput = $("recurringMonths");
-  const amountInput = $("expenseAmount");
-  const currencySelect = $("expenseCurrency");
-
-  if (changingCheckbox) {
-    changingCheckbox.addEventListener("change", () => {
-      if (changingCheckbox.checked) {
-        renderRecurringAmountInputs();
-      } else {
-        const container = $("recurringAmounts");
-        if (container) container.innerHTML = "";
-      }
-    });
-  }
-
-  if (currencySelect) {
-    currencySelect.addEventListener("change", () => {
-      if (changingCheckbox?.checked) {
-        const values = getCurrentCustomAmountValues();
-        renderRecurringAmountInputs(values);
-      }
-    });
-  }
-
-  if (durationInput) {
-    durationInput.addEventListener("input", () => {
-      if (changingCheckbox?.checked) {
-        const values = getCurrentCustomAmountValues();
-        renderRecurringAmountInputs(values);
-      }
-    });
-  }
-
-  if (everyMonthsInput) {
-    everyMonthsInput.addEventListener("input", () => {
-      if (changingCheckbox?.checked) {
-        const values = getCurrentCustomAmountValues();
-        renderRecurringAmountInputs(values);
-      }
-    });
-  }
-
-  if (amountInput) {
-    amountInput.addEventListener("input", () => {
-      if (changingCheckbox?.checked && getRecurringAmountInputs().length === 0) {
-        renderRecurringAmountInputs();
-      }
-    });
-  }
-}
-
-
-/* =========================================================
-   MODAL
-========================================================= */
-
-function resetExpenseModal() {
-  $("expenseForm").reset();
-  delete $("expenseForm").dataset.editingId;
-
-  $("modalEyebrow").textContent = "NUEVO REGISTRO";
-  $("modalTitle").textContent = "Agregar gasto";
-  $("submitExpenseBtn").textContent = "Guardar gasto";
-
-  if ($("expenseCurrency")) {
-    $("expenseCurrency").value = "ARS";
-  }
-
-  if ($("recurringOptions")) {
-    $("recurringOptions").classList.add("hidden");
-  }
-
-  if ($("recurringAmounts")) {
-    $("recurringAmounts").innerHTML = "";
-  }
-
-  if ($("recurringChangingAmount")) {
-    $("recurringChangingAmount").checked = false;
-  }
-
-  if ($("recurringMonths")) {
-    $("recurringMonths").value = 1;
-  }
-
-  if ($("recurringDay")) {
-    $("recurringDay").value = 10;
-  }
-
-  if ($("recurringDuration")) {
-    $("recurringDuration").value = 6;
-  }
-}
-
-
-/* =========================================================
-   EVENTOS DE RECURRENCIA
-========================================================= */
-
-setupRecurringAmountInterface();
-
-if ($("expenseRecurring")) {
-  $("expenseRecurring").addEventListener("change", () => {
-    const checked = $("expenseRecurring").checked;
-    $("recurringOptions")?.classList.toggle("hidden", !checked);
-
-    if (checked) {
-      renderRecurringAmountInputs();
-    }
+  container.querySelectorAll(".gp-action-pay").forEach(btn => {
+    btn.onclick = () => togglePayProximo(btn.dataset.id);
+  });
+  container.querySelectorAll(".gp-action-edit").forEach(btn => {
+    btn.onclick = () => editProximo(btn.dataset.id);
+  });
+  container.querySelectorAll(".gp-action-del").forEach(btn => {
+    btn.onclick = () => deleteProximo(btn.dataset.id);
   });
 }
 
+async function togglePayProximo(id) {
+  const item = proximosExpenses.find(x => x.id === id);
+  if (!item) return;
 
-/* =========================================================
-   CAMBIO DE MES
-========================================================= */
+  if (!item.paid) {
+    if (!item.amount || item.amount <= 0) {
+      alert("Definí un monto antes de marcar como pagado.");
+      return;
+    }
+    const payDate = item.date || new Date().toISOString().slice(0, 10);
+    const monthKey = payDate.slice(0, 7);
+    const mensualId = `gp-${item.id}`;
 
-$("monthPicker").addEventListener("change", () => {
-  const month = $("monthPicker").value;
-  if (month) {
-    ensureMonth(month);
+    item.paid = true;
+    item.linkedMensualId = mensualId;
+    item.linkedMonthKey = monthKey;
+
+    await setDoc(doc(db, "users", currentUser.uid, "proximos", item.id), item, { merge: true });
+
+    const monthRef = doc(db, "users", currentUser.uid, "months", monthKey);
+    const snap = await getDoc(monthRef);
+    let mData = snap.exists() ? snap.data() : { budget: 0, expenses: [] };
+    if (!Array.isArray(mData.expenses)) mData.expenses = [];
+
+    mData.expenses = mData.expenses.filter(x => x.id !== mensualId);
+    mData.expenses.push({
+      id: mensualId,
+      date: payDate,
+      description: item.description,
+      category: mapCategoryToMensuales(item.category),
+      amount: Number(item.amount),
+      currency: item.currency || "ARS"
+    });
+
+    await setDoc(monthRef, mData, { merge: true });
+    alert(`✓ Pago registrado e impactado en Gastos del Mes (${monthKey}).`);
+  } else {
+    const payDate = item.date || new Date().toISOString().slice(0, 10);
+    const monthKey = item.linkedMonthKey || payDate.slice(0, 7);
+    const mensualId = item.linkedMensualId || `gp-${item.id}`;
+
+    item.paid = false;
+    await setDoc(doc(db, "users", currentUser.uid, "proximos", item.id), { paid: false }, { merge: true });
+
+    const monthRef = doc(db, "users", currentUser.uid, "months", monthKey);
+    const snap = await getDoc(monthRef);
+    if (snap.exists()) {
+      let mData = snap.data();
+      if (Array.isArray(mData.expenses)) {
+        mData.expenses = mData.expenses.filter(x => x.id !== mensualId);
+        await setDoc(monthRef, mData, { merge: true });
+      }
+    }
+    alert("↩ Gasto vuelto a pendiente y quitado de la tabla mensual.");
   }
-  render();
+}
+
+function editProximo(id) {
+  const item = proximosExpenses.find(x => x.id === id);
+  if (!item) return;
+  $("gpExpenseId").value = item.id;
+  $("gpDescription").value = item.description;
+  $("gpCategory").value = item.category || "Hogar";
+  $("gpAmount").value = item.amount !== null ? item.amount : "";
+  $("gpCurrency").value = item.currency || "ARS";
+  $("gpQuantity").value = item.quantity || 1;
+  $("gpDate").value = item.date;
+  $("gpNotes").value = item.notes || "";
+  const r = document.querySelector(`input[name="gpType"][value="${item.type}"]`);
+  if (r) r.checked = true;
+  $("gpModalTitle").textContent = "Editar registro pendiente";
+  $("gpModal").showModal();
+}
+
+async function deleteProximo(id) {
+  if (!confirm("¿Eliminar este registro pendiente?")) return;
+  await deleteDoc(doc(db, "users", currentUser.uid, "proximos", id));
+}
+
+// Filtros Próximos
+document.querySelectorAll(".gp-filter").forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll(".gp-filter").forEach(x => x.className = "btn btn-outline btn-sm gp-filter");
+    b.className = "btn btn-pink btn-sm gp-filter";
+    gpCurrentFilter = b.dataset.filter;
+    renderProximos();
+  };
+});
+
+$("gpSearchInput")?.addEventListener("input", e => {
+  gpSearchTerm = e.target.value;
+  renderProximos();
+});
+
+$("gpOpenModalBtn")?.addEventListener("click", () => {
+  $("gpExpenseForm").reset();
+  $("gpExpenseId").value = "";
+  $("gpDate").value = new Date().toISOString().slice(0, 10);
+  $("gpModalTitle").textContent = "Agregar registro pendiente";
+  $("gpModal").showModal();
+});
+
+$("gpCloseModalBtn")?.addEventListener("click", () => $("gpModal").close());
+$("gpCancelBtn")?.addEventListener("click", () => $("gpModal").close());
+
+$("gpExpenseForm")?.addEventListener("submit", async e => {
+  e.preventDefault();
+  const id = $("gpExpenseId").value || createId("proximo");
+  const type = document.querySelector('input[name="gpType"]:checked').value;
+  const description = $("gpDescription").value.trim();
+  const category = $("gpCategory").value;
+  const amountVal = $("gpAmount").value;
+  const currency = $("gpCurrency").value;
+  const quantity = Number($("gpQuantity").value) || 1;
+  const date = $("gpDate").value;
+  const notes = $("gpNotes").value.trim();
+  const amount = amountVal === "" ? null : Number(amountVal);
+
+  const existing = proximosExpenses.find(x => x.id === id);
+  const payload = {
+    id, type, description, category, amount, currency, quantity, date, notes,
+    paid: existing ? existing.paid : false,
+    createdAt: existing ? existing.createdAt : new Date().toISOString()
+  };
+
+  await setDoc(doc(db, "users", currentUser.uid, "proximos", id), payload, { merge: true });
+  $("gpModal").close();
 });
 
 
 /* =========================================================
-   PRESUPUESTO
+   EXPORTAR CSV (MENSUALES & PRÓXIMOS)
 ========================================================= */
 
-$("saveBudgetBtn").addEventListener("click", async () => {
+function downloadCSV(rows, filename) {
+  const content = "\uFEFF" + rows.map(r => r.join(";")).join("\n");
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+$("mensualesCsvBtn")?.addEventListener("click", () => {
+  const month = $("monthPicker").value;
+  const current = ensureMonth(month);
+  if (!current.expenses.length) { alert("No hay gastos registrados en este mes."); return; }
+  const rows = [["Fecha", "Descripción", "Categoría", "Monto", "Moneda"]];
+  current.expenses.forEach(e => {
+    rows.push([e.date, `"${e.description.replace(/"/g, '""')}"`, e.category, e.amount, e.currency || "ARS"]);
+  });
+  downloadCSV(rows, `MENSUALES-${month}.csv`);
+});
+
+$("gpCsvBtn")?.addEventListener("click", () => {
+  if (!proximosExpenses.length) { alert("No hay registros pendientes para exportar."); return; }
+  const rows = [["Fecha", "Concepto", "Categoría", "Tipo", "Estado", "Monto", "Moneda", "Cantidad", "Notas"]];
+  proximosExpenses.forEach(e => {
+    rows.push([
+      e.date, `"${(e.description || "").replace(/"/g, '""')}"`, getCategoryName(e.category),
+      e.type === "debt" ? "Deuda" : "Gasto", e.paid ? "Pagado" : "Pendiente",
+      e.amount !== null ? e.amount : "", e.currency || "ARS", e.quantity || 1, `"${(e.notes || "").replace(/"/g, '""')}"`
+    ]);
+  });
+  downloadCSV(rows, `Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.csv`);
+});
+
+
+/* =========================================================
+   REPORTES PDF (MENSUALES & PRÓXIMOS)
+========================================================= */
+
+$("pdfBtn")?.addEventListener("click", () => {
+  if (!window.jspdf) { alert("No se pudo cargar jsPDF."); return; }
+  const { jsPDF } = window.jspdf;
+  const month = $("monthPicker").value;
+  const current = ensureMonth(month);
+
+  let ars = 0, usd = 0;
+  current.expenses.forEach(e => { if (e.currency === "USD") usd += Number(e.amount || 0); else ars += Number(e.amount || 0); });
+
+  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  pdf.setFillColor(255, 176, 194);
+  pdf.roundedRect(15, 15, 180, 24, 4, 4, "F");
+  pdf.setTextColor(85, 21, 45);
+  pdf.setFontSize(16);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("CONTROL DE GASTOS MENSUALES", 20, 26);
+  pdf.setFontSize(9);
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Período: ${monthName(month)} · Emitido el ${new Date().toLocaleDateString("es-AR")}`, 20, 33);
+
+  let y = 48;
+  pdf.setFillColor(245, 107, 139);
+  pdf.rect(15, y, 180, 7, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("FECHA", 18, y + 5);
+  pdf.text("CONCEPTO", 45, y + 5);
+  pdf.text("CATEGORÍA", 120, y + 5);
+  pdf.text("MONTO", 165, y + 5);
+
+  y += 7;
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(51, 41, 52);
+
+  current.expenses.forEach(e => {
+    if (y > 275) { pdf.addPage(); y = 20; }
+    pdf.text(formatDate(e.date), 18, y + 5);
+    pdf.text(String(e.description).slice(0, 35), 45, y + 5);
+    pdf.text(String(e.category).slice(0, 18), 120, y + 5);
+    pdf.text(money(e.amount, e.currency || "ARS"), 165, y + 5);
+    pdf.setDrawColor(245, 220, 227);
+    pdf.line(15, y + 8, 195, y + 8);
+    y += 9;
+  });
+
+  pdf.save(`MENSUALES-${month}.pdf`);
+});
+
+$("gpPdfBtn")?.addEventListener("click", () => {
+  if (!window.jspdf) { alert("No se pudo cargar jsPDF."); return; }
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  pdf.setFillColor(255, 227, 240);
+  pdf.roundedRect(15, 15, 180, 24, 4, 4, "F");
+  pdf.setTextColor(51, 41, 52);
+  pdf.setFontSize(16);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 20, 26);
+  pdf.setFontSize(9);
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Reporte emitido el ${new Date().toLocaleDateString("es-AR")}`, 20, 33);
+
+  let y = 48;
+  pdf.setFillColor(232, 93, 158);
+  pdf.rect(15, y, 180, 7, "F");
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("FECHA", 18, y + 5);
+  pdf.text("CONCEPTO", 42, y + 5);
+  pdf.text("CATEGORÍA", 115, y + 5);
+  pdf.text("ESTADO", 145, y + 5);
+  pdf.text("MONTO", 170, y + 5);
+
+  y += 7;
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(51, 41, 52);
+
+  proximosExpenses.forEach(e => {
+    if (y > 275) { pdf.addPage(); y = 20; }
+    pdf.text(formatDate(e.date), 18, y + 5);
+    pdf.text(String(e.description || "").slice(0, 36), 42, y + 5);
+    pdf.text(getCategoryName(e.category), 115, y + 5);
+    pdf.text(e.paid ? "Pagado" : "Pendiente", 145, y + 5);
+    pdf.text(e.amount !== null ? money(e.amount, e.currency || "ARS") : "A definir", 170, y + 5);
+    pdf.setDrawColor(245, 230, 238);
+    pdf.line(15, y + 8, 195, y + 8);
+    y += 9;
+  });
+
+  pdf.save(`Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.pdf`);
+});
+
+
+/* =========================================================
+   FORMULARIO MENSUALES (NUEVO / EDITAR GASTO)
+========================================================= */
+
+$("monthPicker")?.addEventListener("change", () => renderMensuales());
+
+$("saveBudgetBtn")?.addEventListener("click", async () => {
   const month = $("monthPicker").value;
   if (!month) return;
-
   const current = ensureMonth(month);
   current.budget = Number($("budgetInput").value || 0);
-
-  render();
-
-  try {
-    await saveMonthToFirestore(month);
-    alert("Presupuesto guardado correctamente.");
-  } catch (error) {
-    console.error(error);
-    alert("No se pudo guardar el presupuesto.");
-  }
+  renderMensuales();
+  await saveMonthToFirestore(month);
+  alert("Presupuesto guardado correctamente.");
 });
 
-
-/* =========================================================
-   NUEVO GASTO
-========================================================= */
-
-$("addExpenseBtn").addEventListener("click", () => {
-  resetExpenseModal();
-
-  const month = $("monthPicker").value;
-  const today = new Date();
-  const todayMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-
-  if (month === todayMonth) {
-    $("expenseDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-  } else {
-    $("expenseDate").value = `${month}-01`;
-  }
-
+$("addExpenseBtn")?.addEventListener("click", () => {
+  $("expenseForm").reset();
+  delete $("expenseForm").dataset.editingId;
+  $("expenseDate").value = new Date().toISOString().slice(0, 10);
+  $("modalTitle").textContent = "Agregar gasto";
   $("expenseDialog").showModal();
 });
 
+$("closeDialog")?.addEventListener("click", () => $("expenseDialog").close());
+$("cancelDialog")?.addEventListener("click", () => $("expenseDialog").close());
 
-/* =========================================================
-   CERRAR MODAL
-========================================================= */
-
-$("closeDialog").addEventListener("click", () => {
-  resetExpenseModal();
-  $("expenseDialog").close();
-});
-
-$("cancelDialog").addEventListener("click", () => {
-  resetExpenseModal();
-  $("expenseDialog").close();
-});
-
-
-/* =========================================================
-   GUARDAR / EDITAR GASTO
-========================================================= */
-
-$("expenseForm").addEventListener("submit", async event => {
-  event.preventDefault();
-
+$("expenseForm")?.addEventListener("submit", async e => {
+  e.preventDefault();
   const month = $("monthPicker").value;
   const editingId = $("expenseForm").dataset.editingId;
   const date = $("expenseDate").value;
   const description = $("expenseDescription").value.trim();
   const category = $("expenseCategory").value;
   const amount = Number($("expenseAmount").value);
-  const currency = $("expenseCurrency")?.value || "ARS";
+  const currency = $("expenseCurrency").value || "ARS";
 
-  if (!date || !description || !category || !amount || amount <= 0) {
-    alert("Completá todos los campos correctamente.");
-    return;
-  }
-
-  /* EDITAR */
   if (editingId) {
     const monthData = ensureMonth(month);
-    const expense = monthData.expenses.find(item => item.id === editingId);
-    if (!expense) return;
-
-    const oldExpense = { ...expense };
-
-    expense.date = date;
-    expense.description = description;
-    expense.category = category;
-    expense.amount = amount;
-    expense.currency = currency;
-
-    render();
-
-    try {
+    const exp = monthData.expenses.find(x => x.id === editingId);
+    if (exp) {
+      exp.date = date; exp.description = description; exp.category = category; exp.amount = amount; exp.currency = currency;
+      renderMensuales();
       await saveMonthToFirestore(month);
-      resetExpenseModal();
-      $("expenseDialog").close();
-    } catch (error) {
-      console.error(error);
-      Object.assign(expense, oldExpense);
-      render();
-      alert("No se pudieron guardar los cambios.");
     }
-    return;
-  }
-
-  /* GASTO NORMAL */
-  const isRecurring = $("expenseRecurring")?.checked || false;
-
-  if (!isRecurring) {
-    const expense = {
-      id: createId("expense"),
-      date,
-      description,
-      category,
-      amount,
-      currency
-    };
-
+  } else {
+    const expense = { id: createId("expense"), date, description, category, amount, currency };
     const monthData = ensureMonth(month);
     monthData.expenses.push(expense);
-    render();
-
-    try {
-      await saveMonthToFirestore(month);
-      resetExpenseModal();
-      $("expenseDialog").close();
-    } catch (error) {
-      console.error(error);
-      monthData.expenses = monthData.expenses.filter(item => item.id !== expense.id);
-      render();
-      alert("No se pudo guardar el gasto en Firebase.");
-    }
-    return;
+    renderMensuales();
+    await saveMonthToFirestore(month);
   }
 
-  /* GASTO RECURRENTE */
-  const everyMonths = Math.max(1, Math.min(60, Number($("recurringMonths")?.value || 1)));
-  const requestedDay = Math.max(1, Math.min(31, Number($("recurringDay")?.value || 1)));
-  const duration = Math.max(1, Math.min(60, Number($("recurringDuration")?.value || 1)));
-  const changingAmount = $("recurringChangingAmount")?.checked || false;
-  const recurringId = createId("recurring");
+  $("expenseDialog").close();
+});
 
-  const customAmounts = {};
+$("clearMonthBtn")?.addEventListener("click", async () => {
+  const month = $("monthPicker").value;
+  if (!confirm(`¿Borrar todos los gastos de ${monthName(month)}?`)) return;
+  await deleteDoc(doc(db, "users", currentUser.uid, "months", month));
+  delete data.months[month];
+  ensureMonth(month);
+  renderMensuales();
+});
 
-  if (changingAmount) {
-    const inputs = getRecurringAmountInputs();
-    if (inputs.length !== duration) {
-      renderRecurringAmountInputs();
-    }
+$("newUserBtn")?.addEventListener("click", async () => {
+  if (!confirm("⚠️ ¿Estás segura de reiniciar todo y borrar todos los meses?")) return;
+  const snap = await getDocs(collection(db, "users", currentUser.uid, "months"));
+  const batch = writeBatch(db);
+  snap.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+  data = { months: {} };
+  renderMensuales();
+});
 
-    const finalInputs = getRecurringAmountInputs();
-    for (const input of finalInputs) {
-      const value = Number(input.value);
-      if (!value || value <= 0) {
-        alert(`Ingresá un monto válido para ${monthName(input.dataset.month)}.`);
-        input.focus();
-        return;
-      }
-      customAmounts[input.dataset.month] = value;
-    }
+
+/* =========================================================
+   CONFIGURACIONES VISUALES Y MODO OSCURO
+========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+  $("monthPicker").value = currentMonthValue();
+
+  const toggleAmountsBtn = $("toggleAmountsBtn");
+  if (localStorage.getItem("mensuales_hide_amounts") === "true") {
+    document.body.classList.add("amounts-hidden");
+    if (toggleAmountsBtn) toggleAmountsBtn.textContent = "👁️ Mostrar montos";
   }
 
-  const monthsToSave = {};
-  const oldMonths = {};
+  toggleAmountsBtn?.addEventListener("click", () => {
+    const hidden = document.body.classList.toggle("amounts-hidden");
+    localStorage.setItem("mensuales_hide_amounts", hidden);
+    toggleAmountsBtn.textContent = hidden ? "👁️ Mostrar montos" : "👁️ Ocultar montos";
+  });
 
-  for (let index = 0; index < duration; index++) {
-    const targetMonth = addMonths(month, index * everyMonths);
-    const targetDate = index === 0 ? date : buildDateForMonth(targetMonth, requestedDay);
-    const targetAmount = changingAmount ? Number(customAmounts[targetMonth] || 0) : amount;
+  const toggleThemeBtn = $("toggleThemeBtn");
+  if (localStorage.getItem("mensuales_theme") === "dark") {
+    document.body.classList.add("dark-mode");
+    if (toggleThemeBtn) toggleThemeBtn.textContent = "☀️ Modo claro";
+  }
 
-    if (!targetAmount || targetAmount <= 0) {
-      alert(`Falta el monto de ${monthName(targetMonth)}.`);
-      return;
+  toggleThemeBtn?.addEventListener("click", () => {
+    const isDark = document.body.classList.toggle("dark-mode");
+    localStorage.setItem("mensuales_theme", isDark ? "dark" : "light");
+    toggleThemeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
+  });
+
+  // Colapsables
+  function setupCollapsible(btnId, container, storageKey, label) {
+    const btn = $(btnId);
+    if (!btn || !container) return;
+    if (localStorage.getItem(storageKey) === "true") {
+      container.classList.add("collapsed");
+      btn.textContent = `▼ Mostrar ${label}`;
     }
-
-    oldMonths[targetMonth] = data.months[targetMonth]
-      ? {
-          budget: data.months[targetMonth].budget,
-          expenses: [...data.months[targetMonth].expenses]
-        }
-      : null;
-
-    const monthData = ensureMonth(targetMonth);
-
-    const expense = {
-      id: createId("expense"),
-      date: targetDate,
-      description,
-      category,
-      amount: targetAmount,
-      currency,
-      recurringId,
-      recurring: {
-        everyMonths,
-        requestedDay,
-        duration,
-        changingAmount
-      },
-      installment: {
-        current: index + 1,
-        total: duration
-      }
+    btn.onclick = () => {
+      const col = container.classList.toggle("collapsed");
+      localStorage.setItem(storageKey, col);
+      btn.textContent = col ? `▼ Mostrar ${label}` : `▲ Ocultar ${label}`;
     };
-
-    monthData.expenses.push(expense);
-    monthsToSave[targetMonth] = monthData;
   }
 
-  render();
-
-  try {
-    await saveMultipleMonths(monthsToSave);
-    resetExpenseModal();
-    $("expenseDialog").close();
-    alert(`🔁 Gasto recurrente guardado correctamente.\n\nSe cargaron ${duration} ${duration === 1 ? "mes" : "meses"}.`);
-  } catch (error) {
-    console.error("Error guardando recurrencia:", error);
-    Object.entries(oldMonths).forEach(([targetMonth, oldMonth]) => {
-      if (oldMonth) {
-        data.months[targetMonth] = oldMonth;
-      } else {
-        delete data.months[targetMonth];
-      }
-    });
-    render();
-    alert("No se pudieron guardar los gastos recurrentes en Firebase.");
-  }
-});
-
-
-/* =========================================================
-   BORRAR MES
-========================================================= */
-
-$("clearMonthBtn").addEventListener("click", async () => {
-  const month = $("monthPicker").value;
-  const monthData = data.months[month];
-  const hasData = monthData && (monthData.expenses.length > 0 || Number(monthData.budget) > 0);
-
-  if (!hasData) {
-    alert(`No hay datos guardados en ${monthName(month)}.`);
-    return;
-  }
-
-  const confirmed = confirm(
-    `¿Seguro que querés borrar TODO el registro de ${monthName(month)}?\n\nSe eliminarán los gastos y el presupuesto de ese mes.\n\nEsta acción no se puede deshacer.`
-  );
-
-  if (!confirmed) return;
-
-  try {
-    await deleteMonthFromFirestore(month);
-    delete data.months[month];
-    ensureMonth(month);
-    render();
-    alert(`Se borró correctamente ${monthName(month)}.`);
-  } catch (error) {
-    console.error(error);
-    alert("No se pudo borrar el mes.");
-  }
-});
-
-
-/* =========================================================
-   EMPEZAR DE CERO
-========================================================= */
-
-$("newUserBtn").addEventListener("click", async () => {
-  const confirmed = confirm(
-    "✨ EMPEZAR DE CERO\n\nEsta opción va a borrar TODOS tus datos de MENSUALES:\n\n• Todos los gastos\n• Todos los meses\n• Todos los presupuestos\n• Todo el historial\n\nTu cuenta seguirá existiendo.\n\n¿Querés continuar?"
-  );
-
-  if (!confirmed) return;
-
-  const secondConfirmation = confirm(
-    "⚠️ ÚLTIMA CONFIRMACIÓN\n\nSe eliminarán TODOS los datos de MENSUALES de esta cuenta.\n\nLa cuenta de acceso NO se eliminará.\n\nEsta acción no se puede deshacer.\n\n¿Estás segura?"
-  );
-
-  if (!secondConfirmation) return;
-
-  try {
-    const snapshot = await getDocs(monthsCollectionRef());
-    const batch = writeBatch(db);
-
-    snapshot.forEach(documentSnapshot => {
-      batch.delete(documentSnapshot.ref);
-    });
-
-    await batch.commit();
-
-    data = { months: {} };
-    const month = currentMonthValue();
-    $("monthPicker").value = month;
-    ensureMonth(month);
-    render();
-
-    alert("✨ ¡Listo! MENSUALES está completamente limpio.\n\nTu cuenta sigue activa y ya podés comenzar un nuevo registro.");
-  } catch (error) {
-    console.error(error);
-    alert("No se pudieron borrar todos los datos. Volvé a intentar.");
-  }
-});
-
-
-/* =========================================================
-   PDF
-========================================================= */
-
-$("pdfBtn").addEventListener("click", () => {
-  if (!window.jspdf) {
-    alert("No se pudo cargar el generador de PDF.");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const month = $("monthPicker").value;
-  const current = ensureMonth(month);
-
-  let totalARS = 0;
-  let totalUSD = 0;
-
-  current.expenses.forEach(e => {
-    if (e.currency === "USD") {
-      totalUSD += Number(e.amount || 0);
-    } else {
-      totalARS += Number(e.amount || 0);
-    }
-  });
-
-  const previous = data.months[previousMonth(month)] || { expenses: [] };
-  let previousTotalARS = 0;
-
-  previous.expenses.forEach(e => {
-    if (e.currency !== "USD") {
-      previousTotalARS += Number(e.amount || 0);
-    }
-  });
-
-  const diffARS = totalARS - previousTotalARS;
-
-  const pdf = new jsPDF({
-    unit: "mm",
-    format: "a4"
-  });
-
-  const pink = [245, 107, 139];
-  const dark = [85, 21, 45];
-  const light = [255, 231, 236];
-
-  pdf.setFillColor(255, 176, 194);
-  pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
-
-  pdf.setTextColor(...dark);
-  pdf.setFontSize(17);
-  pdf.setFont("helvetica", "bold");
-  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);
-
-  pdf.setFontSize(8);
-  pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte · ${monthName(month)}`, 21, 34);
-
-  const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
-
-  const cards = [
-    ["TOTAL GASTADO", cardSpentText],
-    ["MES ANTERIOR (ARS)", money(previousTotalARS)],
-    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`]
-  ];
-
-  cards.forEach((card, index) => {
-    const x = 15 + index * 60;
-    pdf.setDrawColor(255, 197, 210);
-    pdf.roundedRect(x, 49, 56, 25, 3, 3, "S");
-
-    pdf.setTextColor(...pink);
-    pdf.setFontSize(7);
-    pdf.setFont("helvetica", "bold");
-    pdf.text(card[0], x + 4, 57);
-
-    pdf.setTextColor(...dark);
-    pdf.setFontSize(10);
-    pdf.text(card[1], x + 4, 66);
-  });
-
-  let y = 84;
-
-  pdf.setFillColor(...pink);
-  pdf.rect(15, y, 180, 8, "F");
-
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(7);
-  pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18, y + 5);
-  pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);
-  pdf.text("CATEGORÍA", 120, y + 5);
-  pdf.text("MONTO", 165, y + 5);
-
-  y += 8;
-
-  pdf.setFont("helvetica", "normal");
-
-  current.expenses
-    .slice()
-    .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")))
-    .forEach(expense => {
-      if (y > 275) {
-        pdf.addPage();
-        y = 20;
-      }
-
-      const curr = expense.currency || "ARS";
-      pdf.setTextColor(...dark);
-      pdf.setFontSize(7);
-      pdf.text(formatDate(expense.date), 18, y + 5);
-      pdf.text(String(expense.description).slice(0, 35), 45, y + 5);
-      pdf.text(String(expense.category).slice(0, 18), 120, y + 5);
-      pdf.text(money(expense.amount, curr), 165, y + 5);
-
-      pdf.setDrawColor(245, 220, 227);
-      pdf.line(15, y + 8, 195, y + 8);
-      y += 10;
-    });
-
-  if (y > 265) {
-    pdf.addPage();
-    y = 20;
-  }
-
-  pdf.setFillColor(...light);
-  pdf.rect(15, y, 180, 10, "F");
-
-  pdf.setTextColor(...dark);
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(7);
-  pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);
-  pdf.text(cardSpentText, 160, y + 6);
-
-  y += 18;
-
-  if (y > 260) {
-    pdf.addPage();
-    y = 20;
-  }
-
-  pdf.setFontSize(10);
-  pdf.text("Análisis de tendencia", 15, y);
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8);
-
-  const trend = $("trendText").textContent;
-  const lines = pdf.splitTextToSize(trend, 175);
-  pdf.text(lines, 15, y + 7);
-
-  pdf.setFontSize(7);
-  pdf.setTextColor(160, 110, 125);
-  pdf.text("MENSUALES · Reporte generado automáticamente", 15, 287);
-
-  pdf.save(`MENSUALES-${month}.pdf`);
-});
-
-
-/* =========================================================
-   INICIO
-========================================================= */
-
-(function init() {
-  const monthPicker = $("monthPicker");
-  if (monthPicker) {
-    monthPicker.value = currentMonthValue();
-  }
-  updateAuthInterface();
-})();
-
-
-// =========================================================
-// VISIBILIDAD, MONTOS, MODO OSCURO Y ACORDEONES
-// =========================================================
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Ocultar / Mostrar montos
-  const toggleAmountsBtn = document.getElementById('toggleAmountsBtn');
-  const isHidden = localStorage.getItem('mensuales_hide_amounts') === 'true';
-
-  if (isHidden && toggleAmountsBtn) {
-    document.body.classList.add('amounts-hidden');
-    toggleAmountsBtn.textContent = '👁️ Mostrar montos';
-  }
-
-  if (toggleAmountsBtn) {
-    toggleAmountsBtn.addEventListener('click', () => {
-      const hidden = document.body.classList.toggle('amounts-hidden');
-      localStorage.setItem('mensuales_hide_amounts', hidden);
-      toggleAmountsBtn.textContent = hidden ? '👁️ Mostrar montos' : '👁️ Ocultar montos';
-    });
-  }
-
-  // Modo Oscuro (Persistencia en localStorage)
-  const toggleThemeBtn = document.getElementById('toggleThemeBtn');
-  const isDark = localStorage.getItem('mensuales_theme') === 'dark';
-
-  if (isDark) {
-    document.body.classList.add('dark-mode');
-    if (toggleThemeBtn) toggleThemeBtn.textContent = '☀️ Modo claro';
-  }
-
-  if (toggleThemeBtn) {
-    toggleThemeBtn.addEventListener('click', () => {
-      const activeDark = document.body.classList.toggle('dark-mode');
-      localStorage.setItem('mensuales_theme', activeDark ? 'dark' : 'light');
-      toggleThemeBtn.textContent = activeDark ? '☀️ Modo claro' : '🌙 Modo oscuro';
-    });
-  }
-
-  // Acordeones colapsables
-  function setupCollapsible(btnId, containerElement, storageKey, labelName) {
-    const btn = document.getElementById(btnId);
-    if (!btn || !containerElement) return;
-
-    const isCollapsed = localStorage.getItem(storageKey) === 'true';
-    if (isCollapsed) {
-      containerElement.classList.add('collapsed');
-      btn.textContent = `▼ Mostrar ${labelName}`;
-    }
-
-    btn.addEventListener('click', () => {
-      const collapsed = containerElement.classList.toggle('collapsed');
-      localStorage.setItem(storageKey, collapsed);
-      btn.textContent = collapsed ? `▼ Mostrar ${labelName}` : `▲ Ocultar ${labelName}`;
-    });
-  }
-
-  setupCollapsible('toggleToolbarBtn', document.getElementById('toolbarContainer'), 'mensuales_toolbar_collapsed', 'barra');
-  setupCollapsible('toggleBudgetBtn', document.getElementById('budgetContainer'), 'mensuales_budget_collapsed', 'presupuesto');
-  setupCollapsible('toggleTableBtn', document.querySelector('.table-wrap'), 'mensuales_table_collapsed', 'tabla');
-  setupCollapsible('toggleHistoryBtn', document.getElementById('historyContainer'), 'mensuales_history_collapsed', 'historial');
+  setupCollapsible("toggleToolbarBtn", $("toolbarContainer"), "mensuales_toolbar_collapsed", "barra");
+  setupCollapsible("toggleBudgetBtn", $("budgetContainer"), "mensuales_budget_collapsed", "resumen");
+  setupCollapsible("toggleTableBtn", document.querySelector(".table-container-collapsible"), "mensuales_table_collapsed", "tabla");
+  setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
 });
