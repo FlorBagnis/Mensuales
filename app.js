@@ -52,6 +52,7 @@ let authMode = "login";
 // Datos
 let data = { months: {} };
 let searchMensualesTerm = "";
+let filterCategoryTerm = "";
 let proximosExpenses = [];
 let gpCurrentFilter = "all";
 let gpSearchTerm = "";
@@ -336,9 +337,16 @@ function renderMensualesExpensesTable(expenses) {
   table.innerHTML = "";
 
   let list = expenses.slice();
+
+  // Filtro por texto de búsqueda
   if (searchMensualesTerm.trim() !== "") {
     const q = searchMensualesTerm.toLowerCase();
     list = list.filter(e => (e.description || "").toLowerCase().includes(q) || (e.category || "").toLowerCase().includes(q));
+  }
+
+  // Filtro por categoría seleccionada
+  if (filterCategoryTerm && filterCategoryTerm !== "") {
+    list = list.filter(e => e.category === filterCategoryTerm);
   }
 
   if ($("emptyState")) $("emptyState").style.display = list.length ? "none" : "grid";
@@ -1116,8 +1124,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   $("monthPicker")?.addEventListener("change", () => renderMensuales());
+  
   $("searchMensualesInput")?.addEventListener("input", e => {
     searchMensualesTerm = e.target.value;
+    renderMensuales();
+  });
+
+  $("filterCategorySelect")?.addEventListener("change", e => {
+    filterCategoryTerm = e.target.value;
     renderMensuales();
   });
 
