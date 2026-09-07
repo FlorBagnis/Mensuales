@@ -7,7 +7,7 @@
   --pink-100: #ffe3ea;
   --pink-200: #ffc5d2;
   --pink-300: #ff9db4;
-  --pink-500: #f56b8b;
+  --pink-500: #e85d9e; /* Tonalidad rosada/fucsia suave alineada a la imagen */
   --pink-700: #9f2449;
 
   --ink: #55152d;
@@ -22,7 +22,7 @@
 
 body {
   margin: 0;
-  background: #f9eef2;
+  background: #fdf5f8;
   color: var(--ink);
   font-family: Inter, Arial, sans-serif;
   min-height: 100vh;
@@ -194,6 +194,7 @@ h1 {
 .btn-pink {
   background: var(--pink-500);
   color: white;
+  box-shadow: 0 4px 12px rgba(232, 93, 158, 0.3);
 }
 
 .btn-dark {
@@ -258,7 +259,7 @@ select {
 input:focus,
 select:focus {
   border-color: var(--pink-500);
-  box-shadow: 0 0 0 3px rgba(245, 107, 139, .12);
+  box-shadow: 0 0 0 3px rgba(232, 93, 158, .12);
 }
 
 .money-input {
@@ -1004,7 +1005,7 @@ body.amounts-hidden.dark-mode .gp-card-amount::after {
 #gpExpenseForm select:focus,
 #gpExpenseForm textarea:focus {
   border-color: var(--pink-500);
-  box-shadow: 0 0 0 3px rgba(245, 107, 139, .12);
+  box-shadow: 0 0 0 3px rgba(232, 93, 158, .12);
 }
 
 #gpExpenseForm .modal-actions {
