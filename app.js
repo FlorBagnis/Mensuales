@@ -36,21 +36,18 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
-// Service Worker (PWA)
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch(e => console.log("SW:", e));
   });
 }
 
-// Variables Globales
 let currentUser = null;
 let unsubscribeMonths = null;
 let unsubscribeProximos = null;
 let authMode = "login";
 let currentDolarBlue = 0;
 
-// Datos
 let data = { months: {} };
 let searchMensualesTerm = "";
 let proximosExpenses = [];
@@ -379,10 +376,12 @@ function renderMensualesExpensesTable(expenses) {
 
   table.querySelectorAll(".edit-btn").forEach(btn => {
     btn.onclick = () => {
-      const month = $("monthPicker")?.value;
-      const expense = data.months[month]?.expenses.find(x => x.id === btn.dataset.id);
+      const activeMonth = $("monthPicker")?.value;
+      const expense = data.months[activeMonth]?.expenses.find(x => x.id === btn.dataset.id);
       if (!expense) return;
+      
       $("expenseDate").value = expense.date;
+      if ($("expenseTargetMonth")) $("expenseTargetMonth").value = activeMonth;
       $("expenseDescription").value = expense.description;
       $("expenseCategory").value = expense.category;
       $("expenseAmount").value = expense.amount;
@@ -1144,7 +1143,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
   });
 
-  // LÓGICA DE REPETIR GASTO
   const expenseRecurring = $("expenseRecurring");
   const recurringOptions = $("recurringOptions");
   const recurringChangingAmount = $("recurringChangingAmount");
@@ -1214,7 +1212,6 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Presupuesto guardado correctamente.");
   });
 
-  // LÓGICA DEL MODAL DE INGRESO EXTRA
   $("openExtraModalBtn")?.addEventListener("click", () => {
     if ($("modalExtraInput")) $("modalExtraInput").value = "";
     $("extraDialog")?.showModal();
@@ -1272,7 +1269,14 @@ document.addEventListener("DOMContentLoaded", () => {
   $("addExpenseBtn")?.addEventListener("click", () => {
     $("expenseForm")?.reset();
     if ($("expenseForm")) delete $("expenseForm").dataset.editingId;
-    if ($("expenseDate")) $("expenseDate").value = new Date().toISOString().slice(0, 10);
+    
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if ($("expenseDate")) $("expenseDate").value = todayStr;
+
+    const currentActiveMonth = $("monthPicker")?.value || currentMonthValue();
+    if ($("expenseTargetMonth")) $("expenseTargetMonth").value = currentActiveMonth;
+
     if ($("modalTitle")) $("modalTitle").textContent = "Agregar gasto";
     recurringOptions?.classList.add("hidden");
     recurringAmounts?.classList.add("hidden");
@@ -1282,19 +1286,18 @@ document.addEventListener("DOMContentLoaded", () => {
   $("closeDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
   $("cancelDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
 
+  // EVENTO SUBMIT DEL GASTO (Con soporte para Imputar al mes y movimiento cruzado)
   $("expenseForm")?.addEventListener("submit", async e => {
     e.preventDefault();
     const editingId = $("expenseForm").dataset.editingId;
     const baseDateStr = $("expenseDate").value;
+    const targetMonth = $("expenseTargetMonth")?.value || baseDateStr.slice(0, 7);
     const description = $("expenseDescription").value.trim();
     const category = $("expenseCategory").value;
     const baseAmount = Number($("expenseAmount").value);
     const currency = $("expenseCurrency")?.value || "ARS";
 
-    const targetMonth = baseDateStr.slice(0, 7);
-
     if (editingId) {
-      // Buscar en qué mes está guardado actualmente el gasto para poder moverlo si cambió de fecha
       let oldMonthKey = null;
       let expenseObj = null;
       for (const [mKey, mData] of Object.entries(data.months)) {
@@ -1421,7 +1424,10 @@ document.addEventListener("DOMContentLoaded", () => {
   $("gpOpenModalBtn")?.addEventListener("click", () => {
     $("gpExpenseForm")?.reset();
     if ($("gpExpenseId")) $("gpExpenseId").value = "";
-    if ($("gpDate")) $("gpDate").value = new Date().toISOString().slice(0, 10);
+    if ($("gpDate")) {
+      const today = new Date();
+      $("gpDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    }
     if ($("gpModalTitle")) $("gpModalTitle").textContent = "Agregar registro pendiente";
     $("gpModal")?.showModal();
   });
@@ -1622,7 +1628,6 @@ function generateAnnualPDF() {
   const borderPink = [242, 175, 195];
   const mutedText = [158, 91, 114];
 
-  // 1. Header Banner Femenino y Elegante
   pdf.setFillColor(255, 176, 194);
   pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
 
@@ -1636,7 +1641,6 @@ function generateAnnualPDF() {
   pdf.setTextColor(110, 35, 55);
   pdf.text(`Generado por Flor Bagnis · Mensuales PWA`, 21, 33);
 
-  // 2. Grilla de Tarjetas (Estilo Modal Web)
   const cardWidth = 87;
   const cardHeight = 24;
   let startY = 48;
@@ -1671,7 +1675,6 @@ function generateAnnualPDF() {
 
   let currentY = startY + 2 * (cardHeight + 6) + 5;
 
-  // 3. Tarjeta de Gastos en USD (siempre que haya)
   if (annual.totalUSD > 0) {
     pdf.setFillColor(...cardBg);
     pdf.setDrawColor(...borderPink);
@@ -1690,7 +1693,6 @@ function generateAnnualPDF() {
     currentY += 24;
   }
 
-  // 4. Bloque de Análisis / Tendencia con fondo suave
   pdf.setFillColor(...softPinkBg);
   pdf.setDrawColor(...borderPink);
   pdf.roundedRect(15, currentY, 180, 26, 3, 3, "FD");
@@ -1707,7 +1709,6 @@ function generateAnnualPDF() {
   const splitSummary = pdf.splitTextToSize(summaryText, 168);
   pdf.text(splitSummary, 21, currentY + 14);
 
-  // Pie de página delicado
   pdf.setFontSize(7);
   pdf.setTextColor(160, 110, 125);
   pdf.text("Resumen Anual · Creado por Flor Bagnis", 15, 287);
@@ -1720,7 +1721,6 @@ function generateAnnualPDF() {
    EVENTOS GLOBALES (DELEGACIÓN SEGURO)
 ========================================================= */
 document.addEventListener('click', (e) => {
-  // Botón Contraseña (Florcita / Candado)
   const passwordBtn = e.target.closest('#togglePasswordBtn');
   if (passwordBtn) {
     const authPasswordInput = document.getElementById('authPassword');
@@ -1731,22 +1731,18 @@ document.addEventListener('click', (e) => {
     }
   }
 
-  // Abrir Modal Resumen Anual
   if (e.target.closest('#openAnnualBtn')) {
     openAnnualModal();
   }
 
-  // Cerrar Modal Resumen Anual (Cruz)
   if (e.target.closest('#closeAnnualDialog')) {
     $("annualDialog")?.close();
   }
 
-  // Cerrar Modal Resumen Anual (Botón Cerrar)
   if (e.target.closest('#closeAnnualCancelBtn')) {
     $("annualDialog")?.close();
   }
 
-  // Descargar PDF Anual
   if (e.target.closest('#annualPdfBtn')) {
     generateAnnualPDF();
   }
