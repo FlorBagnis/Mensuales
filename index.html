@@ -432,29 +432,55 @@
 </main>
 
 <!-- MODAL: SUMAR EXTRA -->
-<dialog id="extraDialog" style="border-radius: 24px; border: 1px solid var(--border); padding: 30px; max-width: 340px; width: 100%;">
+<dialog id="extraDialog" style="border-radius: 24px; border: 1px solid var(--border); padding: 30px; max-width: 380px; width: 100%; position: relative;">
   <button id="closeExtraDialog" type="button" style="position: absolute; top: 18px; right: 18px; border: none; background: var(--pink-soft, #ffe6ed); color: var(--pink-dark, #c43878); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 16px;">×</button>
   
   <div style="margin-bottom: 16px;">
-    <h3 style="font-size: 18px; font-weight: 800; color: var(--text);">➕ Sumar Dinero Extra</h3>
-    <p style="color: var(--muted); font-size: 12px; margin-top: 2px;">Se sumará automáticamente a tu presupuesto actual.</p>
+    <h3 style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0;">➕ Sumar Dinero Extra</h3>
+    <p style="color: var(--muted); font-size: 12px; margin-top: 4px; margin-bottom: 0;">Se sumará automáticamente a tu presupuesto actual.</p>
   </div>
 
-  <div style="display: grid; gap: 12px; margin-bottom: 20px;">
-    <label style="font-size: 11px; font-weight: 700; color: var(--muted);">MONTO Y MONEDA</label>
-    <div style="display: flex; gap: 6px; align-items: center;">
-      <div class="money-input" style="flex: 1;">
-        <span>+$</span>
-        <input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0" style="width: 100%;">
-      </div>
-      <select id="modalExtraCurrency" style="padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 12px; font-weight: 600; background: var(--card-bg); color: var(--text); cursor: pointer;">
-        <option value="ARS" selected>ARS</option>
-        <option value="USD">USD</option>
+  <div style="display: grid; gap: 14px; margin-bottom: 22px;">
+    <!-- CATEGORÍA DE INGRESO -->
+    <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
+      CATEGORÍA DE INGRESO
+      <select id="modalExtraCategory" style="width: 100%; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--ink); padding: 10px 12px; font: inherit; font-size: 13px;">
+        <option value="Sueldo">💼 Sueldo</option>
+        <option value="Aporte familiar">🏠 Aporte familiar</option>
+        <option value="Regalo">🎁 Regalo</option>
+        <option value="Venta">🛍️ Venta</option>
+        <option value="Reintegro">🔄 Reintegro</option>
+        <option value="Otro">✨ Otro</option>
       </select>
-    </div>
+    </label>
+
+    <!-- DESCRIPCIÓN OPCIONAL -->
+    <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
+      DESCRIPCIÓN (Opcional)
+      <input type="text" id="modalExtraDescription" placeholder="Ej: Venta de campera, quincena..." style="width: 100%;">
+    </label>
+
+    <!-- MONTO Y MONEDA -->
+    <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
+      MONTO Y MONEDA
+      <div style="display: flex; gap: 6px; align-items: center;">
+        <div class="money-input" style="flex: 1;">
+          <span>+$</span>
+          <input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0" style="width: 100%;">
+        </div>
+        <select id="modalExtraCurrency" style="padding: 10px; border-radius: 9px; border: 1px solid var(--line); font-size: 13px; font-weight: 600; background: white; color: var(--ink); cursor: pointer;">
+          <option value="ARS" selected>ARS</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+    </label>
   </div>
 
-  <button id="submitExtraBtn" class="pastel-btn" style="width: 100%; border-radius: 12px; padding: 12px; justify-content: center;">Confirmar y sumar</button>
+  <!-- BOTONES DE ACCIÓN -->
+  <div style="display: flex; justify-content: flex-end; gap: 8px;">
+    <button type="button" class="btn btn-outline" onclick="document.getElementById('extraDialog').close()">Cancelar</button>
+    <button type="button" class="btn btn-pink" id="submitExtraBtn">Sumar dinero</button>
+  </div>
 </dialog>
   
 <!-- MODAL GASTOS (Actualizado con IMPUTAR AL MES) -->
