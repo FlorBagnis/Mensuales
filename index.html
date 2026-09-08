@@ -156,10 +156,33 @@
       background-color: #2a161d !important;
     }
 
+    /* OCULTAR MONTOS INCLUYENDO TOTAL EXTRA */
+    body.amounts-hidden #extraTotalSumDisplay {
+      color: transparent !important;
+      position: relative;
+      user-select: none;
+    }
+    body.amounts-hidden #extraTotalSumDisplay::after {
+      content: "••••••";
+      color: var(--pink-700) !important;
+      visibility: visible;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 5;
+      font-weight: 700;
+      background-color: white;
+      padding: 0 4px;
+    }
+    body.dark-mode.amounts-hidden #extraTotalSumDisplay::after,
+    body.amounts-hidden.dark-mode #extraTotalSumDisplay::after {
+      background-color: #211620 !important;
+      color: #ff9db4 !important;
+    }
+
     body.dark-mode.amounts-hidden strong,
-    body.amounts-hidden.dark-mode strong,
-    body.dark-mode .amounts-hidden strong,
-    body.amounts-hidden body.dark-mode strong {
+    body.amounts-hidden.dark-mode strong {
       background: none !important;
       background-color: transparent !important;
       padding: 0 !important;
@@ -369,7 +392,7 @@
         </div>
       </section>
 
-      <!-- HISTORIAL DE DINERO EXTRA (COLAPSIBLE Y EDITABLE) -->
+      <!-- HISTORIAL DE DINERO EXTRA -->
       <section class="panel" style="margin-top: 1.5rem;">
         <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
