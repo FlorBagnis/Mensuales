@@ -385,6 +385,14 @@ Esta actualización incorpora arquitectura multimoneda a la suite de gestión fi
 
 ---
 
+## 🚀 Últimas Actualizaciones y Nuevas Funcionalidades
+
+* **➕ Modal de "Sumar Dinero Extra"**: Se añadió un nuevo modal flotante e integrado al diseño para incorporar ingresos adicionales al presupuesto mensual de forma rápida y limpia, sin saturar la barra de herramientas.
+* **💱 Soporte Multimoneda con Conversión Automática**: Al sumar dinero extra, ahora podés elegir entre Pesos Argentinos (ARS) y Dólares (USD). Si seleccionás dólares, la app calcula automáticamente el monto en pesos utilizando la cotización en tiempo real del **Dólar Blue** (`dolarapi.com`).
+* **🌸 Resumen Financiero Anual**: Nueva sección y modal interactivo que procesa y muestra métricas clave de todo el año en curso (total gastado en ARS, promedio mensual, mes con mayor gasto y categoría principal).
+* **📄 Exportación de Resumen Anual a PDF**: Generación de reportes profesionales en formato PDF con diseño estético y personalizado para el balance financiero anual.
+* **🎨 Mejoras de Estética y Modo Oscuro**: Ajustes visuales en la interfaz, optimización de bordes y adaptación total de los nuevos modales y campos tanto para el modo claro como para el modo oscuro.
+
 ## 💻 Cambios Técnicos en el Código
 
 | Archivo modificado | Detalle del cambio |
