@@ -167,16 +167,14 @@
       box-shadow: none !important;
     }
 
-  .money-input span {
-  border-right: none !important;
-  border: none !important;
-}
-.money-input input {
-  border-left: none !important;
-}
+    .money-input span {
+      border-right: none !important;
+      border: none !important;
+    }
+    .money-input input {
+      border-left: none !important;
+    }
   </style>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
@@ -268,7 +266,7 @@
 
           <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
           <button id="openExtraModalBtn" class="btn btn-outline" type="button" title="Sumar ingreso extra">➕ Sumar dinero extra</button>
-              
+            
           <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
           <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
           <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
@@ -308,6 +306,7 @@
         </section>
       </div>
 
+      <!-- GASTOS DEL MES -->
       <section class="panel" style="margin-top: 1.5rem;">
         <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
@@ -367,6 +366,32 @@
             <strong id="tableTotal" style="display: block;">$0,00</strong>
             <small id="tableTotalUSD" style="display: block; font-size: 0.95rem; color: var(--pink-700); font-weight: 600;"></small>
           </div>
+        </div>
+      </section>
+
+      <!-- HISTORIAL DE DINERO EXTRA (NUEVO) -->
+      <section class="panel" style="margin-top: 1.5rem;">
+        <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h2>🌸 Historial de Dinero Extra</h2>
+            <p>Origen, categorías y detalle de los ingresos adicionales registrados este mes.</p>
+          </div>
+          <div class="month-pill" id="extraTotalSumDisplay">Total Extra: $0,00</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Categoría / Descripción</th>
+                <th>Fecha</th>
+                <th style="text-align: right;">Monto</th>
+                <th style="text-align: right;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="extraIncomeTableBody">
+              <tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos extra cargados este mes.</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -483,7 +508,7 @@
   </div>
 </dialog>
   
-<!-- MODAL GASTOS (Actualizado con IMPUTAR AL MES) -->
+<!-- MODAL GASTOS -->
 <dialog id="expenseDialog">
   <form id="expenseForm" class="modal">
     <button id="closeDialog" type="button" class="close" aria-label="Cerrar">×</button>
