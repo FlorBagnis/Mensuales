@@ -273,7 +273,7 @@
             <input id="monthPicker" type="month">
           </div>
 
-       <div class="field">
+<div class="field">
   <label for="budgetInput">PRESUPUESTO</label>
   <div class="money-input">
     <span>$</span>
@@ -282,20 +282,7 @@
 </div>
 
 <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
-
-<!-- Campo rápido para sumar ingresos extra (ARS o USD) -->
-<div class="field" style="max-width: 220px;">
-  <label for="extraBudgetInput">SUMAR EXTRA</label>
-  <div style="display: flex; align-items: center; background: var(--card-bg, #fff); border: 1px solid var(--line, #f2cfdf); border-radius: 12px; overflow: hidden; padding: 0 8px; height: 38px;">
-    <span style="color: var(--muted, #888); font-size: 13px; font-weight: 600; margin-right: 4px;">+$</span>
-    <input id="extraBudgetInput" type="number" min="0" step="0.01" placeholder="0" style="border: none; background: transparent; outline: none; width: 100%; font-size: 13px; color: var(--text);">
-    <select id="extraBudgetCurrency" style="border: none; background: transparent; outline: none; font-size: 12px; font-weight: 600; color: var(--pink-700, #c43878); cursor: pointer; padding-left: 4px;">
-      <option value="ARS" selected>ARS</option>
-      <option value="USD">USD</option>
-    </select>
-  </div>
-</div>
-<button id="addExtraBudgetBtn" class="btn btn-outline" type="button" style="height: 38px;" title="Sumar al presupuesto actual">➕ Sumar</button>
+<button id="openExtraModalBtn" class="btn btn-outline" type="button" title="Sumar ingreso extra">➕ Sumar extra</button>
     
 <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
 <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
@@ -466,7 +453,33 @@
   </script>
 </main>
 
+<!-- MODAL: SUMAR EXTRA -->
+<dialog id="extraDialog" style="border-radius: 24px; border: 1px solid var(--border); padding: 30px; max-width: 340px; width: 100%;">
+  <button id="closeExtraDialog" type="button" style="position: absolute; top: 18px; right: 18px; border: none; background: var(--pink-soft, #ffe6ed); color: var(--pink-dark, #c43878); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 16px;">×</button>
+  
+  <div style="margin-bottom: 16px;">
+    <h3 style="font-size: 18px; font-weight: 800; color: var(--text);">➕ Sumar Dinero Extra</h3>
+    <p style="color: var(--muted); font-size: 12px; margin-top: 2px;">Se sumará automáticamente a tu presupuesto actual.</p>
+  </div>
 
+  <div style="display: grid; gap: 12px; margin-bottom: 20px;">
+    <label style="font-size: 11px; font-weight: 700; color: var(--muted);">MONTO Y MONEDA</label>
+    <div style="display: flex; gap: 6px; align-items: center;">
+      <div class="money-input" style="flex: 1;">
+        <span>+$</span>
+        <input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0" style="width: 100%;">
+      </div>
+      <select id="modalExtraCurrency" style="padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); font-size: 12px; font-weight: 600; background: var(--card-bg); color: var(--text); cursor: pointer;">
+        <option value="ARS" selected>ARS</option>
+        <option value="USD">USD</option>
+      </select>
+    </div>
+  </div>
+
+  <button id="submitExtraBtn" class="pastel-btn" style="width: 100%; border-radius: 12px; padding: 12px; justify-content: center;">Confirmar y sumar</button>
+</dialog>
+
+  
 <!-- MODAL -->
 <dialog id="expenseDialog">
   <form id="expenseForm" class="modal">
