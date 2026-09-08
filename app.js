@@ -1919,3 +1919,15 @@ document.addEventListener('click', (e) => {
     generateAnnualPDF();
   }
 });
+
+// --- PARCHE AUTOMÁTICO PARA OCULTAR TOTAL DE INGRESOS ---
+const observerExtraBadge = new MutationObserver(() => {
+  const badge = document.getElementById("extraTotalSumDisplay");
+  if (badge && document.body.classList.contains("amounts-hidden")) {
+    if (!badge.textContent.includes("••••••")) {
+      badge.textContent = "Total Ingresos: ••••••";
+    }
+  }
+});
+observerExtraBadge.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+
