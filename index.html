@@ -240,14 +240,18 @@
             </div>
           </div>
 
-          <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
-          
-          <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
-          <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
-          <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
-          <button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
-          <button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
-        </section>
+    <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
+    
+<button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
+<button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
+<button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
+<button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
+<button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
+<button id="openAnnualBtn" class="secondary-button" style="display: inline-flex; align-items: center; gap: 6px;" title="Ver resumen anual">
+  🌸 Resumen Anual
+</button>
+</section>
+        
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 0.5rem;">
@@ -508,6 +512,26 @@
       <button id="submitExpenseBtn" class="pastel-btn" type="submit">Guardar gasto</button>
     </div>
   </form>
+</dialog>
+
+  <dialog id="annualDialog" class="modal">
+  <button id="closeAnnualDialog" class="close-modal" type="button">×</button>
+  <div class="modal-header">
+    <div class="modal-icon">🌸</div>
+    <div>
+      <h2>Resumen Anual</h2>
+      <p id="annualSubtitle">Análisis completo de tus finanzas</p>
+    </div>
+  </div>
+  
+  <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 22px; font-size: 13px;">
+    {/* Aquí se cargan los datos dinámicamente */}
+  </div>
+
+  <div style="display: flex; gap: 10px;">
+    <button id="annualPdfBtn" class="primary-button" style="width: 100%;">📥 Descargar PDF Anual</button>
+    <button id="closeAnnualCancelBtn" class="secondary-button" style="width: 100%;">Cerrar</button>
+  </div>
 </dialog>
 
 <script type="module" src="app.js"></script>
