@@ -1214,7 +1214,7 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Presupuesto guardado correctamente.");
   });
 
-  // LÓGICA DEL MODAL DE INGRESO EXTRA (Integrada correctamente)
+  // LÓGICA DEL MODAL DE INGRESO EXTRA
   $("openExtraModalBtn")?.addEventListener("click", () => {
     if ($("modalExtraInput")) $("modalExtraInput").value = "";
     $("extraDialog")?.showModal();
@@ -1291,29 +1291,65 @@ document.addEventListener("DOMContentLoaded", () => {
     const baseAmount = Number($("expenseAmount").value);
     const currency = $("expenseCurrency")?.value || "ARS";
 
+    const targetMonth = baseDateStr.slice(0, 7);
+
     if (editingId) {
-      const month = baseDateStr.slice(0, 7);
-      const monthData = ensureMonth(month);
-      const exp = monthData.expenses.find(x => x.id === editingId);
-      if (exp) {
-        exp.date = baseDateStr; 
-        exp.description = description; 
-        exp.category = category; 
-        exp.amount = baseAmount; 
-        exp.currency = currency;
+      // Buscar en qué mes está guardado actualmente el gasto para poder moverlo si cambió de fecha
+      let oldMonthKey = null;
+      let expenseObj = null;
+      for (const [mKey, mData] of Object.entries(data.months)) {
+        const found = (mData.expenses || []).find(x => x.id === editingId);
+        if (found) {
+          oldMonthKey = mKey;
+          expenseObj = found;
+          break;
+        }
+      }
+
+      if (expenseObj && oldMonthKey) {
+        expenseObj.date = baseDateStr; 
+        expenseObj.description = description; 
+        expenseObj.category = category; 
+        expenseObj.amount = baseAmount; 
+        expenseObj.currency = currency;
+
+        if (oldMonthKey !== targetMonth) {
+          data.months[oldMonthKey].expenses = data.months[oldMonthKey].expenses.filter(x => x.id !== editingId);
+          const newMonthData = ensureMonth(targetMonth);
+          newMonthData.expenses.push(expenseObj);
+
+          await saveMonthToFirestore(oldMonthKey);
+          await saveMonthToFirestore(targetMonth);
+        } else {
+          await saveMonthToFirestore(targetMonth);
+        }
+
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
         renderMensuales();
-        await saveMonthToFirestore(month);
+      } else {
+        const monthData = ensureMonth(targetMonth);
+        const exp = monthData.expenses.find(x => x.id === editingId);
+        if (exp) {
+          exp.date = baseDateStr; 
+          exp.description = description; 
+          exp.category = category; 
+          exp.amount = baseAmount; 
+          exp.currency = currency;
+          if ($("monthPicker")) $("monthPicker").value = targetMonth;
+          renderMensuales();
+          await saveMonthToFirestore(targetMonth);
+        }
       }
     } else {
       const isRecurring = expenseRecurring?.checked;
 
       if (!isRecurring) {
         const expense = { id: createId("expense"), date: baseDateStr, description, category, amount: baseAmount, currency };
-        const month = baseDateStr.slice(0, 7);
-        const monthData = ensureMonth(month);
+        const monthData = ensureMonth(targetMonth);
         monthData.expenses.push(expense);
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
         renderMensuales();
-        await saveMonthToFirestore(month);
+        await saveMonthToFirestore(targetMonth);
       } else {
         const count = Number(recurringDuration?.value) || 6;
         const interval = Number(recurringMonthsInput?.value) || 1;
@@ -1340,6 +1376,7 @@ document.addEventListener("DOMContentLoaded", () => {
           monthData.expenses.push(expense);
           await saveMonthToFirestore(monthKey);
         }
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
         renderMensuales();
         alert(`✓ Gasto repetido exitosamente durante ${count} período(s).`);
       }
