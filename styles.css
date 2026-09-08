@@ -1334,20 +1334,22 @@ body.dark-mode .annual-mini-card strong {
   color: #ffdbe4;
 }
 
+
+/* CONTENEDOR DE DINERO UNIFICADO */
 .money-input {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--line);
-  background: white;
-  border-radius: 9px;
-  overflow: hidden;
+  display: flex !important;
+  align-items: center !important;
+  border: 1px solid var(--line) !important;
+  background: white !important;
+  border-radius: 9px !important;
+  overflow: hidden !important;
 }
 
 .money-input span {
-  padding-left: 12px;
-  padding-right: 4px;
-  font-weight: 800;
-  color: var(--pink-500);
+  padding-left: 12px !important;
+  padding-right: 4px !important;
+  font-weight: 800 !important;
+  color: var(--pink-500) !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -1355,12 +1357,28 @@ body.dark-mode .annual-mini-card strong {
 
 .money-input input {
   border: 0 !important;
-  border-radius: 0;
-  width: 130px;
+  border-radius: 0 !important;
+  width: 130px !important;
   background: transparent !important;
   outline: none !important;
   box-shadow: none !important;
   color: inherit !important;
+}
+
+/* MODO OSCURO UNIFICADO PARA LOS CAMPOS DE DINERO */
+body.dark-mode .money-input {
+  background: #170f16 !important;
+  border-color: #3b2334 !important;
+}
+
+body.dark-mode .money-input span {
+  background: transparent !important;
+  color: #ff9db4 !important;
+}
+
+body.dark-mode .money-input input {
+  background: transparent !important;
+  color: #fceef3 !important;
 }
 
 /* Modo oscuro unificado para los campos de dinero */
