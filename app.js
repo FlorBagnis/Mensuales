@@ -1558,7 +1558,7 @@ function generateAnnualPDF() {
    EVENTOS GLOBALES (DELEGACIÓN SEGURO)
 ========================================================= */
 document.addEventListener('click', (e) => {
-  // Botón Contraseña (Florcita / Candado) - Corregido con .closest()
+  // Botón Contraseña (Florcita / Candado)
   const passwordBtn = e.target.closest('#togglePasswordBtn');
   if (passwordBtn) {
     const authPasswordInput = document.getElementById('authPassword');
@@ -1570,22 +1570,22 @@ document.addEventListener('click', (e) => {
   }
 
   // Abrir Modal Resumen Anual
-  if (e.target && e.target.id === 'openAnnualBtn') {
+  if (e.target.closest('#openAnnualBtn')) {
     openAnnualModal();
   }
 
   // Cerrar Modal Resumen Anual (Cruz)
-  if (e.target && e.target.id === 'closeAnnualDialog') {
+  if (e.target.closest('#closeAnnualDialog')) {
     $("annualDialog")?.close();
   }
 
   // Cerrar Modal Resumen Anual (Botón Cerrar)
-  if (e.target && e.target.id === 'closeAnnualCancelBtn') {
+  if (e.target.closest('#closeAnnualCancelBtn')) {
     $("annualDialog")?.close();
   }
 
   // Descargar PDF Anual
-  if (e.target && e.target.id === 'annualPdfBtn') {
+  if (e.target.closest('#annualPdfBtn')) {
     generateAnnualPDF();
   }
 });
