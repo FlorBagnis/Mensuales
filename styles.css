@@ -1360,6 +1360,7 @@ body.dark-mode .annual-mini-card strong {
   background: transparent !important;
   outline: none !important;
   box-shadow: none !important;
+  color: inherit !important;
 }
 
 /* Modo oscuro unificado para los campos de dinero */
