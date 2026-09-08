@@ -265,6 +265,13 @@ function renderMensuales() {
   const prevMonth = previousMonth(month);
   const previous = data.months[prevMonth] || { budget: 0, expenses: [], extraIncomes: [] };
 
+  // Recalcular el presupuesto total sumando todos los ítems de extraIncomes (Presupuesto Base + Ingresos Extra)
+  let calculatedBudget = 0;
+  if (Array.isArray(current.extraIncomes) && current.extraIncomes.length > 0) {
+    calculatedBudget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    current.budget = calculatedBudget;
+  }
+
   let totalARS = 0;
   let totalUSD = 0;
   current.expenses.forEach(e => {
@@ -340,8 +347,8 @@ function renderExtraIncomesTable(extraIncomes) {
   if (!tbody) return;
 
   if (!extraIncomes || extraIncomes.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos extra cargados este mes.</td></tr>`;
-    if (totalBadge) totalBadge.textContent = 'Total Extra: $0.00';
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos ni presupuesto cargados este mes.</td></tr>`;
+    if (totalBadge) totalBadge.textContent = 'Total Ingresos: $0,00';
     return;
   }
 
@@ -351,20 +358,65 @@ function renderExtraIncomesTable(extraIncomes) {
     totalSum += Number(item.amount || 0);
     const curr = item.currency || "ARS";
     const amountText = curr === "USD" ? `${money(item.rawAmount, "USD")} (${money(item.amount)})` : money(item.amount);
+    const isBase = item.isBase === true;
     return `
       <tr>
-        <td><span class="category">${escapeHtml(item.category)}</span> ${item.description ? `— <strong>${escapeHtml(item.description)}</strong>` : ""}</td>
+        <td><span class="category" style="${isBase ? 'background: var(--pink-700); color: white;' : ''}">${escapeHtml(item.category)}</span> ${item.description ? `— <strong>${escapeHtml(item.description)}</strong>` : ""}</td>
         <td>${formatDate(item.date)}</td>
         <td class="amount result-good" style="text-align: right;">+ ${amountText}</td>
-        <td style="text-align: right;">
-          <button class="delete-btn" onclick="deleteExtraIncome('${item.id}')" title="Eliminar">🗑️</button>
+        <td style="text-align: right; white-space: nowrap;">
+          <button class="edit-btn" data-id="${item.id}" type="button" title="Editar">✏️</button>
+          <button class="delete-btn" data-id="${item.id}" type="button" title="Eliminar">×</button>
         </td>
       </tr>
     `;
   }).join('');
 
   if (totalBadge) {
-    totalBadge.textContent = `Total Extra: ${money(totalSum)}`;
+    totalBadge.textContent = `Total Ingresos: ${money(totalSum)}`;
+  }
+
+  tbody.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.onclick = () => editExtraIncome(btn.dataset.id);
+  });
+
+  tbody.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.onclick = () => deleteExtraIncome(btn.dataset.id);
+  });
+}
+
+function editExtraIncome(id) {
+  const month = $("monthPicker")?.value;
+  const current = data.months[month];
+  if (!current || !Array.isArray(current.extraIncomes)) return;
+  const item = current.extraIncomes.find(x => x.id === id);
+  if (!item) return;
+
+  if (item.isBase) {
+    // Si es el presupuesto base, permitimos editarlo directamente en el input superior o mediante prompt/modal
+    const newBudget = prompt("Editar Presupuesto Base del mes:", item.amount);
+    if (newBudget === null) return;
+    const val = Number(newBudget);
+    if (isNaN(val) || val < 0) {
+      alert("Ingresá un monto válido.");
+      return;
+    }
+    item.amount = val;
+    item.rawAmount = val;
+    current.budget = current.extraIncomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+    if ($("budgetInput")) $("budgetInput").value = current.budget;
+    renderMensuales();
+    saveMonthToFirestore(month);
+  } else {
+    $("modalExtraCategory").value = item.category || "Sueldo";
+    $("modalExtraDescription").value = item.description || "";
+    $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
+    $("modalExtraCurrency").value = item.currency || "ARS";
+
+    $("extraDialog").dataset.editingExtraId = item.id;
+    const titleEl = $("extraDialog").querySelector("h3");
+    if (titleEl) titleEl.textContent = "✏️ Editar Ingreso Extra";
+    $("extraDialog")?.showModal();
   }
 }
 
@@ -376,10 +428,10 @@ window.deleteExtraIncome = async function(id) {
   const item = current.extraIncomes.find(x => x.id === id);
   if (!item) return;
 
-  if (!confirm(`¿Eliminar el ingreso de "${item.category}" por ${money(item.amount)}? Esto restará el monto del presupuesto del mes.`)) return;
+  if (!confirm(`¿Eliminar el registro "${item.category}" por ${money(item.amount)}? Esto restará el monto del presupuesto del mes.`)) return;
 
   current.extraIncomes = current.extraIncomes.filter(x => x.id !== id);
-  current.budget = Math.max(0, Number(current.budget || 0) - Number(item.amount || 0));
+  current.budget = current.extraIncomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
   if ($("budgetInput")) $("budgetInput").value = current.budget;
 
@@ -1230,7 +1282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!expenseRecurring?.checked || !recurringChangingAmount?.checked) return;
 
     const count = Number(recurringDuration?.value) || 6;
-    const baseAmount = Number($("expenseAmount")?.value) || 0;
+    const baseAmount = Number($("expenseAmount")?.value || 0);
     const interval = Number(recurringMonthsInput?.value) || 1;
     let baseDate = new Date(($("expenseDate")?.value || currentMonthValue() + "-01") + "T00:00:00");
 
@@ -1253,7 +1305,7 @@ document.addEventListener("DOMContentLoaded", () => {
   recurringDay?.addEventListener("input", updateRecurringInputs);
   $("expenseAmount")?.addEventListener("input", () => {
     if (!recurringChangingAmount?.checked) return;
-    const baseAmount = Number($("expenseAmount")?.value) || 0;
+    const baseAmount = Number($("expenseAmount")?.value || 0);
     recurringAmounts?.querySelectorAll(".rec-amount-input").forEach(inp => {
       if (!inp.dataset.userEdited) inp.value = baseAmount;
     });
@@ -1269,7 +1321,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const month = $("monthPicker")?.value;
     if (!month) return;
     const current = ensureMonth(month);
-    current.budget = Number($("budgetInput")?.value || 0);
+    const baseVal = Number($("budgetInput")?.value || 0);
+
+    if (!Array.isArray(current.extraIncomes)) current.extraIncomes = [];
+    
+    let baseEntry = current.extraIncomes.find(x => x.isBase === true);
+    if (baseEntry) {
+      baseEntry.amount = baseVal;
+      baseEntry.rawAmount = baseVal;
+    } else if (baseVal > 0) {
+      current.extraIncomes.unshift({
+        id: createId("base"),
+        isBase: true,
+        date: new Date().toISOString().slice(0, 10),
+        category: "Presupuesto Base",
+        description: "Ingreso principal del mes",
+        amount: baseVal,
+        rawAmount: baseVal,
+        currency: "ARS"
+      });
+    }
+
+    current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
     renderMensuales();
     await saveMonthToFirestore(month);
     alert("Presupuesto guardado correctamente.");
@@ -1279,6 +1352,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if ($("modalExtraInput")) $("modalExtraInput").value = "";
     if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
     if ($("modalExtraCategory")) $("modalExtraCategory").value = "Sueldo";
+    delete $("extraDialog").dataset.editingExtraId;
+    const titleEl = $("extraDialog").querySelector("h3");
+    if (titleEl) titleEl.textContent = "➕ Sumar Dinero Extra";
     $("extraDialog")?.showModal();
   });
 
@@ -1312,7 +1388,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (currentDolarBlue > 0) {
         finalVal = rawVal * currentDolarBlue;
-        if (!confirm(`Vas a sumar USD ${rawVal} convertidos a pesos (${money(finalVal)}) usando la cotización del Dólar Blue de hoy ($${currentDolarBlue}). ¿Confirmás?`)) {
+        if (!confirm(`Vas a tomar USD ${rawVal} convertidos a pesos (${money(finalVal)}) usando la cotización del Dólar Blue de hoy ($${currentDolarBlue}). ¿Confirmás?`)) {
           return;
         }
       } else {
@@ -1323,19 +1399,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const current = ensureMonth(month);
-    current.budget = Number(current.budget || 0) + finalVal;
-    
     if (!Array.isArray(current.extraIncomes)) current.extraIncomes = [];
-    current.extraIncomes.push({
-      id: createId("extra"),
-      date: new Date().toISOString().slice(0, 10),
-      category: category,
-      description: description,
-      amount: finalVal,
-      rawAmount: rawVal,
-      currency: currency
-    });
 
+    const editingId = $("extraDialog").dataset.editingExtraId;
+
+    if (editingId) {
+      const index = current.extraIncomes.findIndex(x => x.id === editingId);
+      if (index !== -1) {
+        current.extraIncomes[index] = {
+          ...current.extraIncomes[index],
+          category,
+          description,
+          amount: finalVal,
+          rawAmount: rawVal,
+          currency
+        };
+      }
+    } else {
+      current.extraIncomes.push({
+        id: createId("extra"),
+        date: new Date().toISOString().slice(0, 10),
+        category,
+        description,
+        amount: finalVal,
+        rawAmount: rawVal,
+        currency
+      });
+    }
+
+    current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
     if ($("budgetInput")) $("budgetInput").value = current.budget;
 
     renderMensuales();
@@ -1343,8 +1435,9 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
     if ($("modalExtraInput")) $("modalExtraInput").value = "";
+    delete $("extraDialog").dataset.editingExtraId;
     $("extraDialog")?.close();
-    alert(`✓ Se sumaron ${currency === "USD" ? `USD ${rawVal} (${money(finalVal)})` : money(rawVal)} (${category}) a tu presupuesto con éxito.`);
+    alert(`✓ Ingreso guardado correctamente.`);
   });
 
   $("addExpenseBtn")?.addEventListener("click", () => {
@@ -1609,6 +1702,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCollapsible("toggleBudgetBtn", $("budgetContainer"), "mensuales_budget_collapsed", "resumen");
   setupCollapsible("toggleTableBtn", document.querySelector(".table-container-collapsible"), "mensuales_table_collapsed", "tabla");
   setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
+  setupCollapsible("toggleExtraHistoryBtn", $("extraHistoryContainer"), "mensuales_extra_history_collapsed", "historial extra");
 });
 
 
@@ -1764,7 +1858,7 @@ function generateAnnualPDF() {
     pdf.setTextColor(...mutedText);
     pdf.setFontSize(7);
     pdf.setFont("helvetica", "bold");
-    pdf.text("TOTAL GASTADO EN USD", 21, currentY + 6);
+    pdf.text("TOTAL GASTADO USD", 21, currentY + 6);
 
     pdf.setTextColor(...dark);
     pdf.setFontSize(11);
