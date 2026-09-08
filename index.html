@@ -369,29 +369,34 @@
         </div>
       </section>
 
-      <!-- HISTORIAL DE DINERO EXTRA (NUEVO) -->
+      <!-- HISTORIAL DE DINERO EXTRA (COLAPSIBLE Y EDITABLE) -->
       <section class="panel" style="margin-top: 1.5rem;">
         <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
             <h2>🌸 Historial de Dinero Extra</h2>
             <p>Origen, categorías y detalle de los ingresos adicionales registrados este mes.</p>
           </div>
-          <div class="month-pill" id="extraTotalSumDisplay">Total Extra: $0,00</div>
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div class="month-pill" id="extraTotalSumDisplay">Total Extra: $0,00</div>
+            <button id="toggleExtraHistoryBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar historial</button>
+          </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Categoría / Descripción</th>
-                <th>Fecha</th>
-                <th style="text-align: right;">Monto</th>
-                <th style="text-align: right;">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="extraIncomeTableBody">
-              <tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos extra cargados este mes.</td></tr>
-            </tbody>
-          </table>
+        <div id="extraHistoryContainer" class="collapsible-section">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Categoría / Descripción</th>
+                  <th>Fecha</th>
+                  <th style="text-align: right;">Monto</th>
+                  <th style="text-align: right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="extraIncomeTableBody">
+                <tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos extra cargados este mes.</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
