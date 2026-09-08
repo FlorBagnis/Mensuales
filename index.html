@@ -284,20 +284,18 @@
 <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
 
 <!-- Campo rápido para sumar ingresos extra (ARS o USD) -->
-<div class="field" style="max-width: 190px;">
+<div class="field" style="max-width: 220px;">
   <label for="extraBudgetInput">SUMAR EXTRA</label>
-  <div style="display: flex; gap: 4px;">
-    <div class="money-input" style="flex: 1;">
-      <span>+$</span>
-      <input id="extraBudgetInput" type="number" min="0" step="0.01" placeholder="0">
-    </div>
-    <select id="extraBudgetCurrency" style="padding: 4px 6px; border-radius: 8px; border: 1px solid var(--line); font-size: 11px; cursor: pointer; background: var(--card-bg); color: var(--text);">
+  <div style="display: flex; align-items: center; background: var(--card-bg, #fff); border: 1px solid var(--line, #f2cfdf); border-radius: 12px; overflow: hidden; padding: 0 8px; height: 38px;">
+    <span style="color: var(--muted, #888); font-size: 13px; font-weight: 600; margin-right: 4px;">+$</span>
+    <input id="extraBudgetInput" type="number" min="0" step="0.01" placeholder="0" style="border: none; background: transparent; outline: none; width: 100%; font-size: 13px; color: var(--text);">
+    <select id="extraBudgetCurrency" style="border: none; background: transparent; outline: none; font-size: 12px; font-weight: 600; color: var(--pink-700, #c43878); cursor: pointer; padding-left: 4px;">
       <option value="ARS" selected>ARS</option>
       <option value="USD">USD</option>
     </select>
   </div>
 </div>
-<button id="addExtraBudgetBtn" class="btn btn-outline" type="button" title="Sumar al presupuesto actual">➕ Sumar</button>
+<button id="addExtraBudgetBtn" class="btn btn-outline" type="button" style="height: 38px;" title="Sumar al presupuesto actual">➕ Sumar</button>
     
 <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
 <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
