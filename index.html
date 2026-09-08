@@ -5,13 +5,13 @@
   <meta name="format-detection" content="telephone=no">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <title>MENSUALES · Control de Gastos</title>
 
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#ff7597">
-<link rel="icon" type="image/png" href="./icono.png">
+  <link rel="icon" type="image/png" href="./icono.png">
   <link rel="stylesheet" href="styles.css">
 
   <!-- Estilos adaptados para Modo Claro, Modo Oscuro, Sombras y Hover de botones -->
@@ -196,7 +196,7 @@
         <p class="subtitle">Presupuesto mensual y control de egresos.</p>
         
    <div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878); white-space: nowrap; letter-spacing: normal; -webkit-text-size-adjust: 100%;">
-  💵 Dólar Blue: cargando...
+ 💵 Dólar Blue: cargando...
 </div>
       </div>
 
@@ -512,6 +512,7 @@
       <button id="submitExpenseBtn" class="pastel-btn" type="submit">Guardar gasto</button>
     </div>
   </form>
+</dialog> <!-- 👈 MODAL DE GASTOS CORRECTAMENTE CERRADO -->
 
 <dialog id="annualDialog" class="modal" style="border-radius: 28px; border: 1px solid var(--border); padding: 35px;">
   <!-- Botón cruz circular súper delicado -->
@@ -526,7 +527,7 @@
   </div>
   
   <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 25px; font-size: 13px;">
-    {/* Datos dinámicos */}
+    <!-- Datos dinámicos -->
   </div>
 
   <div style="display: flex; gap: 12px;">
