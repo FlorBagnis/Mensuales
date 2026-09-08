@@ -1334,27 +1334,46 @@ body.dark-mode .annual-mini-card strong {
   color: #ffdbe4;
 }
 
-/* Limpieza de los campos de dinero respetando el modo claro y oscuro */
 .money-input {
-  border: 1px solid var(--line) !important;
-  overflow: hidden !important;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 9px;
+  overflow: hidden;
 }
 
 .money-input span {
-  border: none !important;
-  border-right: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
   padding-left: 12px;
+  padding-right: 4px;
   font-weight: 800;
   color: var(--pink-500);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .money-input input {
-  border: none !important;
-  border-left: none !important;
+  border: 0 !important;
+  border-radius: 0;
+  width: 130px;
   background: transparent !important;
-  box-shadow: none !important;
   outline: none !important;
+  box-shadow: none !important;
 }
-  
+
+/* Modo oscuro unificado para los campos de dinero */
+body.dark-mode .money-input {
+  background: #170f16 !important;
+  border-color: #3b2334 !important;
+}
+
+body.dark-mode .money-input span {
+  background: transparent !important;
+  color: #ff9db4 !important;
+}
+
+body.dark-mode .money-input input {
+  background: transparent !important;
+  color: #fceef3 !important;
+}
