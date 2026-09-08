@@ -1334,20 +1334,9 @@ body.dark-mode .annual-mini-card strong {
   color: #ffdbe4;
 }
 
-/* Eliminar cualquier línea, borde interno o sombra en los campos de dinero */
-div.money-input {
-  border: 1px solid #f2cfdf !important;
-  box-shadow: none !important;
-  background: var(--card-bg, #fff) !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-
-/* Forzar la limpieza de los campos de dinero para que no quede ninguna raya */
+/* Limpieza de los campos de dinero respetando el modo claro y oscuro */
 .money-input {
   border: 1px solid var(--line) !important;
-  background: white !important;
   overflow: hidden !important;
 }
 
@@ -1362,20 +1351,6 @@ div.money-input {
 }
 
 .money-input input {
-  border: none !important;
-  border-left: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-div.money-input span {
-  border: none !important;
-  border-right: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-div.money-input input {
   border: none !important;
   border-left: none !important;
   background: transparent !important;
