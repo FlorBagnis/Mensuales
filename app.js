@@ -1579,22 +1579,32 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =========================================================
-// BOTÓN MOSTRAR / OCULTAR CONTRASEÑA (Florcita 🌸 / Candado 🔒)
+// BOTÓN MOSTRAR / OCULTAR CONTRASEÑA (Seguro con Delegación)
 // =========================================================
-const togglePasswordBtn = document.getElementById('togglePasswordBtn');
-const authPasswordInput = document.getElementById('authPassword');
-
-if (togglePasswordBtn && authPasswordInput) {
-  togglePasswordBtn.addEventListener('click', () => {
-    const isPassword = authPasswordInput.type === 'password';
-    authPasswordInput.type = isPassword ? 'text' : 'password';
-    togglePasswordBtn.textContent = isPassword ? '🌸' : '🔒';
-  });
-}
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'togglePasswordBtn') {
+    const authPasswordInput = document.getElementById('authPassword');
+    if (authPasswordInput) {
+      const isPassword = authPasswordInput.type === 'password';
+      authPasswordInput.type = isPassword ? 'text' : 'password';
+      e.target.textContent = isPassword ? '🌸' : '🔒';
+    }
+  }
+});
 
 // =========================================================
 // RESUMEN ANUAL Y EXPORTACIÓN PDF
 // =========================================================
+
+function monthName(monthKey) {
+  try {
+    const [year, month] = monthKey.split('-');
+    const date = new Date(year, month - 1, 1);
+    return date.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+  } catch {
+    return monthKey;
+  }
+}
 
 function calculateAnnualData() {
   const currentYear = new Date().getFullYear().toString();
@@ -1604,7 +1614,12 @@ function calculateAnnualData() {
   let highestMonth = { name: "—", amount: 0 };
   const categoryTotals = {};
 
-  Object.entries(data.months).forEach(([monthKey, monthData]) => {
+  if (!window.data || !window.data.months) {
+    // Fallback por si la estructura de datos global tiene otro nombre
+    return { currentYear, totalARS, totalUSD, monthsCount: 0, avgARS: 0, highestMonth, topCategory: ["—", 0] };
+  }
+
+  Object.entries(window.data.months).forEach(([monthKey, monthData]) => {
     if (!monthKey.startsWith(currentYear)) return;
     monthsCount++;
     
@@ -1679,9 +1694,7 @@ function generateAnnualPDF() {
   const annual = calculateAnnualData();
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
 
-  const pink = [245, 107, 139];
   const dark = [85, 21, 45];
-  const light = [255, 231, 236];
 
   pdf.setFillColor(255, 176, 194);
   pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
