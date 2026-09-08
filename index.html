@@ -160,11 +160,14 @@
           <input id="authEmail" type="email" placeholder="tu@email.com" autocomplete="email" required>
         </label>
 
-        <label>
-          Contraseña
-          <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
-        </label>
-
+       <label>
+  Contraseña
+  <div class="password-wrap">
+    <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
+    <button type="button" id="togglePasswordBtn" class="toggle-password" title="Mostrar/Ocultar contraseña">🔒</button>
+  </div>
+</label>
+        
         <button id="authSubmitBtn" type="submit" class="pastel-btn auth-submit" style="width: 100%;">
           Iniciar sesión
         </button>
