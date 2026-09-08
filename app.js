@@ -1431,3 +1431,17 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCollapsible("toggleTableBtn", document.querySelector(".table-container-collapsible"), "mensuales_table_collapsed", "tabla");
   setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
 });
+
+// Mostrar / Ocultar contraseña con estilo florcita y candado
+const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+const authPasswordInput = document.getElementById('authPassword');
+
+if (togglePasswordBtn && authPasswordInput) {
+  togglePasswordBtn.addEventListener('click', () => {
+    const isPassword = authPasswordInput.type === 'password';
+    authPasswordInput.type = isPassword ? 'text' : 'password';
+    
+    // Cambia entre la florcita 🌸 (texto visible) y el candado 🔒 (oculto)
+    togglePasswordBtn.textContent = isPassword ? '🌸' : '🔒';
+  });
+}
