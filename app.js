@@ -1513,51 +1513,113 @@ function openAnnualModal() {
 }
 
 function generateAnnualPDF() {
-  if (!window.jspdf) {
-    alert("No se pudo cargar el generador de PDF.");
+  const jsPDFLib = window.jspdf?.jsPDF || window.jsPDF;
+  if (!jsPDFLib) {
+    alert("No se pudo cargar el generador de PDF. Verificá tu conexión a internet o si hay algún bloqueador de publicidad activo.");
     return;
   }
 
-  const { jsPDF } = window.jspdf;
   const annual = calculateAnnualData();
-  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const pdf = new jsPDFLib({ unit: "mm", format: "a4" });
 
   const dark = [85, 21, 45];
+  const softPinkBg = [255, 235, 242];
+  const cardBg = [255, 248, 250];
+  const borderPink = [242, 175, 195];
+  const mutedText = [158, 91, 114];
 
+  // 1. Header Banner Femenino y Elegante
   pdf.setFillColor(255, 176, 194);
-  pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
+  pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
 
   pdf.setTextColor(...dark);
-  pdf.setFontSize(17);
+  pdf.setFontSize(15);
   pdf.setFont("helvetica", "bold");
-  pdf.text(`RESUMEN FINANCIERO ANUAL (${annual.currentYear})`, 21, 27);
+  pdf.text(`RESUMEN FINANCIERO ANUAL (${annual.currentYear})`, 21, 25);
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Generado por Flor Bagnis · Mensuales PWA`, 21, 34);
+  pdf.setTextColor(110, 35, 55);
+  pdf.text(`Generado por Flor Bagnis · Mensuales PWA`, 21, 33);
 
-  let y = 52;
-  pdf.setFontSize(11);
-  pdf.text(`• Total Gastado en ARS: ${money(annual.totalARS)}`, 20, y);
-  y += 10;
+  // 2. Grilla de Tarjetas (Estilo Modal Web)
+  const cardWidth = 87;
+  const cardHeight = 24;
+  let startY = 48;
+
+  const cardsData = [
+    { title: "TOTAL GASTADO (ARS)", value: money(annual.totalARS) },
+    { title: "PROMEDIO MENSUAL", value: money(annual.avgARS) },
+    { title: "MES MÁS ALTO", value: `${annual.highestMonth.name} (${money(annual.highestMonth.amount)})` },
+    { title: "CATEGORÍA PRINCIPAL", value: annual.topCategory[0] }
+  ];
+
+  cardsData.forEach((card, index) => {
+    const col = index % 2;
+    const row = Math.floor(index / 2);
+    const x = 15 + col * (cardWidth + 6);
+    const y = startY + row * (cardHeight + 6);
+
+    pdf.setFillColor(...cardBg);
+    pdf.setDrawColor(...borderPink);
+    pdf.roundedRect(x, y, cardWidth, cardHeight, 3, 3, "FD");
+
+    pdf.setTextColor(...mutedText);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(card.title, x + 6, y + 8);
+
+    pdf.setTextColor(...dark);
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(String(card.value), x + 6, y + 17);
+  });
+
+  let currentY = startY + 2 * (cardHeight + 6) + 5;
+
+  // 3. Tarjeta de Gastos en USD (siempre que haya)
   if (annual.totalUSD > 0) {
-    pdf.text(`• Total Gastado en USD: ${money(annual.totalUSD, "USD")}`, 20, y);
-    y += 10;
-  }
-  pdf.text(`• Promedio Mensual: ${money(annual.avgARS)}`, 20, y);
-  y += 10;
-  pdf.text(`• Mes con mayor gasto: ${annual.highestMonth.name} (${money(annual.highestMonth.amount)})`, 20, y);
-  y += 10;
-  pdf.text(`• Categoría con más movimiento: ${annual.topCategory[0]}`, 20, y);
+    pdf.setFillColor(...cardBg);
+    pdf.setDrawColor(...borderPink);
+    pdf.roundedRect(15, currentY, 180, 18, 3, 3, "FD");
 
-  // Pie de página
+    pdf.setTextColor(...mutedText);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("TOTAL GASTADO EN USD", 21, currentY + 6);
+
+    pdf.setTextColor(...dark);
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(money(annual.totalUSD, "USD"), 21, currentY + 13);
+
+    currentY += 24;
+  }
+
+  // 4. Bloque de Análisis / Tendencia con fondo suave
+  pdf.setFillColor(...softPinkBg);
+  pdf.setDrawColor(...borderPink);
+  pdf.roundedRect(15, currentY, 180, 26, 3, 3, "FD");
+
+  pdf.setTextColor(...dark);
+  pdf.setFontSize(9);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Análisis del período", 21, currentY + 7);
+
+  pdf.setFontSize(8);
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(85, 21, 45);
+  const summaryText = `Durante el año ${annual.currentYear}, registraste movimientos en ${annual.monthsCount} meses. Tu mes con mayor actividad financiera fue ${annual.highestMonth.name} y la categoría que acumuló más gastos resultó ser "${annual.topCategory[0]}".`;
+  const splitSummary = pdf.splitTextToSize(summaryText, 168);
+  pdf.text(splitSummary, 21, currentY + 14);
+
+  // Pie de página delicado
   pdf.setFontSize(7);
   pdf.setTextColor(160, 110, 125);
   pdf.text("Resumen Anual · Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
-
 /* =========================================================
    EVENTOS GLOBALES (DELEGACIÓN SEGURO)
 ========================================================= */
