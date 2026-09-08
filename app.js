@@ -1579,6 +1579,20 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =========================================================
+// BOTÓN MOSTRAR / OCULTAR CONTRASEÑA (Florcita 🌸 / Candado 🔒)
+// =========================================================
+const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+const authPasswordInput = document.getElementById('authPassword');
+
+if (togglePasswordBtn && authPasswordInput) {
+  togglePasswordBtn.addEventListener('click', () => {
+    const isPassword = authPasswordInput.type === 'password';
+    authPasswordInput.type = isPassword ? 'text' : 'password';
+    togglePasswordBtn.textContent = isPassword ? '🌸' : '🔒';
+  });
+}
+
+// =========================================================
 // RESUMEN ANUAL Y EXPORTACIÓN PDF
 // =========================================================
 
