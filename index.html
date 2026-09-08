@@ -56,6 +56,32 @@
       box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
     }
 
+    /* --- ESTILOS DEL MODAL ANUAL Y MINI TARJETAS --- */
+    .annual-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .annual-mini-card {
+      background: #fff8fa;
+      border: 1px solid #fde2ec;
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .annual-mini-card span {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9e5b72;
+      letter-spacing: 0.5px;
+    }
+    .annual-mini-card strong {
+      font-size: 16px;
+      color: #5a2337;
+    }
+
     /* --- MODO OSCURO --- */
     body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
     body.dark thead, body.dark th, body.dark .table-wrap th,
@@ -97,10 +123,24 @@
     body.dark-mode .panel,
     body.dark-mode .toolbar,
     body.dark-mode .trend-box,
-    body.dark-mode .auth-card {
+    body.dark-mode .auth-card,
+    body.dark-mode dialog {
       background-color: #2a161d !important;
       color: #ffb6c1 !important;
       border-color: #4e2b37 !important;
+    }
+
+    body.dark-mode .annual-mini-card {
+      background-color: #1f1015 !important;
+      border-color: #4e2b37 !important;
+    }
+
+    body.dark-mode .annual-mini-card span {
+      color: #d195a9 !important;
+    }
+
+    body.dark-mode .annual-mini-card strong {
+      color: #ffb6c1 !important;
     }
 
     body.dark-mode .summary-card strong,
@@ -246,7 +286,7 @@
 <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
 <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
 <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
-<button id="openAnnualBtn" class="btn btn-pink" type="button">🌸 Resumen Anual</button>
+<button id="openAnnualBtn" class="pastel-btn" type="button">🌸 Resumen Anual</button>
 <button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
 <button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
 </section>
@@ -512,7 +552,7 @@
       <button id="submitExpenseBtn" class="pastel-btn" type="submit">Guardar gasto</button>
     </div>
   </form>
-</dialog> <!-- 👈 MODAL DE GASTOS CORRECTAMENTE CERRADO -->
+</dialog>
 
 <dialog id="annualDialog" class="modal" style="border-radius: 28px; border: 1px solid var(--border); padding: 35px;">
   <!-- Botón cruz circular súper delicado -->
@@ -531,8 +571,8 @@
   </div>
 
   <div style="display: flex; gap: 12px;">
-    <button id="annualPdfBtn" class="primary-button" style="width: 100%; border-radius: 14px; padding: 14px;">📥 Descargar PDF</button>
-    <button id="closeAnnualCancelBtn" class="secondary-button" style="width: 100%; border-radius: 14px; padding: 14px;">Cerrar</button>
+    <button id="annualPdfBtn" class="pastel-btn" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">📥 Descargar PDF</button>
+    <button id="closeAnnualCancelBtn" class="btn btn-outline" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">Cerrar</button>
   </div>
 </dialog>
 
