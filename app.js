@@ -265,11 +265,9 @@ function renderMensuales() {
   const prevMonth = previousMonth(month);
   const previous = data.months[prevMonth] || { budget: 0, expenses: [], extraIncomes: [] };
 
-  // Recalcular el presupuesto total sumando todos los ítems de extraIncomes (Presupuesto Base + Ingresos Extra)
-  let calculatedBudget = 0;
+  // Sincronizar presupuesto total sumando todos los ítems de extraIncomes
   if (Array.isArray(current.extraIncomes) && current.extraIncomes.length > 0) {
-    calculatedBudget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-    current.budget = calculatedBudget;
+    current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   }
 
   let totalARS = 0;
@@ -393,7 +391,6 @@ function editExtraIncome(id) {
   if (!item) return;
 
   if (item.isBase) {
-    // Si es el presupuesto base, permitimos editarlo directamente en el input superior o mediante prompt/modal
     const newBudget = prompt("Editar Presupuesto Base del mes:", item.amount);
     if (newBudget === null) return;
     const val = Number(newBudget);
@@ -1335,7 +1332,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isBase: true,
         date: new Date().toISOString().slice(0, 10),
         category: "Presupuesto Base",
-        description: "Ingreso principal del mes",
+        description: "Presupuesto inicial del mes",
         amount: baseVal,
         rawAmount: baseVal,
         currency: "ARS"
@@ -1858,7 +1855,7 @@ function generateAnnualPDF() {
     pdf.setTextColor(...mutedText);
     pdf.setFontSize(7);
     pdf.setFont("helvetica", "bold");
-    pdf.text("TOTAL GASTADO USD", 21, currentY + 6);
+    pdf.text("TOTAL GASTADO EN USD", 21, currentY + 6);
 
     pdf.setTextColor(...dark);
     pdf.setFontSize(11);
