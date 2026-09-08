@@ -511,26 +511,26 @@
       <button id="submitExpenseBtn" class="pastel-btn" type="submit">Guardar gasto</button>
     </div>
   </form>
-</dialog>
 
-  <dialog id="annualDialog" class="modal">
-  <button id="closeAnnualDialog" type="button" style="position: absolute; top: 20px; right: 20px; border: none; background: #ffe3f0; color: #8b7d86; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 18px;">×</button>
+<dialog id="annualDialog" class="modal" style="border-radius: 28px; border: 1px solid var(--border); padding: 35px;">
+  <!-- Botón cruz circular súper delicado -->
+  <button id="closeAnnualDialog" type="button" style="position: absolute; top: 22px; right: 22px; border: none; background: var(--pink-soft); color: var(--pink-dark); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 18px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">×</button>
   
-  <div class="modal-header">
-    <div class="modal-icon">🌸</div>
+  <div class="modal-header" style="margin-bottom: 20px;">
+    <div class="modal-icon" style="background: var(--pink-soft); color: var(--pink); font-size: 24px; border-radius: 16px; width: 50px; height: 50px; display: grid; place-items: center;">🌸</div>
     <div>
-      <h2>Resumen Anual</h2>
-      <p id="annualSubtitle">Análisis completo de tus finanzas</p>
+      <h2 style="font-size: 24px; font-weight: 800; color: var(--text);">Resumen Anual</h2>
+      <p id="annualSubtitle" style="color: var(--muted); font-size: 13px; margin-top: 2px;">Análisis completo de tus finanzas</p>
     </div>
   </div>
   
-  <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 22px; font-size: 13px;">
-    {/* Aquí se cargan los datos dinámicamente */}
+  <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 25px; font-size: 13px;">
+    {/* Datos dinámicos */}
   </div>
 
-  <div style="display: flex; gap: 10px;">
-    <button id="annualPdfBtn" class="primary-button" style="width: 100%;">📥 Descargar PDF Anual</button>
-    <button id="closeAnnualCancelBtn" class="secondary-button" style="width: 100%;">Cerrar</button>
+  <div style="display: flex; gap: 12px;">
+    <button id="annualPdfBtn" class="primary-button" style="width: 100%; border-radius: 14px; padding: 14px;">📥 Descargar PDF</button>
+    <button id="closeAnnualCancelBtn" class="secondary-button" style="width: 100%; border-radius: 14px; padding: 14px;">Cerrar</button>
   </div>
 </dialog>
 
