@@ -1,6 +1,6 @@
 /* =========================================================
-    MENSUALES & GASTOS PRÓXIMOS (SISTEMA UNIFICADO)
-    FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
+   MENSUALES & GASTOS PRÓXIMOS (SISTEMA UNIFICADO)
+   FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
 ========================================================= */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
@@ -60,7 +60,7 @@ const $ = id => document.getElementById(id);
 
 
 /* =========================================================
-    UTILIDADES Y FORMATOS
+   UTILIDADES Y FORMATOS
 ========================================================= */
 
 function money(value, currency = "ARS") {
@@ -124,7 +124,7 @@ function createId(prefix = "expense") {
 
 
 /* =========================================================
-    COTIZACIÓN DÓLAR BLUE
+   COTIZACIÓN DÓLAR BLUE
 ========================================================= */
 
 async function fetchDolarBlue() {
@@ -143,7 +143,7 @@ async function fetchDolarBlue() {
 
 
 /* =========================================================
-    AUTENTICACIÓN
+   AUTENTICACIÓN
 ========================================================= */
 
 function setAuthMessage(message, success = false) {
@@ -198,7 +198,7 @@ onAuthStateChanged(auth, async user => {
 
 
 /* =========================================================
-    FIRESTORE: MENSUALES
+   FIRESTORE: MENSUALES
 ========================================================= */
 
 function ensureMonth(month) {
@@ -249,7 +249,7 @@ function stopAllSync() {
 
 
 /* =========================================================
-    RENDER: MENSUALES
+   RENDER: MENSUALES
 ========================================================= */
 
 function renderMensuales() {
@@ -343,7 +343,6 @@ function renderMensualesExpensesTable(expenses) {
     list = list.filter(e => String(e.category || "").trim().toLowerCase() === targetCat);
   }
 
-  // --- CÁLCULO DE TOTALES SEGÚN EL FILTRADO ACTUAL ---
   let filteredARS = 0;
   let filteredUSD = 0;
   list.forEach(e => {
@@ -357,7 +356,6 @@ function renderMensualesExpensesTable(expenses) {
     tableUSD.style.display = filteredUSD > 0 ? "block" : "none";
     tableUSD.textContent = filteredUSD > 0 ? `+ ${money(filteredUSD, "USD")}` : "";
   }
-  // ---------------------------------------------------
 
   if ($("emptyState")) $("emptyState").style.display = list.length ? "none" : "grid";
 
@@ -491,7 +489,7 @@ function renderTrend(month, totalARS, prevARS, totalUSD) {
 
 
 /* =========================================================
-    FIRESTORE: GASTOS PRÓXIMOS
+   FIRESTORE: GASTOS PRÓXIMOS
 ========================================================= */
 
 function startProximosSync() {
@@ -748,7 +746,7 @@ async function deleteProximo(id) {
 
 
 /* =========================================================
-    EXPORTAR CSV
+   EXPORTAR CSV
 ========================================================= */
 
 function downloadCSV(rows, filename) {
@@ -765,7 +763,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-    REPORTES PDF
+   REPORTES PDF
 ========================================================= */
 
 function generateMensualesPDF() {
@@ -1072,7 +1070,7 @@ function generateProximosPDF() {
 
 
 /* =========================================================
-    INICIALIZACIÓN SEGURA DE EVENTOS
+   INICIALIZACIÓN SEGURA DE EVENTOS
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1430,157 +1428,18 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCollapsible("toggleBudgetBtn", $("budgetContainer"), "mensuales_budget_collapsed", "resumen");
   setupCollapsible("toggleTableBtn", document.querySelector(".table-container-collapsible"), "mensuales_table_collapsed", "tabla");
   setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
-});
 
-// Mostrar / Ocultar contraseña con estilo florcita y candado
-const togglePasswordBtn = document.getElementById('togglePasswordBtn');
-const authPasswordInput = document.getElementById('authPassword');
-
-if (togglePasswordBtn && authPasswordInput) {
-  togglePasswordBtn.addEventListener('click', () => {
-    const isPassword = authPasswordInput.type === 'password';
-    authPasswordInput.type = isPassword ? 'text' : 'password';
-    
-    // Cambia entre la florcita 🌸 (texto visible) y el candado 🔒 (oculto)
-    togglePasswordBtn.textContent = isPassword ? '🌸' : '🔒';
-  });
-}
-
-// =========================================================
-// RESUMEN ANUAL Y EXPORTACIÓN PDF
-// =========================================================
-
-function calculateAnnualData() {
-  const currentYear = new Date().getFullYear().toString();
-  let totalARS = 0;
-  let totalUSD = 0;
-  let monthsCount = 0;
-  let highestMonth = { name: "—", amount: 0 };
-  const categoryTotals = {};
-
-  Object.entries(data.months).forEach(([monthKey, monthData]) => {
-    if (!monthKey.startsWith(currentYear)) return;
-    monthsCount++;
-    
-    let monthARS = 0;
-    let monthUSD = 0;
-
-    (monthData.expenses || []).forEach(e => {
-      const amt = Number(e.amount || 0);
-      if (e.currency === "USD") {
-        monthUSD += amt;
-        totalUSD += amt;
-      } else {
-        monthARS += amt;
-        totalARS += amt;
-      }
-
-      const cat = e.category || "Otros";
-      categoryTotals[cat] = (categoryTotals[cat] || 0) + (e.currency === "USD" ? amt * 1000 : amt); // Estimado agrupado
-    });
-
-    if (monthARS > highestMonth.amount) {
-      highestMonth = { name: monthName(monthKey), amount: monthARS };
-    }
-  });
-
-  const avgARS = monthsCount > 0 ? totalARS / monthsCount : 0;
-  const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
-
-  return { currentYear, totalARS, totalUSD, monthsCount, avgARS, highestMonth, topCategory };
-}
-
-function openAnnualModal() {
-  const annual = calculateAnnualData();
-  const content = $("annualContent");
-  if (!content) return;
-
-  $("annualSubtitle").textContent = `Año ${annual.currentYear} · Basado en ${annual.monthsCount} meses registrados`;
-
-  content.innerHTML = `
-    <div class="annual-card-grid">
-      <div class="annual-mini-card">
-        <span>TOTAL GASTADO (ARS)</span>
-        <strong>${money(annual.totalARS)}</strong>
-      </div>
-      <div class="annual-mini-card">
-        <span>PROMEDIO MENSUAL</span>
-        <strong>${money(annual.avgARS)}</strong>
-      </div>
-    </div>
-    <div class="annual-card-grid">
-      <div class="annual-mini-card">
-        <span>MES MÁS ALTO</span>
-        <strong>${annual.highestMonth.name}</strong>
-      </div>
-      <div class="annual-mini-card">
-        <span>CATEGORÍA PRINCIPAL</span>
-        <strong>${topCategoryName(annual.topCategory[0])}</strong>
-      </div>
-    </div>
-  `;
-
-  $("annualDialog")?.showModal();
-}
-
-function topCategoryName(cat) {
-  return cat;
-}
-
-function generateAnnualPDF() {
-  if (!window.jspdf) {
-    alert("No se pudo cargar el generador de PDF.");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const annual = calculateAnnualData();
-  const pdf = new jsPDF({ unit: "mm", format: "a4" });
-
-  const pink = [245, 107, 139];
-  const dark = [85, 21, 45];
-  const light = [255, 231, 236];
-
-  pdf.setFillColor(255, 176, 194);
-  pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
-
-  pdf.setTextColor(...dark);
-  pdf.setFontSize(17);
-  pdf.setFont("helvetica", "bold");
-  pdf.text(`RESUMEN FINANCIERO ANUAL (${annual.currentYear})`, 21, 27);
-
-  pdf.setFontSize(8);
-  pdf.setFont("helvetica", "normal");
-  pdf.text(`Generado por Flor Bagnis · Mensuales PWA`, 21, 34);
-
-  let y = 52;
-  pdf.setFontSize(11);
-  pdf.text(`• Total Gastado en ARS: ${money(annual.totalARS)}`, 20, y);
-  y += 10;
-  if (annual.totalUSD > 0) {
-    pdf.text(`• Total Gastado en USD: ${money(annual.totalUSD, "USD")}`, 20, y);
-    y += 10;
-  }
-  pdf.text(`• Promedio Mensual: ${money(annual.avgARS)}`, 20, y);
-  y += 10;
-  pdf.text(`• Mes con mayor gasto: ${annual.highestMonth.name} (${money(annual.highestMonth.amount)})`, 20, y);
-  y += 10;
-  pdf.text(`• Categoría con más movimiento: ${annual.topCategory[0]}`, 20, y);
-
-  pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
-}
-
-// Eventos del modal anual dentro del DOMContentLoaded
-document.addEventListener("DOMContentLoaded", () => {
+  // Eventos para abrir y cerrar el modal anual
   $("openAnnualBtn")?.addEventListener("click", openAnnualModal);
   $("closeAnnualDialog")?.addEventListener("click", () => $("annualDialog")?.close());
   $("closeAnnualCancelBtn")?.addEventListener("click", () => $("annualDialog")?.close());
   $("annualPdfBtn")?.addEventListener("click", generateAnnualPDF);
 });
 
-// =========================================================
-// BOTÓN MOSTRAR / OCULTAR CONTRASEÑA (Seguro con Delegación)
-// =========================================================
+
+/* =========================================================
+   BOTÓN MOSTRAR / OCULTAR CONTRASEÑA (Florcita 🌸 / Candado 🔒)
+========================================================= */
 document.addEventListener('click', (e) => {
   if (e.target && e.target.id === 'togglePasswordBtn') {
     const authPasswordInput = document.getElementById('authPassword');
@@ -1592,19 +1451,10 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// =========================================================
-// RESUMEN ANUAL Y EXPORTACIÓN PDF
-// =========================================================
 
-function monthName(monthKey) {
-  try {
-    const [year, month] = monthKey.split('-');
-    const date = new Date(year, month - 1, 1);
-    return date.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
-  } catch {
-    return monthKey;
-  }
-}
+/* =========================================================
+   RESUMEN ANUAL Y EXPORTACIÓN PDF
+========================================================= */
 
 function calculateAnnualData() {
   const currentYear = new Date().getFullYear().toString();
@@ -1614,12 +1464,11 @@ function calculateAnnualData() {
   let highestMonth = { name: "—", amount: 0 };
   const categoryTotals = {};
 
-  if (!window.data || !window.data.months) {
-    // Fallback por si la estructura de datos global tiene otro nombre
+  if (!data || !data.months) {
     return { currentYear, totalARS, totalUSD, monthsCount: 0, avgARS: 0, highestMonth, topCategory: ["—", 0] };
   }
 
-  Object.entries(window.data.months).forEach(([monthKey, monthData]) => {
+  Object.entries(data.months).forEach(([monthKey, monthData]) => {
     if (!monthKey.startsWith(currentYear)) return;
     monthsCount++;
     
@@ -1724,9 +1573,3 @@ function generateAnnualPDF() {
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
-
-// Eventos directos para abrir y cerrar el modal anual
-$("openAnnualBtn")?.addEventListener("click", openAnnualModal);
-$("closeAnnualDialog")?.addEventListener("click", () => $("annualDialog")?.close());
-$("closeAnnualCancelBtn")?.addEventListener("click", () => $("annualDialog")?.close());
-$("annualPdfBtn")?.addEventListener("click", generateAnnualPDF);
