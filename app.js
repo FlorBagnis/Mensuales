@@ -1550,9 +1550,13 @@ function generateAnnualPDF() {
   y += 10;
   pdf.text(`• Categoría con más movimiento: ${annual.topCategory[0]}`, 20, y);
 
+  // Pie de página
+  pdf.setFontSize(7);
+  pdf.setTextColor(160, 110, 125);
+  pdf.text("Resumen Anual · Creado por Flor Bagnis", 15, 287);
+
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
-
 
 /* =========================================================
    EVENTOS GLOBALES (DELEGACIÓN SEGURO)
