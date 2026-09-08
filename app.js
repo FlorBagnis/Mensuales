@@ -1428,32 +1428,12 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCollapsible("toggleBudgetBtn", $("budgetContainer"), "mensuales_budget_collapsed", "resumen");
   setupCollapsible("toggleTableBtn", document.querySelector(".table-container-collapsible"), "mensuales_table_collapsed", "tabla");
   setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
-
-  // Eventos para abrir y cerrar el modal anual
-  $("openAnnualBtn")?.addEventListener("click", openAnnualModal);
-  $("closeAnnualDialog")?.addEventListener("click", () => $("annualDialog")?.close());
-  $("closeAnnualCancelBtn")?.addEventListener("click", () => $("annualDialog")?.close());
-  $("annualPdfBtn")?.addEventListener("click", generateAnnualPDF);
 });
 
 
 /* =========================================================
-   BOTÓN MOSTRAR / OCULTAR CONTRASEÑA (Florcita 🌸 / Candado 🔒)
+   RESUMEN ANUAL Y EXPORTACIÓN PDF
 ========================================================= */
-document.addEventListener('click', (e) => {
-  if (e.target && e.target.id === 'togglePasswordBtn') {
-    const authPasswordInput = document.getElementById('authPassword');
-    if (authPasswordInput) {
-      const isPassword = authPasswordInput.type === 'password';
-      authPasswordInput.type = isPassword ? 'text' : 'password';
-      e.target.textContent = isPassword ? '🌸' : '🔒';
-    }
-  }
-});
-
-// =========================================================
-// RESUMEN ANUAL Y EXPORTACIÓN PDF
-// =========================================================
 
 function calculateAnnualData() {
   const currentYear = new Date().getFullYear().toString();
@@ -1573,17 +1553,19 @@ function generateAnnualPDF() {
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
 
-// =========================================================
-// EVENTOS GLOBALES (DELEGACIÓN SEGURO)
-// =========================================================
+
+/* =========================================================
+   EVENTOS GLOBALES (DELEGACIÓN SEGURO)
+========================================================= */
 document.addEventListener('click', (e) => {
-  // Botón Contraseña (Florcita / Candado)
-  if (e.target && e.target.id === 'togglePasswordBtn') {
+  // Botón Contraseña (Florcita / Candado) - Corregido con .closest()
+  const passwordBtn = e.target.closest('#togglePasswordBtn');
+  if (passwordBtn) {
     const authPasswordInput = document.getElementById('authPassword');
     if (authPasswordInput) {
       const isPassword = authPasswordInput.type === 'password';
       authPasswordInput.type = isPassword ? 'text' : 'password';
-      e.target.textContent = isPassword ? '🌸' : '🔒';
+      passwordBtn.textContent = isPassword ? '🌸' : '🔒';
     }
   }
 
