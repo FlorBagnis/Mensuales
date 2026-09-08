@@ -1334,8 +1334,7 @@ body.dark-mode .annual-mini-card strong {
   color: #ffdbe4;
 }
 
-
-/* CONTENEDOR DE DINERO UNIFICADO */
+/* CORRECCIÓN DEFINITIVA: CAMPOS DE DINERO UNIFICADOS */
 .money-input {
   display: flex !important;
   align-items: center !important;
@@ -1346,24 +1345,41 @@ body.dark-mode .annual-mini-card strong {
 }
 
 .money-input span {
+  background: white !important;
   padding-left: 12px !important;
   padding-right: 4px !important;
   font-weight: 800 !important;
   color: var(--pink-500) !important;
-  background: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
 
 .money-input input {
+  background: white !important;
   border: 0 !important;
   border-radius: 0 !important;
   width: 130px !important;
-  background: transparent !important;
   outline: none !important;
   box-shadow: none !important;
   color: inherit !important;
 }
+
+/* MODO OSCURO ABSOLUTO PARA .money-input (Adiós al parche blanco) */
+body.dark-mode .money-input {
+  background: #170f16 !important;
+  border-color: #3b2334 !important;
+}
+
+body.dark-mode .money-input span {
+  background: #170f16 !important;
+  color: #ff9db4 !important;
+}
+
+body.dark-mode .money-input input {
+  background: #170f16 !important;
+  color: #fceef3 !important;
+}
+
 
 /* MODO OSCURO UNIFICADO PARA LOS CAMPOS DE DINERO */
 body.dark-mode .money-input {
