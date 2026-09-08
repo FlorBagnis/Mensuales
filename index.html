@@ -14,9 +14,7 @@
   <link rel="icon" type="image/png" href="./icono.png">
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Estilos adaptados para Modo Claro, Modo Oscuro, Sombras y Hover de botones -->
   <style>
-    /* --- MODO CLARO --- */
     thead, th, .table-wrap th {
       background-color: #fbc4d4 !important;
       color: #5a2337 !important;
@@ -44,7 +42,6 @@
       box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
     }
 
-    /* Efecto hover con rosita clarito, movimiento y sombra para botones outline y Borrar mes en Modo Claro */
     .btn-outline, .btn-danger {
       transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
     }
@@ -56,7 +53,6 @@
       box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
     }
 
-    /* --- ESTILOS DEL MODAL ANUAL Y MINI TARJETAS --- */
     .annual-card-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -82,7 +78,6 @@
       color: #5a2337;
     }
 
-    /* --- MODO OSCURO --- */
     body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
     body.dark thead, body.dark th, body.dark .table-wrap th,
     body.dark-mode thead, body.dark-mode th, body.dark-mode .table-wrap th {
@@ -101,14 +96,12 @@
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
     }
 
-    /* Botón Borrar mes y danger en Modo Oscuro */
     body.dark-theme .btn-danger, body.dark .btn-danger, body.dark-mode .btn-danger {
       background-color: #3d222b !important;
       color: #ffb6c1 !important;
       border: 1px solid #6b3b4a !important;
     }
 
-    /* Hover con sombra para botones outline y Borrar mes en Modo Oscuro */
     body.dark-theme .btn-outline:hover, body.dark .btn-outline:hover, body.dark-mode .btn-outline:hover,
     body.dark-theme .btn-danger:hover, body.dark .btn-danger:hover, body.dark-mode .btn-danger:hover {
       background-color: #3d222b !important;
@@ -118,7 +111,6 @@
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
     }
 
-    /* --- CORRECCIONES EXTRAS PARA MODO OSCURO --- */
     body.dark-mode .summary-card,
     body.dark-mode .panel,
     body.dark-mode .toolbar,
@@ -160,12 +152,10 @@
       color: #a37584 !important;
     }
 
-    /* Forzar tarjetas de resumen limpias en modo oscuro */
     body.dark-mode .summary-card {
       background-color: #2a161d !important;
     }
 
-    /* ELIMINAR COMPLETAMENTE EL RECUADRO DE OCULTAR MONTOS EN MODO OSCURO */
     body.dark-mode.amounts-hidden strong,
     body.amounts-hidden.dark-mode strong,
     body.dark-mode .amounts-hidden strong,
@@ -185,9 +175,7 @@
 
 <main class="app">
 
-  <!-- ==============================
-        LOGIN / REGISTRO
-  ================ -->
+  <!-- LOGIN / REGISTRO -->
   <section id="authSection" class="auth-section">
     <div class="auth-card">
       <div class="auth-logo">♡</div>
@@ -202,12 +190,12 @@
         </label>
 
        <label>
-  Contraseña
-  <div class="password-wrap">
-    <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
-    <button type="button" id="togglePasswordBtn" class="toggle-password" title="Mostrar/Ocultar contraseña">🔒</button>
-  </div>
-</label>
+          Contraseña
+          <div class="password-wrap">
+            <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
+            <button type="button" id="togglePasswordBtn" class="toggle-password" title="Mostrar/Ocultar contraseña">🔒</button>
+          </div>
+        </label>
         
         <button id="authSubmitBtn" type="submit" class="pastel-btn auth-submit" style="width: 100%;">
           Iniciar sesión
@@ -222,44 +210,32 @@
     </div>
   </section>
 
-
-  <!-- ==============================
-        APLICACIÓN PRINCIPAL
-  ================ -->
+  <!-- APLICACIÓN PRINCIPAL -->
   <section id="appContent" class="hidden">
 
-    <!-- HERO HEADER -->
     <header class="hero">
       <div>
         <p class="eyebrow">MI ORGANIZACIÓN 💗</p>
         <h1>Control de Gastos</h1>
         <p class="subtitle">Presupuesto mensual y control de egresos.</p>
         
-   <div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878); white-space: nowrap; letter-spacing: normal; -webkit-text-size-adjust: 100%;">
-💵 Dólar Blue: cargando...
-</div>
+        <div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878); white-space: nowrap;">
+          💵 Dólar Blue: cargando...
+        </div>
       </div>
 
       <div class="header-actions" style="margin-top: 12px;">
         <span id="userEmail" class="user-email"></span>
-        
-        <!-- Botón de Próximos -->
-        <a href="https://gastos-proximos.vercel.app/" class="pastel-btn">
-          🌸 Próximos & Deudas
-        </a>
-
+        <a href="https://gastos-proximos.vercel.app/" class="pastel-btn">🌸 Próximos & Deudas</a>
         <button id="logoutBtn" class="btn btn-dark" type="button">Cerrar sesión</button>
       </div>
     </header>
 
-    <!-- CONTROLES GENERALES -->
     <div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
       <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
       <button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
     </div>
 
-
-    <!-- VISTA: MENSUALES -->
     <div id="viewMensuales">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
         <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
@@ -273,26 +249,24 @@
             <input id="monthPicker" type="month">
           </div>
 
-<div class="field">
-  <label for="budgetInput">PRESUPUESTO</label>
-  <div class="money-input">
-    <span>$</span>
-    <input id="budgetInput" type="number" min="0" step="0.01" placeholder="0">
-  </div>
-</div>
+          <div class="field">
+            <label for="budgetInput">PRESUPUESTO</label>
+            <div class="money-input">
+              <span>$</span>
+              <input id="budgetInput" type="number" min="0" step="0.01" placeholder="0">
+            </div>
+          </div>
 
-<button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
-<button id="openExtraModalBtn" class="btn btn-outline" type="button" title="Sumar ingreso extra">➕ Sumar dinero extra</button>
-    
-<button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
-<button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
-<button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
-<button id="openAnnualBtn" class="pastel-btn" type="button">🌸 Resumen Anual</button>
-<button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
-<button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
-</section>
-
-        
+          <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
+          <button id="openExtraModalBtn" class="btn btn-outline" type="button" title="Sumar ingreso extra">➕ Sumar dinero extra</button>
+              
+          <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
+          <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
+          <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
+          <button id="openAnnualBtn" class="pastel-btn" type="button">🌸 Resumen Anual</button>
+          <button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
+          <button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
+        </section>
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 0.5rem;">
@@ -307,19 +281,16 @@
             <strong id="totalSpent">$0,00</strong>
             <small id="expenseCount">0 gastos registrados</small>
           </article>
-
           <article class="summary-card">
             <span>MES ANTERIOR</span>
             <strong id="previousSpent">$0,00</strong>
             <small id="previousMonthLabel">—</small>
           </article>
-
           <article class="summary-card">
             <span>DIFERENCIA</span>
             <strong id="difference">—</strong>
             <small id="differenceLabel">Sin datos comparables</small>
           </article>
-
           <article class="summary-card">
             <span>PRESUPUESTO</span>
             <strong id="budgetTotal">$0,00</strong>
@@ -337,7 +308,6 @@
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <input type="search" id="searchMensualesInput" placeholder="🔍 Buscar gasto..." style="padding: 6px 14px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem;">
             
-            <!-- Selector con ID estricto -->
             <select id="filterCategorySelect" style="padding: 6px 12px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem; background: #fff; color: #555; cursor: pointer;">
               <option value="">Todas las categorías</option>
               <option value="Alimentos">Alimentos</option>
@@ -442,7 +412,6 @@
 
   </section>
 
-  <!-- Script anti-flicker instantáneo (se ejecuta antes del primer paint del navegador) -->
   <script>
     try {
       if (localStorage.getItem('user_logged_in') === 'true') {
@@ -478,9 +447,8 @@
 
   <button id="submitExtraBtn" class="pastel-btn" style="width: 100%; border-radius: 12px; padding: 12px; justify-content: center;">Confirmar y sumar</button>
 </dialog>
-
   
-<!-- MODAL -->
+<!-- MODAL GASTOS (Actualizado con IMPUTAR AL MES) -->
 <dialog id="expenseDialog">
   <form id="expenseForm" class="modal">
     <button id="closeDialog" type="button" class="close" aria-label="Cerrar">×</button>
@@ -489,10 +457,18 @@
       <h2 id="modalTitle">Agregar gasto</h2>
     </div>
 
-    <label>
-      Fecha
-      <input id="expenseDate" type="date" required>
-    </label>
+    <!-- FECHA REAL E IMPUTAR AL MES -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <label style="margin-bottom: 0;">
+        Fecha real
+        <input id="expenseDate" type="date" required>
+      </label>
+
+      <label style="margin-bottom: 0;">
+        Imputar al mes
+        <input id="expenseTargetMonth" type="month" required style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card-bg); color: var(--text); font-size: 13px;">
+      </label>
+    </div>
 
     <label>
       Descripción
@@ -581,8 +557,8 @@
   </form>
 </dialog>
 
+<!-- MODAL RESUMEN ANUAL -->
 <dialog id="annualDialog" style="border-radius: 28px; border: 1px solid var(--border); padding: 35px;">
-  <!-- Botón cruz circular súper delicado -->
   <button id="closeAnnualDialog" type="button" style="position: absolute; top: 22px; right: 22px; border: none; background: var(--pink-soft); color: var(--pink-dark); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 18px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">×</button>
   
   <div class="modal-header" style="margin-bottom: 20px;">
@@ -593,9 +569,7 @@
     </div>
   </div>
   
-  <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 25px; font-size: 13px;">
-    <!-- Datos dinámicos -->
-  </div>
+  <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 25px; font-size: 13px;"></div>
 
   <div style="display: flex; gap: 12px;">
     <button id="annualPdfBtn" class="pastel-btn" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">📥 Descargar PDF</button>
