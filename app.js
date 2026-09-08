@@ -48,6 +48,7 @@ let currentUser = null;
 let unsubscribeMonths = null;
 let unsubscribeProximos = null;
 let authMode = "login";
+let currentDolarBlue = 0; // Guardará la cotización del dólar blue
 
 // Datos
 let data = { months: {} };
@@ -134,6 +135,7 @@ async function fetchDolarBlue() {
     const res = await fetch("https://dolarapi.com/v1/dolares/blue");
     const json = await res.json();
     if (json?.venta) {
+      currentDolarBlue = Number(json.venta);
       badge.textContent = `💵 Dólar Blue: $${json.venta}`;
     }
   } catch (err) {
@@ -1212,6 +1214,52 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Presupuesto guardado correctamente.");
   });
 
+  // Lógica para sumar dinero extra (ARS o USD con conversión automática por Dólar Blue)
+  $("addExtraBudgetBtn")?.addEventListener("click", async () => {
+    const month = $("monthPicker")?.value;
+    if (!month) return;
+    
+    const rawVal = Number($("extraBudgetInput")?.value || 0);
+    if (rawVal <= 0) {
+      alert("Ingresá un monto válido para sumar.");
+      return;
+    }
+
+    const currency = $("extraBudgetCurrency")?.value || "ARS";
+    let finalVal = rawVal;
+
+    if (currency === "USD") {
+      if (currentDolarBlue <= 0) {
+        try {
+          const res = await fetch("https://dolarapi.com/v1/dolares/blue");
+          const json = await res.json();
+          if (json?.venta) currentDolarBlue = Number(json.venta);
+        } catch(e) {}
+      }
+
+      if (currentDolarBlue > 0) {
+        finalVal = rawVal * currentDolarBlue;
+        if (!confirm(`Vas a sumar USD ${rawVal} convertidos a pesos (${money(finalVal)}) usando la cotización del Dólar Blue de hoy ($${currentDolarBlue}). ¿Confirmás?`)) {
+          return;
+        }
+      } else {
+        const customRate = prompt("No se pudo obtener el Dólar Blue automáticamente. Ingresá a cuánto querés tomar el dólar:", "1200");
+        if (!customRate) return;
+        finalVal = rawVal * Number(customRate);
+      }
+    }
+
+    const current = ensureMonth(month);
+    current.budget = Number(current.budget || 0) + finalVal;
+
+    if ($("budgetInput")) $("budgetInput").value = current.budget;
+    if ($("extraBudgetInput")) $("extraBudgetInput").value = "";
+
+    renderMensuales();
+    await saveMonthToFirestore(month);
+    alert(`✓ Se sumaron ${currency === "USD" ? `USD ${rawVal} (${money(finalVal)})` : money(finalVal)} a tu presupuesto con éxito.`);
+  });
+
   $("addExpenseBtn")?.addEventListener("click", () => {
     $("expenseForm")?.reset();
     if ($("expenseForm")) delete $("expenseForm").dataset.editingId;
@@ -1620,6 +1668,8 @@ function generateAnnualPDF() {
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
+
+
 /* =========================================================
    EVENTOS GLOBALES (DELEGACIÓN SEGURO)
 ========================================================= */
