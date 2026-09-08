@@ -1578,3 +1578,128 @@ document.addEventListener("DOMContentLoaded", () => {
   $("annualPdfBtn")?.addEventListener("click", generateAnnualPDF);
 });
 
+// =========================================================
+// RESUMEN ANUAL Y EXPORTACIÓN PDF
+// =========================================================
+
+function calculateAnnualData() {
+  const currentYear = new Date().getFullYear().toString();
+  let totalARS = 0;
+  let totalUSD = 0;
+  let monthsCount = 0;
+  let highestMonth = { name: "—", amount: 0 };
+  const categoryTotals = {};
+
+  Object.entries(data.months).forEach(([monthKey, monthData]) => {
+    if (!monthKey.startsWith(currentYear)) return;
+    monthsCount++;
+    
+    let monthARS = 0;
+    let monthUSD = 0;
+
+    (monthData.expenses || []).forEach(e => {
+      const amt = Number(e.amount || 0);
+      if (e.currency === "USD") {
+        monthUSD += amt;
+        totalUSD += amt;
+      } else {
+        monthARS += amt;
+        totalARS += amt;
+      }
+
+      const cat = e.category || "Otros";
+      categoryTotals[cat] = (categoryTotals[cat] || 0) + (e.currency === "USD" ? amt * 1000 : amt);
+    });
+
+    if (monthARS > highestMonth.amount) {
+      highestMonth = { name: monthName(monthKey), amount: monthARS };
+    }
+  });
+
+  const avgARS = monthsCount > 0 ? totalARS / monthsCount : 0;
+  const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
+
+  return { currentYear, totalARS, totalUSD, monthsCount, avgARS, highestMonth, topCategory };
+}
+
+function openAnnualModal() {
+  const annual = calculateAnnualData();
+  const content = $("annualContent");
+  if (!content) return;
+
+  $("annualSubtitle").textContent = `Año ${annual.currentYear} · Basado en ${annual.monthsCount} meses registrados`;
+
+  content.innerHTML = `
+    <div class="annual-card-grid">
+      <div class="annual-mini-card">
+        <span>TOTAL GASTADO (ARS)</span>
+        <strong>${money(annual.totalARS)}</strong>
+      </div>
+      <div class="annual-mini-card">
+        <span>PROMEDIO MENSUAL</span>
+        <strong>${money(annual.avgARS)}</strong>
+      </div>
+    </div>
+    <div class="annual-card-grid">
+      <div class="annual-mini-card">
+        <span>MES MÁS ALTO</span>
+        <strong>${annual.highestMonth.name}</strong>
+      </div>
+      <div class="annual-mini-card">
+        <span>CATEGORÍA PRINCIPAL</span>
+        <strong>${annual.topCategory[0]}</strong>
+      </div>
+    </div>
+  `;
+
+  $("annualDialog")?.showModal();
+}
+
+function generateAnnualPDF() {
+  if (!window.jspdf) {
+    alert("No se pudo cargar el generador de PDF.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const annual = calculateAnnualData();
+  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+
+  const pink = [245, 107, 139];
+  const dark = [85, 21, 45];
+  const light = [255, 231, 236];
+
+  pdf.setFillColor(255, 176, 194);
+  pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
+
+  pdf.setTextColor(...dark);
+  pdf.setFontSize(17);
+  pdf.setFont("helvetica", "bold");
+  pdf.text(`RESUMEN FINANCIERO ANUAL (${annual.currentYear})`, 21, 27);
+
+  pdf.setFontSize(8);
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Generado por Flor Bagnis · Mensuales PWA`, 21, 34);
+
+  let y = 52;
+  pdf.setFontSize(11);
+  pdf.text(`• Total Gastado en ARS: ${money(annual.totalARS)}`, 20, y);
+  y += 10;
+  if (annual.totalUSD > 0) {
+    pdf.text(`• Total Gastado en USD: ${money(annual.totalUSD, "USD")}`, 20, y);
+    y += 10;
+  }
+  pdf.text(`• Promedio Mensual: ${money(annual.avgARS)}`, 20, y);
+  y += 10;
+  pdf.text(`• Mes con mayor gasto: ${annual.highestMonth.name} (${money(annual.highestMonth.amount)})`, 20, y);
+  y += 10;
+  pdf.text(`• Categoría con más movimiento: ${annual.topCategory[0]}`, 20, y);
+
+  pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
+}
+
+// Eventos directos para abrir y cerrar el modal anual
+$("openAnnualBtn")?.addEventListener("click", openAnnualModal);
+$("closeAnnualDialog")?.addEventListener("click", () => $("annualDialog")?.close());
+$("closeAnnualCancelBtn")?.addEventListener("click", () => $("annualDialog")?.close());
+$("annualPdfBtn")?.addEventListener("click", generateAnnualPDF);
