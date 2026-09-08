@@ -48,7 +48,7 @@ let currentUser = null;
 let unsubscribeMonths = null;
 let unsubscribeProximos = null;
 let authMode = "login";
-let currentDolarBlue = 0; // Guardará la cotización del dólar blue
+let currentDolarBlue = 0;
 
 // Datos
 let data = { months: {} };
@@ -1214,18 +1214,27 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Presupuesto guardado correctamente.");
   });
 
-  // Lógica para sumar dinero extra (ARS o USD con conversión automática por Dólar Blue)
-  $("addExtraBudgetBtn")?.addEventListener("click", async () => {
+  // LÓGICA DEL MODAL DE INGRESO EXTRA (Integrada correctamente)
+  $("openExtraModalBtn")?.addEventListener("click", () => {
+    if ($("modalExtraInput")) $("modalExtraInput").value = "";
+    $("extraDialog")?.showModal();
+  });
+
+  $("closeExtraDialog")?.addEventListener("click", () => {
+    $("extraDialog")?.close();
+  });
+
+  $("submitExtraBtn")?.addEventListener("click", async () => {
     const month = $("monthPicker")?.value;
     if (!month) return;
     
-    const rawVal = Number($("extraBudgetInput")?.value || 0);
+    const rawVal = Number($("modalExtraInput")?.value || 0);
     if (rawVal <= 0) {
       alert("Ingresá un monto válido para sumar.");
       return;
     }
 
-    const currency = $("extraBudgetCurrency")?.value || "ARS";
+    const currency = $("modalExtraCurrency")?.value || "ARS";
     let finalVal = rawVal;
 
     if (currency === "USD") {
@@ -1253,11 +1262,11 @@ document.addEventListener("DOMContentLoaded", () => {
     current.budget = Number(current.budget || 0) + finalVal;
 
     if ($("budgetInput")) $("budgetInput").value = current.budget;
-    if ($("extraBudgetInput")) $("extraBudgetInput").value = "";
 
     renderMensuales();
     await saveMonthToFirestore(month);
-    alert(`✓ Se sumaron ${currency === "USD" ? `USD ${rawVal} (${money(finalVal)})` : money(finalVal)} a tu presupuesto con éxito.`);
+    $("extraDialog")?.close();
+    alert(`✓ Se sumaron ${currency === "USD" ? `USD ${rawVal} (${money(finalVal)})` : money(rawVal)} a tu presupuesto con éxito.`);
   });
 
   $("addExpenseBtn")?.addEventListener("click", () => {
