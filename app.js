@@ -202,7 +202,10 @@ onAuthStateChanged(auth, async user => {
 
 function ensureMonth(month) {
   if (!data.months[month]) {
-    data.months[month] = { budget: 0, expenses: [] };
+    data.months[month] = { budget: 0, expenses: [], extraIncomes: [] };
+  }
+  if (!data.months[month].extraIncomes) {
+    data.months[month].extraIncomes = [];
   }
   return data.months[month];
 }
@@ -217,7 +220,8 @@ function startMonthsSync() {
         const v = docSnap.data();
         months[docSnap.id] = {
           budget: Number(v.budget || 0),
-          expenses: Array.isArray(v.expenses) ? v.expenses : []
+          expenses: Array.isArray(v.expenses) ? v.expenses : [],
+          extraIncomes: Array.isArray(v.extraIncomes) ? v.extraIncomes : []
         };
       });
       data.months = months;
@@ -235,7 +239,11 @@ async function saveMonthToFirestore(month) {
   try {
     const docRef = doc(db, "users", currentUser.uid, "months", month);
     const m = ensureMonth(month);
-    await setDoc(docRef, { budget: Number(m.budget || 0), expenses: m.expenses }, { merge: true });
+    await setDoc(docRef, { 
+      budget: Number(m.budget || 0), 
+      expenses: m.expenses,
+      extraIncomes: m.extraIncomes || []
+    }, { merge: true });
   } catch (e) {
     console.error("Error guardando mes:", e);
   }
@@ -255,7 +263,7 @@ function renderMensuales() {
   const month = $("monthPicker")?.value || currentMonthValue();
   const current = ensureMonth(month);
   const prevMonth = previousMonth(month);
-  const previous = data.months[prevMonth] || { budget: 0, expenses: [] };
+  const previous = data.months[prevMonth] || { budget: 0, expenses: [], extraIncomes: [] };
 
   let totalARS = 0;
   let totalUSD = 0;
@@ -319,10 +327,65 @@ function renderMensuales() {
   }
 
   renderMensualesExpensesTable(current.expenses);
+  renderExtraIncomesTable(current.extraIncomes);
   renderHistory();
   renderCategories(current.expenses);
   renderTrend(month, totalARS, prevARS, totalUSD);
 }
+
+function renderExtraIncomesTable(extraIncomes) {
+  const tbody = $("extraIncomeTableBody");
+  const totalBadge = $("extraTotalSumDisplay");
+  
+  if (!tbody) return;
+
+  if (!extraIncomes || extraIncomes.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos extra cargados este mes.</td></tr>`;
+    if (totalBadge) totalBadge.textContent = 'Total Extra: $0.00';
+    return;
+  }
+
+  let totalSum = 0;
+
+  tbody.innerHTML = extraIncomes.map(item => {
+    totalSum += Number(item.amount || 0);
+    const curr = item.currency || "ARS";
+    const amountText = curr === "USD" ? `${money(item.rawAmount, "USD")} (${money(item.amount)})` : money(item.amount);
+    return `
+      <tr>
+        <td><span class="category">${escapeHtml(item.category)}</span> ${item.description ? `— <strong>${escapeHtml(item.description)}</strong>` : ""}</td>
+        <td>${formatDate(item.date)}</td>
+        <td class="amount result-good" style="text-align: right;">+ ${amountText}</td>
+        <td style="text-align: right;">
+          <button class="delete-btn" onclick="deleteExtraIncome('${item.id}')" title="Eliminar">🗑️</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  if (totalBadge) {
+    totalBadge.textContent = `Total Extra: ${money(totalSum)}`;
+  }
+}
+
+window.deleteExtraIncome = async function(id) {
+  const month = $("monthPicker")?.value;
+  const current = data.months[month];
+  if (!current || !Array.isArray(current.extraIncomes)) return;
+
+  const item = current.extraIncomes.find(x => x.id === id);
+  if (!item) return;
+
+  if (!confirm(`¿Eliminar el ingreso de "${item.category}" por ${money(item.amount)}? Esto restará el monto del presupuesto del mes.`)) return;
+
+  current.extraIncomes = current.extraIncomes.filter(x => x.id !== id);
+  current.budget = Math.max(0, Number(current.budget || 0) - Number(item.amount || 0));
+
+  if ($("budgetInput")) $("budgetInput").value = current.budget;
+
+  renderMensuales();
+  await saveMonthToFirestore(month);
+};
 
 function renderMensualesExpensesTable(expenses) {
   const table = $("expenseTable");
@@ -1214,6 +1277,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   $("openExtraModalBtn")?.addEventListener("click", () => {
     if ($("modalExtraInput")) $("modalExtraInput").value = "";
+    if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
+    if ($("modalExtraCategory")) $("modalExtraCategory").value = "Sueldo";
     $("extraDialog")?.showModal();
   });
 
@@ -1231,6 +1296,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const category = $("modalExtraCategory")?.value || "Otro";
+    const description = $("modalExtraDescription")?.value.trim() || "";
     const currency = $("modalExtraCurrency")?.value || "ARS";
     let finalVal = rawVal;
 
@@ -1257,13 +1324,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const current = ensureMonth(month);
     current.budget = Number(current.budget || 0) + finalVal;
+    
+    if (!Array.isArray(current.extraIncomes)) current.extraIncomes = [];
+    current.extraIncomes.push({
+      id: createId("extra"),
+      date: new Date().toISOString().slice(0, 10),
+      category: category,
+      description: description,
+      amount: finalVal,
+      rawAmount: rawVal,
+      currency: currency
+    });
 
     if ($("budgetInput")) $("budgetInput").value = current.budget;
 
     renderMensuales();
     await saveMonthToFirestore(month);
+    
+    if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
+    if ($("modalExtraInput")) $("modalExtraInput").value = "";
     $("extraDialog")?.close();
-    alert(`✓ Se sumaron ${currency === "USD" ? `USD ${rawVal} (${money(finalVal)})` : money(rawVal)} a tu presupuesto con éxito.`);
+    alert(`✓ Se sumaron ${currency === "USD" ? `USD ${rawVal} (${money(finalVal)})` : money(rawVal)} (${category}) a tu presupuesto con éxito.`);
   });
 
   $("addExpenseBtn")?.addEventListener("click", () => {
