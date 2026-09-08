@@ -1285,3 +1285,40 @@ body.dark-mode .gp-btn-action {
 .toggle-password:hover {
   transform: scale(1.1);
 }
+
+/* ==============================
+   MODAL RESUMEN ANUAL
+=============================== */
+.annual-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.annual-mini-card {
+  background: var(--pink-light);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.annual-mini-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.annual-mini-card strong {
+  font-size: 18px;
+  color: var(--pink-dark);
+}
+
+body.dark-mode .annual-mini-card {
+  background: #2b1c2a;
+  border-color: #3b2334;
+}
+body.dark-mode .annual-mini-card strong {
+  color: #ffdbe4;
+}
