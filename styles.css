@@ -1343,6 +1343,31 @@ div.money-input {
   align-items: center !important;
 }
 
+
+/* Forzar la limpieza de los campos de dinero para que no quede ninguna raya */
+.money-input {
+  border: 1px solid var(--line) !important;
+  background: white !important;
+  overflow: hidden !important;
+}
+
+.money-input span {
+  border: none !important;
+  border-right: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding-left: 12px;
+  font-weight: 800;
+  color: var(--pink-500);
+}
+
+.money-input input {
+  border: none !important;
+  border-left: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
 div.money-input span {
   border: none !important;
   border-right: none !important;
