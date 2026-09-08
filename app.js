@@ -346,7 +346,9 @@ function renderExtraIncomesTable(extraIncomes) {
 
   if (!extraIncomes || extraIncomes.length === 0) {
     tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos ni presupuesto cargados este mes.</td></tr>`;
-    if (totalBadge) totalBadge.textContent = 'Total Ingresos: $0,00';
+    if (totalBadge) {
+      totalBadge.textContent = document.body.classList.contains("amounts-hidden") ? "Total Ingresos: ••••••" : "Total Ingresos: $0,00";
+    }
     return;
   }
 
@@ -371,7 +373,11 @@ function renderExtraIncomesTable(extraIncomes) {
   }).join('');
 
   if (totalBadge) {
-    totalBadge.textContent = `Total Ingresos: ${money(totalSum)}`;
+    if (document.body.classList.contains("amounts-hidden")) {
+      totalBadge.textContent = "Total Ingresos: ••••••";
+    } else {
+      totalBadge.textContent = `Total Ingresos: ${money(totalSum)}`;
+    }
   }
 
   tbody.querySelectorAll(".edit-btn").forEach(btn => {
@@ -1667,6 +1673,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const hidden = document.body.classList.toggle("amounts-hidden");
     localStorage.setItem("mensuales_hide_amounts", hidden);
     toggleAmountsBtn.textContent = hidden ? "👁️ Mostrar montos" : "👁️ Ocultar montos";
+    renderMensuales(); // Forzar re-render para ocultar o mostrar el total de ingresos al instante
   });
 
   const toggleThemeBtn = $("toggleThemeBtn");
@@ -1919,15 +1926,3 @@ document.addEventListener('click', (e) => {
     generateAnnualPDF();
   }
 });
-
-// --- PARCHE AUTOMÁTICO PARA OCULTAR TOTAL DE INGRESOS ---
-const observerExtraBadge = new MutationObserver(() => {
-  const badge = document.getElementById("extraTotalSumDisplay");
-  if (badge && document.body.classList.contains("amounts-hidden")) {
-    if (!badge.textContent.includes("••••••")) {
-      badge.textContent = "Total Ingresos: ••••••";
-    }
-  }
-});
-observerExtraBadge.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-
