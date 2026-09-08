@@ -1451,10 +1451,9 @@ document.addEventListener('click', (e) => {
   }
 });
 
-
-/* =========================================================
-   RESUMEN ANUAL Y EXPORTACIÓN PDF
-========================================================= */
+// =========================================================
+// RESUMEN ANUAL Y EXPORTACIÓN PDF
+// =========================================================
 
 function calculateAnnualData() {
   const currentYear = new Date().getFullYear().toString();
@@ -1573,3 +1572,38 @@ function generateAnnualPDF() {
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
+
+// =========================================================
+// EVENTOS GLOBALES (DELEGACIÓN SEGURO)
+// =========================================================
+document.addEventListener('click', (e) => {
+  // Botón Contraseña (Florcita / Candado)
+  if (e.target && e.target.id === 'togglePasswordBtn') {
+    const authPasswordInput = document.getElementById('authPassword');
+    if (authPasswordInput) {
+      const isPassword = authPasswordInput.type === 'password';
+      authPasswordInput.type = isPassword ? 'text' : 'password';
+      e.target.textContent = isPassword ? '🌸' : '🔒';
+    }
+  }
+
+  // Abrir Modal Resumen Anual
+  if (e.target && e.target.id === 'openAnnualBtn') {
+    openAnnualModal();
+  }
+
+  // Cerrar Modal Resumen Anual (Cruz)
+  if (e.target && e.target.id === 'closeAnnualDialog') {
+    $("annualDialog")?.close();
+  }
+
+  // Cerrar Modal Resumen Anual (Botón Cerrar)
+  if (e.target && e.target.id === 'closeAnnualCancelBtn') {
+    $("annualDialog")?.close();
+  }
+
+  // Descargar PDF Anual
+  if (e.target && e.target.id === 'annualPdfBtn') {
+    generateAnnualPDF();
+  }
+});
