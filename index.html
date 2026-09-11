@@ -268,6 +268,7 @@
 
     <div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
       <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
+      <button id="toggleBlueThemeBtn" class="btn btn-outline btn-sm">🔹 Modo Azul</button>
       <button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
     </div>
 
@@ -534,6 +535,27 @@
     </label>
   </div>
 
+<!-- Opciones de recurrencia para Ingresos Extra -->
+<div class="form-group" style="margin-top: 12px;">
+  <input type="checkbox" id="extraRecurring">
+  <label for="extraRecurring">🔄 Repetir este ingreso</label>
+</div>
+
+<div id="extraRecurringOptions" class="hidden" style="background: var(--pink-bg); padding: 10px; border-radius: 8px; margin-top: 8px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+    <label style="font-size: 11px;">Meses a repetir: <input type="number" id="extraDuration" value="6" min="1" max="24" style="width:100%; padding:4px;"></label>
+    <label style="font-size: 11px;">Cada cuántos meses: <input type="number" id="extraMonths" value="1" min="1" max="12" style="width:100%; padding:4px;"></label>
+  </div>
+  <div style="margin-bottom: 8px;">
+    <label style="font-size: 11px;">Día del mes: <input type="number" id="extraDay" value="10" min="1" max="31" style="width:100%; padding:4px;"></label>
+  </div>
+  <div>
+    <input type="checkbox" id="extraChangingAmount">
+    <label for="extraChangingAmount" style="font-size: 11px;">Montos variables por mes</label>
+  </div>
+  <div id="extraRecurringAmounts" class="hidden" style="margin-top: 6px;"></div>
+</div>
+  
   <!-- BOTONES DE ACCIÓN -->
   <div style="display: flex; justify-content: flex-end; gap: 8px;">
     <button type="button" class="btn btn-outline" onclick="document.getElementById('extraDialog').close()">Cancelar</button>
@@ -624,7 +646,7 @@
             Día del mes
             <input id="recurringDay" type="number" min="1" max="31" value="10">
           </label>
-
+          
           <label>
             Durante
             <div class="inline-input">
