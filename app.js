@@ -36,10 +36,10 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
-// HABILITA LA INSTALACIÓN COMO APP (PWA)
+// REGISTRO INMEDIATO DE SERVICE WORKER PARA PWA
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("./sw.js")
-    .then(r => console.log("PWA instalable lista:", r.scope))
+    .then(r => console.log("PWA lista:", r.scope))
     .catch(e => console.log("SW:", e));
 }
 
@@ -424,8 +424,8 @@ function renderExtraIncomesTable(extraIncomes) {
         <td>${formatDate(item.date)}</td>
         <td class="amount result-good" style="text-align: right;">+ ${amountText}</td>
         <td style="text-align: right; white-space: nowrap;">
-          <button class="edit-btn" data-id="${item.id}" type="button" title="Editar">✏️</button>
-          <button class="delete-btn" data-id="${item.id}" type="button" title="Eliminar">×</button>
+          <button class="btn btn-outline btn-sm edit-btn" data-id="${item.id}" type="button" title="Editar">✏️</button>
+          <button class="btn btn-outline btn-sm delete-btn" data-id="${item.id}" type="button" title="Eliminar">×</button>
         </td>
       </tr>
     `;
@@ -541,9 +541,9 @@ function renderMensualesExpensesTable(expenses) {
       <td>${escapeHtml(e.description)}</td>
       <td><span class="category">${escapeHtml(e.category)}</span></td>
       <td class="amount">${money(e.amount, curr)}</td>
-      <td class="actions">
-        <button class="edit-btn" data-id="${e.id}" type="button">✏️</button>
-        <button class="delete-btn" data-id="${e.id}" type="button">×</button>
+      <td class="actions" style="text-align: right; white-space: nowrap;">
+        <button class="btn btn-outline btn-sm edit-btn" data-id="${e.id}" type="button" title="Editar">✏️</button>
+        <button class="btn btn-outline btn-sm delete-btn" data-id="${e.id}" type="button" title="Eliminar">×</button>
       </td>
     `;
     table.appendChild(row);
@@ -626,9 +626,14 @@ function renderCategories(expenses) {
     const label = vals.USD > 0 && vals.ARS > 0 ? `${money(vals.ARS)} + ${money(vals.USD, "USD")}` : vals.USD > 0 ? money(vals.USD, "USD") : money(vals.ARS);
     const val = vals.ARS > 0 ? vals.ARS : vals.USD;
     return `
-      <div class="bar-row">
-        <div class="bar-label"><span>${escapeHtml(cat)}</span><b>${label}</b></div>
-        <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100, (val / max) * 100)}%"></div></div>
+      <div class="bar-row" style="margin-bottom: 8px;">
+        <div class="bar-label" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 2px;">
+          <span>${escapeHtml(cat)}</span>
+          <b>${label}</b>
+        </div>
+        <div class="bar-bg" style="background: var(--pink-bg); height: 8px; border-radius: 6px; overflow: hidden;">
+          <div class="bar-fill" style="width:${Math.min(100, (val / max) * 100)}%; background: var(--pink-500); height: 100%; border-radius: 6px;"></div>
+        </div>
       </div>
     `;
   }).join("") : `<div class="empty-state"><div>♡</div><span>No hay categorías registradas.</span></div>`;
@@ -937,7 +942,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (SOPORTE DE LOS 3 MODOS)
+   REPORTES PDF (SOPORTE 3 MODOS)
 ========================================================= */
 
 function getPdfThemeColors() {
@@ -1159,7 +1164,7 @@ function generateMensualesPDF() {
 
   pdf.setFontSize(7);
   pdf.setTextColor(...theme.footerColor);
-  pdf.text("MENSUALES · Creado por Flor Bagnis", 15, 287);
+  pdf.text("MENSUALES · Creado por Flor Bagnis ♡", 15, 287);
 
   pdf.save(`MENSUALES-${month}.pdf`);
 }
@@ -1305,7 +1310,7 @@ function generateProximosPDF() {
 
   pdf.setFontSize(7);
   pdf.setTextColor(...theme.footerColor);
-  pdf.text("Gastos Próximos · Creado por Flor Bagnis", 15, 287);
+  pdf.text("Gastos Próximos · Creado por Flor Bagnis ♡", 15, 287);
 
   pdf.save(`Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -2099,7 +2104,7 @@ function generateAnnualPDF() {
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
   pdf.setTextColor(...theme.footerColor);
-  pdf.text(`Generado por Flor Bagnis · Mensuales PWA`, 21, 33);
+  pdf.text(`Generado por Flor Bagnis · Mensuales PWA ♡`, 21, 33);
 
   const cardWidth = 87;
   const cardHeight = 24;
@@ -2171,7 +2176,7 @@ function generateAnnualPDF() {
 
   pdf.setFontSize(7);
   pdf.setTextColor(...theme.footerColor);
-  pdf.text("Resumen Anual · Creado por Flor Bagnis", 15, 287);
+  pdf.text("Resumen Anual · Creado por Flor Bagnis ♡", 15, 287);
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
