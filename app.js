@@ -410,16 +410,18 @@ function editExtraIncome(id) {
     renderMensuales();
     saveMonthToFirestore(month);
   } else {
-    $("modalExtraCategory").value = item.category || "Sueldo";
-    $("modalExtraDescription").value = item.description || "";
-    $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
-    $("modalExtraCurrency").value = item.currency || "ARS";
+    if ($("modalExtraCategory")) $("modalExtraCategory").value = item.category || "Sueldo";
+    if ($("modalExtraDescription")) $("modalExtraDescription").value = item.description || "";
+    if ($("modalExtraInput")) $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
+    if ($("modalExtraCurrency")) $("modalExtraCurrency").value = item.currency || "ARS";
     if ($("modalExtraDate")) $("modalExtraDate").value = item.date || currentMonthValue() + "-01";
 
-    $("extraDialog").dataset.editingExtraId = item.id;
-    const titleEl = $("extraDialog").querySelector("h3");
-    if (titleEl) titleEl.textContent = "✏️ Editar Ingreso Extra";
-    $("extraDialog")?.showModal();
+    if ($("extraDialog")) {
+      $("extraDialog").dataset.editingExtraId = item.id;
+      const titleEl = $("extraDialog").querySelector("h3");
+      if (titleEl) titleEl.textContent = "✏️ Editar Ingreso Extra";
+      $("extraDialog")?.showModal();
+    }
   }
 }
 
@@ -882,8 +884,48 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (SOPORTE MODO CLARO, OSCURO Y AZUL)
+   REPORTES PDF (SOPORTE MODO CLARO, OSCURO Y AZUL OSCURO)
 ========================================================= */
+
+function getPdfThemeColors() {
+  const isDarkMode = document.body.classList.contains("dark-mode");
+  const isBlueMode = document.body.classList.contains("dark-blue-mode");
+
+  if (isBlueMode) {
+    return {
+      pink: [76, 201, 240],       // Azul claro / acento
+      dark: [255, 255, 255],      // Texto blanco
+      light: [28, 37, 65],        // Fondo tarjeta azul oscuro
+      headerBg: [11, 19, 43],     // Cabecera azul marino profundo
+      cardBorder: [58, 80, 107],  // Bordes
+      lineDivider: [38, 55, 80],
+      pageBg: [11, 19, 43],       // Fondo hoja A4
+      footerColor: [141, 153, 174]
+    };
+  } else if (isDarkMode) {
+    return {
+      pink: [255, 120, 160],
+      dark: [240, 240, 240],
+      light: [45, 35, 40],
+      headerBg: [55, 30, 45],
+      cardBorder: [80, 45, 60],
+      lineDivider: [50, 35, 42],
+      pageBg: [25, 20, 25],
+      footerColor: [200, 130, 150]
+    };
+  } else {
+    return {
+      pink: [245, 107, 139],
+      dark: [85, 21, 45],
+      light: [255, 231, 236],
+      headerBg: [255, 176, 194],
+      cardBorder: [255, 197, 210],
+      lineDivider: [245, 220, 227],
+      pageBg: null,
+      footerColor: [160, 110, 125]
+    };
+  }
+}
 
 function generateMensualesPDF() {
   if (!window.jspdf) {
@@ -922,41 +964,17 @@ function generateMensualesPDF() {
   const diffText = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
 
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const theme = getPdfThemeColors();
 
-  const isDarkMode = document.body.classList.contains("dark-mode");
-  const isBlueMode = document.body.classList.contains("blue-mode");
-
-  let pink, dark, light, headerBg, cardBorder, lineDivider;
-
-  if (isBlueMode) {
-    pink = [37, 99, 235];       // Azul vibrante
-    dark = [15, 23, 42];        // Texto azul oscuro / slate
-    light = [239, 246, 255];    // Fondo azul claro
-    headerBg = [219, 234, 254]; // Cabecera azul suave
-    cardBorder = [191, 219, 254]; // Bordes azules
-    lineDivider = [224, 231, 255];
-  } else if (isDarkMode) {
-    pink = [255, 120, 160];
-    dark = [240, 240, 240];
-    light = [45, 35, 40];
-    headerBg = [55, 30, 45];
-    cardBorder = [80, 45, 60];
-    lineDivider = [50, 35, 42];
-    pdf.setFillColor(25, 20, 25);
+  if (theme.pageBg) {
+    pdf.setFillColor(...theme.pageBg);
     pdf.rect(0, 0, 210, 297, "F");
-  } else {
-    pink = [245, 107, 139];
-    dark = [85, 21, 45];
-    light = [255, 231, 236];
-    headerBg = [255, 176, 194];
-    cardBorder = [255, 197, 210];
-    lineDivider = [245, 220, 227];
   }
 
-  pdf.setFillColor(...headerBg);
+  pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
 
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFontSize(17);
   pdf.setFont("helvetica", "bold");
   pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);
@@ -974,22 +992,22 @@ function generateMensualesPDF() {
 
   cards.forEach((card, index) => {
     const x = 15 + index * 45;
-    pdf.setDrawColor(...cardBorder);
+    pdf.setDrawColor(...theme.cardBorder);
     pdf.roundedRect(x, 49, 41, 25, 3, 3, "S");
 
-    pdf.setTextColor(...pink);
+    pdf.setTextColor(...theme.pink);
     pdf.setFontSize(6.5);
     pdf.setFont("helvetica", "bold");
     pdf.text(card[0], x + 3, 57);
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(8.5);
     pdf.text(card[1], x + 3, 66);
   });
 
   let y = 84;
 
-  pdf.setFillColor(...pink);
+  pdf.setFillColor(...theme.pink);
   pdf.rect(15, y, 180, 8, "F");
 
   pdf.setTextColor(255, 255, 255);
@@ -1009,8 +1027,8 @@ function generateMensualesPDF() {
     .forEach(expense => {
       if (y > 270) {
         pdf.addPage();
-        if (isDarkMode) {
-          pdf.setFillColor(25, 20, 25);
+        if (theme.pageBg) {
+          pdf.setFillColor(...theme.pageBg);
           pdf.rect(0, 0, 210, 297, "F");
         }
         y = 20;
@@ -1019,30 +1037,30 @@ function generateMensualesPDF() {
       const curr = expense.currency || "ARS";
       const cleanDescription = String(expense.description || "").replace("🔄 ", "").trim();
 
-      pdf.setTextColor(...dark);
+      pdf.setTextColor(...theme.dark);
       pdf.setFontSize(7);
       pdf.text(formatDate(expense.date), 18, y + 5);
       pdf.text(cleanDescription.slice(0, 35), 45, y + 5);
       pdf.text(String(expense.category).slice(0, 18), 120, y + 5);
       pdf.text(money(expense.amount, curr), 165, y + 5);
 
-      pdf.setDrawColor(...lineDivider);
+      pdf.setDrawColor(...theme.lineDivider);
       pdf.line(15, y + 8, 195, y + 8);
       y += 10;
     });
 
   if (y > 250) {
     pdf.addPage();
-    if (isDarkMode) {
-      pdf.setFillColor(25, 20, 25);
+    if (theme.pageBg) {
+      pdf.setFillColor(...theme.pageBg);
       pdf.rect(0, 0, 210, 297, "F");
     }
     y = 20;
   }
 
-  pdf.setFillColor(...light);
+  pdf.setFillColor(...theme.light);
   pdf.rect(15, y, 180, 10, "F");
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7);
   pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);
@@ -1052,8 +1070,8 @@ function generateMensualesPDF() {
 
   if (y > 255) {
     pdf.addPage();
-    if (isDarkMode) {
-      pdf.setFillColor(25, 20, 25);
+    if (theme.pageBg) {
+      pdf.setFillColor(...theme.pageBg);
       pdf.rect(0, 0, 210, 297, "F");
     }
     y = 20;
@@ -1061,7 +1079,7 @@ function generateMensualesPDF() {
 
   pdf.setFontSize(10);
   pdf.setFont("helvetica", "bold");
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.text("Análisis de tendencia", 15, y);
 
   pdf.setFont("helvetica", "normal");
@@ -1087,8 +1105,7 @@ function generateMensualesPDF() {
   pdf.text(lines, 15, y + 6);
 
   pdf.setFontSize(7);
-  const footerColorMensuales = isBlueMode ? [100, 140, 200] : isDarkMode ? [200, 130, 150] : [160, 110, 125];
-  pdf.setTextColor(...footerColorMensuales);
+  pdf.setTextColor(...theme.footerColor);
   pdf.text("MENSUALES · Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`MENSUALES-${month}.pdf`);
@@ -1102,41 +1119,17 @@ function generateProximosPDF() {
 
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const theme = getPdfThemeColors();
 
-  const isDarkMode = document.body.classList.contains("dark-mode");
-  const isBlueMode = document.body.classList.contains("blue-mode");
-
-  let pink, dark, light, headerBg, cardBorder, lineDivider;
-
-  if (isBlueMode) {
-    pink = [37, 99, 235];
-    dark = [15, 23, 42];
-    light = [239, 246, 255];
-    headerBg = [219, 234, 254];
-    cardBorder = [191, 219, 254];
-    lineDivider = [224, 231, 255];
-  } else if (isDarkMode) {
-    pink = [255, 120, 160];
-    dark = [240, 240, 240];
-    light = [45, 35, 40];
-    headerBg = [55, 30, 45];
-    cardBorder = [80, 45, 60];
-    lineDivider = [50, 35, 42];
-    pdf.setFillColor(25, 20, 25);
+  if (theme.pageBg) {
+    pdf.setFillColor(...theme.pageBg);
     pdf.rect(0, 0, 210, 297, "F");
-  } else {
-    pink = [232, 93, 158];
-    dark = [51, 41, 52];
-    light = [255, 240, 247];
-    headerBg = [255, 227, 240];
-    cardBorder = [240, 223, 232];
-    lineDivider = [245, 230, 238];
   }
 
-  pdf.setFillColor(...headerBg);
+  pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
 
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFontSize(16);
   pdf.setFont("helvetica", "bold");
   pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);
@@ -1180,22 +1173,22 @@ function generateProximosPDF() {
 
   cards.forEach((card, index) => {
     const x = 15 + index * 60;
-    pdf.setDrawColor(...cardBorder);
+    pdf.setDrawColor(...theme.cardBorder);
     pdf.roundedRect(x, 46, 56, 22, 3, 3, "S");
 
-    pdf.setTextColor(...pink);
+    pdf.setTextColor(...theme.pink);
     pdf.setFontSize(7);
     pdf.setFont("helvetica", "bold");
     pdf.text(card[0], x + 4, 53);
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(9);
     pdf.text(card[1], x + 4, 62);
   });
 
   let y = 76;
 
-  pdf.setFillColor(...pink);
+  pdf.setFillColor(...theme.pink);
   pdf.rect(15, y, 180, 7, "F");
 
   pdf.setTextColor(255, 255, 255);
@@ -1215,8 +1208,8 @@ function generateProximosPDF() {
   sortedExpenses.forEach(expense => {
     if (y > 270) {
       pdf.addPage();
-      if (isDarkMode) {
-        pdf.setFillColor(25, 20, 25);
+      if (theme.pageBg) {
+        pdf.setFillColor(...theme.pageBg);
         pdf.rect(0, 0, 210, 297, "F");
       }
       y = 20;
@@ -1227,7 +1220,7 @@ function generateProximosPDF() {
     const amountStr = expense.amount !== null ? money(expense.amount, curr) : "A definir";
     const cleanDesc = String(expense.description || "").replace("🔄 ", "").trim();
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(7);
     pdf.text(formatDate(expense.date), 18, y + 5);
     pdf.text(cleanDesc.slice(0, 38), 42, y + 5);
@@ -1235,31 +1228,30 @@ function generateProximosPDF() {
     pdf.text(state, 145, y + 5);
     pdf.text(amountStr, 170, y + 5);
 
-    pdf.setDrawColor(...lineDivider);
+    pdf.setDrawColor(...theme.lineDivider);
     pdf.line(15, y + 8, 195, y + 8);
     y += 9;
   });
 
   if (y > 255) {
     pdf.addPage();
-    if (isDarkMode) {
-      pdf.setFillColor(25, 20, 25);
+    if (theme.pageBg) {
+      pdf.setFillColor(...theme.pageBg);
       pdf.rect(0, 0, 210, 297, "F");
     }
     y = 20;
   }
 
-  pdf.setFillColor(...light);
+  pdf.setFillColor(...theme.light);
   pdf.rect(15, y, 180, 9, "F");
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7);
   pdf.text("TOTAL PENDIENTE DE PAGO", 18, y + 6);
   pdf.text(strPending, 150, y + 6);
 
   pdf.setFontSize(7);
-  const footerColorProx = isBlueMode ? [100, 140, 200] : isDarkMode ? [200, 150, 170] : [160, 140, 150];
-  pdf.setTextColor(...footerColorProx);
+  pdf.setTextColor(...theme.footerColor);
   pdf.text("Gastos Próximos · Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.pdf`);
@@ -1273,7 +1265,7 @@ function generateProximosPDF() {
 document.addEventListener("DOMContentLoaded", () => {
   if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
 
-  // Botón de visibilidad de contraseña (florcita / candado)
+  // FIX DEFINITIVO: Botón de visibilidad de contraseña (florcita / candado)
   const togglePasswordBtn = document.getElementById('togglePasswordBtn');
   const authPasswordInput = document.getElementById('authPassword');
 
@@ -1286,35 +1278,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // GESTIÓN DE TEMA CÍCLICO: Claro ☀️ -> Oscuro 🌙 -> Azul 🔹 -> Claro ☀️
+  // GESTIÓN DE TEMA (Claro ☀️, Oscuro 🌙, Azul Oscuro 🔹)
   const toggleThemeBtn = $("toggleThemeBtn");
-  const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
+  const toggleBlueThemeBtn = $("toggleBlueThemeBtn");
 
+  const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
   if (savedTheme === "dark") {
     document.body.classList.add("dark-mode");
-    if (toggleThemeBtn) toggleThemeBtn.textContent = "🔹 Modo azul";
   } else if (savedTheme === "blue") {
-    document.body.classList.add("blue-mode");
-    if (toggleThemeBtn) toggleThemeBtn.textContent = "☀️ Modo claro";
-  } else {
-    if (toggleThemeBtn) toggleThemeBtn.textContent = "🌙 Modo oscuro";
+    document.body.classList.add("dark-blue-mode");
   }
 
   toggleThemeBtn?.addEventListener("click", () => {
-    if (document.body.classList.contains("dark-mode")) {
-      document.body.classList.remove("dark-mode");
-      document.body.classList.add("blue-mode");
-      localStorage.setItem("mensual_theme_mode", "blue");
-      toggleThemeBtn.textContent = "☀️ Modo claro";
-    } else if (document.body.classList.contains("blue-mode")) {
-      document.body.classList.remove("blue-mode");
-      localStorage.setItem("mensual_theme_mode", "light");
-      toggleThemeBtn.textContent = "🌙 Modo oscuro";
-    } else {
-      document.body.classList.add("dark-mode");
-      localStorage.setItem("mensual_theme_mode", "dark");
-      toggleThemeBtn.textContent = "🔹 Modo azul";
-    }
+    const isDark = document.body.classList.toggle("dark-mode");
+    document.body.classList.remove("dark-blue-mode");
+    localStorage.setItem("mensual_theme_mode", isDark ? "dark" : "light");
+  });
+
+  toggleBlueThemeBtn?.addEventListener("click", () => {
+    const isBlue = document.body.classList.toggle("dark-blue-mode");
+    document.body.classList.remove("dark-mode");
+    localStorage.setItem("mensual_theme_mode", isBlue ? "blue" : "light");
   });
 
   $("authSwitchBtn")?.addEventListener("click", () => {
@@ -1518,10 +1502,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (extraRecurring) extraRecurring.checked = false;
     if (extraChangingAmount) extraChangingAmount.checked = false;
 
-    delete $("extraDialog").dataset.editingExtraId;
-    const titleEl = $("extraDialog").querySelector("h3");
-    if (titleEl) titleEl.textContent = "➕ Sumar Dinero Extra";
-    $("extraDialog")?.showModal();
+    if ($("extraDialog")) {
+      delete $("extraDialog").dataset.editingExtraId;
+      const titleEl = $("extraDialog").querySelector("h3");
+      if (titleEl) titleEl.textContent = "➕ Sumar Dinero Extra";
+      $("extraDialog").showModal();
+    }
   });
 
   $("closeExtraDialog")?.addEventListener("click", () => {
@@ -1559,7 +1545,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    const editingId = $("extraDialog").dataset.editingExtraId;
+    const editingId = $("extraDialog")?.dataset.editingExtraId;
 
     if (editingId) {
       const month = $("monthPicker")?.value;
@@ -2029,51 +2015,24 @@ function generateAnnualPDF() {
 
   const annual = calculateAnnualData();
   const pdf = new jsPDFLib({ unit: "mm", format: "a4" });
+  const theme = getPdfThemeColors();
 
-  const isDarkMode = document.body.classList.contains("dark-mode");
-  const isBlueMode = document.body.classList.contains("blue-mode");
-
-  let dark, softPinkBg, cardBg, borderPink, mutedText, headerBg, subtitleColor;
-
-  if (isBlueMode) {
-    dark = [15, 23, 42];
-    softPinkBg = [239, 246, 255];
-    cardBg = [255, 255, 255];
-    borderPink = [191, 219, 254];
-    mutedText = [100, 116, 139];
-    headerBg = [219, 234, 254];
-    subtitleColor = [30, 64, 175];
-  } else if (isDarkMode) {
-    dark = [240, 240, 240];
-    softPinkBg = [45, 35, 40];
-    cardBg = [35, 28, 33];
-    borderPink = [80, 45, 60];
-    mutedText = [200, 140, 160];
-    headerBg = [55, 30, 45];
-    subtitleColor = [220, 160, 180];
-    pdf.setFillColor(25, 20, 25);
+  if (theme.pageBg) {
+    pdf.setFillColor(...theme.pageBg);
     pdf.rect(0, 0, 210, 297, "F");
-  } else {
-    dark = [85, 21, 45];
-    softPinkBg = [255, 235, 242];
-    cardBg = [255, 248, 250];
-    borderPink = [242, 175, 195];
-    mutedText = [158, 91, 114];
-    headerBg = [255, 176, 194];
-    subtitleColor = [110, 35, 55];
   }
 
-  pdf.setFillColor(...headerBg);
+  pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
 
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFontSize(15);
   pdf.setFont("helvetica", "bold");
   pdf.text(`RESUMEN FINANCIERO ANUAL (${annual.currentYear})`, 21, 25);
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.setTextColor(...subtitleColor);
+  pdf.setTextColor(...theme.footerColor);
   pdf.text(`Generado por Flor Bagnis · Mensuales PWA`, 21, 33);
 
   const cardWidth = 87;
@@ -2093,16 +2052,16 @@ function generateAnnualPDF() {
     const x = 15 + col * (cardWidth + 6);
     const y = startY + row * (cardHeight + 6);
 
-    pdf.setFillColor(...cardBg);
-    pdf.setDrawColor(...borderPink);
+    pdf.setFillColor(...theme.light);
+    pdf.setDrawColor(...theme.cardBorder);
     pdf.roundedRect(x, y, cardWidth, cardHeight, 3, 3, "FD");
 
-    pdf.setTextColor(...mutedText);
+    pdf.setTextColor(...theme.footerColor);
     pdf.setFontSize(7);
     pdf.setFont("helvetica", "bold");
     pdf.text(card.title, x + 6, y + 8);
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(11);
     pdf.setFont("helvetica", "bold");
     pdf.text(String(card.value), x + 6, y + 17);
@@ -2111,16 +2070,16 @@ function generateAnnualPDF() {
   let currentY = startY + 2 * (cardHeight + 6) + 5;
 
   if (annual.totalUSD > 0) {
-    pdf.setFillColor(...cardBg);
-    pdf.setDrawColor(...borderPink);
+    pdf.setFillColor(...theme.light);
+    pdf.setDrawColor(...theme.cardBorder);
     pdf.roundedRect(15, currentY, 180, 18, 3, 3, "FD");
 
-    pdf.setTextColor(...mutedText);
+    pdf.setTextColor(...theme.footerColor);
     pdf.setFontSize(7);
     pdf.setFont("helvetica", "bold");
     pdf.text("TOTAL GASTADO EN USD", 21, currentY + 6);
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(11);
     pdf.setFont("helvetica", "bold");
     pdf.text(money(annual.totalUSD, "USD"), 21, currentY + 13);
@@ -2128,25 +2087,24 @@ function generateAnnualPDF() {
     currentY += 24;
   }
 
-  pdf.setFillColor(...softPinkBg);
-  pdf.setDrawColor(...borderPink);
+  pdf.setFillColor(...theme.light);
+  pdf.setDrawColor(...theme.cardBorder);
   pdf.roundedRect(15, currentY, 180, 26, 3, 3, "FD");
 
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFontSize(9);
   pdf.setFont("helvetica", "bold");
   pdf.text("Análisis del período", 21, currentY + 7);
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   const summaryText = `Durante el año ${annual.currentYear}, registraste movimientos en ${annual.monthsCount} meses. Tu mes con mayor actividad financiera fue ${annual.highestMonth.name} y la categoría que acumuló más gastos resultó ser "${annual.topCategory[0]}".`;
   const splitSummary = pdf.splitTextToSize(summaryText, 168);
   pdf.text(splitSummary, 21, currentY + 14);
 
   pdf.setFontSize(7);
-  const footerColorAnn = isBlueMode ? [100, 140, 200] : isDarkMode ? [200, 130, 150] : [160, 110, 125];
-  pdf.setTextColor(...footerColorAnn);
+  pdf.setTextColor(...theme.footerColor);
   pdf.text("Resumen Anual · Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
