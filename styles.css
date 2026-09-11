@@ -1,5 +1,5 @@
 /* =========================================================
-   VARIABLES DE COLOR ORIGINALES (CAPTURAS DE FLORENCIA)
+   ESTÉTICA ORIGINAL Y SISTEMA DE 3 TEMAS
 ========================================================= */
 :root {
   --bg: #fbf1f5;
@@ -18,8 +18,6 @@
   --btn-bordo-text: #ffffff;
   --btn-light-pink: #f7cad9;
   --btn-light-pink-text: #52162a;
-  --table-th-bg: #ea5b8e;
-  --table-th-text: #ffffff;
   --card-shadow: 0 4px 20px rgba(180, 80, 110, 0.06);
   --btn-hover-shadow: 0 6px 18px rgba(234, 91, 142, 0.35);
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -42,8 +40,6 @@ body.dark-mode {
   --btn-bordo-text: #1a0812;
   --btn-light-pink: #361226;
   --btn-light-pink-text: #fde8f0;
-  --table-th-bg: #ff6b95;
-  --table-th-text: #1a0812;
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   --btn-hover-shadow: 0 6px 18px rgba(255, 107, 149, 0.4);
 }
@@ -65,8 +61,6 @@ body.dark-blue-mode {
   --btn-bordo-text: #ffffff;
   --btn-light-pink: #111f40;
   --btn-light-pink-text: #93c5fd;
-  --table-th-bg: #1e356d;
-  --table-th-text: #ffffff;
   --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
   --btn-hover-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
 }
@@ -88,7 +82,7 @@ body {
   display: none !important;
 }
 
-.app-container {
+.container {
   max-width: 1140px;
   margin: 20px auto;
   padding: 0 16px;
@@ -217,7 +211,7 @@ input:focus, select:focus, textarea:focus {
   text-decoration: underline !important;
 }
 
-/* BOTONES CON EFECTO ZOOM Y SOMBRA */
+/* EFECTOS DE ZOOM Y SOMBRA EN TODOS LOS BOTONES */
 .btn, button.btn, button[type="submit"] {
   display: inline-flex;
   align-items: center;
@@ -235,7 +229,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .btn:hover, button.btn:hover, button[type="submit"]:hover {
-  transform: translateY(-2px) scale(1.03);
+  transform: translateY(-2px) scale(1.04);
   box-shadow: var(--btn-hover-shadow);
 }
 
@@ -298,8 +292,8 @@ body.dark-blue-mode .btn-dark {
   background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--muted);
 }
 
-/* CABECERA */
-.header-card {
+/* CABECERA (BANNER ROSA) */
+.main-header {
   background: var(--header-bg);
   border-radius: 24px;
   padding: 24px 30px;
@@ -307,7 +301,7 @@ body.dark-blue-mode .btn-dark {
   border: 1px solid var(--line);
 }
 
-.header-inner {
+.header-content {
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
 }
 
@@ -315,7 +309,7 @@ body.dark-blue-mode .btn-dark {
   font-size: 0.72rem; font-weight: 800; letter-spacing: 1px; color: var(--header-text);
 }
 
-.header-inner h1 {
+.main-header h1 {
   font-size: 1.95rem; font-weight: 800; color: var(--header-text);
 }
 
@@ -360,7 +354,7 @@ body.dark-mode .header-nav-btns .btn-sub-action, body.dark-blue-mode .header-nav
   font-size: 1.25rem; font-weight: 800; color: var(--text);
 }
 
-.summary-grid {
+.summary-cards-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;
 }
 
@@ -380,24 +374,24 @@ body.dark-mode .header-nav-btns .btn-sub-action, body.dark-blue-mode .header-nav
   font-size: 0.78rem; color: var(--muted);
 }
 
-/* TABLAS */
-.table-wrapper {
+/* TABLAS ORIGINALES */
+.table-container-collapsible {
   overflow-x: auto; border-radius: 14px; border: 1px solid var(--line);
 }
 
-table {
+.table {
   width: 100%; border-collapse: collapse;
 }
 
-table th {
-  padding: 12px 14px; background-color: var(--table-th-bg); color: var(--table-th-text); font-weight: 800; font-size: 0.82rem; border: none;
+.table th {
+  padding: 12px 14px; background-color: var(--pink-500); color: #ffffff; font-weight: 800; font-size: 0.82rem; border: none;
 }
 
-table td {
+.table td {
   padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 0.88rem;
 }
 
-table tr:last-child td { border-bottom: none; }
+.table tr:last-child td { border-bottom: none; }
 
 .category, .badge {
   display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 0.74rem; font-weight: 700; background: var(--pink-bg); color: var(--pink-500);
@@ -427,7 +421,7 @@ dialog::backdrop {
 
 .modal-header h3 { font-size: 1.15rem; font-weight: 800; color: var(--text); }
 
-/* OCULTAR MONTOS (BLUR COMPLETO: RESUMEN Y TABLAS) */
+/* OCULTAR MONTOS TOTAL (BLUR EN RESUMEN Y TABLAS) */
 body.amounts-hidden .metric-value,
 body.amounts-hidden .amount,
 body.amounts-hidden #tableTotal,
@@ -435,7 +429,8 @@ body.amounts-hidden #budgetTotal,
 body.amounts-hidden #totalSpent,
 body.amounts-hidden #previousSpent,
 body.amounts-hidden #difference,
-body.amounts-hidden #extraTotalSumDisplay {
+body.amounts-hidden #extraTotalSumDisplay,
+body.amounts-hidden .table td:nth-last-child(2) {
   filter: blur(6px);
   user-select: none;
 }
