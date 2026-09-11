@@ -864,7 +864,7 @@ async function deleteProximo(id) {
 
 
 /* =========================================================
-   EXPORTAR CSV
+   EXPORTAR CSV (INCLUYE PRESUPUESTO)
 ========================================================= */
 
 function downloadCSV(rows, filename) {
@@ -881,7 +881,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (CORREGIDOS Y ADAPTADOS A MODO OSCURO)
+   REPORTES PDF (INCLUYE PRESUPUESTO, BALANCE Y MODO OSCURO)
 ========================================================= */
 
 function generateMensualesPDF() {
@@ -905,16 +905,15 @@ function generateMensualesPDF() {
     }
   });
 
-  const previous = data.months[previousMonth(month)] || { expenses: [] };
-  let previousTotalARS = 0;
+  const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
+  
+  // NUEVO: Cálculos de Presupuesto y Balance para las tarjetas del PDF
+  const budgetText = money(current.budget);
+  const balanceVal = current.budget - totalARS;
+  const balanceText = current.budget > 0 
+    ? `${balanceVal >= 0 ? "Disp: " : "Exced: "}${money(Math.abs(balanceVal))}`
+    : "Sin presupuesto";
 
-  previous.expenses.forEach(e => {
-    if (e.currency !== "USD") {
-      previousTotalARS += Number(e.amount || 0);
-    }
-  });
-
-  const diffARS = totalARS - previousTotalARS;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
 
   const isDarkMode = document.body.classList.contains("dark-mode");
@@ -942,12 +941,11 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte · ${monthName(month)}`, 21, 34);
 
-  const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
-
+  // Tarjetas actualizadas con Presupuesto, Total Gastado y Balance
   const cards = [
+    ["PRESUPUESTO", budgetText],
     ["TOTAL GASTADO", cardSpentText],
-    ["MES ANTERIOR (ARS)", money(previousTotalARS)],
-    ["DIFERENCIA (ARS)", `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`]
+    ["ESTADO", balanceText]
   ];
 
   cards.forEach((card, index) => {
@@ -961,7 +959,7 @@ function generateMensualesPDF() {
     pdf.text(card[0], x + 4, 57);
 
     pdf.setTextColor(...dark);
-    pdf.setFontSize(10);
+    pdf.setFontSize(9);
     pdf.text(card[1], x + 4, 66);
   });
 
@@ -1052,7 +1050,7 @@ function generateMensualesPDF() {
   });
   const topCategory = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
 
-  let trendString = `En ${monthName(month)}, registraste ${cardSpentText} en ${current.expenses.length} gastos.`;
+  let trendString = `En ${monthName(month)}, tu presupuesto fue de ${budgetText} y registraste ${cardSpentText} en ${current.expenses.length} gastos.`;
   if (topCategory) {
     trendString += ` La categoría con mayor gasto fue ${topCategory[0]} (${money(topCategory[1])}).`;
   }
@@ -1065,7 +1063,6 @@ function generateMensualesPDF() {
   pdf.text(lines, 15, y + 6);
 
   pdf.setFontSize(7);
-  // CORREGIDO: Se aplica el spread (...) para evitar el error de array en jsPDF
   const footerColorMensuales = isDarkMode ? [200, 130, 150] : [160, 110, 125];
   pdf.setTextColor(...footerColorMensuales);
   pdf.text("MENSUALES · Creado por Flor Bagnis", 15, 287);
@@ -1220,7 +1217,6 @@ function generateProximosPDF() {
   pdf.text(strPending, 150, y + 6);
 
   pdf.setFontSize(7);
-  // CORREGIDO: Se aplica el spread (...) para evitar el error de array en jsPDF
   const footerColorProx = isDarkMode ? [200, 150, 170] : [160, 140, 150];
   pdf.setTextColor(...footerColorProx);
   pdf.text("Gastos Próximos · Creado por Flor Bagnis", 15, 287);
@@ -1676,14 +1672,21 @@ document.addEventListener("DOMContentLoaded", () => {
     $("gpModal")?.close();
   });
 
+  // NUEVO: Exportación a CSV incluyendo el presupuesto del mes al inicio
   $("mensualesCsvBtn")?.addEventListener("click", () => {
     const month = $("monthPicker")?.value;
     const current = ensureMonth(month);
-    if (!current.expenses.length) { alert("No hay gastos registrados en este mes."); return; }
-    const rows = [["Fecha", "Descripción", "Categoría", "Monto", "Moneda"]];
+    
+    const rows = [
+      [`"Presupuesto del mes"`, `"${current.budget}"`],
+      [],
+      ["Fecha", "Descripción", "Categoría", "Monto", "Moneda"]
+    ];
+
     current.expenses.forEach(e => {
-      rows.push([e.date, `"${e.description.replace(/"/g, '""')}"`, e.category, e.amount, e.currency || "ARS"]);
+      rows.push([e.date, `"${(e.description || "").replace(/"/g, '""')}"`, e.category, e.amount, e.currency || "ARS"]);
     });
+
     downloadCSV(rows, `MENSUALES-${month}.csv`);
   });
 
@@ -1937,7 +1940,6 @@ function generateAnnualPDF() {
   pdf.text(splitSummary, 21, currentY + 14);
 
   pdf.setFontSize(7);
-  // CORREGIDO: Se aplica el spread (...) para evitar el error de array en jsPDF
   const footerColorAnn = isDarkMode ? [200, 130, 150] : [160, 110, 125];
   pdf.setTextColor(...footerColorAnn);
   pdf.text("Resumen Anual · Creado por Flor Bagnis", 15, 287);
