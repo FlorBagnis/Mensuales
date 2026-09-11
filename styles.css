@@ -1,69 +1,66 @@
 /* =========================================================
-   VARIABLES Y SISTEMA DE 3 TEMAS
+   SISTEMA DE 3 TEMAS (ROSA CLARO, BORDÓ OSCURO Y AZUL TOTAL)
 ========================================================= */
 :root {
-  /* TEMA 1: CLARO (ROSA CLÁSICO) */
-  --bg: #fdf5f7;
+  /* 1. MODO CLARO (ROSA Y BORDÓ ORIGINAL) */
+  --bg: #fcf1f4;
   --card: #ffffff;
   --text: #450f24;
-  --muted: #8a5f70;
-  --line: #f5d3df;
-  --pink-500: #f48fb1;
-  --pink-700: #e85d9e;
-  --pink-bg: #fce4ec;
-  --header-card-bg: #ffb1c4;
-  --header-text: #450f24;
-  --btn-primary-bg: #e85d9e;
-  --btn-primary-text: #ffffff;
-  --btn-primary-hover: #d84b8c;
-  --metric-bg: #fff9fb;
-  --metric-border: #f8dae5;
-  --table-th-bg: #ffe0eb;
+  --muted: #7d5062;
+  --line: #f6d6df;
+  --pink-500: #ea5b8e;
+  --pink-700: #52162a;
+  --pink-bg: #fde8ee;
+  --header-bg: #ffaec3;
+  --header-text: #52162a;
+  --btn-main: #ea5b8e;
+  --btn-main-text: #ffffff;
+  --btn-sub: #fce4ec;
+  --btn-sub-border: #f8b4c8;
+  --card-shadow: 0 4px 18px rgba(180, 80, 110, 0.05);
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* TEMA 2: OSCURO (BORDÓ PROFUNDO ORIGINAL) */
+/* 2. MODO OSCURO (BORDÓ PROFUNDO ORIGINAL) */
 body.dark-mode {
-  --bg: #190a12;
-  --card: #28111e;
-  --text: #fdeaf1;
+  --bg: #1a0913;
+  --card: #260d1b;
+  --text: #fde8f0;
   --muted: #b891a2;
-  --line: #451b32;
-  --pink-500: #e85d9e;
-  --pink-700: #ff7597;
-  --pink-bg: #361528;
-  --header-card-bg: #3b162a;
-  --header-text: #fdeaf1;
-  --btn-primary-bg: #ff7597;
-  --btn-primary-text: #190a12;
-  --btn-primary-hover: #e85d9e;
-  --metric-bg: #1f0c17;
-  --metric-border: #3d182e;
-  --table-th-bg: #331425;
+  --line: #421830;
+  --pink-500: #ff6b95;
+  --pink-700: #fde8f0;
+  --pink-bg: #361326;
+  --header-bg: #381427;
+  --header-text: #fde8f0;
+  --btn-main: #ff6b95;
+  --btn-main-text: #1a0913;
+  --btn-sub: #2d1020;
+  --btn-sub-border: #4a1834;
+  --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
 }
 
-/* TEMA 3: AZUL OSCURO COMPLETO (DARK BLUE TOTAL) */
+/* 3. MODO AZUL OSCURO (CERO ROSA: AZUL MARINO Y ELÉCTRICO) */
 body.dark-blue-mode {
   --bg: #060b18;
-  --card: #0d172e;
+  --card: #0c162e;
   --text: #f1f5f9;
   --muted: #8ba2c8;
-  --line: #1b2f5b;
+  --line: #182c57;
   --pink-500: #38bdf8;
   --pink-700: #2563eb;
   --pink-bg: #132244;
-  --header-card-bg: #111f3f;
+  --header-bg: #0f1c3f;
   --header-text: #f1f5f9;
-  --btn-primary-bg: #2563eb;
-  --btn-primary-text: #ffffff;
-  --btn-primary-hover: #1d4ed8;
-  --metric-bg: #091124;
-  --metric-border: #16284e;
-  --table-th-bg: #132244;
+  --btn-main: #2563eb;
+  --btn-main-text: #ffffff;
+  --btn-sub: #111f40;
+  --btn-sub-border: #1e356d;
+  --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
 }
 
 /* =========================================================
-   REINICIO Y CONTENCIÓN VISUAL
+   ESTRUCTURA GENERAL
 ========================================================= */
 * {
   box-sizing: border-box;
@@ -76,7 +73,7 @@ body {
   color: var(--text);
   font-family: var(--font);
   line-height: 1.5;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .hidden {
@@ -86,43 +83,43 @@ body {
 /* Contenedor centralizado para no estirarse en pantallas grandes */
 .app-container {
   max-width: 1140px;
-  margin: 24px auto;
-  padding: 0 20px;
+  margin: 20px auto;
+  padding: 0 16px;
 }
 
 /* =========================================================
-   PANTALLA DE LOGIN / REGISTRO
+   PANTALLA DE LOGIN (DISEÑO EXACTO CON CORAZÓN)
 ========================================================= */
 .auth-section {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 24px;
+  padding: 20px;
   background-color: var(--bg);
 }
 
 .auth-card {
   background: var(--card);
   border-radius: 28px;
-  padding: 44px 36px;
+  padding: 44px 34px;
   width: 100%;
-  max-width: 420px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.05);
+  max-width: 410px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.04);
   border: 1px solid var(--line);
   text-align: center;
 }
 
 .auth-heart-badge {
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   background: var(--pink-bg);
-  color: var(--pink-700);
+  color: var(--pink-500);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
+  font-size: 24px;
   margin: 0 auto 16px auto;
 }
 
@@ -131,7 +128,7 @@ body {
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 2px;
-  color: var(--pink-700);
+  color: var(--text);
   text-transform: uppercase;
   margin-bottom: 6px;
 }
@@ -154,7 +151,7 @@ body {
 }
 
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .form-group label {
@@ -182,30 +179,25 @@ textarea {
   font-size: 0.92rem;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--pink-700);
-  box-shadow: 0 0 0 3px var(--pink-bg);
+  border-color: var(--pink-500);
 }
 
 .auth-message {
   font-size: 0.82rem;
   color: #d32f2f;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   min-height: 18px;
   text-align: center;
 }
 
-.auth-message.success {
-  color: #2e7d32;
-}
-
-/* Enlace de cambio a registro limpio (sin borde gris) */
-.btn-link,
+/* Enlace a registro limpio sin borde gris */
+.auth-switch-link,
 #authSwitchBtn {
   background: none !important;
   border: none !important;
@@ -216,15 +208,13 @@ textarea:focus {
   font-size: 0.88rem !important;
   cursor: pointer !important;
   display: inline-block !important;
-  margin-top: 20px !important;
-  padding: 4px 6px !important;
+  margin-top: 22px !important;
+  padding: 0 !important;
   text-decoration: none !important;
-  transition: opacity 0.2s ease;
 }
 
-.btn-link:hover,
+.auth-switch-link:hover,
 #authSwitchBtn:hover {
-  opacity: 0.8;
   text-decoration: underline !important;
 }
 
@@ -248,19 +238,24 @@ textarea:focus {
 }
 
 .btn-pink {
-  background-color: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
-  border-color: var(--btn-primary-bg);
+  background-color: var(--btn-main);
+  color: var(--btn-main-text);
+  border-color: var(--btn-main);
 }
 
 .btn-pink:hover {
-  filter: brightness(0.93);
+  filter: brightness(0.94);
 }
 
 .btn-outline {
-  background-color: transparent;
+  background-color: #ffffff;
   border-color: var(--line);
   color: var(--text);
+}
+
+body.dark-mode .btn-outline,
+body.dark-blue-mode .btn-outline {
+  background-color: var(--card);
 }
 
 .btn-outline:hover {
@@ -268,13 +263,17 @@ textarea:focus {
 }
 
 .btn-dark {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: #52162a;
   color: #ffffff;
   border: none;
 }
 
-.btn-dark:hover {
-  background-color: rgba(0, 0, 0, 0.85);
+body.dark-mode .btn-dark {
+  background-color: #421830;
+}
+
+body.dark-blue-mode .btn-dark {
+  background-color: #1e356d;
 }
 
 .btn-block {
@@ -282,9 +281,13 @@ textarea:focus {
 }
 
 .btn-sm {
-  padding: 6px 12px;
+  padding: 6px 14px;
   font-size: 0.8rem;
-  border-radius: 10px;
+}
+
+.btn-pill {
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .btn-close {
@@ -300,12 +303,11 @@ textarea:focus {
    CABECERA PRINCIPAL (TARJETA REDONDEADA)
 ========================================================= */
 .header-card {
-  background: var(--header-card-bg);
-  border-radius: 22px;
-  padding: 24px 28px;
-  margin-bottom: 20px;
+  background: var(--header-bg);
+  border-radius: 24px;
+  padding: 24px 30px;
+  margin-bottom: 18px;
   border: 1px solid var(--line);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
 }
 
 .header-inner {
@@ -321,11 +323,10 @@ textarea:focus {
   font-weight: 800;
   letter-spacing: 1px;
   color: var(--header-text);
-  opacity: 0.85;
 }
 
 .header-inner h1 {
-  font-size: 1.9rem;
+  font-size: 1.95rem;
   font-weight: 800;
   color: var(--header-text);
 }
@@ -333,7 +334,6 @@ textarea:focus {
 .subtitle {
   font-size: 0.86rem;
   color: var(--header-text);
-  opacity: 0.9;
 }
 
 .dolar-badge {
@@ -367,16 +367,22 @@ textarea:focus {
   flex-wrap: wrap;
 }
 
+.header-nav-btns .btn-sub-action {
+  background: var(--btn-sub);
+  border: 1px solid var(--btn-sub-border);
+  color: var(--text);
+}
+
 /* =========================================================
-   SECCIONES Y TARJETAS (CONTAINMENT)
+   TARJETAS Y RESUMEN
 ========================================================= */
 .card {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 20px;
   padding: 22px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
-  margin-bottom: 20px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 18px;
 }
 
 .card-header {
@@ -392,16 +398,15 @@ textarea:focus {
   color: var(--text);
 }
 
-/* GRILLA DE RESUMEN (4 TARJETITAS CONTENIDAS) */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .metric-card {
-  background: var(--metric-bg);
-  border: 1px solid var(--metric-border);
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 16px;
   padding: 16px 18px;
 }
@@ -427,7 +432,7 @@ textarea:focus {
 }
 
 /* =========================================================
-   TABLAS LIMPIAS Y ORDENADAS
+   TABLAS
 ========================================================= */
 .table-wrapper {
   overflow-x: auto;
@@ -442,7 +447,7 @@ table {
 
 table th {
   padding: 12px 14px;
-  background-color: var(--table-th-bg);
+  background-color: var(--pink-bg);
   color: var(--text);
   font-weight: 700;
   font-size: 0.82rem;
@@ -467,7 +472,12 @@ table tr:last-child td {
   font-size: 0.74rem;
   font-weight: 700;
   background: var(--pink-bg);
-  color: var(--pink-700);
+  color: var(--pink-500);
+}
+
+body.dark-blue-mode .category,
+body.dark-blue-mode .badge {
+  color: #38bdf8;
 }
 
 .result-good {
@@ -481,7 +491,7 @@ table tr:last-child td {
 }
 
 /* =========================================================
-   MODALES FLOTANTES (CENTRADOS Y NUNCA VISIBLES EN LOGIN)
+   MODALES FLOTANTES (POP-UPS NUNCA VISIBLES EN LOGIN)
 ========================================================= */
 dialog:not([open]) {
   display: none !important;
