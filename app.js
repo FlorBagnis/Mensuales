@@ -2120,22 +2120,673 @@ function generateAnnualPDF() {
 
 
 /* =========================================================
-   EVENTOS GLOBALES (DELEGACIÓN SEGURO)
+   INICIALIZACIÓN SEGURA (SOLUCIÓN AL BLOQUEO DE LOGIN)
 ========================================================= */
-document.addEventListener('click', (e) => {
-  if (e.target.closest('#openAnnualBtn')) {
-    openAnnualModal();
+
+function initApp() {
+  if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
+
+  // Botón de contraseña (florcita / candado)
+  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+  const authPasswordInput = document.getElementById('authPassword');
+
+  if (togglePasswordBtn && authPasswordInput) {
+    togglePasswordBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isPassword = authPasswordInput.type === 'password';
+      authPasswordInput.type = isPassword ? 'text' : 'password';
+      togglePasswordBtn.textContent = isPassword ? '🌸' : '🔒';
+    });
   }
 
-  if (e.target.closest('#closeAnnualDialog')) {
-    $("annualDialog")?.close();
+  // GESTIÓN DE TEMA (Claro ☀️, Oscuro 🌙, Azul Oscuro 🔹)
+  const toggleThemeBtn = $("toggleThemeBtn");
+  const toggleBlueThemeBtn = $("toggleBlueThemeBtn");
+
+  const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+  } else if (savedTheme === "blue") {
+    document.body.classList.add("dark-blue-mode");
   }
 
-  if (e.target.closest('#closeAnnualCancelBtn')) {
-    $("annualDialog")?.close();
+  toggleThemeBtn?.addEventListener("click", () => {
+    const isDark = document.body.classList.toggle("dark-mode");
+    document.body.classList.remove("dark-blue-mode");
+    localStorage.setItem("mensual_theme_mode", isDark ? "dark" : "light");
+  });
+
+  toggleBlueThemeBtn?.addEventListener("click", () => {
+    const isBlue = document.body.classList.toggle("dark-blue-mode");
+    document.body.classList.remove("dark-mode");
+    localStorage.setItem("mensual_theme_mode", isBlue ? "blue" : "light");
+  });
+
+  $("authSwitchBtn")?.addEventListener("click", () => {
+    authMode = authMode === "login" ? "register" : "login";
+    updateAuthInterface();
+  });
+
+  $("authForm")?.addEventListener("submit", async e => {
+    e.preventDefault();
+    const email = $("authEmail")?.value.trim() || "";
+    const password = $("authPassword")?.value || "";
+
+    const button = $("authSubmitBtn");
+    if (button) {
+      button.disabled = true;
+      button.textContent = authMode === "login" ? "Ingresando..." : "Creando cuenta...";
+    }
+
+    try {
+      if (authMode === "register") {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+    } catch (error) {
+      console.error("Auth Error:", error);
+      setAuthMessage(firebaseErrorMessage(error));
+      if (button) button.disabled = false;
+      updateAuthInterface();
+    }
+  });
+
+  $("logoutBtn")?.addEventListener("click", async () => {
+    if (!confirm("¿Querés cerrar sesión?")) return;
+    try {
+      localStorage.removeItem('user_logged_in');
+      stopAllSync();
+      await signOut(auth);
+    } catch (err) {
+      alert("No se pudo cerrar la sesión.");
+    }
+  });
+
+  $("tabMensualesBtn")?.addEventListener("click", () => {
+    $("tabMensualesBtn").className = "btn btn-pink";
+    if ($("tabProximosBtn")) $("tabProximosBtn").className = "btn btn-outline";
+    $("viewMensuales")?.classList.remove("hidden");
+    $("viewProximos")?.classList.add("hidden");
+  });
+
+  $("tabProximosBtn")?.addEventListener("click", () => {
+    $("tabProximosBtn").className = "btn btn-pink";
+    if ($("tabMensualesBtn")) $("tabMensualesBtn").className = "btn btn-outline";
+    $("viewProximos")?.classList.remove("hidden");
+    $("viewMensuales")?.classList.add("hidden");
+  });
+
+  $("monthPicker")?.addEventListener("change", () => renderMensuales());
+  
+  $("searchMensualesInput")?.addEventListener("input", e => {
+    searchMensualesTerm = e.target.value;
+    renderMensuales();
+  });
+
+  $("filterCategorySelect")?.addEventListener("change", () => {
+    renderMensuales();
+  });
+
+  // Gastos recurrentes
+  const expenseRecurring = $("expenseRecurring");
+  const recurringOptions = $("recurringOptions");
+  const recurringChangingAmount = $("recurringChangingAmount");
+  const recurringAmounts = $("recurringAmounts");
+  const recurringDuration = $("recurringDuration");
+  const recurringMonthsInput = $("recurringMonths");
+  const recurringDay = $("recurringDay");
+
+  expenseRecurring?.addEventListener("change", () => {
+    recurringOptions?.classList.toggle("hidden", !expenseRecurring.checked);
+    if (expenseRecurring.checked) updateRecurringInputs();
+  });
+
+  recurringChangingAmount?.addEventListener("change", () => {
+    recurringAmounts?.classList.toggle("hidden", !recurringChangingAmount.checked);
+    if (recurringChangingAmount.checked) updateRecurringInputs();
+  });
+
+  function updateRecurringInputs() {
+    if (!recurringAmounts) return;
+    recurringAmounts.innerHTML = "";
+    if (!expenseRecurring?.checked || !recurringChangingAmount?.checked) return;
+
+    const count = Number(recurringDuration?.value) || 6;
+    const baseAmount = Number($("expenseAmount")?.value || 0);
+    const interval = Number(recurringMonthsInput?.value) || 1;
+    let baseDate = new Date(($("expenseDate")?.value || currentMonthValue() + "-01") + "T00:00:00");
+
+    for (let i = 0; i < count; i++) {
+      const d = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), Number(recurringDay?.value || 10));
+      const mLabel = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" }).format(d);
+
+      const label = document.createElement("label");
+      label.style.cssText = "display:grid; grid-template-columns: 1fr 120px; gap:8px; align-items:center; font-size:11px; margin-top:6px;";
+      label.innerHTML = `
+        <span>${mLabel.charAt(0).toUpperCase() + mLabel.slice(1)}</span>
+        <input type="number" min="0" step="0.01" class="rec-amount-input" data-index="${i}" value="${baseAmount}" required style="padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-size:12px;">
+      `;
+      recurringAmounts.appendChild(label);
+    }
   }
 
-  if (e.target.closest('#annualPdfBtn')) {
-    generateAnnualPDF();
+  recurringDuration?.addEventListener("input", updateRecurringInputs);
+  recurringMonthsInput?.addEventListener("input", updateRecurringInputs);
+  recurringDay?.addEventListener("input", updateRecurringInputs);
+  $("expenseAmount")?.addEventListener("input", () => {
+    if (!recurringChangingAmount?.checked) return;
+    const baseAmount = Number($("expenseAmount")?.value || 0);
+    recurringAmounts?.querySelectorAll(".rec-amount-input").forEach(inp => {
+      if (!inp.dataset.userEdited) inp.value = baseAmount;
+    });
+  });
+
+  recurringAmounts?.addEventListener("input", e => {
+    if (e.target.classList.contains("rec-amount-input")) {
+      e.target.dataset.userEdited = "true";
+    }
+  });
+
+  // Ingresos Extra recurrentes
+  const extraRecurring = $("extraRecurring");
+  const extraRecurringOptions = $("extraRecurringOptions");
+  const extraChangingAmount = $("extraChangingAmount");
+  const extraRecurringAmounts = $("extraRecurringAmounts");
+  const extraDuration = $("extraDuration");
+  const extraMonthsInput = $("extraMonths");
+  const extraDay = $("extraDay");
+
+  extraRecurring?.addEventListener("change", () => {
+    extraRecurringOptions?.classList.toggle("hidden", !extraRecurring.checked);
+    if (extraRecurring.checked) updateExtraRecurringInputs();
+  });
+
+  extraChangingAmount?.addEventListener("change", () => {
+    extraRecurringAmounts?.classList.toggle("hidden", !extraChangingAmount.checked);
+    if (extraChangingAmount.checked) updateExtraRecurringInputs();
+  });
+
+  function updateExtraRecurringInputs() {
+    if (!extraRecurringAmounts) return;
+    extraRecurringAmounts.innerHTML = "";
+    if (!extraRecurring?.checked || !extraChangingAmount?.checked) return;
+
+    const count = Number(extraDuration?.value) || 6;
+    const baseAmount = Number($("modalExtraInput")?.value || 0);
+    const interval = Number(extraMonthsInput?.value) || 1;
+    let baseDate = new Date(($("modalExtraDate")?.value || currentMonthValue() + "-01") + "T00:00:00");
+
+    for (let i = 0; i < count; i++) {
+      const d = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), Number(extraDay?.value || 10));
+      const mLabel = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" }).format(d);
+
+      const label = document.createElement("label");
+      label.style.cssText = "display:grid; grid-template-columns: 1fr 120px; gap:8px; align-items:center; font-size:11px; margin-top:6px;";
+      label.innerHTML = `
+        <span>${mLabel.charAt(0).toUpperCase() + mLabel.slice(1)}</span>
+        <input type="number" min="0" step="0.01" class="extra-rec-amount-input" data-index="${i}" value="${baseAmount}" required style="padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-size:12px;">
+      `;
+      extraRecurringAmounts.appendChild(label);
+    }
   }
-});
+
+  extraDuration?.addEventListener("input", updateExtraRecurringInputs);
+  extraMonthsInput?.addEventListener("input", updateExtraRecurringInputs);
+  extraDay?.addEventListener("input", updateExtraRecurringInputs);
+  $("modalExtraInput")?.addEventListener("input", () => {
+    if (!extraChangingAmount?.checked) return;
+    const baseAmount = Number($("modalExtraInput")?.value || 0);
+    extraRecurringAmounts?.querySelectorAll(".extra-rec-amount-input").forEach(inp => {
+      if (!inp.dataset.userEdited) inp.value = baseAmount;
+    });
+  });
+
+  extraRecurringAmounts?.addEventListener("input", e => {
+    if (e.target.classList.contains("extra-rec-amount-input")) {
+      e.target.dataset.userEdited = "true";
+    }
+  });
+
+  $("openExtraModalBtn")?.addEventListener("click", () => {
+    if ($("modalExtraInput")) $("modalExtraInput").value = "";
+    if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
+    if ($("modalExtraCategory")) $("modalExtraCategory").value = "Sueldo";
+    if ($("modalExtraDate")) {
+      const today = new Date();
+      $("modalExtraDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    }
+    extraRecurringOptions?.classList.add("hidden");
+    extraRecurringAmounts?.classList.add("hidden");
+    if (extraRecurring) extraRecurring.checked = false;
+    if (extraChangingAmount) extraChangingAmount.checked = false;
+
+    if ($("extraDialog")) {
+      delete $("extraDialog").dataset.editingExtraId;
+      const titleEl = $("extraDialog").querySelector("h3");
+      if (titleEl) titleEl.textContent = "➕ Sumar Dinero Extra";
+      $("extraDialog").showModal();
+    }
+  });
+
+  $("closeExtraDialog")?.addEventListener("click", () => {
+    $("extraDialog")?.close();
+  });
+
+  $("submitExtraBtn")?.addEventListener("click", async () => {
+    const rawVal = Number($("modalExtraInput")?.value || 0);
+    if (rawVal <= 0) {
+      alert("Ingresá un monto válido para sumar.");
+      return;
+    }
+
+    const category = $("modalExtraCategory")?.value || "Otro";
+    const description = $("modalExtraDescription")?.value.trim() || "";
+    const currency = $("modalExtraCurrency")?.value || "ARS";
+    const baseDateStr = $("modalExtraDate")?.value || new Date().toISOString().slice(0, 10);
+    const targetMonth = baseDateStr.slice(0, 7);
+
+    let finalVal = rawVal;
+    if (currency === "USD") {
+      if (currentDolarBlue <= 0) {
+        try {
+          const res = await fetch("https://dolarapi.com/v1/dolares/blue");
+          const json = await res.json();
+          if (json?.venta) currentDolarBlue = Number(json.venta);
+        } catch(e) {}
+      }
+      if (currentDolarBlue > 0) {
+        finalVal = rawVal * currentDolarBlue;
+      } else {
+        const customRate = prompt("Ingresá a cuánto querés tomar el dólar:", "1200");
+        if (!customRate) return;
+        finalVal = rawVal * Number(customRate);
+      }
+    }
+
+    const editingId = $("extraDialog")?.dataset.editingExtraId;
+
+    if (editingId) {
+      const month = $("monthPicker")?.value;
+      const current = data.months[month];
+      if (current && Array.isArray(current.extraIncomes)) {
+        const index = current.extraIncomes.findIndex(x => x.id === editingId);
+        if (index !== -1) {
+          const wasBase = current.extraIncomes[index].isBase;
+          current.extraIncomes[index] = {
+            ...current.extraIncomes[index],
+            date: baseDateStr,
+            category: wasBase ? "Presupuesto Base" : category,
+            description,
+            amount: finalVal,
+            rawAmount: rawVal,
+            currency,
+            isBase: wasBase
+          };
+          current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+          if ($("budgetInput")) $("budgetInput").value = current.budget;
+          renderMensuales();
+          await saveMonthToFirestore(month);
+        }
+      }
+    } else {
+      const isRecurring = extraRecurring?.checked;
+
+      if (!isRecurring) {
+        const current = ensureMonth(targetMonth);
+        if (!Array.isArray(current.extraIncomes)) current.extraIncomes = [];
+        current.extraIncomes.push({
+          id: createId("extra"),
+          date: baseDateStr,
+          category,
+          description,
+          amount: finalVal,
+          rawAmount: rawVal,
+          currency
+        });
+        current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
+        renderMensuales();
+        await saveMonthToFirestore(targetMonth);
+      } else {
+        const count = Number(extraDuration?.value) || 6;
+        const interval = Number(extraMonthsInput?.value) || 1;
+        const dayNum = Number(extraDay?.value) || 10;
+        const changing = extraChangingAmount?.checked;
+        const customInputs = extraRecurringAmounts?.querySelectorAll(".extra-rec-amount-input");
+
+        let baseDate = new Date(baseDateStr + "T00:00:00");
+
+        for (let i = 0; i < count; i++) {
+          const targetDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), dayNum);
+          const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}`;
+          const dateStr = `${monthKey}-${String(targetDate.getDate()).padStart(2, "0")}`;
+
+          let currentRaw = rawVal;
+          let currentFinal = finalVal;
+
+          if (changing && customInputs && customInputs[i]) {
+            currentRaw = Number(customInputs[i].value) || rawVal;
+            currentFinal = currency === "USD" ? currentRaw * (currentDolarBlue > 0 ? currentDolarBlue : 1) : currentRaw;
+          }
+
+          const finalDesc = `🔄 ${description ? description + " " : ""}(Cuota ${i + 1}/${count})`.trim();
+          const monthData = ensureMonth(monthKey);
+          if (!Array.isArray(monthData.extraIncomes)) monthData.extraIncomes = [];
+
+          monthData.extraIncomes.push({
+            id: createId("extra"),
+            date: dateStr,
+            category,
+            description: finalDesc,
+            amount: currentFinal,
+            rawAmount: currentRaw,
+            currency
+          });
+          monthData.budget = monthData.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+          await saveMonthToFirestore(monthKey);
+        }
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
+        renderMensuales();
+        alert(`✓ Ingreso extra repetido exitosamente durante ${count} período(s).`);
+      }
+    }
+
+    $("extraDialog")?.close();
+  });
+
+  $("saveBudgetBtn")?.addEventListener("click", async () => {
+    const month = $("monthPicker")?.value;
+    if (!month) return;
+    const current = ensureMonth(month);
+    const baseVal = Number($("budgetInput")?.value || 0);
+
+    if (!Array.isArray(current.extraIncomes)) current.extraIncomes = [];
+    
+    let baseEntry = current.extraIncomes.find(x => x.isBase === true);
+    if (baseEntry) {
+      baseEntry.amount = baseVal;
+      baseEntry.rawAmount = baseVal;
+    } else if (baseVal > 0) {
+      current.extraIncomes.unshift({
+        id: createId("base"),
+        isBase: true,
+        date: new Date().toISOString().slice(0, 10),
+        category: "Presupuesto Base",
+        description: "Presupuesto inicial del mes",
+        amount: baseVal,
+        rawAmount: baseVal,
+        currency: "ARS"
+      });
+    }
+
+    current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    renderMensuales();
+    await saveMonthToFirestore(month);
+    alert("Presupuesto guardado correctamente.");
+  });
+
+  $("addExpenseBtn")?.addEventListener("click", () => {
+    $("expenseForm")?.reset();
+    if ($("expenseForm")) delete $("expenseForm").dataset.editingId;
+    
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if ($("expenseDate")) $("expenseDate").value = todayStr;
+
+    const currentActiveMonth = $("monthPicker")?.value || currentMonthValue();
+    if ($("expenseTargetMonth")) $("expenseTargetMonth").value = currentActiveMonth;
+
+    if ($("modalTitle")) $("modalTitle").textContent = "Agregar gasto";
+    recurringOptions?.classList.add("hidden");
+    recurringAmounts?.classList.add("hidden");
+    $("expenseDialog")?.showModal();
+  });
+
+  $("closeDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
+  $("cancelDialog")?.addEventListener("click", () => $("expenseDialog")?.close());
+
+  $("expenseForm")?.addEventListener("submit", async e => {
+    e.preventDefault();
+    const editingId = $("expenseForm").dataset.editingId;
+    const baseDateStr = $("expenseDate").value;
+    const targetMonth = $("expenseTargetMonth")?.value || baseDateStr.slice(0, 7);
+    const description = $("expenseDescription").value.trim();
+    const category = $("expenseCategory").value;
+    const baseAmount = Number($("expenseAmount").value);
+    const currency = $("expenseCurrency")?.value || "ARS";
+
+    if (editingId) {
+      let oldMonthKey = null;
+      let expenseObj = null;
+      for (const [mKey, mData] of Object.entries(data.months)) {
+        const found = (mData.expenses || []).find(x => x.id === editingId);
+        if (found) {
+          oldMonthKey = mKey;
+          expenseObj = found;
+          break;
+        }
+      }
+
+      if (expenseObj && oldMonthKey) {
+        expenseObj.date = baseDateStr; 
+        expenseObj.description = description; 
+        expenseObj.category = category; 
+        expenseObj.amount = baseAmount; 
+        expenseObj.currency = currency;
+
+        if (oldMonthKey !== targetMonth) {
+          data.months[oldMonthKey].expenses = data.months[oldMonthKey].expenses.filter(x => x.id !== editingId);
+          const newMonthData = ensureMonth(targetMonth);
+          newMonthData.expenses.push(expenseObj);
+
+          await saveMonthToFirestore(oldMonthKey);
+          await saveMonthToFirestore(targetMonth);
+        } else {
+          await saveMonthToFirestore(targetMonth);
+        }
+
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
+        renderMensuales();
+      } else {
+        const monthData = ensureMonth(targetMonth);
+        const exp = monthData.expenses.find(x => x.id === editingId);
+        if (exp) {
+          exp.date = baseDateStr; 
+          exp.description = description; 
+          exp.category = category; 
+          exp.amount = baseAmount; 
+          exp.currency = currency;
+          if ($("monthPicker")) $("monthPicker").value = targetMonth;
+          renderMensuales();
+          await saveMonthToFirestore(targetMonth);
+        }
+      }
+    } else {
+      const isRecurring = expenseRecurring?.checked;
+
+      if (!isRecurring) {
+        const expense = { id: createId("expense"), date: baseDateStr, description, category, amount: baseAmount, currency };
+        const monthData = ensureMonth(targetMonth);
+        monthData.expenses.push(expense);
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
+        renderMensuales();
+        await saveMonthToFirestore(targetMonth);
+      } else {
+        const count = Number(recurringDuration?.value) || 6;
+        const interval = Number(recurringMonthsInput?.value) || 1;
+        const dayNum = Number(recurringDay?.value) || 10;
+        const changing = recurringChangingAmount?.checked;
+        const customInputs = recurringAmounts?.querySelectorAll(".rec-amount-input");
+
+        let baseDate = new Date(baseDateStr + "T00:00:00");
+
+        for (let i = 0; i < count; i++) {
+          const targetDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), dayNum);
+          const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}`;
+          const dateStr = `${monthKey}-${String(targetDate.getDate()).padStart(2, "0")}`;
+
+          let amount = baseAmount;
+          if (changing && customInputs && customInputs[i]) {
+            amount = Number(customInputs[i].value) || baseAmount;
+          }
+
+          const finalDescription = `🔄 ${description} (Cuota ${i + 1}/${count})`;
+
+          const expense = { id: createId("expense"), date: dateStr, description: finalDescription, category, amount, currency };
+          const monthData = ensureMonth(monthKey);
+          monthData.expenses.push(expense);
+          await saveMonthToFirestore(monthKey);
+        }
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
+        renderMensuales();
+        alert(`✓ Gasto repetido exitosamente durante ${count} período(s).`);
+      }
+    }
+
+    $("expenseDialog")?.close();
+  });
+
+  $("clearMonthBtn")?.addEventListener("click", async () => {
+    const month = $("monthPicker")?.value;
+    if (!confirm(`¿Borrar todos los gastos de ${monthName(month)}?`)) return;
+    await deleteDoc(doc(db, "users", currentUser.uid, "months", month));
+    delete data.months[month];
+    ensureMonth(month);
+    renderMensuales();
+  });
+
+  $("newUserBtn")?.addEventListener("click", async () => {
+    if (!confirm("⚠️ ¿Estás segura de reiniciar todo y borrar todos los meses?")) return;
+    const snap = await getDocs(collection(db, "users", currentUser.uid, "months"));
+    const batch = writeBatch(db);
+    snap.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+    data = { months: {} };
+    renderMensuales();
+  });
+
+  document.querySelectorAll(".gp-filter").forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll(".gp-filter").forEach(x => x.className = "btn btn-outline btn-sm gp-filter");
+      b.className = "btn btn-pink btn-sm gp-filter";
+      gpCurrentFilter = b.dataset.filter;
+      renderProximos();
+    };
+  });
+
+  $("gpSearchInput")?.addEventListener("input", e => {
+    gpSearchTerm = e.target.value;
+    renderProximos();
+  });
+
+  $("gpOpenModalBtn")?.addEventListener("click", () => {
+    $("gpExpenseForm")?.reset();
+    if ($("gpExpenseId")) $("gpExpenseId").value = "";
+    if ($("gpDate")) {
+      const today = new Date();
+      $("gpDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    }
+    if ($("gpModalTitle")) $("gpModalTitle").textContent = "Agregar registro pendiente";
+    $("gpModal")?.showModal();
+  });
+
+  $("gpCloseModalBtn")?.addEventListener("click", () => $("gpModal")?.close());
+  $("gpCancelBtn")?.addEventListener("click", () => $("gpModal")?.close());
+
+  $("gpExpenseForm")?.addEventListener("submit", async e => {
+    e.preventDefault();
+    const id = $("gpExpenseId").value || createId("proximo");
+    const type = document.querySelector('input[name="gpType"]:checked')?.value || "expense";
+    const description = $("gpDescription").value.trim();
+    const category = $("gpCategory").value;
+    const amountVal = $("gpAmount").value;
+    const currency = $("gpCurrency").value;
+    const quantity = Number($("gpQuantity").value) || 1;
+    const date = $("gpDate").value;
+    const notes = $("gpNotes").value.trim();
+    const amount = amountVal === "" ? null : Number(amountVal);
+
+    const existing = proximosExpenses.find(x => x.id === id);
+    const payload = {
+      id, type, description, category, amount, currency, quantity, date, notes,
+      paid: existing ? existing.paid : false,
+      createdAt: existing ? existing.createdAt : new Date().toISOString()
+    };
+
+    await setDoc(doc(db, "users", currentUser.uid, "proximos", id), payload, { merge: true });
+    $("gpModal")?.close();
+  });
+
+  $("mensualesCsvBtn")?.addEventListener("click", () => {
+    const month = $("monthPicker")?.value;
+    const current = ensureMonth(month);
+    
+    const rows = [
+      [`"Presupuesto del mes"`, `"${current.budget}"`],
+      [],
+      ["Fecha", "Descripción", "Categoría", "Monto", "Moneda"]
+    ];
+
+    current.expenses.forEach(e => {
+      rows.push([e.date, `"${(e.description || "").replace(/"/g, '""')}"`, e.category, e.amount, e.currency || "ARS"]);
+    });
+
+    downloadCSV(rows, `MENSUALES-${month}.csv`);
+  });
+
+  $("gpCsvBtn")?.addEventListener("click", () => {
+    if (!proximosExpenses.length) { alert("No hay registros pendientes para exportar."); return; }
+    const rows = [["Fecha", "Concepto", "Categoría", "Tipo", "Estado", "Monto", "Moneda", "Cantidad", "Notas"]];
+    proximosExpenses.forEach(e => {
+      rows.push([
+        e.date, `"${(e.description || "").replace(/"/g, '""')}"`, getCategoryName(e.category),
+        e.type === "debt" ? "Deuda" : "Gasto", e.paid ? "Pagado" : "Pendiente",
+        e.amount !== null ? e.amount : "", e.currency || "ARS", e.quantity || 1, `"${(e.notes || "").replace(/"/g, '""')}"`
+      ]);
+    });
+    downloadCSV(rows, `Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.csv`);
+  });
+
+  $("pdfBtn")?.addEventListener("click", generateMensualesPDF);
+  $("gpPdfBtn")?.addEventListener("click", generateProximosPDF);
+
+  const toggleAmountsBtn = $("toggleAmountsBtn");
+  if (localStorage.getItem("mensuales_hide_amounts") === "true") {
+    document.body.classList.add("amounts-hidden");
+    if (toggleAmountsBtn) toggleAmountsBtn.textContent = "👁️ Mostrar montos";
+  }
+
+  toggleAmountsBtn?.addEventListener("click", () => {
+    const hidden = document.body.classList.toggle("amounts-hidden");
+    localStorage.setItem("mensuales_hide_amounts", hidden);
+    toggleAmountsBtn.textContent = hidden ? "👁️ Mostrar montos" : "👁️ Ocultar montos";
+    renderMensuales();
+  });
+
+  function setupCollapsible(btnId, container, storageKey, label) {
+    const btn = $(btnId);
+    if (!btn || !container) return;
+    if (localStorage.getItem(storageKey) === "true") {
+      container.classList.add("collapsed");
+      btn.textContent = `▼ Mostrar ${label}`;
+    }
+    btn.onclick = () => {
+      const col = container.classList.toggle("collapsed");
+      localStorage.setItem(storageKey, col);
+      btn.textContent = col ? `▼ Mostrar ${label}` : `▲ Ocultar ${label}`;
+    };
+  }
+
+  setupCollapsible("toggleToolbarBtn", $("toolbarContainer"), "mensuales_toolbar_collapsed", "barra");
+  setupCollapsible("toggleBudgetBtn", $("budgetContainer"), "mensuales_budget_collapsed", "resumen");
+  setupCollapsible("toggleTableBtn", document.querySelector(".table-container-collapsible"), "mensuales_table_collapsed", "tabla");
+  setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
+  setupCollapsible("toggleExtraHistoryBtn", $("extraHistoryContainer"), "mensuales_extra_history_collapsed", "historial extra");
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}
