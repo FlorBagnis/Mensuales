@@ -1,13 +1,13 @@
 /* =========================================================
-   SISTEMA DE 3 TEMAS
+   VARIABLES DE COLOR POR TEMA
 ========================================================= */
 :root {
-  /* 1. MODO CLARO (ROSA Y BORDÓ ORIGINAL) */
-  --bg: #fcf1f4;
+  /* TEMA 1: ROSA CLARO (ORIGINAL DE LAS CAPTURAS) */
+  --bg: #fbf1f5;
   --card: #ffffff;
-  --text: #450f24;
-  --muted: #7d5062;
-  --line: #f6d6df;
+  --text: #52162a;
+  --muted: #855768;
+  --line: #f8d7e3;
   --pink-500: #ea5b8e;
   --pink-700: #52162a;
   --pink-bg: #fde8ee;
@@ -15,32 +15,42 @@
   --header-text: #52162a;
   --btn-main: #ea5b8e;
   --btn-main-text: #ffffff;
-  --btn-sub: #fce4ec;
-  --btn-sub-border: #f8b4c8;
-  --card-shadow: 0 4px 18px rgba(180, 80, 110, 0.05);
+  --btn-bordo: #52162a;
+  --btn-bordo-text: #ffffff;
+  --btn-light-pink: #f7cad9;
+  --btn-light-pink-text: #52162a;
+  --table-th-bg: #ea5b8e;
+  --table-th-text: #ffffff;
+  --card-shadow: 0 4px 20px rgba(180, 80, 110, 0.06);
+  --btn-hover-shadow: 0 6px 18px rgba(234, 91, 142, 0.35);
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* 2. MODO OSCURO (BORDÓ PROFUNDO ORIGINAL) */
+/* TEMA 2: MODO OSCURO (BORDÓ PROFUNDO ORIGINAL) */
 body.dark-mode {
-  --bg: #1a0913;
-  --card: #260d1b;
+  --bg: #1a0812;
+  --card: #270d1c;
   --text: #fde8f0;
   --muted: #b891a2;
-  --line: #421830;
+  --line: #441630;
   --pink-500: #ff6b95;
   --pink-700: #fde8f0;
-  --pink-bg: #361326;
-  --header-bg: #381427;
+  --pink-bg: #381227;
+  --header-bg: #3b1428;
   --header-text: #fde8f0;
   --btn-main: #ff6b95;
-  --btn-main-text: #1a0913;
-  --btn-sub: #2d1020;
-  --btn-sub-border: #4a1834;
-  --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  --btn-main-text: #1a0812;
+  --btn-bordo: #ff6b95;
+  --btn-bordo-text: #1a0812;
+  --btn-light-pink: #361226;
+  --btn-light-pink-text: #fde8f0;
+  --table-th-bg: #ff6b95;
+  --table-th-text: #1a0812;
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --btn-hover-shadow: 0 6px 18px rgba(255, 107, 149, 0.4);
 }
 
-/* 3. MODO AZUL OSCURO (CERO ROSA: AZUL MARINO Y ELÉCTRICO) */
+/* TEMA 3: MODO AZUL COMPLETO (DARK BLUE TOTAL) */
 body.dark-blue-mode {
   --bg: #060b18;
   --card: #0c162e;
@@ -54,13 +64,18 @@ body.dark-blue-mode {
   --header-text: #f1f5f9;
   --btn-main: #2563eb;
   --btn-main-text: #ffffff;
-  --btn-sub: #111f40;
-  --btn-sub-border: #1e356d;
-  --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  --btn-bordo: #2563eb;
+  --btn-bordo-text: #ffffff;
+  --btn-light-pink: #111f40;
+  --btn-light-pink-text: #93c5fd;
+  --table-th-bg: #1e356d;
+  --table-th-text: #ffffff;
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --btn-hover-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
 }
 
 /* =========================================================
-   ESTRUCTURA GENERAL
+   ESTILOS GENERALES Y CONTENEDOR
 ========================================================= */
 * {
   box-sizing: border-box;
@@ -110,15 +125,15 @@ body {
 }
 
 .auth-heart-badge {
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
   background: var(--pink-bg);
   color: var(--pink-500);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 26px;
   margin: 0 auto 16px auto;
 }
 
@@ -199,6 +214,7 @@ textarea:focus {
   color: #2e7d32;
 }
 
+/* ENLACE DE REGISTRO EN BORDÓ LIMPIO CON HOVER */
 .auth-switch-link,
 #authSwitchBtn {
   background: none !important;
@@ -206,24 +222,29 @@ textarea:focus {
   outline: none !important;
   box-shadow: none !important;
   color: var(--text) !important;
-  font-weight: 700 !important;
-  font-size: 0.88rem !important;
+  font-weight: 800 !important;
+  font-size: 0.9rem !important;
   cursor: pointer !important;
   display: inline-block !important;
-  margin-top: 22px !important;
-  padding: 0 !important;
+  margin-top: 24px !important;
+  padding: 4px 6px !important;
   text-decoration: none !important;
+  transition: transform 0.2s ease, opacity 0.2s ease !important;
 }
 
 .auth-switch-link:hover,
 #authSwitchBtn:hover {
   text-decoration: underline !important;
+  transform: scale(1.04) !important;
+  opacity: 0.9 !important;
 }
 
 /* =========================================================
-   BOTONES
+   EFECTO ZOOM + SOMBRA EN TODOS LOS BOTONES (HOVER RESTAURADO)
 ========================================================= */
-.btn {
+.btn,
+button.btn,
+button[type="submit"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -234,9 +255,23 @@ textarea:focus {
   font-weight: 700;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
   font-family: inherit;
   white-space: nowrap;
+}
+
+/* ZOOM Y SOMBRA ROSA AL PASAR EL CURSOR */
+.btn:hover,
+button.btn:hover,
+button[type="submit"]:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: var(--btn-hover-shadow);
+}
+
+.btn:active,
+button.btn:active,
+button[type="submit"]:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-pink {
@@ -245,8 +280,16 @@ textarea:focus {
   border-color: var(--btn-main);
 }
 
-.btn-pink:hover {
-  filter: brightness(0.94);
+.btn-bordo {
+  background-color: var(--btn-bordo);
+  color: var(--btn-bordo-text);
+  border-color: var(--btn-bordo);
+}
+
+.btn-light-pink {
+  background-color: var(--btn-light-pink);
+  color: var(--btn-light-pink-text);
+  border: 1px solid var(--line);
 }
 
 .btn-outline {
@@ -271,11 +314,12 @@ body.dark-blue-mode .btn-outline {
 }
 
 body.dark-mode .btn-dark {
-  background-color: #421830;
+  background-color: #ff6b95;
+  color: #1a0812;
 }
 
 body.dark-blue-mode .btn-dark {
-  background-color: #1e356d;
+  background-color: #2563eb;
 }
 
 .btn-block {
@@ -299,10 +343,15 @@ body.dark-blue-mode .btn-dark {
   cursor: pointer;
   color: var(--muted);
   line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.btn-close:hover {
+  transform: scale(1.2);
 }
 
 /* =========================================================
-   CABECERA PRINCIPAL
+   CABECERA PRINCIPAL (BANNER REDONDEADO DE LAS FOTOS)
 ========================================================= */
 .header-card {
   background: var(--header-bg);
@@ -370,9 +419,14 @@ body.dark-blue-mode .btn-dark {
 }
 
 .header-nav-btns .btn-sub-action {
-  background: var(--btn-sub);
-  border: 1px solid var(--btn-sub-border);
+  background: #ffffff;
+  border: 1px solid var(--line);
   color: var(--text);
+}
+
+body.dark-mode .header-nav-btns .btn-sub-action,
+body.dark-blue-mode .header-nav-btns .btn-sub-action {
+  background: var(--card);
 }
 
 /* =========================================================
@@ -434,7 +488,7 @@ body.dark-blue-mode .btn-dark {
 }
 
 /* =========================================================
-   TABLAS
+   TABLAS (ENCABEZADO EN ROSA SÓLIDO CON TEXTO BLANCO)
 ========================================================= */
 .table-wrapper {
   overflow-x: auto;
@@ -449,11 +503,11 @@ table {
 
 table th {
   padding: 12px 14px;
-  background-color: var(--pink-bg);
-  color: var(--text);
-  font-weight: 700;
+  background-color: var(--table-th-bg);
+  color: var(--table-th-text);
+  font-weight: 800;
   font-size: 0.82rem;
-  border-bottom: 1px solid var(--line);
+  border: none;
 }
 
 table td {
@@ -493,7 +547,7 @@ body.dark-blue-mode .badge {
 }
 
 /* =========================================================
-   MODALES FLOTANTES
+   MODALES FLOTANTES (POP-UPS NUNCA VISIBLES EN LOGIN)
 ========================================================= */
 dialog:not([open]) {
   display: none !important;
