@@ -1,6 +1,6 @@
 /* ==========================================
    GASTOS PRÓXIMOS
-   INTEGRACIÓN BIDIRECCIONAL CON MENSUALES + DÓLARES + MODO OSCURO + ALERTAS + CSV + BUSCADOR
+   INTEGRACIÓN BIDIRECCIONAL CON MENSUALES + DÓLARES + MODO OSCURO / AZUL + ALERTAS + CSV + BUSCADOR
 ========================================== */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
@@ -44,7 +44,6 @@ let unsubscribeExpenses = null;
 
 const $ = id => document.getElementById(id);
 
-
 // ELEMENTOS DEL DOM
 const modal = $("modal");
 const openModalBtn = $("openModalBtn");
@@ -55,11 +54,10 @@ const expensesList = $("expensesList");
 const emptyState = $("emptyState");
 
 const totalPending = $("totalPending");
-const nextSevenDays = = $("nextSevenDays");
+const nextSevenDays = $("nextSevenDays");
 const thisMonth = $("thisMonth");
 const totalDebts = $("totalDebts");
 const itemsCount = $("itemsCount");
-
 
 // REGISTRO DE SERVICE WORKER (PWA)
 if ("serviceWorker" in navigator) {
@@ -67,7 +65,6 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(err => console.log("SW error:", err));
   });
 }
-
 
 // FIRESTORE SYNC
 function getExpensesCollectionRef() {
@@ -118,8 +115,6 @@ async function saveExpenseToFirestore(item) {
   if (item.linkedMensualId) payload.linkedMensualId = item.linkedMensualId;
   if (item.linkedMonthKey) payload.linkedMonthKey = item.linkedMonthKey;
 
-
-
   await setDoc(docRef, payload, { merge: true });
 }
 
@@ -128,7 +123,6 @@ async function deleteExpenseFromFirestore(id) {
   const docRef = doc(db, "users", currentUser.uid, "proximos", id);
   await deleteDoc(docRef);
 }
-
 
 // COTIZACIÓN DÓLAR EN VIVO
 async function fetchDolarRate() {
@@ -145,21 +139,28 @@ async function fetchDolarRate() {
   }
 }
 
-
 // AUTENTICACIÓN
 function setAuthMessage(message, success = false) {
-  $("authMessage").textContent = message;
-  $("authMessage").classList.toggle("success", success);
+  const msg = $("authMessage");
+  if (!msg) return;
+  msg.textContent = message;
+  msg.classList.toggle("success", success);
 }
 
 function updateAuthInterface() {
   const isLogin = authMode === "login";
-  $("authSubmitBtn").disabled = false;
-  $("authSubmitBtn").textContent = isLogin ? "Iniciar sesión" : "Crear cuenta";
-  $("authSwitchBtn").textContent = isLogin
-    ? "¿No tenés una cuenta? Registrate"
-    : "¿Ya tenés una cuenta? Iniciá sesión";
-  $("authPassword").autocomplete = isLogin ? "current-password" : "new-password";
+  if ($("authSubmitBtn")) {
+    $("authSubmitBtn").disabled = false;
+    $("authSubmitBtn").textContent = isLogin ? "Iniciar sesión" : "Crear cuenta";
+  }
+  if ($("authSwitchBtn")) {
+    $("authSwitchBtn").textContent = isLogin
+      ? "¿No tenés una cuenta? Registrate"
+      : "¿Ya tenés una cuenta? Iniciá sesión";
+  }
+  if ($("authPassword")) {
+    $("authPassword").autocomplete = isLogin ? "current-password" : "new-password";
+  }
   setAuthMessage("");
 }
 
@@ -179,15 +180,15 @@ function firebaseErrorMessage(error) {
   return messages[code] || `Error (${code || "desconocido"}). Volvé a intentar.`;
 }
 
-$("authSwitchBtn").addEventListener("click", () => {
+$("authSwitchBtn")?.addEventListener("click", () => {
   authMode = authMode === "login" ? "register" : "login";
   updateAuthInterface();
 });
 
-$("authForm").addEventListener("submit", async event => {
+$("authForm")?.addEventListener("submit", async event => {
   event.preventDefault();
-  const email = $("authEmail").value.trim();
-  const password = $("authPassword").value;
+  const email = $("authEmail")?.value.trim() || "";
+  const password = $("authPassword")?.value || "";
 
   if (!email || !password) {
     setAuthMessage("Completá email y contraseña.");
@@ -195,8 +196,10 @@ $("authForm").addEventListener("submit", async event => {
   }
 
   const btn = $("authSubmitBtn");
-  btn.disabled = true;
-  btn.textContent = authMode === "login" ? "Ingresando..." : "Creando cuenta...";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = authMode === "login" ? "Ingresando..." : "Creando cuenta...";
+  }
 
   try {
     if (authMode === "register") {
@@ -207,12 +210,12 @@ $("authForm").addEventListener("submit", async event => {
   } catch (error) {
     console.error("Firebase Auth Error:", error);
     setAuthMessage(firebaseErrorMessage(error));
-    btn.disabled = false;
+    if (btn) btn.disabled = false;
     updateAuthInterface();
   }
 });
 
-$("logoutBtn").addEventListener("click", async () => {
+$("logoutBtn")?.addEventListener("click", async () => {
   const confirmed = confirm("¿Querés cerrar sesión?");
   if (!confirmed) return;
 
@@ -231,17 +234,17 @@ onAuthStateChanged(auth, user => {
   if (!user) {
     stopFirestoreSync();
     expenses = [];
-    $("authSection").classList.remove("hidden");
-    $("appContent").classList.add("hidden");
-    $("userEmail").textContent = "";
-    $("authForm").reset();
+    $("authSection")?.classList.remove("hidden");
+    $("appContent")?.classList.add("hidden");
+    if ($("userEmail")) $("userEmail").textContent = "";
+    $("authForm")?.reset();
     updateAuthInterface();
     return;
   }
 
-  $("authSection").classList.add("hidden");
-  $("appContent").classList.remove("hidden");
-  $("userEmail").textContent = user.email || "";
+  $("authSection")?.classList.add("hidden");
+  $("appContent")?.classList.remove("hidden");
+  if ($("userEmail")) $("userEmail").textContent = user.email || "";
 
   setDefaultDate();
   setupAmountsToggle();
@@ -251,26 +254,42 @@ onAuthStateChanged(auth, user => {
   startFirestoreSync();
 });
 
-
-// MODO OSCURO CON LOCALSTORAGE
+// GESTIÓN DE TEMAS (MODO OSCURO Y MODO AZUL OSCURO)
 function setupThemeToggle() {
   const toggleThemeBtn = $("toggleThemeBtn");
-  const isDark = localStorage.getItem("gastos_proximos_theme") === "dark";
+  const toggleBlueThemeBtn = $("toggleBlueThemeBtn");
+  const savedTheme = localStorage.getItem("gastos_proximos_theme") || "light";
 
-  if (isDark) {
+  if (savedTheme === "dark") {
     document.body.classList.add("dark-mode");
+    document.body.classList.remove("dark-blue-mode");
     if (toggleThemeBtn) toggleThemeBtn.textContent = "☀️ Modo claro";
+  } else if (savedTheme === "blue") {
+    document.body.classList.add("dark-blue-mode");
+    document.body.classList.remove("dark-mode");
+    if (toggleBlueThemeBtn) toggleBlueThemeBtn.textContent = "☀️ Modo claro";
   }
 
   if (toggleThemeBtn) {
     toggleThemeBtn.onclick = () => {
-      const activeDark = document.body.classList.toggle("dark-mode");
-      localStorage.setItem("gastos_proximos_theme", activeDark ? "dark" : "light");
-      toggleThemeBtn.textContent = activeDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
+      const isDark = document.body.classList.toggle("dark-mode");
+      document.body.classList.remove("dark-blue-mode");
+      localStorage.setItem("gastos_proximos_theme", isDark ? "dark" : "light");
+      toggleThemeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
+      if (toggleBlueThemeBtn) toggleBlueThemeBtn.textContent = "🔹 Modo azul";
+    };
+  }
+
+  if (toggleBlueThemeBtn) {
+    toggleBlueThemeBtn.onclick = () => {
+      const isBlue = document.body.classList.toggle("dark-blue-mode");
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("gastos_proximos_theme", isBlue ? "blue" : "light");
+      toggleBlueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "🔹 Modo azul";
+      if (toggleThemeBtn) toggleThemeBtn.textContent = "🌙 Modo oscuro";
     };
   }
 }
-
 
 // SÍMBOLO DINÁMICO SEGÚN SELECTOR
 function setupCurrencyIndicator() {
@@ -283,15 +302,12 @@ function setupCurrencyIndicator() {
   });
 }
 
-
 // OCULTAR / MOSTRAR MONTOS
 function setupAmountsToggle() {
   const toggleAmountsBtn = $("toggleAmountsBtn");
   if (!toggleAmountsBtn) return;
 
   const isHidden = localStorage.getItem("gastos_proximos_hide_amounts") === "true";
-
-
 
   if (isHidden) {
     document.body.classList.add("amounts-hidden");
@@ -308,33 +324,32 @@ function setupAmountsToggle() {
   };
 }
 
-
 // MODAL
 function openModal() {
-  modal.classList.add("show");
+  modal?.classList.add("show");
 }
 
 function closeModal() {
-  modal.classList.remove("show");
-  expenseForm.reset();
-  $("expenseId").value = "";
+  modal?.classList.remove("show");
+  expenseForm?.reset();
+  if ($("expenseId")) $("expenseId").value = "";
   if ($("currency")) $("currency").value = "ARS";
   if ($("currencySymbol")) $("currencySymbol").textContent = "$";
-  $("modalTitle").textContent = "Agregar registro";
+  if ($("modalTitle")) $("modalTitle").textContent = "Agregar registro";
   setDefaultDate();
 }
 
-openModalBtn.addEventListener("click", openModal);
-emptyAddBtn.addEventListener("click", openModal);
-closeModalBtn.addEventListener("click", closeModal);
+openModalBtn?.addEventListener("click", openModal);
+emptyAddBtn?.addEventListener("click", openModal);
+closeModalBtn?.addEventListener("click", closeModal);
 
-modal.addEventListener("click", event => {
+modal?.addEventListener("click", event => {
   if (event.target === modal) closeModal();
 });
 
 function setDefaultDate() {
   const dateInput = $("date");
-  if (!dateInput.value) {
+  if (dateInput && !dateInput.value) {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, "0");
@@ -343,23 +358,20 @@ function setDefaultDate() {
   }
 }
 
-
 // GUARDAR / EDITAR
-expenseForm.addEventListener("submit", async event => {
+expenseForm?.addEventListener("submit", async event => {
   event.preventDefault();
 
-  const id = $("expenseId").value;
-  const type = document.querySelector('input[name="type"]:checked').value;
-  const description = $("description").value.trim();
-  const category = $("category").value;
-  const amountValue = $("amount").value;
+  const id = $("expenseId")?.value;
+  const type = document.querySelector('input[name="type"]:checked')?.value || "expense";
+  const description = $("description")?.value.trim() || "";
+  const category = $("category")?.value || "otros";
+  const amountValue = $("amount")?.value;
   const currency = $("currency") ? $("currency").value : "ARS";
-  const quantity = Number($("quantity").value) || 1;
-  const date = $("date").value;
-  const notes = $("notes").value.trim();
+  const quantity = Number($("quantity")?.value) || 1;
+  const date = $("date")?.value || new Date().toISOString().slice(0, 10);
+  const notes = $("notes")?.value.trim() || "";
   const amount = amountValue === "" ? null : Number(amountValue);
-
-
 
   const currentExpense = id ? expenses.find(e => e.id === id) : null;
 
@@ -385,7 +397,6 @@ expenseForm.addEventListener("submit", async event => {
     alert("No se pudo guardar el registro en la nube.");
   }
 });
-
 
 // FORMATEADORES & MAPEOS
 function formatMoney(value, currency = "ARS") {
@@ -423,8 +434,6 @@ function getDueAlert(dateString, isPaid) {
   today.setHours(0, 0, 0, 0);
   const target = new Date(`${dateString}T00:00:00`);
   const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
-
-
 
   if (diffDays < 0) {
     return { text: "⚠️ Vencido", style: "background:#ffebee; color:#d32f2f; border:1px solid #ffcdd2;" };
@@ -492,7 +501,6 @@ function mapCategoryToMensuales(category) {
   return map[key] || "Otros";
 }
 
-
 // RENDER
 function render() {
   updateSummary();
@@ -525,17 +533,16 @@ function getFilteredExpenses() {
 
 function renderExpenses() {
   const filtered = getFilteredExpenses();
+  if (!expensesList) return;
   expensesList.innerHTML = "";
 
-
-
   if (filtered.length === 0) {
-    emptyState.style.display = "block";
+    if (emptyState) emptyState.style.display = "block";
     updateCounter(0);
     return;
   }
 
-  emptyState.style.display = "none";
+  if (emptyState) emptyState.style.display = "none";
   filtered.forEach(expense => {
     expensesList.appendChild(createExpenseElement(expense));
   });
@@ -548,7 +555,7 @@ function createExpenseElement(expense) {
   article.className = "expense";
 
   const icon = getCategoryIcon(expense.category);
-  const category = getCategoryName(expense.category;
+  const category = getCategoryName(expense.category);
   const curr = expense.currency || "ARS";
 
   const amountHTML = expense.amount === null
@@ -600,15 +607,14 @@ function createExpenseElement(expense) {
       const id = btn.dataset.id;
       const action = btn.dataset.action;
       if (action === "pay") markAsPaid(id);
-      if (action === "unpay") markAsUnpaid(id;
-      if (action === "edit") editExpense(id;
-      if (action === "delete") deleteExpense(id;
+      if (action === "unpay") markAsUnpaid(id);
+      if (action === "edit") editExpense(id);
+      if (action === "delete") deleteExpense(id);
     });
   });
 
   return article;
 }
-
 
 // BUSCADOR EN VIVO
 $("searchInput")?.addEventListener("input", e => {
@@ -616,40 +622,35 @@ $("searchInput")?.addEventListener("input", e => {
   renderExpenses();
 });
 
-
 // ACCIONES
 function editExpense(id) {
   const expense = expenses.find(item => item.id === id);
   if (!expense) return;
 
-
-
-  $("expenseId").value = expense.id;
-  $("description").value = expense.description;
-  $("category").value = expense.category;
-  $("amount").value = expense.amount === null ? "" : expense.amount;
+  if ($("expenseId")) $("expenseId").value = expense.id;
+  if ($("description")) $("description").value = expense.description;
+  if ($("category")) $("category").value = expense.category;
+  if ($("amount")) $("amount").value = expense.amount === null ? "" : expense.amount;
   if ($("currency")) {
     $("currency").value = expense.currency || "ARS";
     if ($("currencySymbol")) {
       $("currencySymbol").textContent = expense.currency === "USD" ? "u$s" : "$";
     }
   }
-  $("quantity").value = expense.quantity;
-  $("date").value = expense.date;
-  $("notes").value = expense.notes || "";
+  if ($("quantity")) $("quantity").value = expense.quantity;
+  if ($("date")) $("date").value = expense.date;
+  if ($("notes")) $("notes").value = expense.notes || "";
 
   const radio = document.querySelector(`input[name="type"][value="${expense.type}"]`);
   if (radio) radio.checked = true;
 
-  $("modalTitle").textContent = "Editar registro";
+  if ($("modalTitle")) $("modalTitle").textContent = "Editar registro";
   openModal();
 }
 
 async function markAsPaid(id) {
   const expense = expenses.find(item => item.id === id);
   if (!expense) return;
-
-
 
   if (expense.amount === null || expense.amount <= 0) {
     alert("Para marcarlo como pagado y enviarlo a MENSUALES, tenés que definir un monto primero.");
@@ -664,12 +665,12 @@ async function markAsPaid(id) {
   expense.linkedMensualId = mensualId;
   expense.linkedMonthKey = monthKey;
 
-  await saveExpenseToFirestore(expense;
+  await saveExpenseToFirestore(expense);
 
-  const monthDocRef = doc(db, "users", currentUser.uid, "months", monthKey;
+  const monthDocRef = doc(db, "users", currentUser.uid, "months", monthKey);
 
   try {
-    const docSnap = await getDoc(monthDocRef;
+    const docSnap = await getDoc(monthDocRef);
     let monthData = { budget: 0, expenses: [] };
 
     if (docSnap.exists()) {
@@ -681,13 +682,13 @@ async function markAsPaid(id) {
       id: mensualId,
       date: payDate,
       description: expense.description,
-      category: mapCategoryToMensuales(expense.category,
-      amount: Number(expense.amount,
+      category: mapCategoryToMensuales(expense.category),
+      amount: Number(expense.amount),
       currency: expense.currency || "ARS"
     };
 
     monthData.expenses = monthData.expenses.filter(e => e.id !== mensualId);
-    monthData.expenses.push(newMensualExpense;
+    monthData.expenses.push(newMensualExpense);
 
     await setDoc(monthDocRef, monthData, { merge: true });
     alert(`✓ Pago registrado y sumado a MENSUALES (${monthKey})`);
@@ -701,24 +702,21 @@ async function markAsUnpaid(id) {
   const expense = expenses.find(item => item.id === id);
   if (!expense) return;
 
-
-
   const payDate = expense.date || new Date().toISOString().slice(0, 10);
   const monthKey = expense.linkedMonthKey || payDate.slice(0, 7);
   const mensualId = expense.linkedMensualId || `gp-${expense.id}`;
 
   expense.paid = false;
-  await saveExpenseToFirestore(expense;
+  await saveExpenseToFirestore(expense);
 
   try {
-    const monthDocRef = doc(db, "users", currentUser.uid, "months", monthKey;
-    const docSnap = await getDoc(monthDocRef;
+    const monthDocRef = doc(db, "users", currentUser.uid, "months", monthKey);
+    const docSnap = await getDoc(monthDocRef);
 
     if (docSnap.exists()) {
-
       const monthData = docSnap.data();
       if (Array.isArray(monthData.expenses)) {
-        monthData.expenses = monthData.expenses.filter(e => e.id !== mensualId;
+        monthData.expenses = monthData.expenses.filter(e => e.id !== mensualId);
         await setDoc(monthDocRef, monthData, { merge: true });
       }
     }
@@ -733,22 +731,15 @@ async function deleteExpense(id) {
   const expense = expenses.find(item => item.id === id);
   if (!expense) return;
 
-
-
   const confirmed = confirm(`¿Querés eliminar "${expense.description}"?`);
   if (!confirmed) return;
 
-
-
-  await deleteExpenseFromFirestore(id;
+  await deleteExpenseFromFirestore(id);
 }
-
 
 // RESUMEN CON DESGLOSE DUAL (ARS / USD)
 function updateSummary() {
-  const pending = expenses.filter(expense => !expense.paid;
-
-
+  const pending = expenses.filter(expense => !expense.paid);
 
   let totalPendingARS = 0;
   let totalPendingUSD = 0;
@@ -757,15 +748,13 @@ function updateSummary() {
     if (e.currency === "USD") totalPendingUSD += amt;
     else totalPendingARS += amt;
   });
-  totalPending.innerHTML = renderDualAmount(totalPendingARS, totalPendingUSD;
+  if (totalPending) totalPending.innerHTML = renderDualAmount(totalPendingARS, totalPendingUSD);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-
-
-  const sevenDays = new Date(today;
-  sevenDays.setDate(sevenDays.getDate() + 7;
+  const sevenDays = new Date(today);
+  sevenDays.setDate(sevenDays.getDate() + 7);
 
   let nextARS = 0;
   let nextUSD = 0;
@@ -779,12 +768,10 @@ function updateSummary() {
       if (e.currency === "USD") nextUSD += amt;
       else nextARS += amt;
     });
-  nextSevenDays.innerHTML = renderDualAmount(nextARS, nextUSD;
+  if (nextSevenDays) nextSevenDays.innerHTML = renderDualAmount(nextARS, nextUSD);
 
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
-
-
 
   let monthARS = 0;
   let monthUSD = 0;
@@ -798,7 +785,7 @@ function updateSummary() {
       if (e.currency === "USD") monthUSD += amt;
       else monthARS += amt;
     });
-  thisMonth.innerHTML = renderDualAmount(monthARS, monthUSD;
+  if (thisMonth) thisMonth.innerHTML = renderDualAmount(monthARS, monthUSD);
 
   let debtsARS = 0;
   let debtsUSD = 0;
@@ -809,11 +796,11 @@ function updateSummary() {
       if (e.currency === "USD") debtsUSD += amt;
       else debtsARS += amt;
     });
-  totalDebts.innerHTML = renderDualAmount(debtsARS, debtsUSD;
+  if (totalDebts) totalDebts.innerHTML = renderDualAmount(debtsARS, debtsUSD);
 }
 
 function updateCounter(count) {
-  itemsCount.textContent = `${count} ${count === 1 ? "registro" : "registros"}`;
+  if (itemsCount) itemsCount.textContent = `${count} ${count === 1 ? "registro" : "registros"}`;
 }
 
 document.querySelectorAll(".filter").forEach(button => {
@@ -834,7 +821,6 @@ function escapeHTML(value) {
     .replace(/'/g, "&#039;");
 }
 
-
 // ==========================================
 // EXPORTAR A CSV (EXCEL / SHEETS)
 // ==========================================
@@ -848,7 +834,7 @@ $("csvBtn")?.addEventListener("click", () => {
     ["Fecha", "Concepto", "Categoría", "Tipo", "Estado", "Monto", "Moneda", "Cantidad", "Notas"]
   ];
 
-  const sorted = [...expenses].sort((a, b) => new Date(a.date) - new Date(b.date;
+  const sorted = [...expenses].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   sorted.forEach(e => {
     rows.push([
@@ -875,9 +861,8 @@ $("csvBtn")?.addEventListener("click", () => {
   document.body.removeChild(link);
 });
 
-
 // ==========================================
-// EXPORTAR REPORTE A PDF (ADAPTADO A MODO OSCURO)
+// EXPORTAR REPORTE A PDF (ADAPTADO A MODO OSCURO Y MODO AZUL)
 // ==========================================
 $("pdfBtn")?.addEventListener("click", () => {
   if (!window.jspdf) {
@@ -888,32 +873,52 @@ $("pdfBtn")?.addEventListener("click", () => {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
 
-
-
-  // --- DETECCIÓN DE MODO OSCURO PARA PDF ---
   const isDarkMode = document.body.classList.contains("dark-mode");
-  const pink =isDarkMode ? [255, 120, 160] : [232,, 93,  ​158];
-  const dark =isDarkMode ? [240,, 240,, 240] : [51,, 41,, 52];
-  const light =isDarkMode ? [45,,  ​35,,  ​40]   : [255,,  ​240,,  ​247];
-  const headerBg =isDarkMode ? [55,,  ​30,,  ​45] : [255,,  ​227,,  ​240];
-  const cardBorder =isDarkMode ? [80,,  ​45,,  ​60] : [240,,  ​223,,  ​232];
-  const lineDivider =isDarkMode ? [50,,  ​35,,  ​42] : [245,,  ​230,,  ​238];
+  const isBlueMode = document.body.classList.contains("dark-blue-mode");
 
-  if (isDarkMode) {
-    pdf.setFillColor(25,,  ​20,,  ​25);
-    pdf.rect(0,,  ​0,,  ​210,,  ​297,, "F");
+  let pink, dark, light, headerBg, cardBorder, lineDivider, pageBg, footerColor;
+
+  if (isBlueMode) {
+    pink = [76, 201, 240];
+    dark = [255, 255, 255];
+    light = [28, 37, 65];
+    headerBg = [11, 19, 43];
+    cardBorder = [58, 80, 107];
+    lineDivider = [38, 55, 80];
+    pageBg = [11, 19, 43];
+    footerColor = [141, 153, 174];
+  } else if (isDarkMode) {
+    pink = [255, 120, 160];
+    dark = [240, 240, 240];
+    light = [45, 35, 40];
+    headerBg = [55, 30, 45];
+    cardBorder = [80, 45, 60];
+    lineDivider = [50, 35, 42];
+    pageBg = [25, 20, 25];
+    footerColor = [200, 150, 170];
+  } else {
+    pink = [232, 93, 158];
+    dark = [51, 41, 52];
+    light = [255, 240, 247];
+    headerBg = [255, 227, 240];
+    cardBorder = [240, 223, 232];
+    lineDivider = [245, 230, 238];
+    pageBg = null;
+    footerColor = [160, 140, 150];
   }
-  // ----------------------------------------
+
+  if (pageBg) {
+    pdf.setFillColor(...pageBg);
+    pdf.rect(0, 0, 210, 297, "F");
+  }
 
   pdf.setFillColor(...headerBg);
-  pdf.roundedRect(15,,  ​15,,  ​180,,  ​26,,  ​4,,  ​4,, "F");
+  pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
 
   pdf.setTextColor(...dark);
   pdf.setFontSize(16);
   pdf.setFont("helvetica", "bold");
-  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21,,  ​26);
-
-
+  pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);
 
   const todayStr = new Date().toLocaleDateString("es-AR", {
     day: "2-digit",
@@ -921,24 +926,16 @@ $("pdfBtn")?.addEventListener("click", () => {
     year: "numeric"
   });
 
-
-
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte emitido el ${todayStr}`, 21,,  ​33);
+  pdf.text(`Reporte emitido el ${todayStr}`, 21, 33);
 
-
-
-  const pendingItems = expenses.filter(e => !e.paid;
-
-
+  const pendingItems = expenses.filter(e => !e.paid);
 
   let totalPendingARS = 0;
   let totalPendingUSD = 0;
-  let debtsARS =  ​0;
-  let debtsUSD =  ​0;
-
-
+  let debtsARS = 0;
+  let debtsUSD = 0;
 
   pendingItems.forEach(e => {
     const amt = Number(e.amount || 0);
@@ -951,10 +948,8 @@ $("pdfBtn")?.addEventListener("click", () => {
     }
   });
 
- const strPending = totalPendingUSD > 0 ? `${formatMoney(totalPendingARS)} + ${formatMoney(totalPendingUSD, "USD")}` : formatMoney(totalPendingARS);
+  const strPending = totalPendingUSD > 0 ? `${formatMoney(totalPendingARS)} + ${formatMoney(totalPendingUSD, "USD")}` : formatMoney(totalPendingARS);
   const strDebts = debtsUSD > 0 ? `${formatMoney(debtsARS)} + ${formatMoney(debtsUSD, "USD")}` : formatMoney(debtsARS);
-
-
 
   const cards = [
     ["PENDIENTE TOTAL", strPending],
@@ -962,72 +957,52 @@ $("pdfBtn")?.addEventListener("click", () => {
     ["ITEMS PENDIENTES", `${pendingItems.length}`]
   ];
 
-
-
   cards.forEach((card, index) => {
     const x = 15 + index * 60;
     pdf.setDrawColor(...cardBorder);
-    pdf.roundedRect(x,,  ​46,,  ​56,,  ​22,,  ​3,,  ​3,, "S");
-
-
+    pdf.roundedRect(x, 46, 56, 22, 3, 3, "S");
 
     pdf.setTextColor(...pink);
     pdf.setFontSize(7);
     pdf.setFont("helvetica", "bold");
-    pdf.text(card[0], x + 4,,  ​53);
-
-
+    pdf.text(card[0], x + 4, 53);
 
     pdf.setTextColor(...dark);
     pdf.setFontSize(9);
-    pdf.text(card[1], x + 4,,  ​62);
+    pdf.text(card[1], x + 4, 62);
   });
-
-
 
   let y = 76;
   pdf.setFillColor(...pink);
-  pdf.rect(15,,  ​y,,  ​180,,  ​7,, "F");
-
-
+  pdf.rect(15, y, 180, 7, "F");
 
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(7);
   pdf.setFont("helvetica", "bold");
-  pdf.text("FECHA", 18,,  ​y + 5);
-  pdf.text("CONCEPTO / DETALLE", 42,,  ​y + 5);
-  pdf.text("CATEGORÍA", 115,,  ​y + 5);
-  pdf.text("ESTADO", 145,,  ​y + 5);
-  pdf.text("MONTO", 170,,  ​y + 5);
-
-
+  pdf.text("FECHA", 18, y + 5);
+  pdf.text("CONCEPTO / DETALLE", 42, y + 5);
+  pdf.text("CATEGORÍA", 115, y + 5);
+  pdf.text("ESTADO", 145, y + 5);
+  pdf.text("MONTO", 170, y + 5);
 
   y += 7;
   pdf.setFont("helvetica", "normal");
 
-
-
-  const sortedExpenses = [...expenses].sort((a, b) => new Date(a.date) - new Date(b.date);
-
-
+  const sortedExpenses = [...expenses].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   sortedExpenses.forEach(expense => {
     if (y > 275) {
       pdf.addPage();
-      if (isDarkMode) {
-        pdf.setFillColor(25, 20, 25);
+      if (pageBg) {
+        pdf.setFillColor(...pageBg);
         pdf.rect(0, 0, 210, 297, "F");
       }
       y = 20;
     }
 
-
-
     const state = expense.paid ? "Pagado" : expense.type === "debt" ? "Deuda" : "Pendiente";
     const curr = expense.currency || "ARS";
     const amountStr = expense.amount !== null ? formatMoney(expense.amount, curr) : "A definir";
-
-
 
     pdf.setTextColor(...dark);
     pdf.setFontSize(7);
@@ -1037,25 +1012,19 @@ $("pdfBtn")?.addEventListener("click", () => {
     pdf.text(state, 145, y + 5);
     pdf.text(amountStr, 170, y + 5);
 
-
-
     pdf.setDrawColor(...lineDivider);
     pdf.line(15, y + 8, 195, y + 8);
     y += 9;
   });
 
-
-
   if (y > 265) {
     pdf.addPage();
-    if (isDarkMode) {
-      pdf.setFillColor(25, 20, 25);
+    if (pageBg) {
+      pdf.setFillColor(...pageBg);
       pdf.rect(0, 0, 210, 297, "F");
     }
     y = 20;
   }
-
-
 
   pdf.setFillColor(...light);
   pdf.rect(15, y, 180, 9, "F");
@@ -1065,29 +1034,23 @@ $("pdfBtn")?.addEventListener("click", () => {
   pdf.text("TOTAL PENDIENTE DE PAGO", 18, y + 6);
   pdf.text(strPending, 150, y + 6);
 
-
-
   pdf.setFontSize(7);
-  const footerColorGP = isDarkMode ? [200, 150, 170] : [160, 140, 150];
-  pdf.setTextColor(...footerColorGP);
+  pdf.setTextColor(...footerColor);
   pdf.text("Gastos Próximos · Creado por Flor Bagnis", 15, 287);
-
-
 
   pdf.save(`Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.pdf`);
 });
 
-
-// Mostrar / Ocultar contraseña con estilo florcita y candado
-const togglePasswordBtn = document.getElementById('togglePasswordBtn');
-const authPasswordInput = document.getElementById('authPassword');
-
-if (togglePasswordBtn && authPasswordInput) {
-  togglePasswordBtn.addEventListener('click', () => {
-    const isPassword = authPasswordInput.type === 'password';
-    authPasswordInput.type = isPassword ? 'text' : 'password';
-    
-    // Cambia entre la florcita 🌸 (texto visible) y el candado 🔒 (oculto)
-    togglePasswordBtn.textContent = isPassword ? '🌸' : '🔒';
-  });
-}
+// DELEGACIÓN GLOBAL INFALIBLE PARA MOSTRAR/OCULTAR CONTRASEÑA (🌸 / 🔒)
+document.addEventListener("click", e => {
+  const btn = e.target.closest("#togglePasswordBtn");
+  if (btn) {
+    e.preventDefault();
+    const authPasswordInput = $("authPassword");
+    if (authPasswordInput) {
+      const isPassword = authPasswordInput.type === "password";
+      authPasswordInput.type = isPassword ? "text" : "password";
+      btn.textContent = isPassword ? "🌸" : "🔒";
+    }
+  }
+});
