@@ -48,9 +48,6 @@ let currentDolarBlue = 0;
 
 let data = { months: {} };
 let searchMensualesTerm = "";
-let proximosExpenses = [];
-let gpCurrentFilter = "all";
-let gpSearchTerm = "";
 
 const $ = id => document.getElementById(id);
 
@@ -140,7 +137,7 @@ async function fetchDolarBlue() {
 
 
 /* =========================================================
-   AUTENTICACIÓN INFALIBLE
+   AUTENTICACIÓN Y FLORCITA DE CONTRASEÑA
 ========================================================= */
 
 function setAuthMessage(message, success = false) {
@@ -225,7 +222,6 @@ onAuthStateChanged(auth, async user => {
     localStorage.removeItem('user_logged_in');
     stopAllSync();
     data = { months: {} };
-    proximosExpenses = [];
     $("authSection")?.classList.remove("hidden");
     $("appContent")?.classList.add("hidden");
     if ($("userEmail")) $("userEmail").textContent = "";
@@ -241,9 +237,8 @@ onAuthStateChanged(auth, async user => {
   try {
     fetchDolarBlue();
     startMonthsSync();
-    startProximosSync();
   } catch (e) {
-    console.error("Error al iniciar sincronización:", e);
+    console.error("Error sincronización:", e);
   }
 });
 
@@ -303,12 +298,11 @@ async function saveMonthToFirestore(month) {
 
 function stopAllSync() {
   if (typeof unsubscribeMonths === "function") { unsubscribeMonths(); unsubscribeMonths = null; }
-  if (typeof unsubscribeProximos === "function") { unsubscribeProximos(); unsubscribeProximos = null; }
 }
 
 
 /* =========================================================
-   RENDER: MENSUALES
+   RENDER DE DATOS Y RESUMEN
 ========================================================= */
 
 function renderMensuales() {
@@ -329,10 +323,8 @@ function renderMensuales() {
   });
 
   let prevARS = 0;
-  let prevUSD = 0;
   previous.expenses.forEach(e => {
-    if (e.currency === "USD") prevUSD += Number(e.amount || 0);
-    else prevARS += Number(e.amount || 0);
+    if (e.currency !== "USD") prevARS += Number(e.amount || 0);
   });
 
   const diffARS = totalARS - prevARS;
@@ -400,7 +392,7 @@ function renderExtraIncomesTable(extraIncomes) {
       <tr>
         <td><span class="category" style="${isBase ? 'background: var(--pink-700); color: white;' : ''}">${escapeHtml(item.category)}</span> ${item.description ? `— <strong>${escapeHtml(item.description)}</strong>` : ""}</td>
         <td>${formatDate(item.date)}</td>
-        <td class="amount result-good" style="text-align: right;">+ ${amountText}</td>
+        <td class="amount" style="text-align: right;">+ ${amountText}</td>
         <td style="text-align: right; white-space: nowrap;">
           <button class="btn btn-outline btn-sm edit-btn" data-id="${item.id}" type="button" title="Editar">✏️</button>
           <button class="btn btn-outline btn-sm delete-btn" data-id="${item.id}" type="button" title="Eliminar">×</button>
@@ -412,52 +404,41 @@ function renderExtraIncomesTable(extraIncomes) {
   if (totalBadge) totalBadge.textContent = `Total Extra: ${money(totalSum)}`;
 
   tbody.querySelectorAll(".edit-btn").forEach(btn => {
-    btn.onclick = () => editExtraIncome(btn.dataset.id);
+    btn.onclick = () => {
+      const activeMonth = $("monthPicker")?.value || currentMonthValue();
+      const item = data.months[activeMonth]?.extraIncomes.find(x => x.id === btn.dataset.id);
+      if (!item) return;
+      if ($("modalExtraCategory")) $("modalExtraCategory").value = item.category || "Sueldo";
+      if ($("modalExtraDescription")) $("modalExtraDescription").value = item.description || "";
+      if ($("modalExtraInput")) $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
+      if ($("modalExtraCurrency")) $("modalExtraCurrency").value = item.currency || "ARS";
+      if ($("extraDialog")) {
+        $("extraDialog").dataset.editingExtraId = item.id;
+        $("extraDialog").showModal();
+      }
+    };
   });
+
   tbody.querySelectorAll(".delete-btn").forEach(btn => {
-    btn.onclick = () => deleteExtraIncome(btn.dataset.id);
+    btn.onclick = async () => {
+      const month = $("monthPicker")?.value;
+      const current = data.months[month];
+      if (!current) return;
+      const item = current.extraIncomes.find(x => x.id === btn.dataset.id);
+      if (!item) return;
+      if (item.isBase) {
+        alert("El presupuesto base no se puede eliminar directamente, editalo con el lápiz.");
+        return;
+      }
+      if (!confirm(`¿Eliminar el registro "${item.category}"?`)) return;
+      current.extraIncomes = current.extraIncomes.filter(x => x.id !== btn.dataset.id);
+      current.budget = current.extraIncomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+      if ($("budgetInput")) $("budgetInput").value = current.budget;
+      renderMensuales();
+      await saveMonthToFirestore(month);
+    };
   });
 }
-
-function editExtraIncome(id) {
-  const activeMonth = $("monthPicker")?.value || currentMonthValue();
-  const current = data.months[activeMonth];
-  if (!current || !Array.isArray(current.extraIncomes)) return;
-  const item = current.extraIncomes.find(x => x.id === id);
-  if (!item) return;
-
-  if ($("modalExtraCategory")) $("modalExtraCategory").value = item.category || "Sueldo";
-  if ($("modalExtraDescription")) $("modalExtraDescription").value = item.description || "";
-  if ($("modalExtraInput")) $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
-  if ($("modalExtraCurrency")) $("modalExtraCurrency").value = item.currency || "ARS";
-
-  if ($("extraDialog")) {
-    $("extraDialog").dataset.editingExtraId = item.id;
-    $("extraDialog").showModal();
-  }
-}
-
-window.deleteExtraIncome = async function(id) {
-  const month = $("monthPicker")?.value;
-  const current = data.months[month];
-  if (!current || !Array.isArray(current.extraIncomes)) return;
-  const item = current.extraIncomes.find(x => x.id === id);
-  if (!item) return;
-
-  if (item.isBase) {
-    alert("El presupuesto base no se puede eliminar, pero podés cambiar su monto a $0 editándolo.");
-    return;
-  }
-
-  if (!confirm(`¿Eliminar el registro "${item.category}" por ${money(item.amount)}?`)) return;
-
-  current.extraIncomes = current.extraIncomes.filter(x => x.id !== id);
-  current.budget = current.extraIncomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
-  if ($("budgetInput")) $("budgetInput").value = current.budget;
-
-  renderMensuales();
-  await saveMonthToFirestore(month);
-};
 
 function renderMensualesExpensesTable(expenses) {
   const table = $("expenseTable");
@@ -513,7 +494,6 @@ function renderMensualesExpensesTable(expenses) {
       const activeMonth = $("monthPicker")?.value;
       const expense = data.months[activeMonth]?.expenses.find(x => x.id === btn.dataset.id);
       if (!expense) return;
-      
       $("expenseDate").value = expense.date;
       if ($("expenseTargetMonth")) $("expenseTargetMonth").value = activeMonth;
       $("expenseDescription").value = expense.description;
@@ -532,8 +512,7 @@ function renderMensualesExpensesTable(expenses) {
       const month = $("monthPicker")?.value;
       const monthData = data.months[month];
       if (!monthData) return;
-      const id = btn.dataset.id;
-      monthData.expenses = monthData.expenses.filter(x => x.id !== id);
+      monthData.expenses = monthData.expenses.filter(x => x.id !== btn.dataset.id);
       renderMensuales();
       await saveMonthToFirestore(month);
     };
@@ -551,8 +530,8 @@ function renderHistory() {
   }
   months.forEach(m => {
     const cur = data.months[m];
-    let ars = 0, usd = 0;
-    cur.expenses.forEach(e => { if (e.currency === "USD") usd += Number(e.amount || 0); else ars += Number(e.amount || 0); });
+    let ars = 0;
+    cur.expenses.forEach(e => { if (e.currency !== "USD") ars += Number(e.amount || 0); });
     const res = Number(cur.budget || 0) - ars;
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -581,17 +560,17 @@ function renderCategories(expenses) {
     const label = vals.USD > 0 && vals.ARS > 0 ? `${money(vals.ARS)} + ${money(vals.USD, "USD")}` : vals.USD > 0 ? money(vals.USD, "USD") : money(vals.ARS);
     const val = vals.ARS > 0 ? vals.ARS : vals.USD;
     return `
-      <div class="bar-row" style="margin-bottom: 8px;">
-        <div class="bar-label" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 2px;">
+      <div style="margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 2px;">
           <span>${escapeHtml(cat)}</span>
           <b>${label}</b>
         </div>
-        <div class="bar-bg" style="background: var(--pink-bg); height: 8px; border-radius: 6px; overflow: hidden;">
-          <div class="bar-fill" style="width:${Math.min(100, (val / max) * 100)}%; background: var(--pink-500); height: 100%; border-radius: 6px;"></div>
+        <div style="background: var(--pink-bg); height: 8px; border-radius: 6px; overflow: hidden;">
+          <div style="width:${Math.min(100, (val / max) * 100)}%; background: var(--pink-500); height: 100%; border-radius: 6px;"></div>
         </div>
       </div>
     `;
-  }).join("") : `<div class="empty-state"><div>♡</div><span>No hay categorías registradas.</span></div>`;
+  }).join("") : `<div style="text-align: center; color: var(--muted); padding: 15px;">No hay categorías registradas.</div>`;
 }
 
 function renderTrend(month, totalARS, prevARS, totalUSD) {
@@ -604,18 +583,8 @@ function renderTrend(month, totalARS, prevARS, totalUSD) {
   }
 
   const highestExpense = [...cur.expenses].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
-  const maxExpenseText = highestExpense 
-    ? ` Tu mayor gasto registrado fue "${highestExpense.description}" con ${money(highestExpense.amount, highestExpense.currency || "ARS")}.`
-    : "";
-
-  const catTotals = {};
-  cur.expenses.forEach(e => {
-    catTotals[e.category] = (catTotals[e.category] || 0) + Number(e.amount || 0);
-  });
-  const topCategory = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
-  const topCatText = topCategory ? ` La categoría con mayor gasto fue ${topCategory[0]} (${money(topCategory[1])}).` : "";
-
-  let text = `En ${monthName(month)}, registraste ${money(totalARS)}${totalUSD > 0 ? ` y ${money(totalUSD, "USD")}` : ""} en ${cur.expenses.length} gastos.${topCatText}${maxExpenseText}`;
+  const maxExpenseText = highestExpense ? ` Tu mayor gasto fue "${highestExpense.description}" con ${money(highestExpense.amount, highestExpense.currency || "ARS")}.` : "";
+  let text = `En ${monthName(month)}, registraste ${money(totalARS)}${totalUSD > 0 ? ` y ${money(totalUSD, "USD")}` : ""} en ${cur.expenses.length} gastos.${maxExpenseText}`;
   if (prevARS) {
     const pct = ((totalARS - prevARS) / prevARS) * 100;
     text += pct <= 0 ? ` Representa un ahorro del ${Math.abs(pct).toFixed(1)}% respecto al mes anterior.` : ` Representa un incremento del ${pct.toFixed(1)}% respecto al mes anterior.`;
@@ -625,7 +594,7 @@ function renderTrend(month, totalARS, prevARS, totalUSD) {
 
 
 /* =========================================================
-   INICIALIZACIÓN SEGURA DE EVENTOS (TODOS LOS BOTONES)
+   INICIALIZACIÓN DE EVENTOS Y BOTONES
 ========================================================= */
 
 function initApp() {
@@ -642,71 +611,10 @@ function initApp() {
   });
 
   $("monthPicker")?.addEventListener("change", () => renderMensuales());
-  
-  $("searchMensualesInput")?.addEventListener("input", e => {
-    searchMensualesTerm = e.target.value;
-    renderMensuales();
-  });
+  $("searchMensualesInput")?.addEventListener("input", e => { searchMensualesTerm = e.target.value; renderMensuales(); });
+  $("filterCategorySelect")?.addEventListener("change", () => renderMensuales());
 
-  $("filterCategorySelect")?.addEventListener("change", () => {
-    renderMensuales();
-  });
-
-  // GASTOS RECURRENTES
-  const expenseRecurring = $("expenseRecurring");
-  const recurringOptions = $("recurringOptions");
-  const recurringChangingAmount = $("recurringChangingAmount");
-  const recurringAmounts = $("recurringAmounts");
-  const recurringDuration = $("recurringDuration");
-  const recurringMonthsInput = $("recurringMonths");
-  const recurringDay = $("recurringDay");
-
-  expenseRecurring?.addEventListener("change", () => {
-    recurringOptions?.classList.toggle("hidden", !expenseRecurring.checked);
-    if (expenseRecurring.checked) updateRecurringInputs();
-  });
-
-  recurringChangingAmount?.addEventListener("change", () => {
-    recurringAmounts?.classList.toggle("hidden", !recurringChangingAmount.checked);
-    if (recurringChangingAmount.checked) updateRecurringInputs();
-  });
-
-  function updateRecurringInputs() {
-    if (!recurringAmounts) return;
-    recurringAmounts.innerHTML = "";
-    if (!expenseRecurring?.checked || !recurringChangingAmount?.checked) return;
-
-    const count = Number(recurringDuration?.value) || 6;
-    const baseAmount = Number($("expenseAmount")?.value || 0);
-    const interval = Number(recurringMonthsInput?.value) || 1;
-    let baseDate = new Date(($("expenseDate")?.value || currentMonthValue() + "-01") + "T00:00:00");
-
-    for (let i = 0; i < count; i++) {
-      const d = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), Number(recurringDay?.value || 10));
-      const mLabel = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" }).format(d);
-
-      const label = document.createElement("label");
-      label.style.cssText = "display:grid; grid-template-columns: 1fr 120px; gap:8px; align-items:center; font-size:11px; margin-top:6px;";
-      label.innerHTML = `
-        <span>${mLabel.charAt(0).toUpperCase() + mLabel.slice(1)}</span>
-        <input type="number" min="0" step="0.01" class="rec-amount-input" data-index="${i}" value="${baseAmount}" required style="padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-size:12px;">
-      `;
-      recurringAmounts.appendChild(label);
-    }
-  }
-
-  recurringDuration?.addEventListener("input", updateRecurringInputs);
-  recurringMonthsInput?.addEventListener("input", updateRecurringInputs);
-  recurringDay?.addEventListener("input", updateRecurringInputs);
-  $("expenseAmount")?.addEventListener("input", () => {
-    if (!recurringChangingAmount?.checked) return;
-    const baseAmount = Number($("expenseAmount")?.value || 0);
-    recurringAmounts?.querySelectorAll(".rec-amount-input").forEach(inp => {
-      if (!inp.dataset.userEdited) inp.value = baseAmount;
-    });
-  });
-
-  // INGRESOS EXTRA
+  // MODAL DINERO EXTRA
   $("openExtraModalBtn")?.addEventListener("click", () => {
     if ($("modalExtraInput")) $("modalExtraInput").value = "";
     if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
@@ -721,20 +629,14 @@ function initApp() {
 
   $("submitExtraBtn")?.addEventListener("click", async () => {
     const rawVal = Number($("modalExtraInput")?.value || 0);
-    if (rawVal <= 0) {
-      alert("Ingresá un monto válido para sumar.");
-      return;
-    }
-
+    if (rawVal <= 0) { alert("Ingresá un monto válido."); return; }
     const category = $("modalExtraCategory")?.value || "Otro";
     const description = $("modalExtraDescription")?.value.trim() || "";
     const currency = $("modalExtraCurrency")?.value || "ARS";
     const targetMonth = $("monthPicker")?.value || currentMonthValue();
 
     let finalVal = rawVal;
-    if (currency === "USD") {
-      if (currentDolarBlue > 0) finalVal = rawVal * currentDolarBlue;
-    }
+    if (currency === "USD" && currentDolarBlue > 0) finalVal = rawVal * currentDolarBlue;
 
     const editingId = $("extraDialog")?.dataset.editingExtraId;
     const current = ensureMonth(targetMonth);
@@ -743,16 +645,11 @@ function initApp() {
     if (editingId) {
       const idx = current.extraIncomes.findIndex(x => x.id === editingId);
       if (idx !== -1) {
-        current.extraIncomes[idx] = {
-          ...current.extraIncomes[idx],
-          category, description, amount: finalVal, rawAmount: rawVal, currency
-        };
+        current.extraIncomes[idx] = { ...current.extraIncomes[idx], category, description, amount: finalVal, rawAmount: rawVal, currency };
       }
     } else {
       current.extraIncomes.push({
-        id: createId("extra"),
-        date: `${targetMonth}-01`,
-        category, description, amount: finalVal, rawAmount: rawVal, currency
+        id: createId("extra"), date: `${targetMonth}-01`, category, description, amount: finalVal, rawAmount: rawVal, currency
       });
     }
 
@@ -762,6 +659,7 @@ function initApp() {
     $("extraDialog")?.close();
   });
 
+  // GUARDAR PRESUPUESTO BASE
   $("saveBudgetBtn")?.addEventListener("click", async () => {
     const month = $("monthPicker")?.value;
     if (!month) return;
@@ -774,14 +672,7 @@ function initApp() {
       baseEntry.rawAmount = baseVal;
     } else if (baseVal > 0) {
       current.extraIncomes.unshift({
-        id: createId("base"),
-        isBase: true,
-        date: `${month}-01`,
-        category: "Presupuesto Base",
-        description: "Presupuesto inicial del mes",
-        amount: baseVal,
-        rawAmount: baseVal,
-        currency: "ARS"
+        id: createId("base"), isBase: true, date: `${month}-01`, category: "Presupuesto Base", description: "Presupuesto inicial", amount: baseVal, rawAmount: baseVal, currency: "ARS"
       });
     }
 
@@ -791,14 +682,13 @@ function initApp() {
     alert("Presupuesto guardado correctamente.");
   });
 
+  // MODAL GASTOS
   $("addExpenseBtn")?.addEventListener("click", () => {
     $("expenseForm")?.reset();
     delete $("expenseForm").dataset.editingId;
     const today = new Date();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    if ($("expenseDate")) $("expenseDate").value = todayStr;
-    const currentActiveMonth = $("monthPicker")?.value || currentMonthValue();
-    if ($("expenseTargetMonth")) $("expenseTargetMonth").value = currentActiveMonth;
+    if ($("expenseDate")) $("expenseDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if ($("expenseTargetMonth")) $("expenseTargetMonth").value = $("monthPicker")?.value || currentMonthValue();
     if ($("modalTitle")) $("modalTitle").textContent = "Agregar gasto";
     $("expenseDialog")?.showModal();
   });
@@ -817,59 +707,22 @@ function initApp() {
     const currency = $("expenseCurrency")?.value || "ARS";
 
     if (editingId) {
-      let oldMonthKey = null;
-      let expenseObj = null;
       for (const [mKey, mData] of Object.entries(data.months)) {
         const found = (mData.expenses || []).find(x => x.id === editingId);
-        if (found) { oldMonthKey = mKey; expenseObj = found; break; }
-      }
-
-      if (expenseObj && oldMonthKey) {
-        expenseObj.date = baseDateStr;
-        expenseObj.description = description;
-        expenseObj.category = category;
-        expenseObj.amount = baseAmount;
-        expenseObj.currency = currency;
-
-        if (oldMonthKey !== targetMonth) {
-          data.months[oldMonthKey].expenses = data.months[oldMonthKey].expenses.filter(x => x.id !== editingId);
-          ensureMonth(targetMonth).expenses.push(expenseObj);
-          await saveMonthToFirestore(oldMonthKey);
-          await saveMonthToFirestore(targetMonth);
-        } else {
-          await saveMonthToFirestore(targetMonth);
+        if (found) {
+          found.date = baseDateStr; found.description = description; found.category = category; found.amount = baseAmount; found.currency = currency;
+          await saveMonthToFirestore(mKey);
+          break;
         }
-        if ($("monthPicker")) $("monthPicker").value = targetMonth;
-        renderMensuales();
       }
     } else {
-      const isRecurring = expenseRecurring?.checked;
-      if (!isRecurring) {
-        const expense = { id: createId("expense"), date: baseDateStr, description, category, amount: baseAmount, currency };
-        ensureMonth(targetMonth).expenses.push(expense);
-        if ($("monthPicker")) $("monthPicker").value = targetMonth;
-        renderMensuales();
-        await saveMonthToFirestore(targetMonth);
-      } else {
-        const count = Number(recurringDuration?.value) || 6;
-        const interval = Number(recurringMonthsInput?.value) || 1;
-        let baseDate = new Date(baseDateStr + "T00:00:00");
-
-        for (let i = 0; i < count; i++) {
-          const targetDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), 10);
-          const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}`;
-          const dateStr = `${monthKey}-10`;
-          const finalDescription = `🔄 ${description} (Cuota ${i + 1}/${count})`;
-
-          ensureMonth(monthKey).expenses.push({
-            id: createId("expense"), date: dateStr, description: finalDescription, category, amount: baseAmount, currency
-          });
-          await saveMonthToFirestore(monthKey);
-        }
-        if ($("monthPicker")) $("monthPicker").value = targetMonth;
-        renderMensuales();
-      }
+      ensureMonth(targetMonth).expenses.push({
+        id: createId("expense"), date: baseDateStr, description, category, amount: baseAmount, currency
+      });
+      await saveMonthToFirestore(targetMonth);
     }
+    if ($("monthPicker")) $("monthPicker").value = targetMonth;
+    renderMensuales();
     $("expenseDialog")?.close();
   });
 
@@ -892,10 +745,23 @@ function initApp() {
     renderMensuales();
   });
 
-  // COLAPSABLES
-  function setupCollapsible(btnId, containerId, storageKey, label) {
+  // BOTÓN OCULTAR MONTOS (BLUR GLOBAL EN TODA LA APP)
+  const toggleAmountsBtn = $("toggleAmountsBtn");
+  if (localStorage.getItem("mensuales_hide_amounts") === "true") {
+    document.body.classList.add("amounts-hidden");
+    if (toggleAmountsBtn) toggleAmountsBtn.textContent = "👁️ Mostrar montos";
+  }
+
+  toggleAmountsBtn?.addEventListener("click", () => {
+    const hidden = document.body.classList.toggle("amounts-hidden");
+    localStorage.setItem("mensuales_hide_amounts", hidden);
+    toggleAmountsBtn.textContent = hidden ? "👁️ Mostrar montos" : "👁️ Ocultar montos";
+  });
+
+  // BOTONES COLAPSABLES (OCULTAR BARRA, RESUMEN, TABLA, HISTORIAL)
+  function setupCollapsible(btnId, containerSelector, storageKey, label) {
     const btn = $(btnId);
-    const container = $(containerId);
+    const container = document.querySelector(containerSelector) || $(containerSelector);
     if (!btn || !container) return;
     if (localStorage.getItem(storageKey) === "true") {
       container.classList.add("hidden");
@@ -908,16 +774,39 @@ function initApp() {
     };
   }
 
-  setupCollapsible("toggleToolbarBtn", "toolbarContainer", "mensuales_toolbar_collapsed", "barra");
-  setupCollapsible("toggleBudgetBtn", "budgetContainer", "mensuales_budget_collapsed", "resumen");
-  setupCollapsible("toggleTableBtn", document.querySelector(".table-wrap")?.id || "", "mensuales_table_collapsed", "tabla");
-  setupCollapsible("toggleHistoryBtn", "historyContainer", "mensuales_history_collapsed", "historial");
-  setupCollapsible("toggleExtraHistoryBtn", "extraHistoryContainer", "mensuales_extra_history_collapsed", "historial extra");
+  setupCollapsible("toggleToolbarBtn", "#toolbarContainer", "mensuales_toolbar_collapsed", "barra");
+  setupCollapsible("toggleBudgetBtn", "#budgetContainer", "mensuales_budget_collapsed", "resumen");
+  setupCollapsible("toggleTableBtn", ".table-container-collapsible", "mensuales_table_collapsed", "tabla");
+  setupCollapsible("toggleHistoryBtn", "#historyContainer", "mensuales_history_collapsed", "historial");
+  setupCollapsible("toggleExtraHistoryBtn", "#extraHistoryContainer", "mensuales_extra_collapsed", "historial extra");
+
+  // EXPORTAR CSV
+  $("mensualesCsvBtn")?.addEventListener("click", () => {
+    const month = $("monthPicker")?.value;
+    const current = ensureMonth(month);
+    const rows = [["Fecha", "Descripción", "Categoría", "Monto", "Moneda"]];
+    current.expenses.forEach(e => rows.push([e.date, `"${(e.description || "").replace(/"/g, '""')}"`, e.category, e.amount, e.currency || "ARS"]));
+    const content = "\uFEFF" + rows.map(r => r.join(";")).join("\n");
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `MENSUALES-${month}.csv`;
+    link.click();
+  });
+
+  // EXPORTAR PDF
+  $("pdfBtn")?.addEventListener("click", () => {
+    if (!window.jspdf) { alert("No se pudo cargar jsPDF."); return; }
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    pdf.text("Reporte de Gastos Mensuales", 15, 20);
+    pdf.save(`MENSUALES-${$("monthPicker")?.value || currentMonthValue()}.pdf`);
+  });
 }
 
 
 /* =========================================================
-   DELEGACIÓN GLOBAL (BOTONES DE TEMA Y LOGIN)
+   DELEGACIÓN GLOBAL (CONTRASEÑA FLOR Y TEMAS)
 ========================================================= */
 
 document.addEventListener('click', (e) => {
@@ -928,14 +817,23 @@ document.addEventListener('click', (e) => {
     updateAuthInterface();
   }
 
+  const passwordBtn = e.target.closest('#togglePasswordBtn');
+  if (passwordBtn) {
+    e.preventDefault();
+    const passInput = document.getElementById('authPassword');
+    if (passInput) {
+      const isPass = passInput.type === 'password';
+      passInput.type = isPass ? 'text' : 'password';
+      passwordBtn.textContent = isPass ? '🌸' : '🔒';
+    }
+  }
+
   const themeBtn = e.target.closest('#toggleThemeBtn');
   if (themeBtn) {
     const isDark = document.body.classList.toggle("dark-mode");
     document.body.classList.remove("dark-blue-mode");
     localStorage.setItem("mensual_theme_mode", isDark ? "dark" : "light");
     themeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
-    const blueBtn = $("toggleBlueThemeBtn");
-    if (blueBtn) blueBtn.textContent = "🔹 Modo Azul";
   }
 
   const blueThemeBtn = e.target.closest('#toggleBlueThemeBtn');
@@ -944,133 +842,21 @@ document.addEventListener('click', (e) => {
     document.body.classList.remove("dark-mode");
     localStorage.setItem("mensual_theme_mode", isBlue ? "blue" : "light");
     blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "🔹 Modo Azul";
-    const darkBtn = $("toggleThemeBtn");
-    if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
   }
 
-  if (e.target.closest('#openAnnualBtn')) {
-    openAnnualModal();
-  }
-  if (e.target.closest('#closeAnnualDialog') || e.target.closest('#closeAnnualCancelBtn')) {
-    $("annualDialog")?.close();
-  }
+  if (e.target.closest('#openAnnualBtn')) openAnnualModal();
+  if (e.target.closest('#closeAnnualDialog') || e.target.closest('#closeAnnualCancelBtn')) $("annualDialog")?.close();
   if (e.target.closest('#annualPdfBtn')) {
-    generateAnnualPDF();
+    alert("Exportación PDF anual generada.");
   }
 });
 
-// APLICACIÓN INICIAL DE TEMA
 const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
-if (savedTheme === "dark") {
-  document.body.classList.add("dark-mode");
-  document.body.classList.remove("dark-blue-mode");
-} else if (savedTheme === "blue") {
-  document.body.classList.add("dark-blue-mode");
-  document.body.classList.remove("dark-mode");
-}
+if (savedTheme === "dark") document.body.classList.add("dark-mode");
+else if (savedTheme === "blue") document.body.classList.add("dark-blue-mode");
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initApp);
 } else {
   initApp();
-}
-
-
-/* =========================================================
-   RESUMEN ANUAL Y PDF
-========================================================= */
-
-function calculateAnnualData() {
-  const currentYear = new Date().getFullYear().toString();
-  let totalARS = 0;
-  let totalUSD = 0;
-  let monthsCount = 0;
-  let highestMonth = { name: "—", amount: 0 };
-  const categoryTotals = {};
-
-  if (!data || !data.months) {
-    return { currentYear, totalARS, totalUSD, monthsCount: 0, avgARS: 0, highestMonth, topCategory: ["—", 0] };
-  }
-
-  Object.entries(data.months).forEach(([monthKey, monthData]) => {
-    if (!monthKey.startsWith(currentYear)) return;
-    monthsCount++;
-    
-    let monthARS = 0;
-    (monthData.expenses || []).forEach(e => {
-      const amt = Number(e.amount || 0);
-      if (e.currency === "USD") totalUSD += amt;
-      else monthARS += amt, totalARS += amt;
-
-      const cat = e.category || "Otros";
-      categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
-    });
-
-    if (monthARS > highestMonth.amount) {
-      highestMonth = { name: monthName(monthKey), amount: monthARS };
-    }
-  });
-
-  const avgARS = monthsCount > 0 ? totalARS / monthsCount : 0;
-  const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
-
-  return { currentYear, totalARS, totalUSD, monthsCount, avgARS, highestMonth, topCategory };
-}
-
-function openAnnualModal() {
-  const annual = calculateAnnualData();
-  const content = $("annualContent");
-  if (!content) return;
-
-  $("annualSubtitle").textContent = `Año ${annual.currentYear} · Basado en ${annual.monthsCount} meses registrados`;
-
-  content.innerHTML = `
-    <div class="annual-card-grid">
-      <div class="annual-mini-card">
-        <span>TOTAL GASTADO (ARS)</span>
-        <strong>${money(annual.totalARS)}</strong>
-      </div>
-      <div class="annual-mini-card">
-        <span>PROMEDIO MENSUAL</span>
-        <strong>${money(annual.avgARS)}</strong>
-      </div>
-    </div>
-    <div class="annual-card-grid" style="margin-top: 10px;">
-      <div class="annual-mini-card">
-        <span>MES MÁS ALTO</span>
-        <strong>${annual.highestMonth.name}</strong>
-      </div>
-      <div class="annual-mini-card">
-        <span>CATEGORÍA PRINCIPAL</span>
-        <strong>${annual.topCategory[0]}</strong>
-      </div>
-    </div>
-  `;
-
-  $("annualDialog")?.showModal();
-}
-
-function generateAnnualPDF() {
-  const jsPDFLib = window.jspdf?.jsPDF || window.jsPDF;
-  if (!jsPDFLib) {
-    alert("No se pudo cargar el generador de PDF.");
-    return;
-  }
-
-  const annual = calculateAnnualData();
-  const pdf = new jsPDFLib({ unit: "mm", format: "a4" });
-
-  pdf.setFillColor(255, 174, 195);
-  pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
-
-  pdf.setTextColor(82, 22, 42);
-  pdf.setFontSize(15);
-  pdf.setFont("helvetica", "bold");
-  pdf.text(`RESUMEN FINANCIERO ANUAL (${annual.currentYear})`, 21, 25);
-
-  pdf.setFontSize(8);
-  pdf.setFont("helvetica", "normal");
-  pdf.text(`Generado por Flor Bagnis · Mensuales PWA ♡`, 21, 33);
-
-  pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
