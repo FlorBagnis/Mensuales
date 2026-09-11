@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control de Gastos · Mensuales</title>
   
-  <!-- COMPATIBILIDAD PWA (INSTALAR EN PC Y CELULAR) -->
+  <!-- COMPATIBILIDAD PWA PARA INSTALACIÓN EN PC Y CELULAR -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ea5b8e">
   <meta name="mobile-web-app-capable" content="yes">
@@ -19,7 +19,7 @@
 <body>
 
   <!-- =========================================================
-       LOGIN ORIGINAL (CON CORAZÓN ♡ Y ENLACE LIMPIO)
+       SECCIÓN DE AUTENTICACIÓN (DISEÑO EXACTO CON CORAZÓN)
   ========================================================= -->
   <section id="authSection" class="auth-section">
     <div class="auth-card">
@@ -58,7 +58,7 @@
   <div id="appContent" class="hidden">
     <div class="app-container">
 
-      <!-- CABECERA EN TARJETA REDONDEADA -->
+      <!-- CABECERA EN TARJETA REDONDEADA ROSA -->
       <header class="header-card">
         <div class="header-inner">
           <div class="header-left">
@@ -110,9 +110,9 @@
                 <input type="number" id="budgetInput" step="0.01" placeholder="0.00">
               </div>
 
-              <button type="button" id="saveBudgetBtn" class="btn btn-pink">Guardar presupuesto</button>
+              <button type="button" id="saveBudgetBtn" class="btn btn-light-pink">Guardar presupuesto</button>
               <button type="button" id="openExtraModalBtn" class="btn btn-outline">➕ Sumar dinero extra</button>
-              <button type="button" id="addExpenseBtn" class="btn btn-pink">+ Nuevo gasto</button>
+              <button type="button" id="addExpenseBtn" class="btn btn-bordo">+ Nuevo gasto</button>
               <button type="button" id="mensualesCsvBtn" class="btn btn-outline">📊 CSV</button>
               <button type="button" id="pdfBtn" class="btn btn-outline">📄 PDF</button>
               <button type="button" id="openAnnualBtn" class="btn btn-outline">🌸 Resumen Anual</button>
@@ -122,7 +122,7 @@
           </div>
         </section>
 
-        <!-- RESUMEN FINANCIERO -->
+        <!-- RESUMEN EN 4 TARJETAS -->
         <section class="card">
           <div class="card-header">
             <h2>Resumen</h2>
@@ -237,38 +237,40 @@
           </div>
         </section>
 
-        <!-- CATEGORÍAS Y TENDENCIAS -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 18px;">
+        <!-- HISTORIAL RECIENTE Y CATEGORÍAS EN 2 COLUMNAS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin-bottom: 18px;">
+          <!-- HISTORIAL DE MESES -->
+          <section class="card" style="margin-bottom: 0;">
+            <div class="card-header">
+              <h2>Historial reciente</h2>
+              <button type="button" id="toggleHistoryBtn" class="btn btn-outline btn-sm">▲ Ocultar historial</button>
+            </div>
+            <div id="historyContainer" class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="text-align: left;">Mes</th>
+                    <th style="text-align: left;">Presupuesto</th>
+                    <th style="text-align: left;">Gastado</th>
+                    <th style="text-align: right;">Balance</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- CATEGORÍAS -->
           <section class="card" style="margin-bottom: 0;">
             <h2>Gastos por categoría</h2>
             <div id="categoryChart" style="margin-top: 12px;"></div>
           </section>
-
-          <section class="card" style="margin-bottom: 0;">
-            <h2>Análisis de tendencia</h2>
-            <p id="trendText" style="margin-top: 12px; color: var(--text);">Cargando análisis de tus hábitos de gasto...</p>
-          </section>
         </div>
 
-        <!-- HISTORIAL DE MESES -->
-        <section class="card">
-          <div class="card-header">
-            <h2>Historial reciente</h2>
-            <button type="button" id="toggleHistoryBtn" class="btn btn-outline btn-sm">▲ Ocultar historial</button>
-          </div>
-          <div id="historyContainer" class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th style="text-align: left;">Mes</th>
-                  <th style="text-align: left;">Presupuesto</th>
-                  <th style="text-align: left;">Gastado</th>
-                  <th style="text-align: right;">Balance</th>
-                </tr>
-              </thead>
-              <tbody id="historyTable"></tbody>
-            </table>
-          </div>
+        <!-- ANÁLISIS DE TENDENCIA (RECUADRO ESTILO ORIGINAL) -->
+        <section class="card" style="border: 1px dashed var(--line); background: var(--card);">
+          <h2 style="display: flex; align-items: center; gap: 6px;">💡 Análisis de tendencia</h2>
+          <p id="trendText" style="margin-top: 10px; color: var(--text); line-height: 1.6;">Cargando análisis de tus hábitos de gasto...</p>
         </section>
 
       </section>
@@ -424,7 +426,7 @@
       </form>
     </dialog>
 
-    <!-- 2. MODAL DINERO EXTRA / PRESUPUESTO BASE (CON FECHA REAL, IMPUTAR Y REPETICIÓN) -->
+    <!-- 2. MODAL DINERO EXTRA / PRESUPUESTO BASE -->
     <dialog id="extraDialog">
       <div class="modal-header">
         <h3 id="extraModalTitle">➕ Sumar Dinero Extra</h3>
