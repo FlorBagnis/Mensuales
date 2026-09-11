@@ -1239,6 +1239,19 @@ function generateProximosPDF() {
 document.addEventListener("DOMContentLoaded", () => {
   if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
 
+  // FIX DEFINITIVO: Botón de visibilidad de contraseña (florcita / candado)
+  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+  const authPasswordInput = document.getElementById('authPassword');
+
+  if (togglePasswordBtn && authPasswordInput) {
+    togglePasswordBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const isPassword = authPasswordInput.type === 'password';
+      authPasswordInput.type = isPassword ? 'text' : 'password';
+      togglePasswordBtn.textContent = isPassword ? '🌸' : '🔒';
+    });
+  }
+
   $("authSwitchBtn")?.addEventListener("click", () => {
     authMode = authMode === "login" ? "register" : "login";
     updateAuthInterface();
@@ -1365,7 +1378,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* =========================================================
-     GESTIÓN DE DINERO EXTRA / INGRESOS (CON SOPORTE DE FECHA Y RECURRENCIA)
+     GESTIÓN DE DINERO EXTRA / INGRESOS (CON FECHA Y FRECUENCIA)
   ========================================================= */
 
   const extraRecurring = $("extraRecurring");
@@ -2072,16 +2085,6 @@ function generateAnnualPDF() {
    EVENTOS GLOBALES (DELEGACIÓN SEGURO)
 ========================================================= */
 document.addEventListener('click', (e) => {
-  const passwordBtn = e.target.closest('#togglePasswordBtn');
-  if (passwordBtn) {
-    const authPasswordInput = document.getElementById('authPassword');
-    if (authPasswordInput) {
-      const isPassword = authPasswordInput.type === 'password';
-      authPasswordInput.type = isPassword ? 'text' : 'password';
-      passwordBtn.textContent = isPassword ? '🌸' : '🔒';
-    }
-  }
-
   if (e.target.closest('#openAnnualBtn')) {
     openAnnualModal();
   }
@@ -2098,9 +2101,3 @@ document.addEventListener('click', (e) => {
     generateAnnualPDF();
   }
 });
-
-```
-
-*(Nota: Para que el formulario del modal de dinero extra permita elegir la fecha y frecuencia en el HTML, asegurate de tener un campo `<input type="date" id="modalExtraDate">` y los checkboxes de recurrencia correspondientes si querés que aparezcan visualmente en la ventana flotante).*
-
-¿Cómo lo ves con esta adición? 🌸✨
