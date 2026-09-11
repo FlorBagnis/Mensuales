@@ -12,7 +12,7 @@
 <body>
 
   <!-- =========================================================
-       SECCIÓN DE AUTENTICACIÓN (DISEÑO ORIGINAL CON CORAZÓN)
+       SECCIÓN DE AUTENTICACIÓN (DISEÑO EXACTO CON CORAZÓN)
   ========================================================= -->
   <section id="authSection" class="auth-section">
     <div class="auth-card">
@@ -40,18 +40,18 @@
         <button type="submit" id="authSubmitBtn" class="btn btn-pink btn-block">Iniciar sesión</button>
       </form>
 
-      <button type="button" id="authSwitchBtn" class="btn-link">¿No tenés una cuenta? Registrate</button>
+      <button type="button" id="authSwitchBtn" class="auth-switch-link">¿No tenés una cuenta? Registrate</button>
     </div>
   </section>
 
 
   <!-- =========================================================
-       CONTENIDO PRINCIPAL (DENTRO DE APP-CONTAINER)
+       CONTENIDO DE LA APP
   ========================================================= -->
   <div id="appContent" class="hidden">
     <div class="app-container">
 
-      <!-- CABECERA EN TARJETA REDONDEADA -->
+      <!-- CABECERA EN TARJETA REDONDEADA ROSA -->
       <header class="header-card">
         <div class="header-inner">
           <div class="header-left">
@@ -65,7 +65,7 @@
             <span id="userEmail" class="user-email"></span>
             <div class="header-nav-btns">
               <button type="button" id="tabMensualesBtn" class="btn btn-pink">📅 Mensuales</button>
-              <button type="button" id="tabProximosBtn" class="btn btn-outline">🌸 Próximos & Deudas</button>
+              <button type="button" id="tabProximosBtn" class="btn btn-sub-action">🌸 Próximos & Deudas</button>
               <button type="button" id="logoutBtn" class="btn btn-dark">Cerrar sesión</button>
             </div>
           </div>
@@ -77,11 +77,11 @@
       ===================================================== -->
       <section id="viewMensuales">
         
-        <!-- BARRA DE MODOS -->
+        <!-- BARRA FLOTANTE DE MODOS -->
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
-          <button type="button" id="toggleThemeBtn" class="btn btn-outline btn-sm">🌙 Modo oscuro</button>
-          <button type="button" id="toggleBlueThemeBtn" class="btn btn-outline btn-sm">🔹 Modo azul</button>
-          <button type="button" id="toggleAmountsBtn" class="btn btn-outline btn-sm">👁️ Ocultar montos</button>
+          <button type="button" id="toggleThemeBtn" class="btn btn-outline btn-sm btn-pill">🌙 Modo oscuro</button>
+          <button type="button" id="toggleBlueThemeBtn" class="btn btn-outline btn-sm btn-pill">🔹 Modo azul</button>
+          <button type="button" id="toggleAmountsBtn" class="btn btn-outline btn-sm btn-pill">👁️ Ocultar montos</button>
         </div>
 
         <!-- HERRAMIENTAS Y PRESUPUESTO -->
@@ -115,7 +115,7 @@
           </div>
         </section>
 
-        <!-- TARJETAS DE RESUMEN (4 CAJITAS ORDENADAS) -->
+        <!-- RESUMEN EN 4 TARJETAS -->
         <section class="card">
           <div class="card-header">
             <h2>Resumen</h2>
@@ -197,7 +197,7 @@
             <span>TOTAL · <strong id="totalMonthName">—</strong></span>
             <div style="text-align: right;">
               <strong id="tableTotal" style="font-size: 1.1rem;">$ 0,00</strong>
-              <div id="tableTotalUSD" style="display: none; color: var(--pink-700); font-size: 0.85rem;"></div>
+              <div id="tableTotalUSD" style="display: none; color: var(--pink-500); font-size: 0.85rem;"></div>
             </div>
           </div>
         </section>
@@ -231,7 +231,7 @@
         </section>
 
         <!-- GRÁFICO POR CATEGORÍAS Y TENDENCIAS -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 18px;">
           <section class="card" style="margin-bottom: 0;">
             <h2>Gastos por categoría</h2>
             <div id="categoryChart" style="margin-top: 12px;"></div>
@@ -320,7 +320,7 @@
     </div>
 
     <!-- =======================================================
-         MODALES FLOTANTES (CENTRADOS)
+         MODALES FLOTANTES (POP-UPS CENTRADOS)
     ======================================================= -->
 
     <!-- 1. MODAL NUEVO GASTO / EDITAR GASTO -->
@@ -376,6 +376,7 @@
           </div>
         </div>
 
+        <!-- Recurrencia Gastos -->
         <div style="margin-top: 10px;">
           <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;">
             <input type="checkbox" id="expenseRecurring" style="width: auto;">
@@ -467,6 +468,7 @@
         </div>
       </div>
 
+      <!-- Recurrencia Ingresos -->
       <div style="margin-top: 10px;">
         <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;">
           <input type="checkbox" id="extraRecurring" style="width: auto;">
