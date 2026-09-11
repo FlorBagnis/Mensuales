@@ -882,7 +882,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF
+   REPORTES PDF (SOPORTE MODO CLARO, OSCURO Y AZUL)
 ========================================================= */
 
 function generateMensualesPDF() {
@@ -924,16 +924,33 @@ function generateMensualesPDF() {
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
 
   const isDarkMode = document.body.classList.contains("dark-mode");
-  const pink = isDarkMode ? [255, 120, 160] : [245, 107, 139];
-  const dark = isDarkMode ? [240, 240, 240] : [85, 21, 45];
-  const light = isDarkMode ? [45, 35, 40]   : [255, 231, 236];
-  const headerBg = isDarkMode ? [55, 30, 45] : [255, 176, 194];
-  const cardBorder = isDarkMode ? [80, 45, 60] : [255, 197, 210];
-  const lineDivider = isDarkMode ? [50, 35, 42] : [245, 220, 227];
+  const isBlueMode = document.body.classList.contains("blue-mode");
 
-  if (isDarkMode) {
+  let pink, dark, light, headerBg, cardBorder, lineDivider;
+
+  if (isBlueMode) {
+    pink = [37, 99, 235];       // Azul vibrante
+    dark = [15, 23, 42];        // Texto azul oscuro / slate
+    light = [239, 246, 255];    // Fondo azul claro
+    headerBg = [219, 234, 254]; // Cabecera azul suave
+    cardBorder = [191, 219, 254]; // Bordes azules
+    lineDivider = [224, 231, 255];
+  } else if (isDarkMode) {
+    pink = [255, 120, 160];
+    dark = [240, 240, 240];
+    light = [45, 35, 40];
+    headerBg = [55, 30, 45];
+    cardBorder = [80, 45, 60];
+    lineDivider = [50, 35, 42];
     pdf.setFillColor(25, 20, 25);
     pdf.rect(0, 0, 210, 297, "F");
+  } else {
+    pink = [245, 107, 139];
+    dark = [85, 21, 45];
+    light = [255, 231, 236];
+    headerBg = [255, 176, 194];
+    cardBorder = [255, 197, 210];
+    lineDivider = [245, 220, 227];
   }
 
   pdf.setFillColor(...headerBg);
@@ -1070,7 +1087,7 @@ function generateMensualesPDF() {
   pdf.text(lines, 15, y + 6);
 
   pdf.setFontSize(7);
-  const footerColorMensuales = isDarkMode ? [200, 130, 150] : [160, 110, 125];
+  const footerColorMensuales = isBlueMode ? [100, 140, 200] : isDarkMode ? [200, 130, 150] : [160, 110, 125];
   pdf.setTextColor(...footerColorMensuales);
   pdf.text("MENSUALES · Creado por Flor Bagnis", 15, 287);
 
@@ -1087,16 +1104,33 @@ function generateProximosPDF() {
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
 
   const isDarkMode = document.body.classList.contains("dark-mode");
-  const pink = isDarkMode ? [255, 120, 160] : [232, 93, 158];
-  const dark = isDarkMode ? [240, 240, 240] : [51, 41, 52];
-  const light = isDarkMode ? [45, 35, 40]   : [255, 240, 247];
-  const headerBg = isDarkMode ? [55, 30, 45] : [255, 227, 240];
-  const cardBorder = isDarkMode ? [80, 45, 60] : [240, 223, 232];
-  const lineDivider = isDarkMode ? [50, 35, 42] : [245, 230, 238];
+  const isBlueMode = document.body.classList.contains("blue-mode");
 
-  if (isDarkMode) {
+  let pink, dark, light, headerBg, cardBorder, lineDivider;
+
+  if (isBlueMode) {
+    pink = [37, 99, 235];
+    dark = [15, 23, 42];
+    light = [239, 246, 255];
+    headerBg = [219, 234, 254];
+    cardBorder = [191, 219, 254];
+    lineDivider = [224, 231, 255];
+  } else if (isDarkMode) {
+    pink = [255, 120, 160];
+    dark = [240, 240, 240];
+    light = [45, 35, 40];
+    headerBg = [55, 30, 45];
+    cardBorder = [80, 45, 60];
+    lineDivider = [50, 35, 42];
     pdf.setFillColor(25, 20, 25);
     pdf.rect(0, 0, 210, 297, "F");
+  } else {
+    pink = [232, 93, 158];
+    dark = [51, 41, 52];
+    light = [255, 240, 247];
+    headerBg = [255, 227, 240];
+    cardBorder = [240, 223, 232];
+    lineDivider = [245, 230, 238];
   }
 
   pdf.setFillColor(...headerBg);
@@ -1224,7 +1258,7 @@ function generateProximosPDF() {
   pdf.text(strPending, 150, y + 6);
 
   pdf.setFontSize(7);
-  const footerColorProx = isDarkMode ? [200, 150, 170] : [160, 140, 150];
+  const footerColorProx = isBlueMode ? [100, 140, 200] : isDarkMode ? [200, 150, 170] : [160, 140, 150];
   pdf.setTextColor(...footerColorProx);
   pdf.text("Gastos Próximos · Creado por Flor Bagnis", 15, 287);
 
@@ -1239,7 +1273,7 @@ function generateProximosPDF() {
 document.addEventListener("DOMContentLoaded", () => {
   if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
 
-  // FIX DEFINITIVO: Botón de visibilidad de contraseña (florcita / candado)
+  // Botón de visibilidad de contraseña (florcita / candado)
   const togglePasswordBtn = document.getElementById('togglePasswordBtn');
   const authPasswordInput = document.getElementById('authPassword');
 
@@ -1251,6 +1285,37 @@ document.addEventListener("DOMContentLoaded", () => {
       togglePasswordBtn.textContent = isPassword ? '🌸' : '🔒';
     });
   }
+
+  // GESTIÓN DE TEMA CÍCLICO: Claro ☀️ -> Oscuro 🌙 -> Azul 🔹 -> Claro ☀️
+  const toggleThemeBtn = $("toggleThemeBtn");
+  const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
+
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    if (toggleThemeBtn) toggleThemeBtn.textContent = "🔹 Modo azul";
+  } else if (savedTheme === "blue") {
+    document.body.classList.add("blue-mode");
+    if (toggleThemeBtn) toggleThemeBtn.textContent = "☀️ Modo claro";
+  } else {
+    if (toggleThemeBtn) toggleThemeBtn.textContent = "🌙 Modo oscuro";
+  }
+
+  toggleThemeBtn?.addEventListener("click", () => {
+    if (document.body.classList.contains("dark-mode")) {
+      document.body.classList.remove("dark-mode");
+      document.body.classList.add("blue-mode");
+      localStorage.setItem("mensual_theme_mode", "blue");
+      toggleThemeBtn.textContent = "☀️ Modo claro";
+    } else if (document.body.classList.contains("blue-mode")) {
+      document.body.classList.remove("blue-mode");
+      localStorage.setItem("mensual_theme_mode", "light");
+      toggleThemeBtn.textContent = "🌙 Modo oscuro";
+    } else {
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("mensual_theme_mode", "dark");
+      toggleThemeBtn.textContent = "🔹 Modo azul";
+    }
+  });
 
   $("authSwitchBtn")?.addEventListener("click", () => {
     authMode = authMode === "login" ? "register" : "login";
@@ -1852,18 +1917,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
   });
 
-  const toggleThemeBtn = $("toggleThemeBtn");
-  if (localStorage.getItem("mensuales_theme") === "dark") {
-    document.body.classList.add("dark-mode");
-    if (toggleThemeBtn) toggleThemeBtn.textContent = "☀️ Modo claro";
-  }
-
-  toggleThemeBtn?.addEventListener("click", () => {
-    const isDark = document.body.classList.toggle("dark-mode");
-    localStorage.setItem("mensuales_theme", isDark ? "dark" : "light");
-    toggleThemeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
-  });
-
   function setupCollapsible(btnId, container, storageKey, label) {
     const btn = $(btnId);
     if (!btn || !container) return;
@@ -1978,17 +2031,36 @@ function generateAnnualPDF() {
   const pdf = new jsPDFLib({ unit: "mm", format: "a4" });
 
   const isDarkMode = document.body.classList.contains("dark-mode");
-  const dark = isDarkMode ? [240, 240, 240] : [85, 21, 45];
-  const softPinkBg = isDarkMode ? [45, 35, 40] : [255, 235, 242];
-  const cardBg = isDarkMode ? [35, 28, 33] : [255, 248, 250];
-  const borderPink = isDarkMode ? [80, 45, 60] : [242, 175, 195];
-  const mutedText = isDarkMode ? [200, 140, 160] : [158, 91, 114];
-  const headerBg = isDarkMode ? [55, 30, 45] : [255, 176, 194];
-  const subtitleColor = isDarkMode ? [220, 160, 180] : [110, 35, 55];
+  const isBlueMode = document.body.classList.contains("blue-mode");
 
-  if (isDarkMode) {
+  let dark, softPinkBg, cardBg, borderPink, mutedText, headerBg, subtitleColor;
+
+  if (isBlueMode) {
+    dark = [15, 23, 42];
+    softPinkBg = [239, 246, 255];
+    cardBg = [255, 255, 255];
+    borderPink = [191, 219, 254];
+    mutedText = [100, 116, 139];
+    headerBg = [219, 234, 254];
+    subtitleColor = [30, 64, 175];
+  } else if (isDarkMode) {
+    dark = [240, 240, 240];
+    softPinkBg = [45, 35, 40];
+    cardBg = [35, 28, 33];
+    borderPink = [80, 45, 60];
+    mutedText = [200, 140, 160];
+    headerBg = [55, 30, 45];
+    subtitleColor = [220, 160, 180];
     pdf.setFillColor(25, 20, 25);
     pdf.rect(0, 0, 210, 297, "F");
+  } else {
+    dark = [85, 21, 45];
+    softPinkBg = [255, 235, 242];
+    cardBg = [255, 248, 250];
+    borderPink = [242, 175, 195];
+    mutedText = [158, 91, 114];
+    headerBg = [255, 176, 194];
+    subtitleColor = [110, 35, 55];
   }
 
   pdf.setFillColor(...headerBg);
@@ -2073,7 +2145,7 @@ function generateAnnualPDF() {
   pdf.text(splitSummary, 21, currentY + 14);
 
   pdf.setFontSize(7);
-  const footerColorAnn = isDarkMode ? [200, 130, 150] : [160, 110, 125];
+  const footerColorAnn = isBlueMode ? [100, 140, 200] : isDarkMode ? [200, 130, 150] : [160, 110, 125];
   pdf.setTextColor(...footerColorAnn);
   pdf.text("Resumen Anual · Creado por Flor Bagnis", 15, 287);
 
