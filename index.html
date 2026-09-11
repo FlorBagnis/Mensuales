@@ -50,11 +50,11 @@
 
   <!-- CONTENIDO PRINCIPAL -->
   <div id="appContent" class="hidden">
-    <div class="app-container">
+    <div class="container">
 
-      <!-- CABECERA -->
-      <header class="header-card">
-        <div class="header-inner">
+      <!-- CABECERA (BANNER ROSA) -->
+      <header class="main-header">
+        <div class="header-content">
           <div class="header-left">
             <span class="tagline">MI ORGANIZACIÓN ♡</span>
             <h1>Control de Gastos</h1>
@@ -82,13 +82,13 @@
         </div>
 
         <!-- HERRAMIENTAS Y PRESUPUESTO -->
-        <section class="card">
+        <section class="card toolbar-section">
           <div class="card-header">
             <h2>Herramientas y Presupuesto</h2>
             <button type="button" id="toggleToolbarBtn" class="btn btn-outline btn-sm">▲ Ocultar barra</button>
           </div>
 
-          <div id="toolbarContainer">
+          <div id="toolbarContainer" class="toolbar-grid">
             <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
               <div style="min-width: 140px;">
                 <label for="monthPicker" style="font-size: 0.72rem; font-weight: 800; display: block; text-transform: uppercase; margin-bottom: 4px;">Mes</label>
@@ -113,13 +113,13 @@
         </section>
 
         <!-- RESUMEN -->
-        <section class="card">
+        <section class="card budget-summary-section">
           <div class="card-header">
             <h2>Resumen</h2>
             <button type="button" id="toggleBudgetBtn" class="btn btn-outline btn-sm">▲ Ocultar resumen</button>
           </div>
 
-          <div id="budgetContainer" class="summary-grid">
+          <div id="budgetContainer" class="summary-cards-grid">
             <div class="metric-card">
               <span class="metric-title">TOTAL GASTADO</span>
               <div id="totalSpent" class="metric-value">$ 0,00</div>
@@ -147,7 +147,7 @@
         </section>
 
         <!-- TABLA DE GASTOS -->
-        <section class="card">
+        <section class="card expenses-table-section">
           <div class="card-header" style="flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <h2>Gastos del mes</h2>
@@ -171,8 +171,8 @@
             </div>
           </div>
 
-          <div class="table-container-collapsible table-wrapper">
-            <table>
+          <div class="table-container-collapsible">
+            <table class="table">
               <thead>
                 <tr>
                   <th style="text-align: left;">Fecha</th>
@@ -200,7 +200,7 @@
         </section>
 
         <!-- HISTORIAL DINERO EXTRA -->
-        <section class="card">
+        <section class="card extra-incomes-section">
           <div class="card-header" style="flex-wrap: wrap; gap: 8px;">
             <div>
               <h2>🌸 Historial de Dinero Extra</h2>
@@ -212,8 +212,8 @@
             </div>
           </div>
 
-          <div id="extraHistoryContainer" class="table-wrapper">
-            <table>
+          <div id="extraHistoryContainer" class="table-container-collapsible">
+            <table class="table">
               <thead>
                 <tr>
                   <th style="text-align: left;">Categoría / Descripción</th>
@@ -227,15 +227,15 @@
           </div>
         </section>
 
-        <!-- HISTORIAL Y CATEGORÍAS -->
+        <!-- HISTORIAL Y CATEGORÍAS EN 2 COLUMNAS -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin-bottom: 18px;">
-          <section class="card" style="margin-bottom: 0;">
+          <section class="card history-section" style="margin-bottom: 0;">
             <div class="card-header">
               <h2>Historial reciente</h2>
               <button type="button" id="toggleHistoryBtn" class="btn btn-outline btn-sm">▲ Ocultar historial</button>
             </div>
-            <div id="historyContainer" class="table-wrapper">
-              <table>
+            <div id="historyContainer" class="table-container-collapsible">
+              <table class="table">
                 <thead>
                   <tr>
                     <th style="text-align: left;">Mes</th>
@@ -265,7 +265,7 @@
 
       <!-- VISTA 2: GASTOS PRÓXIMOS -->
       <section id="viewProximos" class="hidden">
-        <section class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+        <section class="card gp-summary-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
           <div class="metric-card">
             <span class="metric-title">PENDIENTE TOTAL</span>
             <div id="gpTotalPending" class="metric-value">$ 0,00</div>
