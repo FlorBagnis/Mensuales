@@ -1413,9 +1413,7 @@ body.dark-mode .money-input input {
   color: #fceef3 !important;
 }
 
-/* =========================================================
-   MODO AZUL OSCURO (DARK BLUE MODE)
-========================================================= */
+
 body.dark-blue-mode {
   --bg: #0b132b;
   --card: #1c2541;
