@@ -7,13 +7,12 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#f06292">
-  <!-- Librería jsPDF para descarga de reportes -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
   <!-- =========================================================
-       SECCIÓN DE AUTENTICACIÓN (LOGIN Y REGISTRO)
+       SECCIÓN DE AUTENTICACIÓN (LOGIN / REGISTRO)
   ========================================================= -->
   <section id="authSection" class="auth-section">
     <div class="auth-card">
@@ -50,11 +49,11 @@
 
 
   <!-- =========================================================
-       CONTENIDO PRINCIPAL DE LA APLICACIÓN
+       CONTENIDO DE LA APP (SE MUESTRA TRAS EL LOGIN)
   ========================================================= -->
   <div id="appContent" class="hidden">
     
-    <!-- BANNER SUPERIOR / CABECERA -->
+    <!-- BANNER SUPERIOR -->
     <header class="main-header">
       <div class="header-content">
         <div class="header-left">
@@ -82,7 +81,7 @@
       ===================================================== -->
       <section id="viewMensuales">
         
-        <!-- BARRA SUPERIOR DE TEMAS Y ACCIONES RÁPIDAS -->
+        <!-- BARRA SUPERIOR DE MODOS -->
         <div class="top-actions-bar" style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
           <button type="button" id="toggleThemeBtn" class="btn btn-outline btn-sm">🌙 Modo oscuro</button>
           <button type="button" id="toggleBlueThemeBtn" class="btn btn-outline btn-sm">🔹 Modo azul</button>
@@ -123,7 +122,7 @@
           </div>
         </section>
 
-        <!-- TARJETAS DE RESUMEN FINANCIERO -->
+        <!-- TARJETAS DE RESUMEN -->
         <section class="card budget-summary-section">
           <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
             <h2>Resumen</h2>
@@ -194,7 +193,7 @@
                 </tr>
               </thead>
               <tbody id="expenseTable">
-                <!-- Se llena dinámicamente -->
+                <!-- Dinámico -->
               </tbody>
             </table>
             <div id="emptyState" class="empty-state" style="display: none; text-align: center; padding: 20px; color: var(--muted);">
@@ -212,7 +211,7 @@
           </div>
         </section>
 
-        <!-- HISTORIAL DE DINERO EXTRA / PRESUPUESTO BASE -->
+        <!-- HISTORIAL DE DINERO EXTRA Y PRESUPUESTO BASE -->
         <section class="card extra-incomes-section">
           <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <div>
@@ -236,13 +235,13 @@
                 </tr>
               </thead>
               <tbody id="extraIncomeTableBody">
-                <!-- Se llena dinámicamente -->
+                <!-- Dinámico -->
               </tbody>
             </table>
           </div>
         </section>
 
-        <!-- GRÁFICO POR CATEGORÍAS Y TENDENCIAS -->
+        <!-- GRÁFICOS Y ANÁLISIS -->
         <div class="grid-two-cols" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 12px;">
           <section class="card">
             <h2>Gastos por categoría</h2>
@@ -255,7 +254,7 @@
           </section>
         </div>
 
-        <!-- HISTORIAL DE MESES -->
+        <!-- HISTORIAL RECIENTE -->
         <section class="card history-section" style="margin-top: 12px;">
           <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
             <h2>Historial reciente</h2>
@@ -272,7 +271,7 @@
                 </tr>
               </thead>
               <tbody id="historyTable">
-                <!-- Se llena dinámicamente -->
+                <!-- Dinámico -->
               </tbody>
             </table>
           </div>
@@ -286,7 +285,6 @@
       ===================================================== -->
       <section id="viewProximos" class="hidden">
         
-        <!-- RESUMEN GASTOS PRÓXIMOS -->
         <section class="card gp-summary-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
           <div class="metric-card">
             <span class="metric-title">PENDIENTE TOTAL</span>
@@ -306,7 +304,6 @@
           </div>
         </section>
 
-        <!-- LISTADO Y FILTROS -->
         <section class="card" style="margin-top: 12px;">
           <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
@@ -326,7 +323,7 @@
           </div>
 
           <div id="gpExpensesList" class="gp-list-grid" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
-            <!-- Se llena dinámicamente -->
+            <!-- Dinámico -->
           </div>
 
           <div id="gpEmptyState" class="empty-state" style="display: none; text-align: center; padding: 20px; color: var(--muted);">
@@ -338,297 +335,293 @@
       </section>
 
     </main>
-  </div>
 
+    <!-- =======================================================
+         MODALES / DIALOGS (DENTRO DE APPCONTENT: PROTEGIDOS)
+    ======================================================= -->
 
-  <!-- =========================================================
-       MODALES / DIALOGS
-  ========================================================= -->
-
-  <!-- 1. MODAL DE NUEVO GASTO / EDITAR GASTO -->
-  <dialog id="expenseDialog" class="modal">
-    <div class="modal-header">
-      <h3 id="modalTitle">Agregar gasto</h3>
-      <button type="button" id="closeDialog" class="btn-close">×</button>
-    </div>
-
-    <form id="expenseForm">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-        <div>
-          <label for="expenseDate" style="font-size: 0.8rem; font-weight: bold;">Fecha real</label>
-          <input type="date" id="expenseDate" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-        </div>
-        <div>
-          <label for="expenseTargetMonth" style="font-size: 0.8rem; font-weight: bold;">Imputar al mes</label>
-          <input type="month" id="expenseTargetMonth" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-        </div>
+    <!-- 1. MODAL NUEVO GASTO / EDITAR GASTO -->
+    <dialog id="expenseDialog" class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Agregar gasto</h3>
+        <button type="button" id="closeDialog" class="btn-close">×</button>
       </div>
 
-      <div style="margin-bottom: 10px;">
-        <label for="expenseDescription" style="font-size: 0.8rem; font-weight: bold;">Descripción</label>
-        <input type="text" id="expenseDescription" placeholder="Ej. Supermercado, Alquiler" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-      </div>
-
-      <div style="margin-bottom: 10px;">
-        <label for="expenseCategory" style="font-size: 0.8rem; font-weight: bold;">Categoría</label>
-        <select id="expenseCategory" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-          <option value="Alimentos">Alimentos</option>
-          <option value="Servicios">Servicios</option>
-          <option value="Hogar">Hogar</option>
-          <option value="Salud">Salud</option>
-          <option value="Transporte">Transporte</option>
-          <option value="Mascotas">Mascotas</option>
-          <option value="Gimnasio">Gimnasio</option>
-          <option value="Agua">Agua</option>
-          <option value="Otros">Otros</option>
-        </select>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 12px;">
-        <div>
-          <label for="expenseAmount" style="font-size: 0.8rem; font-weight: bold;">Monto</label>
-          <input type="number" id="expenseAmount" step="0.01" min="0" placeholder="0.00" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-        </div>
-        <div>
-          <label for="expenseCurrency" style="font-size: 0.8rem; font-weight: bold;">Moneda</label>
-          <select id="expenseCurrency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-            <option value="ARS">ARS ($)</option>
-            <option value="USD">USD (u$s)</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Recurrencia Gastos -->
-      <div style="margin-top: 10px;">
-        <label style="display: flex; align-items: center; gap: 6px; font-weight: bold; cursor: pointer;">
-          <input type="checkbox" id="expenseRecurring">
-          <span>🔄 Repetir este gasto</span>
-        </label>
-      </div>
-
-      <div id="recurringOptions" class="hidden" style="background: var(--pink-bg); padding: 12px; border-radius: 8px; margin-top: 8px;">
-        <div style="margin-bottom: 8px;">
-          <label style="font-size: 0.8rem; font-weight: bold;">Repetir cada</label>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <input type="number" id="recurringMonths" value="1" min="1" max="12" style="width: 80px; padding: 6px;">
-            <span style="font-size: 0.85rem;">mes(es)</span>
+      <form id="expenseForm">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div>
+            <label for="expenseDate" style="font-size: 0.8rem; font-weight: bold;">Fecha real</label>
+            <input type="date" id="expenseDate" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          </div>
+          <div>
+            <label for="expenseTargetMonth" style="font-size: 0.8rem; font-weight: bold;">Imputar al mes</label>
+            <input type="month" id="expenseTargetMonth" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
           </div>
         </div>
-        <div style="margin-bottom: 8px;">
-          <label for="recurringDay" style="font-size: 0.8rem; font-weight: bold;">Día del mes</label>
-          <input type="number" id="recurringDay" value="10" min="1" max="31" style="width: 100%; padding: 6px;">
+
+        <div style="margin-bottom: 10px;">
+          <label for="expenseDescription" style="font-size: 0.8rem; font-weight: bold;">Descripción</label>
+          <input type="text" id="expenseDescription" placeholder="Ej. Supermercado, Alquiler" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
         </div>
-        <div style="margin-bottom: 8px;">
-          <label style="font-size: 0.8rem; font-weight: bold;">Durante</label>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <input type="number" id="recurringDuration" value="6" min="1" max="36" style="width: 80px; padding: 6px;">
-            <span style="font-size: 0.85rem;">mes(es)</span>
-          </div>
-        </div>
-        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 6px;">
-          <input type="checkbox" id="recurringChangingAmount">
-          <span>💰 Quiero usar un monto diferente en cada mes</span>
-        </label>
-        <div id="recurringAmounts" class="hidden" style="margin-top: 8px;"></div>
-      </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
-        <button type="button" id="cancelDialog" class="btn btn-outline">Cancelar</button>
-        <button type="submit" class="btn btn-pink">Guardar gasto</button>
-      </div>
-    </form>
-  </dialog>
-
-
-  <!-- 2. MODAL DE DINERO EXTRA / PRESUPUESTO BASE (CON FECHA Y FRECUENCIA COMPLETA) -->
-  <dialog id="extraDialog" class="modal">
-    <div class="modal-header">
-      <h3 id="extraModalTitle">➕ Sumar Dinero Extra</h3>
-      <button type="button" id="closeExtraDialog" class="btn-close">×</button>
-    </div>
-    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">Se sumará automáticamente a tu presupuesto actual.</p>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-      <div>
-        <label for="modalExtraDate" style="font-size: 0.8rem; font-weight: bold;">Fecha real</label>
-        <input type="date" id="modalExtraDate" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-      </div>
-      <div>
-        <label for="modalExtraTargetMonth" style="font-size: 0.8rem; font-weight: bold;">Imputar al mes</label>
-        <input type="month" id="modalExtraTargetMonth" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-      </div>
-    </div>
-
-    <div style="margin-bottom: 10px;">
-      <label for="modalExtraCategory" style="font-size: 0.8rem; font-weight: bold;">CATEGORÍA DE INGRESO</label>
-      <select id="modalExtraCategory" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-        <option value="Sueldo">💼 Sueldo</option>
-        <option value="Aporte familiar">👨‍👩‍👦 Aporte familiar</option>
-        <option value="Aguinaldo">🎁 Aguinaldo</option>
-        <option value="Ventas">🏷️ Ventas</option>
-        <option value="Freelance">💻 Freelance</option>
-        <option value="Inversiones">📈 Inversiones</option>
-        <option value="Otro">📦 Otro</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom: 10px;">
-      <label for="modalExtraDescription" style="font-size: 0.8rem; font-weight: bold;">DESCRIPCIÓN (Opcional)</label>
-      <input type="text" id="modalExtraDescription" placeholder="Ej. Aporte familiar, Sueldo principal" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-    </div>
-
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 12px;">
-      <div>
-        <label for="modalExtraInput" style="font-size: 0.8rem; font-weight: bold;">MONTO</label>
-        <input type="number" id="modalExtraInput" step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-      </div>
-      <div>
-        <label for="modalExtraCurrency" style="font-size: 0.8rem; font-weight: bold;">MONEDA</label>
-        <select id="modalExtraCurrency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-          <option value="ARS">ARS ($)</option>
-          <option value="USD">USD (u$s)</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Repetición Idéntica a Gastos -->
-    <div style="margin-top: 10px;">
-      <label style="display: flex; align-items: center; gap: 6px; font-weight: bold; cursor: pointer;">
-        <input type="checkbox" id="extraRecurring">
-        <span>🔄 Repetir este ingreso</span>
-      </label>
-    </div>
-
-    <div id="extraRecurringOptions" class="hidden" style="background: var(--pink-bg); padding: 12px; border-radius: 8px; margin-top: 8px;">
-      <div style="margin-bottom: 8px;">
-        <label style="font-size: 0.8rem; font-weight: bold;">Repetir cada</label>
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <input type="number" id="extraMonths" value="1" min="1" max="12" style="width: 80px; padding: 6px;">
-          <span style="font-size: 0.85rem;">mes(es)</span>
-        </div>
-      </div>
-      <div style="margin-bottom: 8px;">
-        <label for="extraDay" style="font-size: 0.8rem; font-weight: bold;">Día del mes</label>
-        <input type="number" id="extraDay" value="10" min="1" max="31" style="width: 100%; padding: 6px;">
-      </div>
-      <div style="margin-bottom: 8px;">
-        <label style="font-size: 0.8rem; font-weight: bold;">Durante</label>
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <input type="number" id="extraDuration" value="6" min="1" max="36" style="width: 80px; padding: 6px;">
-          <span style="font-size: 0.85rem;">mes(es)</span>
-        </div>
-      </div>
-      <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 6px;">
-        <input type="checkbox" id="extraChangingAmount">
-        <span>💰 Quiero usar un monto diferente en cada mes</span>
-      </label>
-      <div id="extraRecurringAmounts" class="hidden" style="margin-top: 8px;"></div>
-    </div>
-
-    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
-      <button type="button" id="closeExtraCancelBtn" class="btn btn-outline">Cancelar</button>
-      <button type="button" id="submitExtraBtn" class="btn btn-pink">Guardar ingreso</button>
-    </div>
-  </dialog>
-
-
-  <!-- 3. MODAL DE GASTOS PRÓXIMOS & DEUDAS -->
-  <dialog id="gpModal" class="modal">
-    <div class="modal-header">
-      <h3 id="gpModalTitle">Agregar registro pendiente</h3>
-      <button type="button" id="gpCloseModalBtn" class="btn-close">×</button>
-    </div>
-
-    <form id="gpExpenseForm">
-      <input type="hidden" id="gpExpenseId">
-
-      <div style="display: flex; gap: 15px; margin-bottom: 10px;">
-        <label style="cursor: pointer; font-size: 0.9rem;">
-          <input type="radio" name="gpType" value="expense" checked> Gasto por vencer
-        </label>
-        <label style="cursor: pointer; font-size: 0.9rem;">
-          <input type="radio" name="gpType" value="debt"> Deuda
-        </label>
-      </div>
-
-      <div style="margin-bottom: 10px;">
-        <label for="gpDescription" style="font-size: 0.8rem; font-weight: bold;">Concepto / Detalle</label>
-        <input type="text" id="gpDescription" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-        <div>
-          <label for="gpCategory" style="font-size: 0.8rem; font-weight: bold;">Categoría</label>
-          <select id="gpCategory" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
-            <option value="Hogar">Hogar</option>
+        <div style="margin-bottom: 10px;">
+          <label for="expenseCategory" style="font-size: 0.8rem; font-weight: bold;">Categoría</label>
+          <select id="expenseCategory" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+            <option value="Alimentos">Alimentos</option>
             <option value="Servicios">Servicios</option>
-            <option value="Comida">Comida</option>
+            <option value="Hogar">Hogar</option>
             <option value="Salud">Salud</option>
             <option value="Transporte">Transporte</option>
             <option value="Mascotas">Mascotas</option>
-            <option value="Deudas">Deudas</option>
             <option value="Gimnasio">Gimnasio</option>
             <option value="Agua">Agua</option>
             <option value="Otros">Otros</option>
           </select>
         </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <label for="expenseAmount" style="font-size: 0.8rem; font-weight: bold;">Monto</label>
+            <input type="number" id="expenseAmount" step="0.01" min="0" placeholder="0.00" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          </div>
+          <div>
+            <label for="expenseCurrency" style="font-size: 0.8rem; font-weight: bold;">Moneda</label>
+            <select id="expenseCurrency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+              <option value="ARS">ARS ($)</option>
+              <option value="USD">USD (u$s)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Recurrencia Gastos -->
+        <div style="margin-top: 10px;">
+          <label style="display: flex; align-items: center; gap: 6px; font-weight: bold; cursor: pointer;">
+            <input type="checkbox" id="expenseRecurring">
+            <span>🔄 Repetir este gasto</span>
+          </label>
+        </div>
+
+        <div id="recurringOptions" class="hidden" style="background: var(--pink-bg); padding: 12px; border-radius: 8px; margin-top: 8px;">
+          <div style="margin-bottom: 8px;">
+            <label style="font-size: 0.8rem; font-weight: bold;">Repetir cada</label>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <input type="number" id="recurringMonths" value="1" min="1" max="12" style="width: 80px; padding: 6px;">
+              <span style="font-size: 0.85rem;">mes(es)</span>
+            </div>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <label for="recurringDay" style="font-size: 0.8rem; font-weight: bold;">Día del mes</label>
+            <input type="number" id="recurringDay" value="10" min="1" max="31" style="width: 100%; padding: 6px;">
+          </div>
+          <div style="margin-bottom: 8px;">
+            <label style="font-size: 0.8rem; font-weight: bold;">Durante</label>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <input type="number" id="recurringDuration" value="6" min="1" max="36" style="width: 80px; padding: 6px;">
+              <span style="font-size: 0.85rem;">mes(es)</span>
+            </div>
+          </div>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 6px;">
+            <input type="checkbox" id="recurringChangingAmount">
+            <span>💰 Quiero usar un monto diferente en cada mes</span>
+          </label>
+          <div id="recurringAmounts" class="hidden" style="margin-top: 8px;"></div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+          <button type="button" id="cancelDialog" class="btn btn-outline">Cancelar</button>
+          <button type="submit" class="btn btn-pink">Guardar gasto</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- 2. MODAL DINERO EXTRA / PRESUPUESTO BASE (CON FECHA REAL, IMPUTAR Y FRECUENCIA) -->
+    <dialog id="extraDialog" class="modal">
+      <div class="modal-header">
+        <h3 id="extraModalTitle">➕ Sumar Dinero Extra</h3>
+        <button type="button" id="closeExtraDialog" class="btn-close">×</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">Se sumará automáticamente a tu presupuesto mensual.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
         <div>
-          <label for="gpQuantity" style="font-size: 0.8rem; font-weight: bold;">Cantidad</label>
-          <input type="number" id="gpQuantity" value="1" min="1" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          <label for="modalExtraDate" style="font-size: 0.8rem; font-weight: bold;">Fecha real</label>
+          <input type="date" id="modalExtraDate" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+        </div>
+        <div>
+          <label for="modalExtraTargetMonth" style="font-size: 0.8rem; font-weight: bold;">Imputar al mes</label>
+          <input type="month" id="modalExtraTargetMonth" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
+      <div style="margin-bottom: 10px;">
+        <label for="modalExtraCategory" style="font-size: 0.8rem; font-weight: bold;">CATEGORÍA DE INGRESO</label>
+        <select id="modalExtraCategory" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          <option value="Sueldo">💼 Sueldo</option>
+          <option value="Aporte familiar">👨‍👩‍👦 Aporte familiar</option>
+          <option value="Aguinaldo">🎁 Aguinaldo</option>
+          <option value="Ventas">🏷️ Ventas</option>
+          <option value="Freelance">💻 Freelance</option>
+          <option value="Inversiones">📈 Inversiones</option>
+          <option value="Otro">📦 Otro</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <label for="modalExtraDescription" style="font-size: 0.8rem; font-weight: bold;">DESCRIPCIÓN (Opcional)</label>
+        <input type="text" id="modalExtraDescription" placeholder="Ej. Aporte familiar, Sueldo principal" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 12px;">
         <div>
-          <label for="gpAmount" style="font-size: 0.8rem; font-weight: bold;">Monto (Opcional)</label>
-          <input type="number" id="gpAmount" step="0.01" min="0" placeholder="A definir" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          <label for="modalExtraInput" style="font-size: 0.8rem; font-weight: bold;">MONTO</label>
+          <input type="number" id="modalExtraInput" step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
         </div>
         <div>
-          <label for="gpCurrency" style="font-size: 0.8rem; font-weight: bold;">Moneda</label>
-          <select id="gpCurrency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          <label for="modalExtraCurrency" style="font-size: 0.8rem; font-weight: bold;">MONEDA</label>
+          <select id="modalExtraCurrency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
             <option value="ARS">ARS ($)</option>
             <option value="USD">USD (u$s)</option>
           </select>
         </div>
       </div>
 
-      <div style="margin-bottom: 10px;">
-        <label for="gpDate" style="font-size: 0.8rem; font-weight: bold;">Fecha estimada / Vencimiento</label>
-        <input type="date" id="gpDate" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+      <!-- Recurrencia Ingresos (Idéntica a Gastos) -->
+      <div style="margin-top: 10px;">
+        <label style="display: flex; align-items: center; gap: 6px; font-weight: bold; cursor: pointer;">
+          <input type="checkbox" id="extraRecurring">
+          <span>🔄 Repetir este ingreso</span>
+        </label>
       </div>
 
-      <div style="margin-bottom: 12px;">
-        <label for="gpNotes" style="font-size: 0.8rem; font-weight: bold;">Notas adicionales</label>
-        <textarea id="gpNotes" rows="2" placeholder="Recordatorios, cuotas, detalles..." style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);"></textarea>
+      <div id="extraRecurringOptions" class="hidden" style="background: var(--pink-bg); padding: 12px; border-radius: 8px; margin-top: 8px;">
+        <div style="margin-bottom: 8px;">
+          <label style="font-size: 0.8rem; font-weight: bold;">Repetir cada</label>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <input type="number" id="extraMonths" value="1" min="1" max="12" style="width: 80px; padding: 6px;">
+            <span style="font-size: 0.85rem;">mes(es)</span>
+          </div>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <label for="extraDay" style="font-size: 0.8rem; font-weight: bold;">Día del mes</label>
+          <input type="number" id="extraDay" value="10" min="1" max="31" style="width: 100%; padding: 6px;">
+        </div>
+        <div style="margin-bottom: 8px;">
+          <label style="font-size: 0.8rem; font-weight: bold;">Durante</label>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <input type="number" id="extraDuration" value="6" min="1" max="36" style="width: 80px; padding: 6px;">
+            <span style="font-size: 0.85rem;">mes(es)</span>
+          </div>
+        </div>
+        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 6px;">
+          <input type="checkbox" id="extraChangingAmount">
+          <span>💰 Quiero usar un monto diferente en cada mes</span>
+        </label>
+        <div id="extraRecurringAmounts" class="hidden" style="margin-top: 8px;"></div>
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 10px;">
-        <button type="button" id="gpCancelBtn" class="btn btn-outline">Cancelar</button>
-        <button type="submit" class="btn btn-pink">Guardar</button>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+        <button type="button" id="closeExtraCancelBtn" class="btn btn-outline">Cancelar</button>
+        <button type="button" id="submitExtraBtn" class="btn btn-pink">Guardar ingreso</button>
       </div>
-    </form>
-  </dialog>
+    </dialog>
 
+    <!-- 3. MODAL GASTOS PRÓXIMOS & DEUDAS -->
+    <dialog id="gpModal" class="modal">
+      <div class="modal-header">
+        <h3 id="gpModalTitle">Agregar registro pendiente</h3>
+        <button type="button" id="gpCloseModalBtn" class="btn-close">×</button>
+      </div>
 
-  <!-- 4. MODAL DE RESUMEN ANUAL -->
-  <dialog id="annualDialog" class="modal">
-    <div class="modal-header">
-      <h3>🌸 Resumen Financiero Anual</h3>
-      <button type="button" id="closeAnnualDialog" class="btn-close">×</button>
-    </div>
-    <p id="annualSubtitle" style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">Cálculo anual de tus finanzas</p>
+      <form id="gpExpenseForm">
+        <input type="hidden" id="gpExpenseId">
 
-    <div id="annualContent" style="display: flex; flex-direction: column; gap: 12px;">
-      <!-- Se llena dinámicamente -->
-    </div>
+        <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+          <label style="cursor: pointer; font-size: 0.9rem;">
+            <input type="radio" name="gpType" value="expense" checked> Gasto por vencer
+          </label>
+          <label style="cursor: pointer; font-size: 0.9rem;">
+            <input type="radio" name="gpType" value="debt"> Deuda
+          </label>
+        </div>
 
-    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
-      <button type="button" id="closeAnnualCancelBtn" class="btn btn-outline">Cerrar</button>
-      <button type="button" id="annualPdfBtn" class="btn btn-pink">📄 Exportar PDF Anual</button>
-    </div>
-  </dialog>
+        <div style="margin-bottom: 10px;">
+          <label for="gpDescription" style="font-size: 0.8rem; font-weight: bold;">Concepto / Detalle</label>
+          <input type="text" id="gpDescription" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+        </div>
 
-  <!-- Script principal de la aplicación -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div>
+            <label for="gpCategory" style="font-size: 0.8rem; font-weight: bold;">Categoría</label>
+            <select id="gpCategory" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+              <option value="Hogar">Hogar</option>
+              <option value="Servicios">Servicios</option>
+              <option value="Comida">Comida</option>
+              <option value="Salud">Salud</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Mascotas">Mascotas</option>
+              <option value="Deudas">Deudas</option>
+              <option value="Gimnasio">Gimnasio</option>
+              <option value="Agua">Agua</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+          <div>
+            <label for="gpQuantity" style="font-size: 0.8rem; font-weight: bold;">Cantidad</label>
+            <input type="number" id="gpQuantity" value="1" min="1" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div>
+            <label for="gpAmount" style="font-size: 0.8rem; font-weight: bold;">Monto (Opcional)</label>
+            <input type="number" id="gpAmount" step="0.01" min="0" placeholder="A definir" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          </div>
+          <div>
+            <label for="gpCurrency" style="font-size: 0.8rem; font-weight: bold;">Moneda</label>
+            <select id="gpCurrency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+              <option value="ARS">ARS ($)</option>
+              <option value="USD">USD (u$s)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+          <label for="gpDate" style="font-size: 0.8rem; font-weight: bold;">Fecha estimada / Vencimiento</label>
+          <input type="date" id="gpDate" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label for="gpNotes" style="font-size: 0.8rem; font-weight: bold;">Notas adicionales</label>
+          <textarea id="gpNotes" rows="2" placeholder="Recordatorios, cuotas, detalles..." style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" id="gpCancelBtn" class="btn btn-outline">Cancelar</button>
+          <button type="submit" class="btn btn-pink">Guardar</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- 4. MODAL RESUMEN ANUAL -->
+    <dialog id="annualDialog" class="modal">
+      <div class="modal-header">
+        <h3>🌸 Resumen Financiero Anual</h3>
+        <button type="button" id="closeAnnualDialog" class="btn-close">×</button>
+      </div>
+      <p id="annualSubtitle" style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">Cálculo anual de tus finanzas</p>
+
+      <div id="annualContent" style="display: flex; flex-direction: column; gap: 12px;">
+        <!-- Dinámico -->
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+        <button type="button" id="closeAnnualCancelBtn" class="btn btn-outline">Cerrar</button>
+        <button type="button" id="annualPdfBtn" class="btn btn-pink">📄 Exportar PDF Anual</button>
+      </div>
+    </dialog>
+
+  </div>
+
   <script type="module" src="app.js"></script>
 </body>
 </html>
