@@ -37,9 +37,7 @@ const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(e => console.log("SW:", e));
-  });
+  navigator.serviceWorker.register("./sw.js").catch(e => console.log("SW:", e));
 }
 
 let currentUser = null;
@@ -142,7 +140,7 @@ async function fetchDolarBlue() {
 
 
 /* =========================================================
-   AUTENTICACIÓN
+   AUTENTICACIÓN INFALIBLE
 ========================================================= */
 
 function setAuthMessage(message, success = false) {
@@ -154,18 +152,76 @@ function setAuthMessage(message, success = false) {
 
 function updateAuthInterface() {
   const isLogin = authMode === "login";
-  if ($("authSubmitBtn")) {
-    $("authSubmitBtn").disabled = false;
-    $("authSubmitBtn").textContent = isLogin ? "Iniciar sesión" : "Crear cuenta";
+  const btn = $("authSubmitBtn");
+  const switchBtn = $("authSwitchBtn");
+  const pass = $("authPassword");
+
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = isLogin ? "Iniciar sesión" : "Crear cuenta";
   }
-  if ($("authSwitchBtn")) {
-    $("authSwitchBtn").textContent = isLogin ? "¿No tenés una cuenta? Registrate" : "¿Ya tenés una cuenta? Iniciá sesión";
+  if (switchBtn) {
+    switchBtn.textContent = isLogin ? "¿No tenés una cuenta? Registrate" : "¿Ya tenés una cuenta? Iniciá sesión";
   }
-  if ($("authPassword")) {
-    $("authPassword").autocomplete = isLogin ? "current-password" : "new-password";
+  if (pass) {
+    pass.autocomplete = isLogin ? "current-password" : "new-password";
   }
   setAuthMessage("");
 }
+
+function firebaseErrorMessage(error) {
+  const code = error?.code || "";
+  const messages = {
+    "auth/invalid-email": "El email no es válido.",
+    "auth/missing-password": "Ingresá una contraseña.",
+    "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.",
+    "auth/email-already-in-use": "Ya existe una cuenta con ese email.",
+    "auth/invalid-credential": "El email o la contraseña son incorrectos.",
+    "auth/user-not-found": "No existe una cuenta con ese email.",
+    "auth/wrong-password": "La contraseña es incorrecta.",
+    "auth/too-many-requests": "Demasiados intentos. Esperá un momento.",
+    "auth/network-request-failed": "No hay conexión con Firebase."
+  };
+  return messages[code] || `Error (${code || "desconocido"}). Volvé a intentar.`;
+}
+
+async function handleAuthSubmit(e) {
+  if (e) e.preventDefault();
+  const email = $("authEmail")?.value.trim() || "";
+  const password = $("authPassword")?.value || "";
+
+  if (!email || !password) {
+    setAuthMessage("Completá email y contraseña.");
+    return;
+  }
+
+  const button = $("authSubmitBtn");
+  if (button) {
+    button.disabled = true;
+    button.textContent = authMode === "login" ? "Ingresando..." : "Creando cuenta...";
+  }
+
+  try {
+    if (authMode === "register") {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+  } catch (error) {
+    console.error("Auth Error:", error);
+    setAuthMessage(firebaseErrorMessage(error));
+    if (button) {
+      button.disabled = false;
+      button.textContent = authMode === "login" ? "Iniciar sesión" : "Crear cuenta";
+    }
+  }
+}
+
+document.addEventListener("submit", (e) => {
+  if (e.target && e.target.id === "authForm") {
+    handleAuthSubmit(e);
+  }
+});
 
 onAuthStateChanged(auth, async user => {
   currentUser = user;
@@ -288,20 +344,19 @@ function renderMensuales() {
 
   if ($("budgetInput")) $("budgetInput").value = current.budget || "";
   if ($("totalSpent")) {
-    $("totalSpent").innerHTML = totalUSD > 0
+    $("totalSpentinnerHTML") = totalUSD > 0
       ? `${money(totalARS)}<br><small style="font-size:0.8em; color:var(--pink-700);">${money(totalUSD, "USD")}</small>`
       : money(totalARS);
+    $("totalSpent").textContent = money(totalARS);
   }
 
   if ($("previousSpent")) {
-    $("previousSpent").innerHTML = prevUSD > 0
-      ? `${money(prevARS)}<br><small style="font-size:0.8em; color:var(--pink-700);">${money(prevUSD, "USD")}</small>`
-      : money(prevARS);
+    $("previousSpent").textContent = money(prevARS);
   }
 
   if ($("budgetTotal")) $("budgetTotal").textContent = money(current.budget);
   if ($("previousMonthLabel")) $("previousMonthLabel").textContent = monthName(prevMonth);
-  if ($("monthPill")) $("monthPill").textContent = monthName(month);
+  if ($("monthPill")) $("monthPill").textContent = shortMonthName(month);
   if ($("totalMonthName")) $("totalMonthName").textContent = shortMonthName(month).toUpperCase();
 
   if ($("expenseCount")) {
@@ -364,8 +419,8 @@ function renderExtraIncomesTable(extraIncomes) {
         <td>${formatDate(item.date)}</td>
         <td class="amount result-good" style="text-align: right;">+ ${amountText}</td>
         <td style="text-align: right; white-space: nowrap;">
-          <button class="edit-btn" data-id="${item.id}" type="button" title="Editar">✏️</button>
-          <button class="delete-btn" data-id="${item.id}" type="button" title="Eliminar">×</button>
+          <button class="btn btn-outline btn-sm edit-btn" data-id="${item.id}" type="button" title="Editar">✏️</button>
+          <button class="btn btn-outline btn-sm delete-btn" data-id="${item.id}" type="button" title="Eliminar">×</button>
         </td>
       </tr>
     `;
@@ -389,37 +444,29 @@ function renderExtraIncomesTable(extraIncomes) {
 }
 
 function editExtraIncome(id) {
-  const month = $("monthPicker")?.value;
-  const current = data.months[month];
+  const activeMonth = $("monthPicker")?.value || currentMonthValue();
+  const current = data.months[activeMonth];
   if (!current || !Array.isArray(current.extraIncomes)) return;
   const item = current.extraIncomes.find(x => x.id === id);
   if (!item) return;
 
-  if (item.isBase) {
-    const newBudget = prompt("Editar Presupuesto Base del mes:", item.amount);
-    if (newBudget === null) return;
-    const val = Number(newBudget);
-    if (isNaN(val) || val < 0) {
-      alert("Ingresá un monto válido.");
-      return;
-    }
-    item.amount = val;
-    item.rawAmount = val;
-    current.budget = current.extraIncomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
-    if ($("budgetInput")) $("budgetInput").value = current.budget;
-    renderMensuales();
-    saveMonthToFirestore(month);
-  } else {
-    $("modalExtraCategory").value = item.category || "Sueldo";
-    $("modalExtraDescription").value = item.description || "";
-    $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
-    $("modalExtraCurrency").value = item.currency || "ARS";
-    if ($("modalExtraDate")) $("modalExtraDate").value = item.date || currentMonthValue() + "-01";
+  if ($("modalExtraDate")) $("modalExtraDate").value = item.date || `${activeMonth}-01`;
+  if ($("modalExtraTargetMonth")) $("modalExtraTargetMonth").value = activeMonth;
+  if ($("modalExtraCategory")) $("modalExtraCategory").value = item.category || "Sueldo";
+  if ($("modalExtraDescription")) $("modalExtraDescription").value = item.description || "";
+  if ($("modalExtraInput")) $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
+  if ($("modalExtraCurrency")) $("modalExtraCurrency").value = item.currency || "ARS";
 
+  const extraRecurring = $("extraRecurring");
+  const extraRecurringOptions = $("extraRecurringOptions");
+  if (extraRecurring) extraRecurring.checked = false;
+  extraRecurringOptions?.classList.add("hidden");
+
+  if ($("extraDialog")) {
     $("extraDialog").dataset.editingExtraId = item.id;
-    const titleEl = $("extraDialog").querySelector("h3");
-    if (titleEl) titleEl.textContent = "✏️ Editar Ingreso Extra";
-    $("extraDialog")?.showModal();
+    const titleEl = $("extraModalTitle") || $("extraDialog").querySelector("h3");
+    if (titleEl) titleEl.textContent = item.isBase ? "✏️ Editar Presupuesto Base" : "✏️ Editar Ingreso Extra";
+    $("extraDialog").showModal();
   }
 }
 
@@ -430,6 +477,11 @@ window.deleteExtraIncome = async function(id) {
 
   const item = current.extraIncomes.find(x => x.id === id);
   if (!item) return;
+
+  if (item.isBase) {
+    alert("El presupuesto base no se puede eliminar, pero podés cambiar su monto a $0 editándolo con el lápiz.");
+    return;
+  }
 
   if (!confirm(`¿Eliminar el registro "${item.category}" por ${money(item.amount)}? Esto restará el monto del presupuesto del mes.`)) return;
 
@@ -484,9 +536,9 @@ function renderMensualesExpensesTable(expenses) {
       <td>${escapeHtml(e.description)}</td>
       <td><span class="category">${escapeHtml(e.category)}</span></td>
       <td class="amount">${money(e.amount, curr)}</td>
-      <td class="actions">
-        <button class="edit-btn" data-id="${e.id}" type="button">✏️</button>
-        <button class="delete-btn" data-id="${e.id}" type="button">×</button>
+      <td class="actions" style="text-align: right; white-space: nowrap;">
+        <button class="btn btn-outline btn-sm edit-btn" data-id="${e.id}" type="button" title="Editar">✏️</button>
+        <button class="btn btn-outline btn-sm delete-btn" data-id="${e.id}" type="button" title="Eliminar">×</button>
       </td>
     `;
     table.appendChild(row);
@@ -569,9 +621,14 @@ function renderCategories(expenses) {
     const label = vals.USD > 0 && vals.ARS > 0 ? `${money(vals.ARS)} + ${money(vals.USD, "USD")}` : vals.USD > 0 ? money(vals.USD, "USD") : money(vals.ARS);
     const val = vals.ARS > 0 ? vals.ARS : vals.USD;
     return `
-      <div class="bar-row">
-        <div class="bar-label"><span>${escapeHtml(cat)}</span><b>${label}</b></div>
-        <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100, (val / max) * 100)}%"></div></div>
+      <div class="bar-row" style="margin-bottom: 8px;">
+        <div class="bar-label" style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 2px;">
+          <span>${escapeHtml(cat)}</span>
+          <b>${label}</b>
+        </div>
+        <div class="bar-bg" style="background: var(--pink-bg); height: 8px; border-radius: 6px; overflow: hidden;">
+          <div class="bar-fill" style="width:${Math.min(100, (val / max) * 100)}%; background: var(--pink-500); height: 100%; border-radius: 6px;"></div>
+        </div>
       </div>
     `;
   }).join("") : `<div class="empty-state"><div>♡</div><span>No hay categorías registradas.</span></div>`;
@@ -732,34 +789,32 @@ function renderProximos() {
 
   list.forEach(item => {
     const card = document.createElement("article");
-    card.className = "gp-expense-card";
+    card.className = "metric-card";
+    card.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; margin-bottom: 8px;";
     
     const icon = getCategoryIcon(item.category);
     const catName = getCategoryName(item.category);
     const alert = getDueBadge(item.date, item.paid);
-    const alertTag = alert ? `<span class="gp-tag" style="background:${alert.bg}; color:${alert.color};">${alert.text}</span>` : "";
-    const statusTag = `<span class="gp-tag gp-status-${item.paid ? "paid" : item.type === "debt" ? "debt" : "pending"}">${item.paid ? "Pagado" : item.type === "debt" ? "Deuda" : "Pendiente"}</span>`;
+    const alertTag = alert ? `<span class="badge" style="background:${alert.bg}; color:${alert.color}; margin-left: 6px;">${alert.text}</span>` : "";
+    const statusTag = `<span class="badge">${item.paid ? "Pagado" : item.type === "debt" ? "Deuda" : "Pendiente"}</span>`;
 
     card.innerHTML = `
-      <div class="gp-card-left">
-        <div class="gp-card-icon">${icon}</div>
-        <div class="gp-card-details">
-          <h3>${escapeHtml(item.description)}</h3>
-          <p>${catName} · Cantidad: ${item.quantity || 1} ${item.notes ? `· <i>${escapeHtml(item.notes)}</i>` : ""}</p>
-          <div class="gp-tags-wrap">
-            ${statusTag}
-            ${alertTag}
-          </div>
+      <div style="display: flex; gap: 14px; align-items: center;">
+        <div style="font-size: 1.8rem;">${icon}</div>
+        <div>
+          <h3 style="font-size: 1rem; font-weight: 800; color: var(--text);">${escapeHtml(item.description)}</h3>
+          <p style="font-size: 0.8rem; color: var(--muted);">${catName} · Cant: ${item.quantity || 1} ${item.notes ? `· <i>${escapeHtml(item.notes)}</i>` : ""}</p>
+          <div style="margin-top: 4px;">${statusTag} ${alertTag}</div>
         </div>
       </div>
 
-      <div class="gp-card-right">
-        <div class="gp-card-date">Pagar <strong>${formatDate(item.date)}</strong></div>
-        <div class="gp-card-amount">${item.amount !== null ? money(item.amount, item.currency || "ARS") : "A definir"}</div>
-        <div class="gp-card-actions">
-          <button class="gp-btn-action gp-btn-pay ${item.paid ? "is-paid" : ""}" data-id="${item.id}" title="${item.paid ? "Volver a pendiente" : "Marcar pagado y enviar a Mensuales"}">${item.paid ? "✖" : "✓"}</button>
-          <button class="gp-btn-action gp-btn-edit" data-id="${item.id}" title="Editar">✏️</button>
-          <button class="gp-btn-action gp-btn-delete" data-id="${item.id}" title="Eliminar">🗑️</button>
+      <div style="text-align: right;">
+        <div style="font-size: 0.8rem; color: var(--muted);">Pagar <strong>${formatDate(item.date)}</strong></div>
+        <div style="font-size: 1.15rem; font-weight: 800; color: var(--text); margin: 2px 0;">${item.amount !== null ? money(item.amount, item.currency || "ARS") : "A definir"}</div>
+        <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px;">
+          <button class="btn btn-outline btn-sm gp-btn-pay" data-id="${item.id}" title="${item.paid ? "Volver a pendiente" : "Marcar pagado y enviar a Mensuales"}">${item.paid ? "✖" : "✓"}</button>
+          <button class="btn btn-outline btn-sm gp-btn-edit" data-id="${item.id}" title="Editar">✏️</button>
+          <button class="btn btn-outline btn-sm gp-btn-delete" data-id="${item.id}" title="Eliminar">🗑️</button>
         </div>
       </div>
     `;
@@ -885,6 +940,46 @@ function downloadCSV(rows, filename) {
    REPORTES PDF
 ========================================================= */
 
+function getPdfThemeColors() {
+  const isDarkMode = document.body.classList.contains("dark-mode");
+  const isBlueMode = document.body.classList.contains("dark-blue-mode");
+
+  if (isBlueMode) {
+    return {
+      pink: [56, 189, 248],
+      dark: [241, 245, 249],
+      light: [15, 28, 63],
+      headerBg: [7, 13, 30],
+      cardBorder: [30, 53, 109],
+      lineDivider: [20, 36, 75],
+      pageBg: [7, 13, 30],
+      footerColor: [143, 165, 202]
+    };
+  } else if (isDarkMode) {
+    return {
+      pink: [255, 120, 160],
+      dark: [253, 242, 246],
+      light: [45, 20, 34],
+      headerBg: [30, 15, 23],
+      cardBorder: [74, 33, 56],
+      lineDivider: [50, 22, 38],
+      pageBg: [30, 15, 23],
+      footerColor: [184, 146, 164]
+    };
+  } else {
+    return {
+      pink: [234, 91, 142],
+      dark: [69, 15, 36],
+      light: [253, 232, 238],
+      headerBg: [255, 174, 195],
+      cardBorder: [246, 214, 223],
+      lineDivider: [246, 214, 223],
+      pageBg: null,
+      footerColor: [125, 80, 98]
+    };
+  }
+}
+
 function generateMensualesPDF() {
   if (!window.jspdf) {
     alert("No se pudo cargar el generador de PDF.");
@@ -922,24 +1017,17 @@ function generateMensualesPDF() {
   const diffText = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
 
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const theme = getPdfThemeColors();
 
-  const isDarkMode = document.body.classList.contains("dark-mode");
-  const pink = isDarkMode ? [255, 120, 160] : [245, 107, 139];
-  const dark = isDarkMode ? [240, 240, 240] : [85, 21, 45];
-  const light = isDarkMode ? [45, 35, 40]   : [255, 231, 236];
-  const headerBg = isDarkMode ? [55, 30, 45] : [255, 176, 194];
-  const cardBorder = isDarkMode ? [80, 45, 60] : [255, 197, 210];
-  const lineDivider = isDarkMode ? [50, 35, 42] : [245, 220, 227];
-
-  if (isDarkMode) {
-    pdf.setFillColor(25, 20, 25);
+  if (theme.pageBg) {
+    pdf.setFillColor(...theme.pageBg);
     pdf.rect(0, 0, 210, 297, "F");
   }
 
-  pdf.setFillColor(...headerBg);
+  pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
 
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFontSize(17);
   pdf.setFont("helvetica", "bold");
   pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);
@@ -957,22 +1045,22 @@ function generateMensualesPDF() {
 
   cards.forEach((card, index) => {
     const x = 15 + index * 45;
-    pdf.setDrawColor(...cardBorder);
+    pdf.setDrawColor(...theme.cardBorder);
     pdf.roundedRect(x, 49, 41, 25, 3, 3, "S");
 
-    pdf.setTextColor(...pink);
+    pdf.setTextColor(...theme.pink);
     pdf.setFontSize(6.5);
     pdf.setFont("helvetica", "bold");
     pdf.text(card[0], x + 3, 57);
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(8.5);
     pdf.text(card[1], x + 3, 66);
   });
 
   let y = 84;
 
-  pdf.setFillColor(...pink);
+  pdf.setFillColor(...theme.pink);
   pdf.rect(15, y, 180, 8, "F");
 
   pdf.setTextColor(255, 255, 255);
@@ -992,8 +1080,8 @@ function generateMensualesPDF() {
     .forEach(expense => {
       if (y > 270) {
         pdf.addPage();
-        if (isDarkMode) {
-          pdf.setFillColor(25, 20, 25);
+        if (theme.pageBg) {
+          pdf.setFillColor(...theme.pageBg);
           pdf.rect(0, 0, 210, 297, "F");
         }
         y = 20;
@@ -1002,30 +1090,30 @@ function generateMensualesPDF() {
       const curr = expense.currency || "ARS";
       const cleanDescription = String(expense.description || "").replace("🔄 ", "").trim();
 
-      pdf.setTextColor(...dark);
+      pdf.setTextColor(...theme.dark);
       pdf.setFontSize(7);
       pdf.text(formatDate(expense.date), 18, y + 5);
       pdf.text(cleanDescription.slice(0, 35), 45, y + 5);
       pdf.text(String(expense.category).slice(0, 18), 120, y + 5);
       pdf.text(money(expense.amount, curr), 165, y + 5);
 
-      pdf.setDrawColor(...lineDivider);
+      pdf.setDrawColor(...theme.lineDivider);
       pdf.line(15, y + 8, 195, y + 8);
       y += 10;
     });
 
   if (y > 250) {
     pdf.addPage();
-    if (isDarkMode) {
-      pdf.setFillColor(25, 20, 25);
+    if (theme.pageBg) {
+      pdf.setFillColor(...theme.pageBg);
       pdf.rect(0, 0, 210, 297, "F");
     }
     y = 20;
   }
 
-  pdf.setFillColor(...light);
+  pdf.setFillColor(...theme.light);
   pdf.rect(15, y, 180, 10, "F");
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7);
   pdf.text(`TOTAL GASTADO EN ${shortMonthName(month).toUpperCase()}`, 18, y + 6);
@@ -1035,8 +1123,8 @@ function generateMensualesPDF() {
 
   if (y > 255) {
     pdf.addPage();
-    if (isDarkMode) {
-      pdf.setFillColor(25, 20, 25);
+    if (theme.pageBg) {
+      pdf.setFillColor(...theme.pageBg);
       pdf.rect(0, 0, 210, 297, "F");
     }
     y = 20;
@@ -1044,7 +1132,7 @@ function generateMensualesPDF() {
 
   pdf.setFontSize(10);
   pdf.setFont("helvetica", "bold");
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.text("Análisis de tendencia", 15, y);
 
   pdf.setFont("helvetica", "normal");
@@ -1070,9 +1158,8 @@ function generateMensualesPDF() {
   pdf.text(lines, 15, y + 6);
 
   pdf.setFontSize(7);
-  const footerColorMensuales = isDarkMode ? [200, 130, 150] : [160, 110, 125];
-  pdf.setTextColor(...footerColorMensuales);
-  pdf.text("MENSUALES · Creado por Flor Bagnis", 15, 287);
+  pdf.setTextColor(...theme.footerColor);
+  pdf.text("MENSUALES · Creado por Flor Bagnis ♡", 15, 287);
 
   pdf.save(`MENSUALES-${month}.pdf`);
 }
@@ -1085,24 +1172,17 @@ function generateProximosPDF() {
 
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const theme = getPdfThemeColors();
 
-  const isDarkMode = document.body.classList.contains("dark-mode");
-  const pink = isDarkMode ? [255, 120, 160] : [232, 93, 158];
-  const dark = isDarkMode ? [240, 240, 240] : [51, 41, 52];
-  const light = isDarkMode ? [45, 35, 40]   : [255, 240, 247];
-  const headerBg = isDarkMode ? [55, 30, 45] : [255, 227, 240];
-  const cardBorder = isDarkMode ? [80, 45, 60] : [240, 223, 232];
-  const lineDivider = isDarkMode ? [50, 35, 42] : [245, 230, 238];
-
-  if (isDarkMode) {
-    pdf.setFillColor(25, 20, 25);
+  if (theme.pageBg) {
+    pdf.setFillColor(...theme.pageBg);
     pdf.rect(0, 0, 210, 297, "F");
   }
 
-  pdf.setFillColor(...headerBg);
+  pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
 
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFontSize(16);
   pdf.setFont("helvetica", "bold");
   pdf.text("AGENDA DE GASTOS PRÓXIMOS", 21, 26);
@@ -1146,22 +1226,22 @@ function generateProximosPDF() {
 
   cards.forEach((card, index) => {
     const x = 15 + index * 60;
-    pdf.setDrawColor(...cardBorder);
+    pdf.setDrawColor(...theme.cardBorder);
     pdf.roundedRect(x, 46, 56, 22, 3, 3, "S");
 
-    pdf.setTextColor(...pink);
+    pdf.setTextColor(...theme.pink);
     pdf.setFontSize(7);
     pdf.setFont("helvetica", "bold");
     pdf.text(card[0], x + 4, 53);
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(9);
     pdf.text(card[1], x + 4, 62);
   });
 
   let y = 76;
 
-  pdf.setFillColor(...pink);
+  pdf.setFillColor(...theme.pink);
   pdf.rect(15, y, 180, 7, "F");
 
   pdf.setTextColor(255, 255, 255);
@@ -1181,8 +1261,8 @@ function generateProximosPDF() {
   sortedExpenses.forEach(expense => {
     if (y > 270) {
       pdf.addPage();
-      if (isDarkMode) {
-        pdf.setFillColor(25, 20, 25);
+      if (theme.pageBg) {
+        pdf.setFillColor(...theme.pageBg);
         pdf.rect(0, 0, 210, 297, "F");
       }
       y = 20;
@@ -1193,7 +1273,7 @@ function generateProximosPDF() {
     const amountStr = expense.amount !== null ? money(expense.amount, curr) : "A definir";
     const cleanDesc = String(expense.description || "").replace("🔄 ", "").trim();
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(7);
     pdf.text(formatDate(expense.date), 18, y + 5);
     pdf.text(cleanDesc.slice(0, 38), 42, y + 5);
@@ -1201,32 +1281,31 @@ function generateProximosPDF() {
     pdf.text(state, 145, y + 5);
     pdf.text(amountStr, 170, y + 5);
 
-    pdf.setDrawColor(...lineDivider);
+    pdf.setDrawColor(...theme.lineDivider);
     pdf.line(15, y + 8, 195, y + 8);
     y += 9;
   });
 
   if (y > 255) {
     pdf.addPage();
-    if (isDarkMode) {
-      pdf.setFillColor(25, 20, 25);
+    if (theme.pageBg) {
+      pdf.setFillColor(...theme.pageBg);
       pdf.rect(0, 0, 210, 297, "F");
     }
     y = 20;
   }
 
-  pdf.setFillColor(...light);
+  pdf.setFillColor(...theme.light);
   pdf.rect(15, y, 180, 9, "F");
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7);
   pdf.text("TOTAL PENDIENTE DE PAGO", 18, y + 6);
   pdf.text(strPending, 150, y + 6);
 
   pdf.setFontSize(7);
-  const footerColorProx = isDarkMode ? [200, 150, 170] : [160, 140, 150];
-  pdf.setTextColor(...footerColorProx);
-  pdf.text("Gastos Próximos · Creado por Flor Bagnis", 15, 287);
+  pdf.setTextColor(...theme.footerColor);
+  pdf.text("Gastos Próximos · Creado por Flor Bagnis ♡", 15, 287);
 
   pdf.save(`Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
@@ -1236,51 +1315,8 @@ function generateProximosPDF() {
    INICIALIZACIÓN SEGURA DE EVENTOS
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+function initApp() {
   if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
-
-  // FIX DEFINITIVO: Botón de visibilidad de contraseña (florcita / candado)
-  const togglePasswordBtn = document.getElementById('togglePasswordBtn');
-  const authPasswordInput = document.getElementById('authPassword');
-
-  if (togglePasswordBtn && authPasswordInput) {
-    togglePasswordBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const isPassword = authPasswordInput.type === 'password';
-      authPasswordInput.type = isPassword ? 'text' : 'password';
-      togglePasswordBtn.textContent = isPassword ? '🌸' : '🔒';
-    });
-  }
-
-  $("authSwitchBtn")?.addEventListener("click", () => {
-    authMode = authMode === "login" ? "register" : "login";
-    updateAuthInterface();
-  });
-
-  $("authForm")?.addEventListener("submit", async e => {
-    e.preventDefault();
-    const email = $("authEmail")?.value.trim() || "";
-    const password = $("authPassword")?.value || "";
-
-    const button = $("authSubmitBtn");
-    if (button) {
-      button.disabled = true;
-      button.textContent = authMode === "login" ? "Ingresando..." : "Creando cuenta...";
-    }
-
-    try {
-      if (authMode === "register") {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-    } catch (error) {
-      console.error("Auth Error:", error);
-      setAuthMessage(error.message);
-      if (button) button.disabled = false;
-      updateAuthInterface();
-    }
-  });
 
   $("logoutBtn")?.addEventListener("click", async () => {
     if (!confirm("¿Querés cerrar sesión?")) return;
@@ -1293,18 +1329,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  $("tabMensualesBtn")?.addEventListener("click", () => {
-    $("tabMensualesBtn").className = "btn btn-pink";
-    if ($("tabProximosBtn")) $("tabProximosBtn").className = "btn btn-outline";
-    $("viewMensuales")?.classList.remove("hidden");
-    $("viewProximos")?.classList.add("hidden");
-  });
-
   $("tabProximosBtn")?.addEventListener("click", () => {
-    $("tabProximosBtn").className = "btn btn-pink";
-    if ($("tabMensualesBtn")) $("tabMensualesBtn").className = "btn btn-outline";
-    $("viewProximos")?.classList.remove("hidden");
-    $("viewMensuales")?.classList.add("hidden");
+    const isProximos = $("viewProximos")?.classList.toggle("hidden");
+    $("viewMensuales")?.classList.toggle("hidden", !isProximos);
+    $("tabProximosBtn").textContent = isProximos ? "🌸 Próximos & Deudas" : "📅 Volver a Mensuales";
   });
 
   $("monthPicker")?.addEventListener("change", () => renderMensuales());
@@ -1318,6 +1346,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
   });
 
+  // GASTOS RECURRENTES
   const expenseRecurring = $("expenseRecurring");
   const recurringOptions = $("recurringOptions");
   const recurringChangingAmount = $("recurringChangingAmount");
@@ -1377,10 +1406,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  /* =========================================================
-     GESTIÓN DE DINERO EXTRA / INGRESOS (CON FECHA Y FRECUENCIA)
-  ========================================================= */
-
+  // INGRESOS EXTRA RECURRENTES
   const extraRecurring = $("extraRecurring");
   const extraRecurringOptions = $("extraRecurringOptions");
   const extraChangingAmount = $("extraChangingAmount");
@@ -1444,24 +1470,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if ($("modalExtraInput")) $("modalExtraInput").value = "";
     if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
     if ($("modalExtraCategory")) $("modalExtraCategory").value = "Sueldo";
-    if ($("modalExtraDate")) {
-      const today = new Date();
-      $("modalExtraDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    }
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if ($("modalExtraDate")) $("modalExtraDate").value = todayStr;
+    const currentActiveMonth = $("monthPicker")?.value || currentMonthValue();
+    if ($("modalExtraTargetMonth")) $("modalExtraTargetMonth").value = currentActiveMonth;
+
     extraRecurringOptions?.classList.add("hidden");
     extraRecurringAmounts?.classList.add("hidden");
     if (extraRecurring) extraRecurring.checked = false;
     if (extraChangingAmount) extraChangingAmount.checked = false;
 
-    delete $("extraDialog").dataset.editingExtraId;
-    const titleEl = $("extraDialog").querySelector("h3");
-    if (titleEl) titleEl.textContent = "➕ Sumar Dinero Extra";
-    $("extraDialog")?.showModal();
+    if ($("extraDialog")) {
+      delete $("extraDialog").dataset.editingExtraId;
+      const titleEl = $("extraModalTitle") || $("extraDialog").querySelector("h3");
+      if (titleEl) titleEl.textContent = "➕ Sumar Dinero Extra";
+      $("extraDialog").showModal();
+    }
   });
 
-  $("closeExtraDialog")?.addEventListener("click", () => {
-    $("extraDialog")?.close();
-  });
+  $("closeExtraDialog")?.addEventListener("click", () => $("extraDialog")?.close());
+  $("closeExtraCancelBtn")?.addEventListener("click", () => $("extraDialog")?.close());
 
   $("submitExtraBtn")?.addEventListener("click", async () => {
     const rawVal = Number($("modalExtraInput")?.value || 0);
@@ -1474,7 +1503,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = $("modalExtraDescription")?.value.trim() || "";
     const currency = $("modalExtraCurrency")?.value || "ARS";
     const baseDateStr = $("modalExtraDate")?.value || new Date().toISOString().slice(0, 10);
-    const targetMonth = baseDateStr.slice(0, 7);
+    const targetMonth = $("modalExtraTargetMonth")?.value || baseDateStr.slice(0, 7);
 
     let finalVal = rawVal;
     if (currency === "USD") {
@@ -1494,28 +1523,47 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    const editingId = $("extraDialog").dataset.editingExtraId;
+    const editingId = $("extraDialog")?.dataset.editingExtraId;
 
     if (editingId) {
-      const month = $("monthPicker")?.value;
-      const current = data.months[month];
-      if (current && Array.isArray(current.extraIncomes)) {
-        const index = current.extraIncomes.findIndex(x => x.id === editingId);
-        if (index !== -1) {
-          current.extraIncomes[index] = {
-            ...current.extraIncomes[index],
-            date: baseDateStr,
-            category,
-            description,
-            amount: finalVal,
-            rawAmount: rawVal,
-            currency
-          };
-          current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-          if ($("budgetInput")) $("budgetInput").value = current.budget;
-          renderMensuales();
-          await saveMonthToFirestore(month);
+      const activeMonth = $("monthPicker")?.value || currentMonthValue();
+      let oldMonthKey = null;
+      let itemObj = null;
+
+      for (const [mKey, mData] of Object.entries(data.months)) {
+        const found = (mData.extraIncomes || []).find(x => x.id === editingId);
+        if (found) {
+          oldMonthKey = mKey;
+          itemObj = found;
+          break;
         }
+      }
+
+      if (itemObj && oldMonthKey) {
+        const wasBase = itemObj.isBase === true;
+        itemObj.date = baseDateStr;
+        itemObj.category = wasBase ? "Presupuesto Base" : category;
+        itemObj.description = description;
+        itemObj.amount = finalVal;
+        itemObj.rawAmount = rawVal;
+        itemObj.currency = currency;
+
+        if (oldMonthKey !== targetMonth) {
+          data.months[oldMonthKey].extraIncomes = data.months[oldMonthKey].extraIncomes.filter(x => x.id !== editingId);
+          data.months[oldMonthKey].budget = data.months[oldMonthKey].extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+          await saveMonthToFirestore(oldMonthKey);
+
+          const newMonthData = ensureMonth(targetMonth);
+          newMonthData.extraIncomes.push(itemObj);
+          newMonthData.budget = newMonthData.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+          await saveMonthToFirestore(targetMonth);
+        } else {
+          data.months[targetMonth].budget = data.months[targetMonth].extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+          await saveMonthToFirestore(targetMonth);
+        }
+
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
+        renderMensuales();
       }
     } else {
       const isRecurring = extraRecurring?.checked;
@@ -1576,7 +1624,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if ($("monthPicker")) $("monthPicker").value = targetMonth;
         renderMensuales();
-        alert(`✓ Ingreso extra repetido exitosamente durante ${count} período(s).`);
+        alert(`✓ Ingreso repetido exitosamente durante ${count} período(s).`);
       }
     }
 
@@ -1599,7 +1647,7 @@ document.addEventListener("DOMContentLoaded", () => {
       current.extraIncomes.unshift({
         id: createId("base"),
         isBase: true,
-        date: new Date().toISOString().slice(0, 10),
+        date: `${month}-01`,
         category: "Presupuesto Base",
         description: "Presupuesto inicial del mes",
         amount: baseVal,
@@ -1676,19 +1724,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if ($("monthPicker")) $("monthPicker").value = targetMonth;
         renderMensuales();
-      } else {
-        const monthData = ensureMonth(targetMonth);
-        const exp = monthData.expenses.find(x => x.id === editingId);
-        if (exp) {
-          exp.date = baseDateStr; 
-          exp.description = description; 
-          exp.category = category; 
-          exp.amount = baseAmount; 
-          exp.currency = currency;
-          if ($("monthPicker")) $("monthPicker").value = targetMonth;
-          renderMensuales();
-          await saveMonthToFirestore(targetMonth);
-        }
       }
     } else {
       const isRecurring = expenseRecurring?.checked;
@@ -1852,18 +1887,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
   });
 
-  const toggleThemeBtn = $("toggleThemeBtn");
-  if (localStorage.getItem("mensuales_theme") === "dark") {
-    document.body.classList.add("dark-mode");
-    if (toggleThemeBtn) toggleThemeBtn.textContent = "☀️ Modo claro";
-  }
-
-  toggleThemeBtn?.addEventListener("click", () => {
-    const isDark = document.body.classList.toggle("dark-mode");
-    localStorage.setItem("mensuales_theme", isDark ? "dark" : "light");
-    toggleThemeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
-  });
-
   function setupCollapsible(btnId, container, storageKey, label) {
     const btn = $(btnId);
     if (!btn || !container) return;
@@ -1883,7 +1906,76 @@ document.addEventListener("DOMContentLoaded", () => {
   setupCollapsible("toggleTableBtn", document.querySelector(".table-container-collapsible"), "mensuales_table_collapsed", "tabla");
   setupCollapsible("toggleHistoryBtn", $("historyContainer"), "mensuales_history_collapsed", "historial");
   setupCollapsible("toggleExtraHistoryBtn", $("extraHistoryContainer"), "mensuales_extra_history_collapsed", "historial extra");
+}
+
+
+/* =========================================================
+   DELEGACIÓN GLOBAL (PASSWORD, SWITCH, MODOS)
+========================================================= */
+document.addEventListener('click', (e) => {
+  const switchBtn = e.target.closest('#authSwitchBtn');
+  if (switchBtn) {
+    e.preventDefault();
+    authMode = authMode === "login" ? "register" : "login";
+    updateAuthInterface();
+  }
+
+  const passwordBtn = e.target.closest('#togglePasswordBtn');
+  if (passwordBtn) {
+    e.preventDefault();
+    const authPasswordInput = document.getElementById('authPassword');
+    if (authPasswordInput) {
+      const isPassword = authPasswordInput.type === 'password';
+      authPasswordInput.type = isPassword ? 'text' : 'password';
+      passwordBtn.textContent = isPassword ? '🌸' : '🔒';
+    }
+  }
+
+  const themeBtn = e.target.closest('#toggleThemeBtn');
+  if (themeBtn) {
+    const isDark = document.body.classList.toggle("dark-mode");
+    document.body.classList.remove("dark-blue-mode");
+    localStorage.setItem("mensual_theme_mode", isDark ? "dark" : "light");
+    themeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
+    const blueBtn = $("toggleBlueThemeBtn");
+    if (blueBtn) blueBtn.textContent = "🔹 Modo azul";
+  }
+
+  const blueThemeBtn = e.target.closest('#toggleBlueThemeBtn');
+  if (blueThemeBtn) {
+    const isBlue = document.body.classList.toggle("dark-blue-mode");
+    document.body.classList.remove("dark-mode");
+    localStorage.setItem("mensual_theme_mode", isBlue ? "blue" : "light");
+    blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "🔹 Modo azul";
+    const darkBtn = $("toggleThemeBtn");
+    if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
+  }
+
+  if (e.target.closest('#openAnnualBtn')) {
+    openAnnualModal();
+  }
+  if (e.target.closest('#closeAnnualDialog') || e.target.closest('#closeAnnualCancelBtn')) {
+    $("annualDialog")?.close();
+  }
+  if (e.target.closest('#annualPdfBtn')) {
+    generateAnnualPDF();
+  }
 });
+
+const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
+if (savedTheme === "dark") {
+  document.body.classList.add("dark-mode");
+  document.body.classList.remove("dark-blue-mode");
+} else if (savedTheme === "blue") {
+  document.body.classList.add("dark-blue-mode");
+  document.body.classList.remove("dark-mode");
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}
 
 
 /* =========================================================
@@ -1942,24 +2034,24 @@ function openAnnualModal() {
   $("annualSubtitle").textContent = `Año ${annual.currentYear} · Basado en ${annual.monthsCount} meses registrados`;
 
   content.innerHTML = `
-    <div class="annual-card-grid">
-      <div class="annual-mini-card">
-        <span>TOTAL GASTADO (ARS)</span>
-        <strong>${money(annual.totalARS)}</strong>
+    <div class="annual-card-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="metric-card">
+        <span class="metric-title">TOTAL GASTADO (ARS)</span>
+        <strong style="font-size: 1.1rem;">${money(annual.totalARS)}</strong>
       </div>
-      <div class="annual-mini-card">
-        <span>PROMEDIO MENSUAL</span>
-        <strong>${money(annual.avgARS)}</strong>
+      <div class="metric-card">
+        <span class="metric-title">PROMEDIO MENSUAL</span>
+        <strong style="font-size: 1.1rem;">${money(annual.avgARS)}</strong>
       </div>
     </div>
-    <div class="annual-card-grid">
-      <div class="annual-mini-card">
-        <span>MES MÁS ALTO</span>
-        <strong>${annual.highestMonth.name}</strong>
+    <div class="annual-card-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+      <div class="metric-card">
+        <span class="metric-title">MES MÁS ALTO</span>
+        <strong style="font-size: 1.1rem;">${annual.highestMonth.name}</strong>
       </div>
-      <div class="annual-mini-card">
-        <span>CATEGORÍA PRINCIPAL</span>
-        <strong>${annual.topCategory[0]}</strong>
+      <div class="metric-card">
+        <span class="metric-title">CATEGORÍA PRINCIPAL</span>
+        <strong style="font-size: 1.1rem;">${annual.topCategory[0]}</strong>
       </div>
     </div>
   `;
@@ -1970,39 +2062,31 @@ function openAnnualModal() {
 function generateAnnualPDF() {
   const jsPDFLib = window.jspdf?.jsPDF || window.jsPDF;
   if (!jsPDFLib) {
-    alert("No se pudo cargar el generador de PDF. Verificá tu conexión a internet o si hay algún bloqueador de publicidad activo.");
+    alert("No se pudo cargar el generador de PDF. Verificá tu conexión a internet.");
     return;
   }
 
   const annual = calculateAnnualData();
   const pdf = new jsPDFLib({ unit: "mm", format: "a4" });
+  const theme = getPdfThemeColors();
 
-  const isDarkMode = document.body.classList.contains("dark-mode");
-  const dark = isDarkMode ? [240, 240, 240] : [85, 21, 45];
-  const softPinkBg = isDarkMode ? [45, 35, 40] : [255, 235, 242];
-  const cardBg = isDarkMode ? [35, 28, 33] : [255, 248, 250];
-  const borderPink = isDarkMode ? [80, 45, 60] : [242, 175, 195];
-  const mutedText = isDarkMode ? [200, 140, 160] : [158, 91, 114];
-  const headerBg = isDarkMode ? [55, 30, 45] : [255, 176, 194];
-  const subtitleColor = isDarkMode ? [220, 160, 180] : [110, 35, 55];
-
-  if (isDarkMode) {
-    pdf.setFillColor(25, 20, 25);
+  if (theme.pageBg) {
+    pdf.setFillColor(...theme.pageBg);
     pdf.rect(0, 0, 210, 297, "F");
   }
 
-  pdf.setFillColor(...headerBg);
+  pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
 
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFontSize(15);
   pdf.setFont("helvetica", "bold");
   pdf.text(`RESUMEN FINANCIERO ANUAL (${annual.currentYear})`, 21, 25);
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.setTextColor(...subtitleColor);
-  pdf.text(`Generado por Flor Bagnis · Mensuales PWA`, 21, 33);
+  pdf.setTextColor(...theme.footerColor);
+  pdf.text(`Generado por Flor Bagnis · Mensuales PWA ♡`, 21, 33);
 
   const cardWidth = 87;
   const cardHeight = 24;
@@ -2021,16 +2105,16 @@ function generateAnnualPDF() {
     const x = 15 + col * (cardWidth + 6);
     const y = startY + row * (cardHeight + 6);
 
-    pdf.setFillColor(...cardBg);
-    pdf.setDrawColor(...borderPink);
+    pdf.setFillColor(...theme.light);
+    pdf.setDrawColor(...theme.cardBorder);
     pdf.roundedRect(x, y, cardWidth, cardHeight, 3, 3, "FD");
 
-    pdf.setTextColor(...mutedText);
+    pdf.setTextColor(...theme.footerColor);
     pdf.setFontSize(7);
     pdf.setFont("helvetica", "bold");
     pdf.text(card.title, x + 6, y + 8);
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(11);
     pdf.setFont("helvetica", "bold");
     pdf.text(String(card.value), x + 6, y + 17);
@@ -2039,16 +2123,16 @@ function generateAnnualPDF() {
   let currentY = startY + 2 * (cardHeight + 6) + 5;
 
   if (annual.totalUSD > 0) {
-    pdf.setFillColor(...cardBg);
-    pdf.setDrawColor(...borderPink);
+    pdf.setFillColor(...theme.light);
+    pdf.setDrawColor(...theme.cardBorder);
     pdf.roundedRect(15, currentY, 180, 18, 3, 3, "FD");
 
-    pdf.setTextColor(...mutedText);
+    pdf.setTextColor(...theme.footerColor);
     pdf.setFontSize(7);
     pdf.setFont("helvetica", "bold");
     pdf.text("TOTAL GASTADO EN USD", 21, currentY + 6);
 
-    pdf.setTextColor(...dark);
+    pdf.setTextColor(...theme.dark);
     pdf.setFontSize(11);
     pdf.setFont("helvetica", "bold");
     pdf.text(money(annual.totalUSD, "USD"), 21, currentY + 13);
@@ -2056,48 +2140,25 @@ function generateAnnualPDF() {
     currentY += 24;
   }
 
-  pdf.setFillColor(...softPinkBg);
-  pdf.setDrawColor(...borderPink);
+  pdf.setFillColor(...theme.light);
+  pdf.setDrawColor(...theme.cardBorder);
   pdf.roundedRect(15, currentY, 180, 26, 3, 3, "FD");
 
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   pdf.setFontSize(9);
   pdf.setFont("helvetica", "bold");
   pdf.text("Análisis del período", 21, currentY + 7);
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.setTextColor(...dark);
+  pdf.setTextColor(...theme.dark);
   const summaryText = `Durante el año ${annual.currentYear}, registraste movimientos en ${annual.monthsCount} meses. Tu mes con mayor actividad financiera fue ${annual.highestMonth.name} y la categoría que acumuló más gastos resultó ser "${annual.topCategory[0]}".`;
   const splitSummary = pdf.splitTextToSize(summaryText, 168);
   pdf.text(splitSummary, 21, currentY + 14);
 
   pdf.setFontSize(7);
-  const footerColorAnn = isDarkMode ? [200, 130, 150] : [160, 110, 125];
-  pdf.setTextColor(...footerColorAnn);
-  pdf.text("Resumen Anual · Creado por Flor Bagnis", 15, 287);
+  pdf.setTextColor(...theme.footerColor);
+  pdf.text("Resumen Anual · Creado por Flor Bagnis ♡", 15, 287);
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
-
-
-/* =========================================================
-   EVENTOS GLOBALES (DELEGACIÓN SEGURO)
-========================================================= */
-document.addEventListener('click', (e) => {
-  if (e.target.closest('#openAnnualBtn')) {
-    openAnnualModal();
-  }
-
-  if (e.target.closest('#closeAnnualDialog')) {
-    $("annualDialog")?.close();
-  }
-
-  if (e.target.closest('#closeAnnualCancelBtn')) {
-    $("annualDialog")?.close();
-  }
-
-  if (e.target.closest('#annualPdfBtn')) {
-    generateAnnualPDF();
-  }
-});
