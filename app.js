@@ -864,7 +864,7 @@ async function deleteProximo(id) {
 
 
 /* =========================================================
-   EXPORTAR CSV (INCLUYE PRESUPUESTO)
+   EXPORTAR CSV
 ========================================================= */
 
 function downloadCSV(rows, filename) {
@@ -881,7 +881,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (INCLUYE PRESUPUESTO, BALANCE Y MODO OSCURO)
+   REPORTES PDF (INCLUYE PRESUPUESTO, DIFERENCIA, MODO OSCURO)
 ========================================================= */
 
 function generateMensualesPDF() {
@@ -905,14 +905,20 @@ function generateMensualesPDF() {
     }
   });
 
+  const previous = data.months[previousMonth(month)] || { expenses: [] };
+  let previousTotalARS = 0;
+
+  previous.expenses.forEach(e => {
+    if (e.currency !== "USD") {
+      previousTotalARS += Number(e.amount || 0);
+    }
+  });
+
+  const diffARS = totalARS - previousTotalARS;
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
   
-  // NUEVO: Cálculos de Presupuesto y Balance para las tarjetas del PDF
   const budgetText = money(current.budget);
-  const balanceVal = current.budget - totalARS;
-  const balanceText = current.budget > 0 
-    ? `${balanceVal >= 0 ? "Disp: " : "Exced: "}${money(Math.abs(balanceVal))}`
-    : "Sin presupuesto";
+  const diffText = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
 
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
 
@@ -941,26 +947,27 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte · ${monthName(month)}`, 21, 34);
 
-  // Tarjetas actualizadas con Presupuesto, Total Gastado y Balance
+  // 4 tarjetas distribuidas de forma perfecta: Presupuesto, Total Gastado, Mes Anterior, Diferencia
   const cards = [
     ["PRESUPUESTO", budgetText],
     ["TOTAL GASTADO", cardSpentText],
-    ["ESTADO", balanceText]
+    ["MES ANTERIOR", money(previousTotalARS)],
+    ["DIFERENCIA", diffText]
   ];
 
   cards.forEach((card, index) => {
-    const x = 15 + index * 60;
+    const x = 15 + index * 45;
     pdf.setDrawColor(...cardBorder);
-    pdf.roundedRect(x, 49, 56, 25, 3, 3, "S");
+    pdf.roundedRect(x, 49, 41, 25, 3, 3, "S");
 
     pdf.setTextColor(...pink);
-    pdf.setFontSize(7);
+    pdf.setFontSize(6.5);
     pdf.setFont("helvetica", "bold");
-    pdf.text(card[0], x + 4, 57);
+    pdf.text(card[0], x + 3, 57);
 
     pdf.setTextColor(...dark);
-    pdf.setFontSize(9);
-    pdf.text(card[1], x + 4, 66);
+    pdf.setFontSize(8.5);
+    pdf.text(card[1], x + 3, 66);
   });
 
   let y = 84;
@@ -1672,7 +1679,6 @@ document.addEventListener("DOMContentLoaded", () => {
     $("gpModal")?.close();
   });
 
-  // NUEVO: Exportación a CSV incluyendo el presupuesto del mes al inicio
   $("mensualesCsvBtn")?.addEventListener("click", () => {
     const month = $("monthPicker")?.value;
     const current = ensureMonth(month);
