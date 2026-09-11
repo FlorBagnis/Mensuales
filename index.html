@@ -4,15 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control de Gastos · Mensuales</title>
-  <link rel="stylesheet" href="styles.css">
+  
+  <!-- COMPATIBILIDAD PWA (INSTALAR EN PC Y CELULAR) -->
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#f06292">
+  <meta name="theme-color" content="#ea5b8e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mensuales">
+
+  <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
   <!-- =========================================================
-       SECCIÓN DE AUTENTICACIÓN (DISEÑO EXACTO CON CORAZÓN)
+       LOGIN ORIGINAL (CON CORAZÓN ♡ Y ENLACE LIMPIO)
   ========================================================= -->
   <section id="authSection" class="auth-section">
     <div class="auth-card">
@@ -21,7 +28,7 @@
       <h2>Controlá tus gastos</h2>
       <p class="auth-desc">Ingresá a tu cuenta para gestionar tu presupuesto mensual.</p>
 
-      <form id="authForm" class="auth-form">
+      <form id="authForm" class="auth-form" autocomplete="on">
         <div class="form-group">
           <label for="authEmail">Email</label>
           <input type="email" id="authEmail" placeholder="tu@email.com" required autocomplete="username">
@@ -46,12 +53,12 @@
 
 
   <!-- =========================================================
-       CONTENIDO DE LA APP
+       CONTENIDO PRINCIPAL (DENTRO DEL CONTENEDOR)
   ========================================================= -->
   <div id="appContent" class="hidden">
     <div class="app-container">
 
-      <!-- CABECERA EN TARJETA REDONDEADA ROSA -->
+      <!-- CABECERA EN TARJETA REDONDEADA -->
       <header class="header-card">
         <div class="header-inner">
           <div class="header-left">
@@ -115,7 +122,7 @@
           </div>
         </section>
 
-        <!-- RESUMEN EN 4 TARJETAS -->
+        <!-- RESUMEN FINANCIERO -->
         <section class="card">
           <div class="card-header">
             <h2>Resumen</h2>
@@ -230,7 +237,7 @@
           </div>
         </section>
 
-        <!-- GRÁFICO POR CATEGORÍAS Y TENDENCIAS -->
+        <!-- CATEGORÍAS Y TENDENCIAS -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 18px;">
           <section class="card" style="margin-bottom: 0;">
             <h2>Gastos por categoría</h2>
