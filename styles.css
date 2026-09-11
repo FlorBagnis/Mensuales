@@ -1414,19 +1414,61 @@ body.dark-mode .money-input input {
 }
 
 /* =========================================================
-   MODO AZUL OSCURO COMPLETO (DARK BLUE MODE)
+   1. MODO OSCURO (BORDÓ ORIGINAL)
+========================================================= */
+body.dark-mode {
+  background-color: #1e0f17 !important;
+  color: #fdf2f6 !important;
+  --bg: #1e0f17;
+  --card: #2d1422;
+  --text: #fdf2f6;
+  --muted: #b892a4;
+  --line: #4a2138;
+  --pink-500: #e85d9e;
+  --pink-700: #ff7597;
+  --pink-bg: #351829;
+}
+
+body.dark-mode main,
+body.dark-mode section,
+body.dark-mode header,
+body.dark-mode .card,
+body.dark-mode article,
+body.dark-mode dialog,
+body.dark-mode .gp-expense-card {
+  background-color: #2d1422 !important;
+  color: #fdf2f6 !important;
+  border-color: #4a2138 !important;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+  background-color: #1a0b13 !important;
+  color: #ffffff !important;
+  border-color: #4a2138 !important;
+}
+
+body.dark-mode table th,
+body.dark-mode table td {
+  color: #fdf2f6 !important;
+  border-color: #4a2138 !important;
+}
+
+/* =========================================================
+   2. MODO AZUL COMPLETO (DARK BLUE TOTAL)
 ========================================================= */
 body.dark-blue-mode {
-  background-color: #0b132b !important;
-  color: #ffffff !important;
-  --bg: #0b132b;
-  --card: #1c2541;
-  --text: #ffffff;
-  --muted: #8d99ae;
-  --line: #3a506b;
-  --pink-500: #4cc9f0;
-  --pink-700: #4361ee;
-  --pink-bg: #1c2541;
+  background-color: #070d1e !important;
+  color: #f1f5f9 !important;
+  --bg: #070d1e;
+  --card: #0f1c3f;
+  --text: #f1f5f9;
+  --muted: #8fa5ca;
+  --line: #1e356d;
+  --pink-500: #38bdf8;
+  --pink-700: #2563eb;
+  --pink-bg: #132450;
 }
 
 body.dark-blue-mode main,
@@ -1436,22 +1478,52 @@ body.dark-blue-mode .card,
 body.dark-blue-mode article,
 body.dark-blue-mode dialog,
 body.dark-blue-mode .gp-expense-card {
-  background-color: #1c2541 !important;
-  color: #ffffff !important;
-  border-color: #3a506b !important;
+  background-color: #0f1c3f !important;
+  color: #f1f5f9 !important;
+  border-color: #1e356d !important;
 }
 
 body.dark-blue-mode input,
 body.dark-blue-mode select,
 body.dark-blue-mode textarea {
-  background-color: #0b132b !important;
+  background-color: #070e22 !important;
   color: #ffffff !important;
-  border-color: #3a506b !important;
+  border-color: #1e356d !important;
 }
 
 body.dark-blue-mode table th,
 body.dark-blue-mode table td {
-  color: #ffffff !important;
-  border-color: #3a506b !important;
+  color: #f1f5f9 !important;
+  border-color: #1e356d !important;
   background-color: transparent !important;
+}
+
+/* Transformación de botones rosas y badges en Azul */
+body.dark-blue-mode .btn-pink {
+  background-color: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+body.dark-blue-mode .btn-pink:hover {
+  background-color: #1d4ed8 !important;
+}
+
+body.dark-blue-mode .btn-outline {
+  border-color: #3b82f6 !important;
+  color: #93c5fd !important;
+}
+
+body.dark-blue-mode .category,
+body.dark-blue-mode .badge {
+  background-color: #1e356d !important;
+  color: #93c5fd !important;
+}
+
+body.dark-blue-mode .result-good {
+  color: #4ade80 !important;
+}
+
+body.dark-blue-mode .result-bad {
+  color: #f87171 !important;
 }
