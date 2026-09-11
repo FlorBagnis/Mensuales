@@ -411,7 +411,6 @@ function editExtraIncome(id) {
   const item = current.extraIncomes.find(x => x.id === id);
   if (!item) return;
 
-  // Se abre el modal exactamente igual para Presupuesto Base y Dinero Extra
   if ($("modalExtraCategory")) $("modalExtraCategory").value = item.category || "Sueldo";
   if ($("modalExtraDescription")) $("modalExtraDescription").value = item.description || "";
   if ($("modalExtraInput")) $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
@@ -2108,7 +2107,7 @@ function generateAnnualPDF() {
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
   pdf.setTextColor(...theme.dark);
-  const summaryText = `Durante el año ${annual.currentYear}, registraste movimientos en ${annual.monthsCount} meses. Tu mes con mayor actividad financiera fue ${annual.highestMonth.name} y la categoría que acumuló más gastos resultó ser "${annual.topCategory[0]}".`;
+  const summaryText = `Durante el año ${annual.currentYear}, registraste movimientos in ${annual.monthsCount} meses. Tu mes con mayor actividad financiera fue ${annual.highestMonth.name} y la categoría que acumuló más gastos resultó ser "${annual.topCategory[0]}".`;
   const splitSummary = pdf.splitTextToSize(summaryText, 168);
   pdf.text(splitSummary, 21, currentY + 14);
 
