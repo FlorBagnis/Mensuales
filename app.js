@@ -1,16 +1,3 @@
-¡Sí, se puede hacer y queda **impecable**! De esa manera, no solo controlás los gastos fijos o recurrentes, sino que también podés programar ingresos que se repiten (como un sueldo mensual, un ingreso semanal por cliente, o montos que varían mes a mes) asignándoles su fecha exacta.
-
-Para lograr esto, vamos a expandir la lógica del **Dinero Extra / Ingresos** para que funcione con **fechas personalizadas** y **opciones de frecuencia (recurrencia con montos fijos o variables)**, exactamente igual a como ya tenés estructurados los gastos recurrentes.
-
-### ¿Qué agregamos en esta actualización?
-
-1. **Fecha personalizada** para el ingreso extra (ya no toma solo "hoy" por defecto, sino la fecha que elijas).
-2. **Frecuencia y recurrencia en ingresos:** Podés indicar si se repite (por ejemplo, mensual o semanal), definir cuántos períodos, y si el monto es fijo o varía en cada período.
-3. **Impacto automático en el mes correspondiente:** Si un ingreso extra es recurrente, la app lo distribuye y guarda automáticamente en el mes que le corresponda según la fecha y frecuencia.
-
-Aquí tenés el **código completo actualizado** con estas mejoras integradas:
-
-```javascript
 /* =========================================================
    MENSUALES & GASTOS PRÓXIMOS (SISTEMA UNIFICADO)
    FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
