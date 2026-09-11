@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control de Gastos · Mensuales</title>
   
-  <!-- COMPATIBILIDAD PWA PARA INSTALACIÓN EN PC Y CELULAR -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ea5b8e">
   <meta name="mobile-web-app-capable" content="yes">
@@ -18,9 +17,7 @@
 </head>
 <body>
 
-  <!-- =========================================================
-       SECCIÓN DE AUTENTICACIÓN (DISEÑO EXACTO CON CORAZÓN)
-  ========================================================= -->
+  <!-- PANTALLA DE LOGIN -->
   <section id="authSection" class="auth-section">
     <div class="auth-card">
       <div class="auth-heart-badge">♡</div>
@@ -51,14 +48,11 @@
     </div>
   </section>
 
-
-  <!-- =========================================================
-       CONTENIDO PRINCIPAL (DENTRO DEL CONTENEDOR)
-  ========================================================= -->
+  <!-- CONTENIDO PRINCIPAL -->
   <div id="appContent" class="hidden">
     <div class="app-container">
 
-      <!-- CABECERA EN TARJETA REDONDEADA ROSA -->
+      <!-- CABECERA -->
       <header class="header-card">
         <div class="header-inner">
           <div class="header-left">
@@ -71,7 +65,6 @@
           <div class="header-right">
             <span id="userEmail" class="user-email"></span>
             <div class="header-nav-btns">
-              <button type="button" id="tabMensualesBtn" class="btn btn-pink">📅 Mensuales</button>
               <button type="button" id="tabProximosBtn" class="btn btn-sub-action">🌸 Próximos & Deudas</button>
               <button type="button" id="logoutBtn" class="btn btn-dark">Cerrar sesión</button>
             </div>
@@ -79,12 +72,9 @@
         </div>
       </header>
 
-      <!-- =====================================================
-           VISTA 1: MENSUALES
-      ===================================================== -->
+      <!-- VISTA 1: MENSUALES -->
       <section id="viewMensuales">
         
-        <!-- BARRA FLOTANTE DE MODOS -->
         <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
           <button type="button" id="toggleThemeBtn" class="btn btn-outline btn-sm btn-pill">🌙 Modo oscuro</button>
           <button type="button" id="toggleBlueThemeBtn" class="btn btn-outline btn-sm btn-pill">🔹 Modo azul</button>
@@ -122,7 +112,7 @@
           </div>
         </section>
 
-        <!-- RESUMEN EN 4 TARJETAS -->
+        <!-- RESUMEN -->
         <section class="card">
           <div class="card-header">
             <h2>Resumen</h2>
@@ -156,7 +146,7 @@
           </div>
         </section>
 
-        <!-- TABLA DE GASTOS DEL MES -->
+        <!-- TABLA DE GASTOS -->
         <section class="card">
           <div class="card-header" style="flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -209,7 +199,7 @@
           </div>
         </section>
 
-        <!-- HISTORIAL DINERO EXTRA / PRESUPUESTO BASE -->
+        <!-- HISTORIAL DINERO EXTRA -->
         <section class="card">
           <div class="card-header" style="flex-wrap: wrap; gap: 8px;">
             <div>
@@ -237,9 +227,8 @@
           </div>
         </section>
 
-        <!-- HISTORIAL RECIENTE Y CATEGORÍAS EN 2 COLUMNAS -->
+        <!-- HISTORIAL Y CATEGORÍAS -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin-bottom: 18px;">
-          <!-- HISTORIAL DE MESES -->
           <section class="card" style="margin-bottom: 0;">
             <div class="card-header">
               <h2>Historial reciente</h2>
@@ -260,14 +249,13 @@
             </div>
           </section>
 
-          <!-- CATEGORÍAS -->
           <section class="card" style="margin-bottom: 0;">
             <h2>Gastos por categoría</h2>
             <div id="categoryChart" style="margin-top: 12px;"></div>
           </section>
         </div>
 
-        <!-- ANÁLISIS DE TENDENCIA (RECUADRO ESTILO ORIGINAL) -->
+        <!-- TENDENCIA -->
         <section class="card" style="border: 1px dashed var(--line); background: var(--card);">
           <h2 style="display: flex; align-items: center; gap: 6px;">💡 Análisis de tendencia</h2>
           <p id="trendText" style="margin-top: 10px; color: var(--text); line-height: 1.6;">Cargando análisis de tus hábitos de gasto...</p>
@@ -275,10 +263,7 @@
 
       </section>
 
-
-      <!-- =====================================================
-           VISTA 2: GASTOS PRÓXIMOS & DEUDAS
-      ===================================================== -->
+      <!-- VISTA 2: GASTOS PRÓXIMOS -->
       <section id="viewProximos" class="hidden">
         <section class="card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
           <div class="metric-card">
@@ -328,11 +313,7 @@
 
     </div>
 
-    <!-- =======================================================
-         MODALES FLOTANTES (POP-UPS CENTRADOS)
-    ======================================================= -->
-
-    <!-- 1. MODAL NUEVO GASTO / EDITAR GASTO -->
+    <!-- MODALES -->
     <dialog id="expenseDialog">
       <div class="modal-header">
         <h3 id="modalTitle">Agregar gasto</h3>
@@ -385,7 +366,6 @@
           </div>
         </div>
 
-        <!-- Recurrencia Gastos -->
         <div style="margin-top: 10px;">
           <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;">
             <input type="checkbox" id="expenseRecurring" style="width: auto;">
@@ -426,7 +406,6 @@
       </form>
     </dialog>
 
-    <!-- 2. MODAL DINERO EXTRA / PRESUPUESTO BASE -->
     <dialog id="extraDialog">
       <div class="modal-header">
         <h3 id="extraModalTitle">➕ Sumar Dinero Extra</h3>
@@ -477,7 +456,6 @@
         </div>
       </div>
 
-      <!-- Recurrencia Ingresos -->
       <div style="margin-top: 10px;">
         <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;">
           <input type="checkbox" id="extraRecurring" style="width: auto;">
@@ -517,7 +495,6 @@
       </div>
     </dialog>
 
-    <!-- 3. MODAL GASTOS PRÓXIMOS -->
     <dialog id="gpModal">
       <div class="modal-header">
         <h3 id="gpModalTitle">Agregar registro pendiente</h3>
@@ -594,7 +571,6 @@
       </form>
     </dialog>
 
-    <!-- 4. MODAL RESUMEN ANUAL -->
     <dialog id="annualDialog">
       <div class="modal-header">
         <h3>🌸 Resumen Financiero Anual</h3>
