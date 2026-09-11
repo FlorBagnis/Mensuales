@@ -1070,7 +1070,7 @@ function generateAnnualPDF() {
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Generado por Florencia Bagnis · Mensuales PWA ♡`, 21, 33);
+  pdf.text(`Generado por Flor Bagnis · Mensuales PWA ♡`, 21, 33);
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
