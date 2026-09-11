@@ -1,4 +1,4 @@
-# 💗 MENSUALES · Control de gastos
+# 💗 MENSUALES & Gastos Proximós · Control de gastos
 
 <img width="1504" height="877" alt="image" src="https://github.com/user-attachments/assets/52879245-6b81-48ec-9fbd-2569a2c0e07d" />
 
@@ -456,7 +456,21 @@ Actualización integral para la suite de finanzas personales (**MENSUALES** y **
 
 <img width="1750" height="729" alt="image" src="https://github.com/user-attachments/assets/60910be6-84f6-4658-b9d9-744e2d940a3f" />
 
+# 💸 Mensuales & Gastos Próximos (Actualización) 
 
+Aplicación web progresiva (PWA) de finanzas personales desarrollada con sincronización en la nube y soporte multimoneda.
+
+## ✨ Características Principales
+* **Sincronización Bidireccional:** Impacto automático de pagos pendientes en los registros mensuales.
+* **Multimoneda & Dólar Blue:** Gestión en ARS y USD con consulta de cotización en tiempo real.
+* **Modo Oscuro:** Interfaz adaptable que también configura automáticamente los colores de los reportes descargables.
+* **Reportes y Exportación:** Generación de PDFs personalizados con `jsPDF` y exportación a CSV.
+* **PWA:** Funcionalidad offline y soporte multidispositivo.
+
+## 🛠 Tecnologías
+* **Frontend:** HTML5, CSS3, JavaScript (ES6+).
+* **Backend:** Firebase (Authentication & Cloud Firestore).
+* **APIs / Librerías:** DolarAPI, jsPDF.
 
 
 
