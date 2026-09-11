@@ -881,7 +881,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (ADAPTADOS A MODO OSCURO / CLARO)
+   REPORTES PDF (CORREGIDOS Y ADAPTADOS A MODO OSCURO)
 ========================================================= */
 
 function generateMensualesPDF() {
@@ -917,7 +917,6 @@ function generateMensualesPDF() {
   const diffARS = totalARS - previousTotalARS;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
 
-  // --- DETECCIÓN DE MODO OSCURO PARA PDF ---
   const isDarkMode = document.body.classList.contains("dark-mode");
   const pink = isDarkMode ? [255, 120, 160] : [245, 107, 139];
   const dark = isDarkMode ? [240, 240, 240] : [85, 21, 45];
@@ -930,7 +929,6 @@ function generateMensualesPDF() {
     pdf.setFillColor(25, 20, 25);
     pdf.rect(0, 0, 210, 297, "F");
   }
-  // ----------------------------------------
 
   pdf.setFillColor(...headerBg);
   pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
@@ -1067,7 +1065,9 @@ function generateMensualesPDF() {
   pdf.text(lines, 15, y + 6);
 
   pdf.setFontSize(7);
-  pdf.setTextColor(isDarkMode ? [200, 130, 150] : [160, 110, 125]);
+  // CORREGIDO: Se aplica el spread (...) para evitar el error de array en jsPDF
+  const footerColorMensuales = isDarkMode ? [200, 130, 150] : [160, 110, 125];
+  pdf.setTextColor(...footerColorMensuales);
   pdf.text("MENSUALES · Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`MENSUALES-${month}.pdf`);
@@ -1082,7 +1082,6 @@ function generateProximosPDF() {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
 
-  // --- DETECCIÓN DE MODO OSCURO PARA PDF ---
   const isDarkMode = document.body.classList.contains("dark-mode");
   const pink = isDarkMode ? [255, 120, 160] : [232, 93, 158];
   const dark = isDarkMode ? [240, 240, 240] : [51, 41, 52];
@@ -1095,7 +1094,6 @@ function generateProximosPDF() {
     pdf.setFillColor(25, 20, 25);
     pdf.rect(0, 0, 210, 297, "F");
   }
-  // ----------------------------------------
 
   pdf.setFillColor(...headerBg);
   pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
@@ -1222,7 +1220,9 @@ function generateProximosPDF() {
   pdf.text(strPending, 150, y + 6);
 
   pdf.setFontSize(7);
-  pdf.setTextColor(isDarkMode ? [200, 150, 170] : [160, 140, 150]);
+  // CORREGIDO: Se aplica el spread (...) para evitar el error de array en jsPDF
+  const footerColorProx = isDarkMode ? [200, 150, 170] : [160, 140, 150];
+  pdf.setTextColor(...footerColorProx);
   pdf.text("Gastos Próximos · Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`Gastos-Proximos-${new Date().toISOString().slice(0, 10)}.pdf`);
@@ -1751,7 +1751,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* =========================================================
-   RESUMEN ANUAL Y EXPORTACIÓN PDF (ADAPTADO A MODO OSCURO)
+   RESUMEN ANUAL Y EXPORTACIÓN PDF
 ========================================================= */
 
 function calculateAnnualData() {
@@ -1841,7 +1841,6 @@ function generateAnnualPDF() {
   const annual = calculateAnnualData();
   const pdf = new jsPDFLib({ unit: "mm", format: "a4" });
 
-  // --- DETECCIÓN DE MODO OSCURO PARA PDF ANUAL ---
   const isDarkMode = document.body.classList.contains("dark-mode");
   const dark = isDarkMode ? [240, 240, 240] : [85, 21, 45];
   const softPinkBg = isDarkMode ? [45, 35, 40] : [255, 235, 242];
@@ -1855,7 +1854,6 @@ function generateAnnualPDF() {
     pdf.setFillColor(25, 20, 25);
     pdf.rect(0, 0, 210, 297, "F");
   }
-  // ----------------------------------------------
 
   pdf.setFillColor(...headerBg);
   pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
@@ -1939,7 +1937,9 @@ function generateAnnualPDF() {
   pdf.text(splitSummary, 21, currentY + 14);
 
   pdf.setFontSize(7);
-  pdf.setTextColor(isDarkMode ? [200, 130, 150] : [160, 110, 125]);
+  // CORREGIDO: Se aplica el spread (...) para evitar el error de array en jsPDF
+  const footerColorAnn = isDarkMode ? [200, 130, 150] : [160, 110, 125];
+  pdf.setTextColor(...footerColorAnn);
   pdf.text("Resumen Anual · Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
