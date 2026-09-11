@@ -1412,3 +1412,15 @@ body.dark-mode .money-input input {
   background: transparent !important;
   color: #fceef3 !important;
 }
+
+
+body.blue-mode {
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --line: #cbd5e1;
+  --pink-500: #2563eb;
+  --pink-700: #1d4ed8;
+  --pink-bg: #eff6ff;
+}
