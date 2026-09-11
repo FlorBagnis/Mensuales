@@ -15,194 +15,189 @@
   <link rel="stylesheet" href="styles.css">
 
   <style>
-  thead, th, .table-wrap th {
-    background-color: #fbc4d4 !important;
-    color: #5a2337 !important;
-  }
+    thead, th, .table-wrap th {
+      background-color: #fbc4d4 !important;
+      color: #5a2337 !important;
+    }
 
-  .table-wrap {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+    .pastel-btn {
+      background: #fbc4d4 !important;
+      color: #5a2337 !important;
+      border: 1px solid #f29cb5 !important;
+      border-radius: 12px !important;
+      padding: 11px 18px !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      font-size: 13px !important;
+      box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+      cursor: pointer !important;
+    }
+    .pastel-btn:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
+    }
 
-  .pastel-btn {
-    background: #fbc4d4 !important;
-    color: #5a2337 !important;
-    border: 1px solid #f29cb5 !important;
-    border-radius: 12px !important;
-    padding: 11px 18px !important;
-    font-weight: 700 !important;
-    text-decoration: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    font-size: 13px !important;
-    box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
-    cursor: pointer !important;
-  }
-  .pastel-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
-  }
+    .btn-outline, .btn-danger {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+    }
+    .btn-outline:hover, .btn-danger:hover {
+      background-color: #fbc4d4 !important;
+      color: #5a2337 !important;
+      border-color: #f29cb5 !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
+    }
 
-  .btn-outline, .btn-danger {
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
-  }
-  .btn-outline:hover, .btn-danger:hover {
-    background-color: #fbc4d4 !important;
-    color: #5a2337 !important;
-    border-color: #f29cb5 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
-  }
+    .annual-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .annual-mini-card {
+      background: #fff8fa;
+      border: 1px solid #fde2ec;
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .annual-mini-card span {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9e5b72;
+      letter-spacing: 0.5px;
+    }
+    .annual-mini-card strong {
+      font-size: 16px;
+      color: #5a2337;
+    }
 
-  .annual-card-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .annual-mini-card {
-    background: #fff8fa;
-    border: 1px solid #fde2ec;
-    border-radius: 18px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .annual-mini-card span {
-    font-size: 11px;
-    font-weight: 700;
-    color: #9e5b72;
-    letter-spacing: 0.5px;
-  }
-  .annual-mini-card strong {
-    font-size: 16px;
-    color: #5a2337;
-  }
+    body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
+    body.dark thead, body.dark th, body.dark .table-wrap th,
+    body.dark-mode thead, body.dark-mode th, body.dark-mode .table-wrap th {
+      background-color: #3d222b !important;
+      color: #ffb6c1 !important;
+    }
 
-  body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
-  body.dark thead, body.dark th, body.dark .table-wrap th,
-  body.dark-mode thead, body.dark-mode th, body.dark-mode .table-wrap th {
-    background-color: #3d222b !important;
-    color: #ffb6c1 !important;
-  }
+    body.dark-theme .pastel-btn, body.dark .pastel-btn, body.dark-mode .pastel-btn {
+      background: #3d222b !important;
+      color: #ffb6c1 !important;
+      border: 1px solid #6b3b4a !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    }
+    body.dark-theme .pastel-btn:hover, body.dark .pastel-btn:hover, body.dark-mode .pastel-btn:hover {
+      background: #4e2b37 !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
+    }
 
-  body.dark-theme .pastel-btn, body.dark .pastel-btn, body.dark-mode .pastel-btn {
-    background: #3d222b !important;
-    color: #ffb6c1 !important;
-    border: 1px solid #6b3b4a !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-  }
-  body.dark-theme .pastel-btn:hover, body.dark .pastel-btn:hover, body.dark-mode .pastel-btn:hover {
-    background: #4e2b37 !important;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
-  }
+    body.dark-theme .btn-danger, body.dark .btn-danger, body.dark-mode .btn-danger {
+      background-color: #3d222b !important;
+      color: #ffb6c1 !important;
+      border: 1px solid #6b3b4a !important;
+    }
 
-  body.dark-theme .btn-danger, body.dark .btn-danger, body.dark-mode .btn-danger {
-    background-color: #3d222b !important;
-    color: #ffb6c1 !important;
-    border: 1px solid #6b3b4a !important;
-  }
+    body.dark-theme .btn-outline:hover, body.dark .btn-outline:hover, body.dark-mode .btn-outline:hover,
+    body.dark-theme .btn-danger:hover, body.dark .btn-danger:hover, body.dark-mode .btn-danger:hover {
+      background-color: #3d222b !important;
+      color: #ffb6c1 !important;
+      border-color: #6b3b4a !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
+    }
 
-  body.dark-theme .btn-outline:hover, body.dark .btn-outline:hover, body.dark-mode .btn-outline:hover,
-  body.dark-theme .btn-danger:hover, body.dark .btn-danger:hover, body.dark-mode .btn-danger:hover {
-    background-color: #3d222b !important;
-    color: #ffb6c1 !important;
-    border-color: #6b3b4a !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
-  }
+    body.dark-mode .summary-card,
+    body.dark-mode .panel,
+    body.dark-mode .toolbar,
+    body.dark-mode .trend-box,
+    body.dark-mode .auth-card,
+    body.dark-mode dialog {
+      background-color: #2a161d !important;
+      color: #ffb6c1 !important;
+      border-color: #4e2b37 !important;
+    }
 
-  body.dark-mode .summary-card,
-  body.dark-mode .panel,
-  body.dark-mode .toolbar,
-  body.dark-mode .trend-box,
-  body.dark-mode .auth-card,
-  body.dark-mode dialog {
-    background-color: #2a161d !important;
-    color: #ffb6c1 !important;
-    border-color: #4e2b37 !important;
-  }
+    body.dark-mode .annual-mini-card {
+      background-color: #1f1015 !important;
+      border-color: #4e2b37 !important;
+    }
 
-  body.dark-mode .annual-mini-card {
-    background-color: #1f1015 !important;
-    border-color: #4e2b37 !important;
-  }
+    body.dark-mode .annual-mini-card span {
+      color: #d195a9 !important;
+    }
 
-  body.dark-mode .annual-mini-card span {
-    color: #d195a9 !important;
-  }
+    body.dark-mode .annual-mini-card strong {
+      color: #ffb6c1 !important;
+    }
 
-  body.dark-mode .annual-mini-card strong {
-    color: #ffb6c1 !important;
-  }
+    body.dark-mode .summary-card strong,
+    body.dark-mode .summary-card span,
+    body.dark-mode .summary-card small {
+      color: #ffb6c1 !important;
+    }
 
-  body.dark-mode .summary-card strong,
-  body.dark-mode .summary-card span,
-  body.dark-mode .summary-card small {
-    color: #ffb6c1 !important;
-  }
+    body.dark-mode input, 
+    body.dark-mode select {
+      background-color: #1f1015 !important;
+      color: #ffb6c1 !important;
+      border-color: #4e2b37 !important;
+    }
 
-  body.dark-mode input, 
-  body.dark-mode select {
-    background-color: #1f1015 !important;
-    color: #ffb6c1 !important;
-    border-color: #4e2b37 !important;
-  }
+    body.dark-mode input::placeholder {
+      color: #a37584 !important;
+    }
 
-  body.dark-mode input::placeholder {
-    color: #a37584 !important;
-  }
+    body.dark-mode .summary-card {
+      background-color: #2a161d !important;
+    }
 
-  body.dark-mode .summary-card {
-    background-color: #2a161d !important;
-  }
+    /* OCULTAR MONTOS INCLUYENDO TOTAL EXTRA */
+    body.amounts-hidden #extraTotalSumDisplay {
+      color: transparent !important;
+      position: relative;
+      user-select: none;
+    }
+    body.amounts-hidden #extraTotalSumDisplay::after {
+      content: "••••••";
+      color: var(--pink-700) !important;
+      visibility: visible;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 5;
+      font-weight: 700;
+      background-color: white;
+      padding: 0 4px;
+    }
+    body.dark-mode.amounts-hidden #extraTotalSumDisplay::after,
+    body.amounts-hidden.dark-mode #extraTotalSumDisplay::after {
+      background-color: #211620 !important;
+      color: #ff9db4 !important;
+    }
 
-  body.dark-mode.amounts-hidden strong,
-  body.amounts-hidden.dark-mode strong {
-    background: none !important;
-    background-color: transparent !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
+    body.dark-mode.amounts-hidden strong,
+    body.amounts-hidden.dark-mode strong {
+      background: none !important;
+      background-color: transparent !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
 
-  .money-input span {
-    border-right: none !important;
-    border: none !important;
-  }
-  .money-input input {
-    border-left: none !important;
-  }
-
-/* OCULTAR MONTOS EN LAS TABLAS */
-  body.amounts-hidden td.amount {
-    color: transparent !important;
-    position: relative;
-    user-select: none;
-  }
-  body.amounts-hidden td.amount::after {
-    content: "••••••";
-    color: var(--pink-700) !important;
-    visibility: visible;
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 5;
-    font-weight: 700;
-  }
-  body.dark-mode.amounts-hidden td.amount::after,
-  body.amounts-hidden.dark-mode td.amount::after {
-    color: #ff9db4 !important;
-  }
-    
-</style>
-  
+    .money-input span {
+      border-right: none !important;
+      border: none !important;
+    }
+    .money-input input {
+      border-left: none !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -268,7 +263,6 @@
 
     <div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
       <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
-      <button id="toggleBlueThemeBtn" class="btn btn-outline btn-sm">🔹 Modo Azul</button>
       <button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
     </div>
 
@@ -535,27 +529,6 @@
     </label>
   </div>
 
-<!-- Opciones de recurrencia para Ingresos Extra -->
-<div class="form-group" style="margin-top: 12px;">
-  <input type="checkbox" id="extraRecurring">
-  <label for="extraRecurring">🔄 Repetir este ingreso</label>
-</div>
-
-<div id="extraRecurringOptions" class="hidden" style="background: var(--pink-bg); padding: 10px; border-radius: 8px; margin-top: 8px;">
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-    <label style="font-size: 11px;">Meses a repetir: <input type="number" id="extraDuration" value="6" min="1" max="24" style="width:100%; padding:4px;"></label>
-    <label style="font-size: 11px;">Cada cuántos meses: <input type="number" id="extraMonths" value="1" min="1" max="12" style="width:100%; padding:4px;"></label>
-  </div>
-  <div style="margin-bottom: 8px;">
-    <label style="font-size: 11px;">Día del mes: <input type="number" id="extraDay" value="10" min="1" max="31" style="width:100%; padding:4px;"></label>
-  </div>
-  <div>
-    <input type="checkbox" id="extraChangingAmount">
-    <label for="extraChangingAmount" style="font-size: 11px;">Montos variables por mes</label>
-  </div>
-  <div id="extraRecurringAmounts" class="hidden" style="margin-top: 6px;"></div>
-</div>
-  
   <!-- BOTONES DE ACCIÓN -->
   <div style="display: flex; justify-content: flex-end; gap: 8px;">
     <button type="button" class="btn btn-outline" onclick="document.getElementById('extraDialog').close()">Cancelar</button>
@@ -646,7 +619,7 @@
             Día del mes
             <input id="recurringDay" type="number" min="1" max="31" value="10">
           </label>
-          
+
           <label>
             Durante
             <div class="inline-input">
