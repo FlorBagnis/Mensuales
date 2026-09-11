@@ -167,6 +167,22 @@ function updateAuthInterface() {
   setAuthMessage("");
 }
 
+function firebaseErrorMessage(error) {
+  const code = error?.code || "";
+  const messages = {
+    "auth/invalid-email": "El email no es válido.",
+    "auth/missing-password": "Ingresá una contraseña.",
+    "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.",
+    "auth/email-already-in-use": "Ya existe una cuenta con ese email.",
+    "auth/invalid-credential": "El email o la contraseña son incorrectos.",
+    "auth/user-not-found": "No existe una cuenta con ese email.",
+    "auth/wrong-password": "La contraseña es incorrecta.",
+    "auth/too-many-requests": "Demasiados intentos. Esperá un momento.",
+    "auth/network-request-failed": "No hay conexión con Firebase."
+  };
+  return messages[code] || `Error (${code || "desconocido"}). Volvé a intentar.`;
+}
+
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   if (!user) {
@@ -420,7 +436,7 @@ function editExtraIncome(id) {
       $("extraDialog").dataset.editingExtraId = item.id;
       const titleEl = $("extraDialog").querySelector("h3");
       if (titleEl) titleEl.textContent = "✏️ Editar Ingreso Extra";
-      $("extraDialog")?.showModal();
+      $("extraDialog").showModal();
     }
   }
 }
@@ -893,13 +909,13 @@ function getPdfThemeColors() {
 
   if (isBlueMode) {
     return {
-      pink: [76, 201, 240],       // Azul claro / acento
-      dark: [255, 255, 255],      // Texto blanco
-      light: [28, 37, 65],        // Fondo tarjeta azul oscuro
-      headerBg: [11, 19, 43],     // Cabecera azul marino profundo
-      cardBorder: [58, 80, 107],  // Bordes
+      pink: [76, 201, 240],
+      dark: [255, 255, 255],
+      light: [28, 37, 65],
+      headerBg: [11, 19, 43],
+      cardBorder: [58, 80, 107],
       lineDivider: [38, 55, 80],
-      pageBg: [11, 19, 43],       // Fondo hoja A4
+      pageBg: [11, 19, 43],
       footerColor: [141, 153, 174]
     };
   } else if (isDarkMode) {
@@ -1265,7 +1281,7 @@ function generateProximosPDF() {
 document.addEventListener("DOMContentLoaded", () => {
   if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
 
-  // FIX DEFINITIVO: Botón de visibilidad de contraseña (florcita / candado)
+  // Botón de visibilidad de contraseña (florcita / candado)
   const togglePasswordBtn = document.getElementById('togglePasswordBtn');
   const authPasswordInput = document.getElementById('authPassword');
 
@@ -1325,7 +1341,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("Auth Error:", error);
-      setAuthMessage(error.message);
+      setAuthMessage(firebaseErrorMessage(error));
       if (button) button.disabled = false;
       updateAuthInterface();
     }
