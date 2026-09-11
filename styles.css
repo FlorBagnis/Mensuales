@@ -1455,8 +1455,9 @@ body.dark-mode table td {
   border-color: #4a2138 !important;
 }
 
+
 /* =========================================================
-   2. MODO AZUL COMPLETO (DARK BLUE TOTAL)
+   MODO AZUL COMPLETO (CERO ROSA: FONDOS, BOTONES Y BANNER)
 ========================================================= */
 body.dark-blue-mode {
   background-color: #070d1e !important;
@@ -1471,47 +1472,76 @@ body.dark-blue-mode {
   --pink-bg: #132450;
 }
 
+/* Banner superior y tarjetas */
+body.dark-blue-mode header,
+body.dark-blue-mode .header-card,
+body.dark-blue-mode .hero,
+body.dark-blue-mode .card,
 body.dark-blue-mode main,
 body.dark-blue-mode section,
-body.dark-blue-mode header,
-body.dark-blue-mode .card,
 body.dark-blue-mode article,
 body.dark-blue-mode dialog,
 body.dark-blue-mode .gp-expense-card {
   background-color: #0f1c3f !important;
+  background-image: none !important;
   color: #f1f5f9 !important;
   border-color: #1e356d !important;
 }
 
-body.dark-blue-mode input,
-body.dark-blue-mode select,
-body.dark-blue-mode textarea {
-  background-color: #070e22 !important;
-  color: #ffffff !important;
-  border-color: #1e356d !important;
+/* Textos, títulos e indicadores que eran bordó o fucsia */
+body.dark-blue-mode h1,
+body.dark-blue-mode h2,
+body.dark-blue-mode h3,
+body.dark-blue-mode h4,
+body.dark-blue-mode p,
+body.dark-blue-mode span,
+body.dark-blue-mode label {
+  color: #f1f5f9 !important;
 }
 
-body.dark-blue-mode table th,
+/* Cabeceras de tabla que quedaban rosadas */
+body.dark-blue-mode table thead,
+body.dark-blue-mode table thead tr,
+body.dark-blue-mode table th {
+  background-color: #1e356d !important;
+  color: #ffffff !important;
+  border-color: #2b4c96 !important;
+}
+
 body.dark-blue-mode table td {
   color: #f1f5f9 !important;
   border-color: #1e356d !important;
   background-color: transparent !important;
 }
 
-/* Transformación de botones rosas y badges en Azul */
-body.dark-blue-mode .btn-pink {
+/* Botones rosados convertidos a Azul */
+body.dark-blue-mode .btn-pink,
+body.dark-blue-mode button[type="submit"],
+body.dark-blue-mode .btn-save,
+body.dark-blue-mode #logoutBtn {
   background-color: #2563eb !important;
   border-color: #3b82f6 !important;
   color: #ffffff !important;
 }
 
-body.dark-blue-mode .btn-pink:hover {
+body.dark-blue-mode .btn-pink:hover,
+body.dark-blue-mode button[type="submit"]:hover,
+body.dark-blue-mode #logoutBtn:hover {
   background-color: #1d4ed8 !important;
 }
 
 body.dark-blue-mode .btn-outline {
   border-color: #3b82f6 !important;
   color: #93c5fd !important;
+}
+
+/* Inputs, selects y calendario */
+body.dark-blue-mode input,
+body.dark-blue-mode select,
+body.dark-blue-mode textarea {
+  background-color: #070e22 !important;
+  color: #ffffff !important;
+  border-color: #1e356d !important;
 }
 
 body.dark-blue-mode .category,
