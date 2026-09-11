@@ -1413,8 +1413,12 @@ body.dark-mode .money-input input {
   color: #fceef3 !important;
 }
 
-
+/* =========================================================
+   ESTILOS COMPLETO MODO AZUL OSCURO (DARK BLUE MODE)
+========================================================= */
 body.dark-blue-mode {
+  background-color: #0b132b !important;
+  color: #ffffff !important;
   --bg: #0b132b;
   --card: #1c2541;
   --text: #ffffff;
@@ -1423,4 +1427,28 @@ body.dark-blue-mode {
   --pink-500: #4cc9f0;
   --pink-700: #4361ee;
   --pink-bg: #1c2541;
+}
+
+body.dark-blue-mode .card,
+body.dark-blue-mode dialog,
+body.dark-blue-mode header,
+body.dark-blue-mode article,
+body.dark-blue-mode .gp-expense-card {
+  background-color: #1c2541 !important;
+  color: #ffffff !important;
+  border-color: #3a506b !important;
+}
+
+body.dark-blue-mode input,
+body.dark-blue-mode select,
+body.dark-blue-mode textarea {
+  background-color: #0b132b !important;
+  color: #ffffff !important;
+  border-color: #3a506b !important;
+}
+
+body.dark-blue-mode table th,
+body.dark-blue-mode table td {
+  color: #ffffff !important;
+  border-color: #3a506b !important;
 }
