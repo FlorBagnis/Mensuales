@@ -36,10 +36,11 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 
+// HABILITA LA INSTALACIÓN COMO APP (PWA)
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch(e => console.log("SW:", e));
-  });
+  navigator.serviceWorker.register("./sw.js")
+    .then(r => console.log("PWA instalable lista:", r.scope))
+    .catch(e => console.log("SW:", e));
 }
 
 let currentUser = null;
@@ -142,7 +143,7 @@ async function fetchDolarBlue() {
 
 
 /* =========================================================
-   AUTENTICACIÓN
+   AUTENTICACIÓN INFALIBLE
 ========================================================= */
 
 function setAuthMessage(message, success = false) {
@@ -154,15 +155,19 @@ function setAuthMessage(message, success = false) {
 
 function updateAuthInterface() {
   const isLogin = authMode === "login";
-  if ($("authSubmitBtn")) {
-    $("authSubmitBtn").disabled = false;
-    $("authSubmitBtn").textContent = isLogin ? "Iniciar sesión" : "Crear cuenta";
+  const btn = $("authSubmitBtn");
+  const switchBtn = $("authSwitchBtn");
+  const pass = $("authPassword");
+
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = isLogin ? "Iniciar sesión" : "Crear cuenta";
   }
-  if ($("authSwitchBtn")) {
-    $("authSwitchBtn").textContent = isLogin ? "¿No tenés una cuenta? Registrate" : "¿Ya tenés una cuenta? Iniciá sesión";
+  if (switchBtn) {
+    switchBtn.textContent = isLogin ? "¿No tenés una cuenta? Registrate" : "¿Ya tenés una cuenta? Iniciá sesión";
   }
-  if ($("authPassword")) {
-    $("authPassword").autocomplete = isLogin ? "current-password" : "new-password";
+  if (pass) {
+    pass.autocomplete = isLogin ? "current-password" : "new-password";
   }
   setAuthMessage("");
 }
@@ -182,6 +187,45 @@ function firebaseErrorMessage(error) {
   };
   return messages[code] || `Error (${code || "desconocido"}). Volvé a intentar.`;
 }
+
+async function handleAuthSubmit(e) {
+  if (e) e.preventDefault();
+  const email = $("authEmail")?.value.trim() || "";
+  const password = $("authPassword")?.value || "";
+
+  if (!email || !password) {
+    setAuthMessage("Completá email y contraseña.");
+    return;
+  }
+
+  const button = $("authSubmitBtn");
+  if (button) {
+    button.disabled = true;
+    button.textContent = authMode === "login" ? "Ingresando..." : "Creando cuenta...";
+  }
+
+  try {
+    if (authMode === "register") {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+  } catch (error) {
+    console.error("Auth Error:", error);
+    setAuthMessage(firebaseErrorMessage(error));
+    if (button) {
+      button.disabled = false;
+      button.textContent = authMode === "login" ? "Iniciar sesión" : "Crear cuenta";
+    }
+  }
+}
+
+// CAPTURA GLOBAL DE FORMULARIO
+document.addEventListener("submit", (e) => {
+  if (e.target && e.target.id === "authForm") {
+    handleAuthSubmit(e);
+  }
+});
 
 onAuthStateChanged(auth, async user => {
   currentUser = user;
@@ -418,7 +462,6 @@ function editExtraIncome(id) {
   if ($("modalExtraInput")) $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
   if ($("modalExtraCurrency")) $("modalExtraCurrency").value = item.currency || "ARS";
 
-  // Ocultar sección de recurrencia en edición individual
   const extraRecurring = $("extraRecurring");
   const extraRecurringOptions = $("extraRecurringOptions");
   if (extraRecurring) extraRecurring.checked = false;
@@ -746,34 +789,32 @@ function renderProximos() {
 
   list.forEach(item => {
     const card = document.createElement("article");
-    card.className = "gp-expense-card";
+    card.className = "metric-card";
+    card.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; margin-bottom: 8px;";
     
     const icon = getCategoryIcon(item.category);
     const catName = getCategoryName(item.category);
     const alert = getDueBadge(item.date, item.paid);
-    const alertTag = alert ? `<span class="gp-tag" style="background:${alert.bg}; color:${alert.color};">${alert.text}</span>` : "";
-    const statusTag = `<span class="gp-tag gp-status-${item.paid ? "paid" : item.type === "debt" ? "debt" : "pending"}">${item.paid ? "Pagado" : item.type === "debt" ? "Deuda" : "Pendiente"}</span>`;
+    const alertTag = alert ? `<span class="badge" style="background:${alert.bg}; color:${alert.color}; margin-left: 6px;">${alert.text}</span>` : "";
+    const statusTag = `<span class="badge">${item.paid ? "Pagado" : item.type === "debt" ? "Deuda" : "Pendiente"}</span>`;
 
     card.innerHTML = `
-      <div class="gp-card-left">
-        <div class="gp-card-icon">${icon}</div>
-        <div class="gp-card-details">
-          <h3>${escapeHtml(item.description)}</h3>
-          <p>${catName} · Cantidad: ${item.quantity || 1} ${item.notes ? `· <i>${escapeHtml(item.notes)}</i>` : ""}</p>
-          <div class="gp-tags-wrap">
-            ${statusTag}
-            ${alertTag}
-          </div>
+      <div style="display: flex; gap: 14px; align-items: center;">
+        <div style="font-size: 1.8rem;">${icon}</div>
+        <div>
+          <h3 style="font-size: 1rem; font-weight: 800; color: var(--text);">${escapeHtml(item.description)}</h3>
+          <p style="font-size: 0.8rem; color: var(--muted);">${catName} · Cant: ${item.quantity || 1} ${item.notes ? `· <i>${escapeHtml(item.notes)}</i>` : ""}</p>
+          <div style="margin-top: 4px;">${statusTag} ${alertTag}</div>
         </div>
       </div>
 
-      <div class="gp-card-right">
-        <div class="gp-card-date">Pagar <strong>${formatDate(item.date)}</strong></div>
-        <div class="gp-card-amount">${item.amount !== null ? money(item.amount, item.currency || "ARS") : "A definir"}</div>
-        <div class="gp-card-actions">
-          <button class="gp-btn-action gp-btn-pay ${item.paid ? "is-paid" : ""}" data-id="${item.id}" title="${item.paid ? "Volver a pendiente" : "Marcar pagado y enviar a Mensuales"}">${item.paid ? "✖" : "✓"}</button>
-          <button class="gp-btn-action gp-btn-edit" data-id="${item.id}" title="Editar">✏️</button>
-          <button class="gp-btn-action gp-btn-delete" data-id="${item.id}" title="Eliminar">🗑️</button>
+      <div style="text-align: right;">
+        <div style="font-size: 0.8rem; color: var(--muted);">Pagar <strong>${formatDate(item.date)}</strong></div>
+        <div style="font-size: 1.15rem; font-weight: 800; color: var(--text); margin: 2px 0;">${item.amount !== null ? money(item.amount, item.currency || "ARS") : "A definir"}</div>
+        <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px;">
+          <button class="btn btn-outline btn-sm gp-btn-pay" data-id="${item.id}" title="${item.paid ? "Volver a pendiente" : "Marcar pagado y enviar a Mensuales"}">${item.paid ? "✖" : "✓"}</button>
+          <button class="btn btn-outline btn-sm gp-btn-edit" data-id="${item.id}" title="Editar">✏️</button>
+          <button class="btn btn-outline btn-sm gp-btn-delete" data-id="${item.id}" title="Eliminar">🗑️</button>
         </div>
       </div>
     `;
@@ -896,7 +937,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (SOPORTE 3 MODOS: ROSA, BORDÓ Y AZUL)
+   REPORTES PDF (SOPORTE DE LOS 3 MODOS)
 ========================================================= */
 
 function getPdfThemeColors() {
@@ -927,14 +968,14 @@ function getPdfThemeColors() {
     };
   } else {
     return {
-      pink: [245, 107, 139],
-      dark: [85, 21, 45],
-      light: [255, 231, 236],
-      headerBg: [255, 176, 194],
-      cardBorder: [255, 197, 210],
-      lineDivider: [245, 220, 227],
+      pink: [234, 91, 142],
+      dark: [69, 15, 36],
+      light: [253, 232, 238],
+      headerBg: [255, 174, 195],
+      cardBorder: [246, 214, 223],
+      lineDivider: [246, 214, 223],
       pageBg: null,
-      footerColor: [160, 110, 125]
+      footerColor: [125, 80, 98]
     };
   }
 }
@@ -1271,41 +1312,11 @@ function generateProximosPDF() {
 
 
 /* =========================================================
-   INICIALIZACIÓN SEGURA DE LA INTERFAZ
+   INICIALIZACIÓN SEGURA DE EVENTOS
 ========================================================= */
 
 function initApp() {
   if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
-
-  $("authSwitchBtn")?.addEventListener("click", () => {
-    authMode = authMode === "login" ? "register" : "login";
-    updateAuthInterface();
-  });
-
-  $("authForm")?.addEventListener("submit", async e => {
-    e.preventDefault();
-    const email = $("authEmail")?.value.trim() || "";
-    const password = $("authPassword")?.value || "";
-
-    const button = $("authSubmitBtn");
-    if (button) {
-      button.disabled = true;
-      button.textContent = authMode === "login" ? "Ingresando..." : "Creando cuenta...";
-    }
-
-    try {
-      if (authMode === "register") {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-    } catch (error) {
-      console.error("Auth Error:", error);
-      setAuthMessage(firebaseErrorMessage(error));
-      if (button) button.disabled = false;
-      updateAuthInterface();
-    }
-  });
 
   $("logoutBtn")?.addEventListener("click", async () => {
     if (!confirm("¿Querés cerrar sesión?")) return;
@@ -1320,7 +1331,7 @@ function initApp() {
 
   $("tabMensualesBtn")?.addEventListener("click", () => {
     $("tabMensualesBtn").className = "btn btn-pink";
-    if ($("tabProximosBtn")) $("tabProximosBtn").className = "btn btn-outline";
+    if ($("tabProximosBtn")) $("tabProximosBtn").className = "btn btn-sub-action";
     $("viewMensuales")?.classList.remove("hidden");
     $("viewProximos")?.classList.add("hidden");
   });
@@ -1403,7 +1414,7 @@ function initApp() {
     }
   });
 
-  // INGRESOS EXTRA RECURRENTES (IDÉNTICO A GASTOS)
+  // INGRESOS EXTRA RECURRENTES
   const extraRecurring = $("extraRecurring");
   const extraRecurringOptions = $("extraRecurringOptions");
   const extraChangingAmount = $("extraChangingAmount");
@@ -1907,9 +1918,17 @@ function initApp() {
 
 
 /* =========================================================
-   DELEGACIÓN GLOBAL (PASSWORD Y LOS 3 TEMAS)
+   DELEGACIÓN GLOBAL (PASSWORD, SWITCH, MODOS)
 ========================================================= */
 document.addEventListener('click', (e) => {
+  // Cambio entre Iniciar sesión y Registrarse
+  const switchBtn = e.target.closest('#authSwitchBtn');
+  if (switchBtn) {
+    e.preventDefault();
+    authMode = authMode === "login" ? "register" : "login";
+    updateAuthInterface();
+  }
+
   // Contraseña 🌸 / 🔒
   const passwordBtn = e.target.closest('#togglePasswordBtn');
   if (passwordBtn) {
@@ -2028,24 +2047,24 @@ function openAnnualModal() {
   $("annualSubtitle").textContent = `Año ${annual.currentYear} · Basado en ${annual.monthsCount} meses registrados`;
 
   content.innerHTML = `
-    <div class="annual-card-grid">
-      <div class="annual-mini-card">
-        <span>TOTAL GASTADO (ARS)</span>
-        <strong>${money(annual.totalARS)}</strong>
+    <div class="annual-card-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="metric-card">
+        <span class="metric-title">TOTAL GASTADO (ARS)</span>
+        <strong style="font-size: 1.1rem;">${money(annual.totalARS)}</strong>
       </div>
-      <div class="annual-mini-card">
-        <span>PROMEDIO MENSUAL</span>
-        <strong>${money(annual.avgARS)}</strong>
+      <div class="metric-card">
+        <span class="metric-title">PROMEDIO MENSUAL</span>
+        <strong style="font-size: 1.1rem;">${money(annual.avgARS)}</strong>
       </div>
     </div>
-    <div class="annual-card-grid">
-      <div class="annual-mini-card">
-        <span>MES MÁS ALTO</span>
-        <strong>${annual.highestMonth.name}</strong>
+    <div class="annual-card-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+      <div class="metric-card">
+        <span class="metric-title">MES MÁS ALTO</span>
+        <strong style="font-size: 1.1rem;">${annual.highestMonth.name}</strong>
       </div>
-      <div class="annual-mini-card">
-        <span>CATEGORÍA PRINCIPAL</span>
-        <strong>${annual.topCategory[0]}</strong>
+      <div class="metric-card">
+        <span class="metric-title">CATEGORÍA PRINCIPAL</span>
+        <strong style="font-size: 1.1rem;">${annual.topCategory[0]}</strong>
       </div>
     </div>
   `;
@@ -2056,7 +2075,7 @@ function openAnnualModal() {
 function generateAnnualPDF() {
   const jsPDFLib = window.jspdf?.jsPDF || window.jsPDF;
   if (!jsPDFLib) {
-    alert("No se pudo cargar el generador de PDF. Verificá tu conexión a internet o si hay algún bloqueador de publicidad activo.");
+    alert("No se pudo cargar el generador de PDF. Verificá tu conexión a internet.");
     return;
   }
 
