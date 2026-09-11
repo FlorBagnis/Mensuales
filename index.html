@@ -1,697 +1,634 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta name="format-detection" content="telephone=no">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <title>MENSUALES · Control de Gastos</title>
-
-  <!-- PWA Meta Tags -->
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#ff7597">
-  <link rel="icon" type="image/png" href="./icono.png">
+  <title>Control de Gastos · Mensuales</title>
   <link rel="stylesheet" href="styles.css">
-
-  <style>
-  thead, th, .table-wrap th {
-    background-color: #fbc4d4 !important;
-    color: #5a2337 !important;
-  }
-
-  .table-wrap {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .pastel-btn {
-    background: #fbc4d4 !important;
-    color: #5a2337 !important;
-    border: 1px solid #f29cb5 !important;
-    border-radius: 12px !important;
-    padding: 11px 18px !important;
-    font-weight: 700 !important;
-    text-decoration: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    font-size: 13px !important;
-    box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
-    cursor: pointer !important;
-  }
-  .pastel-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
-  }
-
-  .btn-outline, .btn-danger {
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
-  }
-  .btn-outline:hover, .btn-danger:hover {
-    background-color: #fbc4d4 !important;
-    color: #5a2337 !important;
-    border-color: #f29cb5 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
-  }
-
-  .annual-card-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .annual-mini-card {
-    background: #fff8fa;
-    border: 1px solid #fde2ec;
-    border-radius: 18px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .annual-mini-card span {
-    font-size: 11px;
-    font-weight: 700;
-    color: #9e5b72;
-    letter-spacing: 0.5px;
-  }
-  .annual-mini-card strong {
-    font-size: 16px;
-    color: #5a2337;
-  }
-
-  body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
-  body.dark thead, body.dark th, body.dark .table-wrap th,
-  body.dark-mode thead, body.dark-mode th, body.dark-mode .table-wrap th {
-    background-color: #3d222b !important;
-    color: #ffb6c1 !important;
-  }
-
-  body.dark-theme .pastel-btn, body.dark .pastel-btn, body.dark-mode .pastel-btn {
-    background: #3d222b !important;
-    color: #ffb6c1 !important;
-    border: 1px solid #6b3b4a !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-  }
-  body.dark-theme .pastel-btn:hover, body.dark .pastel-btn:hover, body.dark-mode .pastel-btn:hover {
-    background: #4e2b37 !important;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
-  }
-
-  body.dark-theme .btn-danger, body.dark .btn-danger, body.dark-mode .btn-danger {
-    background-color: #3d222b !important;
-    color: #ffb6c1 !important;
-    border: 1px solid #6b3b4a !important;
-  }
-
-  body.dark-theme .btn-outline:hover, body.dark .btn-outline:hover, body.dark-mode .btn-outline:hover,
-  body.dark-theme .btn-danger:hover, body.dark .btn-danger:hover, body.dark-mode .btn-danger:hover {
-    background-color: #3d222b !important;
-    color: #ffb6c1 !important;
-    border-color: #6b3b4a !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
-  }
-
-  body.dark-mode .summary-card,
-  body.dark-mode .panel,
-  body.dark-mode .toolbar,
-  body.dark-mode .trend-box,
-  body.dark-mode .auth-card,
-  body.dark-mode dialog {
-    background-color: #2a161d !important;
-    color: #ffb6c1 !important;
-    border-color: #4e2b37 !important;
-  }
-
-  body.dark-mode .annual-mini-card {
-    background-color: #1f1015 !important;
-    border-color: #4e2b37 !important;
-  }
-
-  body.dark-mode .annual-mini-card span {
-    color: #d195a9 !important;
-  }
-
-  body.dark-mode .annual-mini-card strong {
-    color: #ffb6c1 !important;
-  }
-
-  body.dark-mode .summary-card strong,
-  body.dark-mode .summary-card span,
-  body.dark-mode .summary-card small {
-    color: #ffb6c1 !important;
-  }
-
-  body.dark-mode input, 
-  body.dark-mode select {
-    background-color: #1f1015 !important;
-    color: #ffb6c1 !important;
-    border-color: #4e2b37 !important;
-  }
-
-  body.dark-mode input::placeholder {
-    color: #a37584 !important;
-  }
-
-  body.dark-mode .summary-card {
-    background-color: #2a161d !important;
-  }
-
-  body.dark-mode.amounts-hidden strong,
-  body.amounts-hidden.dark-mode strong {
-    background: none !important;
-    background-color: transparent !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
-
-  .money-input span {
-    border-right: none !important;
-    border: none !important;
-  }
-  .money-input input {
-    border-left: none !important;
-  }
-
-/* OCULTAR MONTOS EN LAS TABLAS */
-  body.amounts-hidden td.amount {
-    color: transparent !important;
-    position: relative;
-    user-select: none;
-  }
-  body.amounts-hidden td.amount::after {
-    content: "••••••";
-    color: var(--pink-700) !important;
-    visibility: visible;
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 5;
-    font-weight: 700;
-  }
-  body.dark-mode.amounts-hidden td.amount::after,
-  body.amounts-hidden.dark-mode td.amount::after {
-    color: #ff9db4 !important;
-  }
-    
-</style>
-  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f06292">
+  <!-- Librería jsPDF para descarga de reportes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-
 <body>
 
-<main class="app">
-
-  <!-- LOGIN / REGISTRO -->
+  <!-- =========================================================
+       SECCIÓN DE AUTENTICACIÓN (LOGIN Y REGISTRO)
+  ========================================================= -->
   <section id="authSection" class="auth-section">
     <div class="auth-card">
-      <div class="auth-logo">♡</div>
-      <p class="eyebrow">MENSUALES</p>
-      <h1>Controlá tus gastos</h1>
-      <p class="auth-subtitle">Ingresá a tu cuenta para gestionar tu presupuesto mensual.</p>
+      <div class="auth-header">
+        <span class="auth-badge">🌸 Mi Organización</span>
+        <h2>Control de Gastos</h2>
+        <p>Iniciá sesión para acceder a tus finanzas</p>
+      </div>
 
-      <form id="authForm">
-        <label>
-          Email
-          <input id="authEmail" type="email" placeholder="tu@email.com" autocomplete="email" required>
-        </label>
+      <form id="authForm" class="auth-form">
+        <div class="form-group">
+          <label for="authEmail">Correo electrónico</label>
+          <input type="email" id="authEmail" placeholder="tu@email.com" required autocomplete="username">
+        </div>
 
-       <label>
-          Contraseña
-          <div class="password-wrap">
-            <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
-            <button type="button" id="togglePasswordBtn" class="toggle-password" title="Mostrar/Ocultar contraseña">🔒</button>
+        <div class="form-group">
+          <label for="authPassword">Contraseña</label>
+          <div class="password-wrapper" style="position: relative; display: flex; align-items: center;">
+            <input type="password" id="authPassword" placeholder="••••••••" required autocomplete="current-password" style="width: 100%; padding-right: 42px;">
+            <button type="button" id="togglePasswordBtn" title="Mostrar/Ocultar contraseña" style="position: absolute; right: 8px; background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 4px;">🔒</button>
           </div>
-        </label>
-        
-        <button id="authSubmitBtn" type="submit" class="pastel-btn auth-submit" style="width: 100%;">
-          Iniciar sesión
-        </button>
+        </div>
+
+        <div id="authMessage" class="auth-message"></div>
+
+        <button type="submit" id="authSubmitBtn" class="btn btn-pink btn-block">Iniciar sesión</button>
       </form>
 
-      <p id="authMessage" class="auth-message"></p>
-
-      <button id="authSwitchBtn" type="button" class="auth-switch">
-        ¿No tenés una cuenta? Registrate
-      </button>
+      <div class="auth-footer">
+        <button type="button" id="authSwitchBtn" class="btn-link">¿No tenés una cuenta? Registrate</button>
+      </div>
     </div>
   </section>
 
-  <!-- APLICACIÓN PRINCIPAL -->
-  <section id="appContent" class="hidden">
 
-    <header class="hero">
-      <div>
-        <p class="eyebrow">MI ORGANIZACIÓN 💗</p>
-        <h1>Control de Gastos</h1>
-        <p class="subtitle">Presupuesto mensual y control de egresos.</p>
-        
-       <div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878); white-space: nowrap;">
-  💵 Dólar Blue: cargando...
-</div>
-        
-      </div>
+  <!-- =========================================================
+       CONTENIDO PRINCIPAL DE LA APLICACIÓN
+  ========================================================= -->
+  <div id="appContent" class="hidden">
+    
+    <!-- BANNER SUPERIOR / CABECERA -->
+    <header class="main-header">
+      <div class="header-content">
+        <div class="header-left">
+          <span class="tagline">MI ORGANIZACIÓN ♡</span>
+          <h1>Control de Gastos</h1>
+          <p class="subtitle">Presupuesto mensual y control de egresos.</p>
+          <div id="dolarBadge" class="dolar-badge">💵 Dólar Blue: cargando...</div>
+        </div>
 
-      <div class="header-actions" style="margin-top: 12px;">
-        <span id="userEmail" class="user-email"></span>
-        <a href="https://gastos-proximos.vercel.app/" class="pastel-btn">🌸 Próximos & Deudas</a>
-        <button id="logoutBtn" class="btn btn-dark" type="button">Cerrar sesión</button>
+        <div class="header-right">
+          <span id="userEmail" class="user-email"></span>
+          <div class="header-nav-btns">
+            <button type="button" id="tabMensualesBtn" class="btn btn-pink">📅 Mensuales</button>
+            <button type="button" id="tabProximosBtn" class="btn btn-outline">🌸 Próximos & Deudas</button>
+            <button type="button" id="logoutBtn" class="btn btn-dark">Cerrar sesión</button>
+          </div>
+        </div>
       </div>
     </header>
 
-    <div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
-      <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
-      <button id="toggleBlueThemeBtn" class="btn btn-outline btn-sm">🔹 Modo Azul</button>
-      <button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
-    </div>
+    <main class="container">
+      
+      <!-- =====================================================
+           VISTA 1: MENSUALES
+      ===================================================== -->
+      <section id="viewMensuales">
+        
+        <!-- BARRA SUPERIOR DE TEMAS Y ACCIONES RÁPIDAS -->
+        <div class="top-actions-bar" style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+          <button type="button" id="toggleThemeBtn" class="btn btn-outline btn-sm">🌙 Modo oscuro</button>
+          <button type="button" id="toggleBlueThemeBtn" class="btn btn-outline btn-sm">🔹 Modo azul</button>
+          <button type="button" id="toggleAmountsBtn" class="btn btn-outline btn-sm">👁️ Ocultar montos</button>
+        </div>
 
-    <div id="viewMensuales">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
-        <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
-        <button id="toggleToolbarBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar barra</button>
-      </div>
-
-      <div id="toolbarContainer" class="collapsible-section">
-        <section class="toolbar" style="margin-top: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
-          <div class="field">
-            <label for="monthPicker">MES</label>
-            <input id="monthPicker" type="month">
+        <!-- HERRAMIENTAS Y PRESUPUESTO -->
+        <section class="card toolbar-section">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Herramientas y Presupuesto</h2>
+            <button type="button" id="toggleToolbarBtn" class="btn btn-outline btn-sm">▲ Ocultar barra</button>
           </div>
 
-          <div class="field">
-            <label for="budgetInput">PRESUPUESTO</label>
-            <div class="money-input">
-              <span>$</span>
-              <input id="budgetInput" type="number" min="0" step="0.01" placeholder="0">
+          <div id="toolbarContainer" class="toolbar-grid" style="margin-top: 12px;">
+            <div class="toolbar-inputs" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <div class="input-block">
+                <label for="monthPicker" style="font-size: 0.75rem; font-weight: bold; display: block; text-transform: uppercase;">Mes</label>
+                <input type="month" id="monthPicker">
+              </div>
+
+              <div class="input-block">
+                <label for="budgetInput" style="font-size: 0.75rem; font-weight: bold; display: block; text-transform: uppercase;">Presupuesto</label>
+                <div style="position: relative; display: flex; align-items: center;">
+                  <span style="position: absolute; left: 10px; font-weight: bold;">$</span>
+                  <input type="number" id="budgetInput" step="0.01" placeholder="0.00" style="padding-left: 24px;">
+                </div>
+              </div>
+
+              <button type="button" id="saveBudgetBtn" class="btn btn-pink">Guardar presupuesto</button>
+              <button type="button" id="openExtraModalBtn" class="btn btn-outline">➕ Sumar dinero extra</button>
+              <button type="button" id="addExpenseBtn" class="btn btn-pink">+ Nuevo gasto</button>
+              <button type="button" id="mensualesCsvBtn" class="btn btn-outline">📊 CSV</button>
+              <button type="button" id="pdfBtn" class="btn btn-outline">📄 PDF</button>
+              <button type="button" id="openAnnualBtn" class="btn btn-outline">🌸 Resumen Anual</button>
+              <button type="button" id="clearMonthBtn" class="btn btn-outline">Borrar mes</button>
+              <button type="button" id="newUserBtn" class="btn btn-outline">✨ Empezar de cero</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TARJETAS DE RESUMEN FINANCIERO -->
+        <section class="card budget-summary-section">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Resumen</h2>
+            <button type="button" id="toggleBudgetBtn" class="btn btn-outline btn-sm">▲ Ocultar resumen</button>
+          </div>
+
+          <div id="budgetContainer" class="summary-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 12px;">
+            <div class="metric-card">
+              <span class="metric-title">TOTAL GASTADO</span>
+              <div id="totalSpent" class="metric-value">$ 0,00</div>
+              <small id="expenseCount" class="metric-sub">0 gastos registrados</small>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-title">MES ANTERIOR</span>
+              <div id="previousSpent" class="metric-value">$ 0,00</div>
+              <small id="previousMonthLabel" class="metric-sub">—</small>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-title">DIFERENCIA</span>
+              <div id="difference" class="metric-value">—</div>
+              <small id="differenceLabel" class="metric-sub">Sin datos comparables</small>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-title">PRESUPUESTO</span>
+              <div id="budgetTotal" class="metric-value">$ 0,00</div>
+              <small id="budgetStatus" class="metric-sub">Sin presupuesto</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- TABLA DE GASTOS DEL MES -->
+        <section class="card expenses-table-section">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <h2>Gastos del mes</h2>
+              <span id="monthPill" class="badge" style="background: var(--pink-700); color: white;">—</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="searchMensualesInput" placeholder="🔍 Buscar gasto..." style="padding: 6px 10px; border-radius: 8px;">
+              <select id="filterCategorySelect" style="padding: 6px 10px; border-radius: 8px;">
+                <option value="">Todas las categorías</option>
+                <option value="Alimentos">Alimentos</option>
+                <option value="Servicios">Servicios</option>
+                <option value="Hogar">Hogar</option>
+                <option value="Salud">Salud</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Mascotas">Mascotas</option>
+                <option value="Gimnasio">Gimnasio</option>
+                <option value="Agua">Agua</option>
+                <option value="Otros">Otros</option>
+              </select>
+              <button type="button" id="toggleTableBtn" class="btn btn-outline btn-sm">▲ Ocultar tabla</button>
             </div>
           </div>
 
-          <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
-          <button id="openExtraModalBtn" class="btn btn-outline" type="button" title="Sumar ingreso extra">➕ Sumar dinero extra</button>
-            
-          <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
-          <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
-          <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
-          <button id="openAnnualBtn" class="pastel-btn" type="button">🌸 Resumen Anual</button>
-          <button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
-          <button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
-        </section>
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 0.5rem;">
-        <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Resumen</h3>
-        <button id="toggleBudgetBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar resumen</button>
-      </div>
-
-      <div id="budgetContainer" class="collapsible-section">
-        <section class="summary-grid">
-          <article class="summary-card">
-            <span>TOTAL GASTADO</span>
-            <strong id="totalSpent">$0,00</strong>
-            <small id="expenseCount">0 gastos registrados</small>
-          </article>
-          <article class="summary-card">
-            <span>MES ANTERIOR</span>
-            <strong id="previousSpent">$0,00</strong>
-            <small id="previousMonthLabel">—</small>
-          </article>
-          <article class="summary-card">
-            <span>DIFERENCIA</span>
-            <strong id="difference">—</strong>
-            <small id="differenceLabel">Sin datos comparables</small>
-          </article>
-          <article class="summary-card">
-            <span>PRESUPUESTO</span>
-            <strong id="budgetTotal">$0,00</strong>
-            <small id="budgetStatus">Sin presupuesto</small>
-          </article>
-        </section>
-      </div>
-
-      <!-- GASTOS DEL MES -->
-      <section class="panel" style="margin-top: 1.5rem;">
-        <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <div>
-            <h2>Gastos del mes</h2>
-            <p>Todos tus gastos registrados en este período.</p>
-          </div>
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <input type="search" id="searchMensualesInput" placeholder="🔍 Buscar gasto..." style="padding: 6px 14px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem;">
-            
-            <select id="filterCategorySelect" style="padding: 6px 12px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem; background: #fff; color: #555; cursor: pointer;">
-              <option value="">Todas las categorías</option>
-              <option value="Alimentos">Alimentos</option>
-              <option value="Transporte">Transporte</option>
-              <option value="Hogar">Hogar</option>
-              <option value="Servicios">Servicios</option>
-              <option value="Salud">Salud</option>
-              <option value="Ropa">Ropa</option>
-              <option value="Entretenimiento">Entretenimiento</option>
-              <option value="Educación">Educación</option>
-              <option value="Mascotas">Mascotas</option>
-              <option value="Cuotas">Cuotas</option>
-              <option value="Personal">Personal</option>
-              <option value="Gimnasio">Gimnasio</option>
-              <option value="Agua">Agua</option>
-              <option value="Otros">Otros</option>
-            </select>
-
-            <button id="toggleTableBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar tabla</button>
-            <span id="monthPill" class="month-pill">—</span>
-          </div>
-        </div>
-
-        <div id="emptyState" class="empty-state">
-          <div>♡</div>
-          <strong>Todavía no hay gastos</strong>
-          <span>Agregá tu primer gasto del mes.</span>
-        </div>
-
-        <div class="table-wrap table-container-collapsible">
-          <table>
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Descripción</th>
-                <th>Categoría</th>
-                <th>Monto</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="expenseTable"></tbody>
-          </table>
-        </div>
-
-        <div class="table-total" style="display: flex; justify-content: space-between; align-items: center;">
-          <span>TOTAL · <span id="totalMonthName">—</span></span>
-          <div style="text-align: right;">
-            <strong id="tableTotal" style="display: block;">$0,00</strong>
-            <small id="tableTotalUSD" style="display: block; font-size: 0.95rem; color: var(--pink-700); font-weight: 600;"></small>
-          </div>
-        </div>
-      </section>
-
-      <!-- HISTORIAL DE DINERO EXTRA -->
-      <section class="panel" style="margin-top: 1.5rem;">
-        <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <div>
-            <h2>🌸 Historial de Dinero Extra</h2>
-            <p>Origen, categorías y detalle de los ingresos adicionales registrados este mes.</p>
-          </div>
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <div class="month-pill" id="extraTotalSumDisplay">Total Extra: $0,00</div>
-            <button id="toggleExtraHistoryBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar historial</button>
-          </div>
-        </div>
-        <div id="extraHistoryContainer" class="collapsible-section">
-          <div class="table-wrap">
-            <table>
+          <div class="table-container-collapsible" style="overflow-x: auto; margin-top: 12px;">
+            <table class="table" style="width: 100%; border-collapse: collapse;">
               <thead>
                 <tr>
-                  <th>Categoría / Descripción</th>
-                  <th>Fecha</th>
+                  <th style="text-align: left;">Fecha</th>
+                  <th style="text-align: left;">Descripción</th>
+                  <th style="text-align: left;">Categoría</th>
+                  <th style="text-align: right;">Monto</th>
+                  <th style="text-align: right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="expenseTable">
+                <!-- Se llena dinámicamente -->
+              </tbody>
+            </table>
+            <div id="emptyState" class="empty-state" style="display: none; text-align: center; padding: 20px; color: var(--muted);">
+              <div>♡</div>
+              <span>No hay gastos registrados para este mes.</span>
+            </div>
+          </div>
+
+          <div class="table-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);">
+            <span>TOTAL · <strong id="totalMonthName">—</strong></span>
+            <div style="text-align: right;">
+              <strong id="tableTotal" style="font-size: 1.1rem;">$ 0,00</strong>
+              <div id="tableTotalUSD" style="display: none; color: var(--pink-700); font-size: 0.85rem;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- HISTORIAL DE DINERO EXTRA / PRESUPUESTO BASE -->
+        <section class="card extra-incomes-section">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <h2>🌸 Historial de Dinero Extra</h2>
+              <p style="font-size: 0.8rem; color: var(--muted);">Origen, categorías y detalle de los ingresos registrados este mes.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="extraTotalSumDisplay" class="badge" style="background: var(--pink-bg); color: var(--pink-700); font-weight: bold;">Total Ingresos: $0,00</span>
+              <button type="button" id="toggleExtraHistoryBtn" class="btn btn-outline btn-sm">▲ Ocultar historial</button>
+            </div>
+          </div>
+
+          <div id="extraHistoryContainer" style="overflow-x: auto; margin-top: 12px;">
+            <table class="table" style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Categoría / Descripción</th>
+                  <th style="text-align: left;">Fecha</th>
                   <th style="text-align: right;">Monto</th>
                   <th style="text-align: right;">Acciones</th>
                 </tr>
               </thead>
               <tbody id="extraIncomeTableBody">
-                <tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos extra cargados este mes.</td></tr>
+                <!-- Se llena dinámicamente -->
               </tbody>
             </table>
           </div>
+        </section>
+
+        <!-- GRÁFICO POR CATEGORÍAS Y TENDENCIAS -->
+        <div class="grid-two-cols" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 12px;">
+          <section class="card">
+            <h2>Gastos por categoría</h2>
+            <div id="categoryChart" style="margin-top: 12px;"></div>
+          </section>
+
+          <section class="card">
+            <h2>Análisis de tendencia</h2>
+            <p id="trendText" style="margin-top: 12px; line-height: 1.5; color: var(--text);">Cargando análisis de tus hábitos de gasto...</p>
+          </section>
         </div>
-      </section>
 
-      <section class="two-columns" style="margin-top: 1.5rem;">
-        <section class="panel">
-          <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <h2>Historial</h2>
-              <p>Resumen de tus últimos meses.</p>
-            </div>
-            <button id="toggleHistoryBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar historial</button>
+        <!-- HISTORIAL DE MESES -->
+        <section class="card history-section" style="margin-top: 12px;">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Historial reciente</h2>
+            <button type="button" id="toggleHistoryBtn" class="btn btn-outline btn-sm">▲ Ocultar historial</button>
           </div>
-          <div id="historyContainer" class="collapsible-section">
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Mes</th>
-                    <th>Presupuesto</th>
-                    <th>Gastado</th>
-                    <th>Resultado</th>
-                  </tr>
-                </thead>
-                <tbody id="historyTable"></tbody>
-              </table>
-            </div>
+          <div id="historyContainer" style="overflow-x: auto; margin-top: 12px;">
+            <table class="table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Mes</th>
+                  <th style="text-align: left;">Presupuesto</th>
+                  <th style="text-align: left;">Gastado</th>
+                  <th style="text-align: right;">Balance</th>
+                </tr>
+              </thead>
+              <tbody id="historyTable">
+                <!-- Se llena dinámicamente -->
+              </tbody>
+            </table>
           </div>
         </section>
 
-        <section class="panel">
-          <div class="section-heading">
-            <div>
-              <h2>Gastos por categoría</h2>
-              <p>Distribución de tus gastos.</p>
+      </section>
+
+
+      <!-- =====================================================
+           VISTA 2: GASTOS PRÓXIMOS & DEUDAS
+      ===================================================== -->
+      <section id="viewProximos" class="hidden">
+        
+        <!-- RESUMEN GASTOS PRÓXIMOS -->
+        <section class="card gp-summary-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+          <div class="metric-card">
+            <span class="metric-title">PENDIENTE TOTAL</span>
+            <div id="gpTotalPending" class="metric-value">$ 0,00</div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">TOTAL DEUDAS</span>
+            <div id="gpTotalDebts" class="metric-value">$ 0,00</div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">PRÓXIMOS 7 DÍAS</span>
+            <div id="gpNextSevenDays" class="metric-value">$ 0,00</div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">ESTE MES</span>
+            <div id="gpThisMonth" class="metric-value">$ 0,00</div>
+          </div>
+        </section>
+
+        <!-- LISTADO Y FILTROS -->
+        <section class="card" style="margin-top: 12px;">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button class="btn btn-pink btn-sm gp-filter" data-filter="all">Todos</button>
+              <button class="btn btn-outline btn-sm gp-filter" data-filter="pending">Pendientes</button>
+              <button class="btn btn-outline btn-sm gp-filter" data-filter="paid">Pagados</button>
+              <button class="btn btn-outline btn-sm gp-filter" data-filter="debt">Deudas</button>
+            </div>
+
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="gpSearchInput" placeholder="🔍 Buscar registro..." style="padding: 6px 10px; border-radius: 8px;">
+              <span id="gpItemsCount" class="badge">0 registros</span>
+              <button type="button" id="gpOpenModalBtn" class="btn btn-pink btn-sm">+ Agregar</button>
+              <button type="button" id="gpCsvBtn" class="btn btn-outline btn-sm">📊 CSV</button>
+              <button type="button" id="gpPdfBtn" class="btn btn-outline btn-sm">📄 PDF</button>
             </div>
           </div>
-          <div id="categoryChart" class="category-chart"></div>
+
+          <div id="gpExpensesList" class="gp-list-grid" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+            <!-- Se llena dinámicamente -->
+          </div>
+
+          <div id="gpEmptyState" class="empty-state" style="display: none; text-align: center; padding: 20px; color: var(--muted);">
+            <div>📦</div>
+            <span>No hay registros pendientes para mostrar.</span>
+          </div>
         </section>
+
       </section>
 
-      <section class="trend-box" style="margin-top: 1.5rem;">
-        <h2>📊 Análisis de tendencia</h2>
-        <p id="trendText">Agregá gastos para comenzar a analizar tus hábitos.</p>
-      </section>
-    </div>
-
-    <footer style="margin-top: 2rem;">
-      MENSUALES · Tus gastos organizados mes a mes.
-      <br>
-      <small>Creado por Florencia Bagnis💗</small>
-    </footer>
-
-  </section>
-
-  <script>
-    try {
-      if (localStorage.getItem('user_logged_in') === 'true') {
-        document.getElementById('authSection')?.classList.add('hidden');
-        document.getElementById('appContent')?.classList.remove('hidden');
-      }
-    } catch(e) {}
-  </script>
-</main>
-
-<!-- MODAL: SUMAR EXTRA -->
-<dialog id="extraDialog" style="border-radius: 24px; border: 1px solid var(--border); padding: 30px; max-width: 380px; width: 100%; position: relative;">
-  <button id="closeExtraDialog" type="button" style="position: absolute; top: 18px; right: 18px; border: none; background: var(--pink-soft, #ffe6ed); color: var(--pink-dark, #c43878); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 16px;">×</button>
-  
-  <div style="margin-bottom: 16px;">
-    <h3 style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0;">➕ Sumar Dinero Extra</h3>
-    <p style="color: var(--muted); font-size: 12px; margin-top: 4px; margin-bottom: 0;">Se sumará automáticamente a tu presupuesto actual.</p>
+    </main>
   </div>
 
-  <div style="display: grid; gap: 14px; margin-bottom: 22px;">
-    <!-- CATEGORÍA DE INGRESO -->
-    <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
-      CATEGORÍA DE INGRESO
-      <select id="modalExtraCategory" style="width: 100%; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--ink); padding: 10px 12px; font: inherit; font-size: 13px;">
-        <option value="Sueldo">💼 Sueldo</option>
-        <option value="Aporte familiar">🏠 Aporte familiar</option>
-        <option value="Regalo">🎁 Regalo</option>
-        <option value="Venta">🛍️ Venta</option>
-        <option value="Reintegro">🔄 Reintegro</option>
-        <option value="Otro">✨ Otro</option>
-      </select>
-    </label>
 
-    <!-- DESCRIPCIÓN OPCIONAL -->
-    <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
-      DESCRIPCIÓN (Opcional)
-      <input type="text" id="modalExtraDescription" placeholder="Ej: Venta de campera, quincena..." style="width: 100%;">
-    </label>
+  <!-- =========================================================
+       MODALES / DIALOGS
+  ========================================================= -->
 
-    <!-- MONTO Y MONEDA -->
-    <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
-      MONTO Y MONEDA
-      <div style="display: flex; gap: 6px; align-items: center;">
-        <div class="money-input" style="flex: 1;">
-          <span>+$</span>
-          <input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0" style="width: 100%;">
+  <!-- 1. MODAL DE NUEVO GASTO / EDITAR GASTO -->
+  <dialog id="expenseDialog" class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Agregar gasto</h3>
+      <button type="button" id="closeDialog" class="btn-close">×</button>
+    </div>
+
+    <form id="expenseForm">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <div>
+          <label for="expenseDate" style="font-size: 0.8rem; font-weight: bold;">Fecha real</label>
+          <input type="date" id="expenseDate" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
         </div>
-        <select id="modalExtraCurrency" style="padding: 10px; border-radius: 9px; border: 1px solid var(--line); font-size: 13px; font-weight: 600; background: white; color: var(--ink); cursor: pointer;">
-          <option value="ARS" selected>ARS</option>
-          <option value="USD">USD</option>
+        <div>
+          <label for="expenseTargetMonth" style="font-size: 0.8rem; font-weight: bold;">Imputar al mes</label>
+          <input type="month" id="expenseTargetMonth" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <label for="expenseDescription" style="font-size: 0.8rem; font-weight: bold;">Descripción</label>
+        <input type="text" id="expenseDescription" placeholder="Ej. Supermercado, Alquiler" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <label for="expenseCategory" style="font-size: 0.8rem; font-weight: bold;">Categoría</label>
+        <select id="expenseCategory" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          <option value="Alimentos">Alimentos</option>
+          <option value="Servicios">Servicios</option>
+          <option value="Hogar">Hogar</option>
+          <option value="Salud">Salud</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Mascotas">Mascotas</option>
+          <option value="Gimnasio">Gimnasio</option>
+          <option value="Agua">Agua</option>
+          <option value="Otros">Otros</option>
         </select>
       </div>
-    </label>
-  </div>
 
-<!-- Opciones de recurrencia para Ingresos Extra -->
-<div class="form-group" style="margin-top: 12px;">
-  <input type="checkbox" id="extraRecurring">
-  <label for="extraRecurring">🔄 Repetir este ingreso</label>
-</div>
-
-<div id="extraRecurringOptions" class="hidden" style="background: var(--pink-bg); padding: 10px; border-radius: 8px; margin-top: 8px;">
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-    <label style="font-size: 11px;">Meses a repetir: <input type="number" id="extraDuration" value="6" min="1" max="24" style="width:100%; padding:4px;"></label>
-    <label style="font-size: 11px;">Cada cuántos meses: <input type="number" id="extraMonths" value="1" min="1" max="12" style="width:100%; padding:4px;"></label>
-  </div>
-  <div style="margin-bottom: 8px;">
-    <label style="font-size: 11px;">Día del mes: <input type="number" id="extraDay" value="10" min="1" max="31" style="width:100%; padding:4px;"></label>
-  </div>
-  <div>
-    <input type="checkbox" id="extraChangingAmount">
-    <label for="extraChangingAmount" style="font-size: 11px;">Montos variables por mes</label>
-  </div>
-  <div id="extraRecurringAmounts" class="hidden" style="margin-top: 6px;"></div>
-</div>
-  
-  <!-- BOTONES DE ACCIÓN -->
-  <div style="display: flex; justify-content: flex-end; gap: 8px;">
-    <button type="button" class="btn btn-outline" onclick="document.getElementById('extraDialog').close()">Cancelar</button>
-    <button type="button" class="btn btn-pink" id="submitExtraBtn">Sumar dinero</button>
-  </div>
-</dialog>
-  
-<!-- MODAL GASTOS -->
-<dialog id="expenseDialog">
-  <form id="expenseForm" class="modal">
-    <button id="closeDialog" type="button" class="close" aria-label="Cerrar">×</button>
-    <div>
-      <p id="modalEyebrow" class="eyebrow">NUEVO REGISTRO</p>
-      <h2 id="modalTitle">Agregar gasto</h2>
-    </div>
-
-    <!-- FECHA REAL E IMPUTAR AL MES -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <label style="margin-bottom: 0;">
-        Fecha real
-        <input id="expenseDate" type="date" required>
-      </label>
-
-      <label style="margin-bottom: 0;">
-        Imputar al mes
-        <input id="expenseTargetMonth" type="month" required style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card-bg); color: var(--text); font-size: 13px;">
-      </label>
-    </div>
-
-    <label>
-      Descripción
-      <input id="expenseDescription" type="text" placeholder="Ej. Supermercado" maxlength="100" required>
-    </label>
-
-    <label>
-      Categoría
-      <select id="expenseCategory" required>
-        <option value="">Seleccioná una categoría</option>
-        <option value="Alimentos">Alimentos</option>
-        <option value="Transporte">Transporte</option>
-        <option value="Hogar">Hogar</option>
-        <option value="Servicios">Servicios</option>
-        <option value="Salud">Salud</option>
-        <option value="Ropa">Ropa</option>
-        <option value="Entretenimiento">Entretenimiento</option>
-        <option value="Educación">Educación</option>
-        <option value="Mascotas">Mascotas</option>
-        <option value="Otros">Otros</option>
-        <option value="Cuotas">Cuotas</option>
-        <option value="Personal">Personal</option>
-        <option value="Gimnasio">Gimnasio</option>
-        <option value="Agua">Agua</option>
-      </select>
-    </label>
-
-    <div style="display: grid; grid-template-columns: 1fr 140px; gap: 10px; align-items: end;">
-      <label style="margin-bottom: 0;">
-        Monto
-        <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
-      </label>
-
-      <label style="margin-bottom: 0;">
-        Moneda
-        <select id="expenseCurrency" required>
-          <option value="ARS" selected>ARS ($)</option>
-          <option value="USD">USD (u$s)</option>
-        </select>
-      </label>
-    </div>
-
-    <div class="recurring-box">
-      <label class="checkbox-label">
-        <input id="expenseRecurring" type="checkbox">
-        <span>🔁 Repetir este gasto</span>
-      </label>
-
-      <div id="recurringOptions" class="recurring-options hidden">
-        <div class="recurring-grid">
-          <label>
-            Repetir cada
-            <div class="inline-input">
-              <input id="recurringMonths" type="number" min="1" max="60" value="1">
-              <span>mes(es)</span>
-            </div>
-          </label>
-
-          <label>
-            Día del mes
-            <input id="recurringDay" type="number" min="1" max="31" value="10">
-          </label>
-          
-          <label>
-            Durante
-            <div class="inline-input">
-              <input id="recurringDuration" type="number" min="1" max="60" value="6">
-              <span>mes(es)</span>
-            </div>
-          </label>
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 12px;">
+        <div>
+          <label for="expenseAmount" style="font-size: 0.8rem; font-weight: bold;">Monto</label>
+          <input type="number" id="expenseAmount" step="0.01" min="0" placeholder="0.00" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
         </div>
+        <div>
+          <label for="expenseCurrency" style="font-size: 0.8rem; font-weight: bold;">Moneda</label>
+          <select id="expenseCurrency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+            <option value="ARS">ARS ($)</option>
+            <option value="USD">USD (u$s)</option>
+          </select>
+        </div>
+      </div>
 
-        <label class="checkbox-label recurring-changing-label">
-          <input id="recurringChangingAmount" type="checkbox">
+      <!-- Recurrencia Gastos -->
+      <div style="margin-top: 10px;">
+        <label style="display: flex; align-items: center; gap: 6px; font-weight: bold; cursor: pointer;">
+          <input type="checkbox" id="expenseRecurring">
+          <span>🔄 Repetir este gasto</span>
+        </label>
+      </div>
+
+      <div id="recurringOptions" class="hidden" style="background: var(--pink-bg); padding: 12px; border-radius: 8px; margin-top: 8px;">
+        <div style="margin-bottom: 8px;">
+          <label style="font-size: 0.8rem; font-weight: bold;">Repetir cada</label>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <input type="number" id="recurringMonths" value="1" min="1" max="12" style="width: 80px; padding: 6px;">
+            <span style="font-size: 0.85rem;">mes(es)</span>
+          </div>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <label for="recurringDay" style="font-size: 0.8rem; font-weight: bold;">Día del mes</label>
+          <input type="number" id="recurringDay" value="10" min="1" max="31" style="width: 100%; padding: 6px;">
+        </div>
+        <div style="margin-bottom: 8px;">
+          <label style="font-size: 0.8rem; font-weight: bold;">Durante</label>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <input type="number" id="recurringDuration" value="6" min="1" max="36" style="width: 80px; padding: 6px;">
+            <span style="font-size: 0.85rem;">mes(es)</span>
+          </div>
+        </div>
+        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 6px;">
+          <input type="checkbox" id="recurringChangingAmount">
           <span>💰 Quiero usar un monto diferente en cada mes</span>
         </label>
+        <div id="recurringAmounts" class="hidden" style="margin-top: 8px;"></div>
+      </div>
 
-        <div id="recurringAmounts" class="recurring-amounts"></div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+        <button type="button" id="cancelDialog" class="btn btn-outline">Cancelar</button>
+        <button type="submit" class="btn btn-pink">Guardar gasto</button>
+      </div>
+    </form>
+  </dialog>
+
+
+  <!-- 2. MODAL DE DINERO EXTRA / PRESUPUESTO BASE (CON FECHA Y FRECUENCIA COMPLETA) -->
+  <dialog id="extraDialog" class="modal">
+    <div class="modal-header">
+      <h3 id="extraModalTitle">➕ Sumar Dinero Extra</h3>
+      <button type="button" id="closeExtraDialog" class="btn-close">×</button>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">Se sumará automáticamente a tu presupuesto actual.</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+      <div>
+        <label for="modalExtraDate" style="font-size: 0.8rem; font-weight: bold;">Fecha real</label>
+        <input type="date" id="modalExtraDate" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+      </div>
+      <div>
+        <label for="modalExtraTargetMonth" style="font-size: 0.8rem; font-weight: bold;">Imputar al mes</label>
+        <input type="month" id="modalExtraTargetMonth" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
       </div>
     </div>
 
-    <div class="modal-actions">
-      <button id="cancelDialog" type="button" class="btn btn-outline">Cancelar</button>
-      <button id="submitExpenseBtn" class="pastel-btn" type="submit">Guardar gasto</button>
+    <div style="margin-bottom: 10px;">
+      <label for="modalExtraCategory" style="font-size: 0.8rem; font-weight: bold;">CATEGORÍA DE INGRESO</label>
+      <select id="modalExtraCategory" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+        <option value="Sueldo">💼 Sueldo</option>
+        <option value="Aporte familiar">👨‍👩‍👦 Aporte familiar</option>
+        <option value="Aguinaldo">🎁 Aguinaldo</option>
+        <option value="Ventas">🏷️ Ventas</option>
+        <option value="Freelance">💻 Freelance</option>
+        <option value="Inversiones">📈 Inversiones</option>
+        <option value="Otro">📦 Otro</option>
+      </select>
     </div>
-  </form>
-</dialog>
 
-<!-- MODAL RESUMEN ANUAL -->
-<dialog id="annualDialog" style="border-radius: 28px; border: 1px solid var(--border); padding: 35px;">
-  <button id="closeAnnualDialog" type="button" style="position: absolute; top: 22px; right: 22px; border: none; background: var(--pink-soft); color: var(--pink-dark); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 18px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">×</button>
-  
-  <div class="modal-header" style="margin-bottom: 20px;">
-    <div class="modal-icon" style="background: var(--pink-soft); color: var(--pink); font-size: 24px; border-radius: 16px; width: 50px; height: 50px; display: grid; place-items: center;">🌸</div>
-    <div>
-      <h2 style="font-size: 24px; font-weight: 800; color: var(--text);">Resumen Anual</h2>
-      <p id="annualSubtitle" style="color: var(--muted); font-size: 13px; margin-top: 2px;">Análisis completo de tus finanzas</p>
+    <div style="margin-bottom: 10px;">
+      <label for="modalExtraDescription" style="font-size: 0.8rem; font-weight: bold;">DESCRIPCIÓN (Opcional)</label>
+      <input type="text" id="modalExtraDescription" placeholder="Ej. Aporte familiar, Sueldo principal" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
     </div>
-  </div>
-  
-  <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 25px; font-size: 13px;"></div>
 
-  <div style="display: flex; gap: 12px;">
-    <button id="annualPdfBtn" class="pastel-btn" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">📥 Descargar PDF</button>
-    <button id="closeAnnualCancelBtn" class="btn btn-outline" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">Cerrar</button>
-  </div>
-</dialog>
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 12px;">
+      <div>
+        <label for="modalExtraInput" style="font-size: 0.8rem; font-weight: bold;">MONTO</label>
+        <input type="number" id="modalExtraInput" step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+      </div>
+      <div>
+        <label for="modalExtraCurrency" style="font-size: 0.8rem; font-weight: bold;">MONEDA</label>
+        <select id="modalExtraCurrency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+          <option value="ARS">ARS ($)</option>
+          <option value="USD">USD (u$s)</option>
+        </select>
+      </div>
+    </div>
 
-<script type="module" src="app.js"></script>
+    <!-- Repetición Idéntica a Gastos -->
+    <div style="margin-top: 10px;">
+      <label style="display: flex; align-items: center; gap: 6px; font-weight: bold; cursor: pointer;">
+        <input type="checkbox" id="extraRecurring">
+        <span>🔄 Repetir este ingreso</span>
+      </label>
+    </div>
+
+    <div id="extraRecurringOptions" class="hidden" style="background: var(--pink-bg); padding: 12px; border-radius: 8px; margin-top: 8px;">
+      <div style="margin-bottom: 8px;">
+        <label style="font-size: 0.8rem; font-weight: bold;">Repetir cada</label>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <input type="number" id="extraMonths" value="1" min="1" max="12" style="width: 80px; padding: 6px;">
+          <span style="font-size: 0.85rem;">mes(es)</span>
+        </div>
+      </div>
+      <div style="margin-bottom: 8px;">
+        <label for="extraDay" style="font-size: 0.8rem; font-weight: bold;">Día del mes</label>
+        <input type="number" id="extraDay" value="10" min="1" max="31" style="width: 100%; padding: 6px;">
+      </div>
+      <div style="margin-bottom: 8px;">
+        <label style="font-size: 0.8rem; font-weight: bold;">Durante</label>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <input type="number" id="extraDuration" value="6" min="1" max="36" style="width: 80px; padding: 6px;">
+          <span style="font-size: 0.85rem;">mes(es)</span>
+        </div>
+      </div>
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 6px;">
+        <input type="checkbox" id="extraChangingAmount">
+        <span>💰 Quiero usar un monto diferente en cada mes</span>
+      </label>
+      <div id="extraRecurringAmounts" class="hidden" style="margin-top: 8px;"></div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+      <button type="button" id="closeExtraCancelBtn" class="btn btn-outline">Cancelar</button>
+      <button type="button" id="submitExtraBtn" class="btn btn-pink">Guardar ingreso</button>
+    </div>
+  </dialog>
+
+
+  <!-- 3. MODAL DE GASTOS PRÓXIMOS & DEUDAS -->
+  <dialog id="gpModal" class="modal">
+    <div class="modal-header">
+      <h3 id="gpModalTitle">Agregar registro pendiente</h3>
+      <button type="button" id="gpCloseModalBtn" class="btn-close">×</button>
+    </div>
+
+    <form id="gpExpenseForm">
+      <input type="hidden" id="gpExpenseId">
+
+      <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+        <label style="cursor: pointer; font-size: 0.9rem;">
+          <input type="radio" name="gpType" value="expense" checked> Gasto por vencer
+        </label>
+        <label style="cursor: pointer; font-size: 0.9rem;">
+          <input type="radio" name="gpType" value="debt"> Deuda
+        </label>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <label for="gpDescription" style="font-size: 0.8rem; font-weight: bold;">Concepto / Detalle</label>
+        <input type="text" id="gpDescription" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <div>
+          <label for="gpCategory" style="font-size: 0.8rem; font-weight: bold;">Categoría</label>
+          <select id="gpCategory" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+            <option value="Hogar">Hogar</option>
+            <option value="Servicios">Servicios</option>
+            <option value="Comida">Comida</option>
+            <option value="Salud">Salud</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Mascotas">Mascotas</option>
+            <option value="Deudas">Deudas</option>
+            <option value="Gimnasio">Gimnasio</option>
+            <option value="Agua">Agua</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+        <div>
+          <label for="gpQuantity" style="font-size: 0.8rem; font-weight: bold;">Cantidad</label>
+          <input type="number" id="gpQuantity" value="1" min="1" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
+        <div>
+          <label for="gpAmount" style="font-size: 0.8rem; font-weight: bold;">Monto (Opcional)</label>
+          <input type="number" id="gpAmount" step="0.01" min="0" placeholder="A definir" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+        </div>
+        <div>
+          <label for="gpCurrency" style="font-size: 0.8rem; font-weight: bold;">Moneda</label>
+          <select id="gpCurrency" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+            <option value="ARS">ARS ($)</option>
+            <option value="USD">USD (u$s)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <label for="gpDate" style="font-size: 0.8rem; font-weight: bold;">Fecha estimada / Vencimiento</label>
+        <input type="date" id="gpDate" required style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);">
+      </div>
+
+      <div style="margin-bottom: 12px;">
+        <label for="gpNotes" style="font-size: 0.8rem; font-weight: bold;">Notas adicionales</label>
+        <textarea id="gpNotes" rows="2" placeholder="Recordatorios, cuotas, detalles..." style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--line);"></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" id="gpCancelBtn" class="btn btn-outline">Cancelar</button>
+        <button type="submit" class="btn btn-pink">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+
+  <!-- 4. MODAL DE RESUMEN ANUAL -->
+  <dialog id="annualDialog" class="modal">
+    <div class="modal-header">
+      <h3>🌸 Resumen Financiero Anual</h3>
+      <button type="button" id="closeAnnualDialog" class="btn-close">×</button>
+    </div>
+    <p id="annualSubtitle" style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">Cálculo anual de tus finanzas</p>
+
+    <div id="annualContent" style="display: flex; flex-direction: column; gap: 12px;">
+      <!-- Se llena dinámicamente -->
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+      <button type="button" id="closeAnnualCancelBtn" class="btn btn-outline">Cerrar</button>
+      <button type="button" id="annualPdfBtn" class="btn btn-pink">📄 Exportar PDF Anual</button>
+    </div>
+  </dialog>
+
+  <!-- Script principal de la aplicación -->
+  <script type="module" src="app.js"></script>
 </body>
 </html>
