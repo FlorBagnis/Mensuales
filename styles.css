@@ -1413,3 +1413,13 @@ body.dark-mode .money-input input {
   color: #fceef3 !important;
 }
 
+body.dark-blue-mode {
+  --bg: #0b132b;
+  --card: #1c2541;
+  --text: #ffffff;
+  --muted: #8d99ae;
+  --line: #3a506b;
+  --pink-500: #4cc9f0;
+  --pink-700: #4361ee;
+  --pink-bg: #1c2541;
+}
