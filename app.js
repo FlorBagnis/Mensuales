@@ -1,3 +1,16 @@
+¡Sí, se puede hacer y queda **impecable**! De esa manera, no solo controlás los gastos fijos o recurrentes, sino que también podés programar ingresos que se repiten (como un sueldo mensual, un ingreso semanal por cliente, o montos que varían mes a mes) asignándoles su fecha exacta.
+
+Para lograr esto, vamos a expandir la lógica del **Dinero Extra / Ingresos** para que funcione con **fechas personalizadas** y **opciones de frecuencia (recurrencia con montos fijos o variables)**, exactamente igual a como ya tenés estructurados los gastos recurrentes.
+
+### ¿Qué agregamos en esta actualización?
+
+1. **Fecha personalizada** para el ingreso extra (ya no toma solo "hoy" por defecto, sino la fecha que elijas).
+2. **Frecuencia y recurrencia en ingresos:** Podés indicar si se repite (por ejemplo, mensual o semanal), definir cuántos períodos, y si el monto es fijo o varía en cada período.
+3. **Impacto automático en el mes correspondiente:** Si un ingreso extra es recurrente, la app lo distribuye y guarda automáticamente en el mes que le corresponda según la fecha y frecuencia.
+
+Aquí tenés el **código completo actualizado** con estas mejoras integradas:
+
+```javascript
 /* =========================================================
    MENSUALES & GASTOS PRÓXIMOS (SISTEMA UNIFICADO)
    FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
@@ -414,6 +427,7 @@ function editExtraIncome(id) {
     $("modalExtraDescription").value = item.description || "";
     $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
     $("modalExtraCurrency").value = item.currency || "ARS";
+    if ($("modalExtraDate")) $("modalExtraDate").value = item.date || currentMonthValue() + "-01";
 
     $("extraDialog").dataset.editingExtraId = item.id;
     const titleEl = $("extraDialog").querySelector("h3");
@@ -881,7 +895,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (INCLUYE PRESUPUESTO, DIFERENCIA, MODO OSCURO)
+   REPORTES PDF
 ========================================================= */
 
 function generateMensualesPDF() {
@@ -947,7 +961,6 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte · ${monthName(month)}`, 21, 34);
 
-  // 4 tarjetas distribuidas de forma perfecta: Presupuesto, Total Gastado, Mes Anterior, Diferencia
   const cards = [
     ["PRESUPUESTO", budgetText],
     ["TOTAL GASTADO", cardSpentText],
@@ -1364,6 +1377,212 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  /* =========================================================
+     GESTIÓN DE DINERO EXTRA / INGRESOS (CON SOPORTE DE FECHA Y RECURRENCIA)
+  ========================================================= */
+
+  const extraRecurring = $("extraRecurring");
+  const extraRecurringOptions = $("extraRecurringOptions");
+  const extraChangingAmount = $("extraChangingAmount");
+  const extraRecurringAmounts = $("extraRecurringAmounts");
+  const extraDuration = $("extraDuration");
+  const extraMonthsInput = $("extraMonths");
+  const extraDay = $("extraDay");
+
+  extraRecurring?.addEventListener("change", () => {
+    extraRecurringOptions?.classList.toggle("hidden", !extraRecurring.checked);
+    if (extraRecurring.checked) updateExtraRecurringInputs();
+  });
+
+  extraChangingAmount?.addEventListener("change", () => {
+    extraRecurringAmounts?.classList.toggle("hidden", !extraChangingAmount.checked);
+    if (extraChangingAmount.checked) updateExtraRecurringInputs();
+  });
+
+  function updateExtraRecurringInputs() {
+    if (!extraRecurringAmounts) return;
+    extraRecurringAmounts.innerHTML = "";
+    if (!extraRecurring?.checked || !extraChangingAmount?.checked) return;
+
+    const count = Number(extraDuration?.value) || 6;
+    const baseAmount = Number($("modalExtraInput")?.value || 0);
+    const interval = Number(extraMonthsInput?.value) || 1;
+    let baseDate = new Date(($("modalExtraDate")?.value || currentMonthValue() + "-01") + "T00:00:00");
+
+    for (let i = 0; i < count; i++) {
+      const d = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), Number(extraDay?.value || 10));
+      const mLabel = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" }).format(d);
+
+      const label = document.createElement("label");
+      label.style.cssText = "display:grid; grid-template-columns: 1fr 120px; gap:8px; align-items:center; font-size:11px; margin-top:6px;";
+      label.innerHTML = `
+        <span>${mLabel.charAt(0).toUpperCase() + mLabel.slice(1)}</span>
+        <input type="number" min="0" step="0.01" class="extra-rec-amount-input" data-index="${i}" value="${baseAmount}" required style="padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-size:12px;">
+      `;
+      extraRecurringAmounts.appendChild(label);
+    }
+  }
+
+  extraDuration?.addEventListener("input", updateExtraRecurringInputs);
+  extraMonthsInput?.addEventListener("input", updateExtraRecurringInputs);
+  extraDay?.addEventListener("input", updateExtraRecurringInputs);
+  $("modalExtraInput")?.addEventListener("input", () => {
+    if (!extraChangingAmount?.checked) return;
+    const baseAmount = Number($("modalExtraInput")?.value || 0);
+    extraRecurringAmounts?.querySelectorAll(".extra-rec-amount-input").forEach(inp => {
+      if (!inp.dataset.userEdited) inp.value = baseAmount;
+    });
+  });
+
+  extraRecurringAmounts?.addEventListener("input", e => {
+    if (e.target.classList.contains("extra-rec-amount-input")) {
+      e.target.dataset.userEdited = "true";
+    }
+  });
+
+  $("openExtraModalBtn")?.addEventListener("click", () => {
+    if ($("modalExtraInput")) $("modalExtraInput").value = "";
+    if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
+    if ($("modalExtraCategory")) $("modalExtraCategory").value = "Sueldo";
+    if ($("modalExtraDate")) {
+      const today = new Date();
+      $("modalExtraDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    }
+    extraRecurringOptions?.classList.add("hidden");
+    extraRecurringAmounts?.classList.add("hidden");
+    if (extraRecurring) extraRecurring.checked = false;
+    if (extraChangingAmount) extraChangingAmount.checked = false;
+
+    delete $("extraDialog").dataset.editingExtraId;
+    const titleEl = $("extraDialog").querySelector("h3");
+    if (titleEl) titleEl.textContent = "➕ Sumar Dinero Extra";
+    $("extraDialog")?.showModal();
+  });
+
+  $("closeExtraDialog")?.addEventListener("click", () => {
+    $("extraDialog")?.close();
+  });
+
+  $("submitExtraBtn")?.addEventListener("click", async () => {
+    const rawVal = Number($("modalExtraInput")?.value || 0);
+    if (rawVal <= 0) {
+      alert("Ingresá un monto válido para sumar.");
+      return;
+    }
+
+    const category = $("modalExtraCategory")?.value || "Otro";
+    const description = $("modalExtraDescription")?.value.trim() || "";
+    const currency = $("modalExtraCurrency")?.value || "ARS";
+    const baseDateStr = $("modalExtraDate")?.value || new Date().toISOString().slice(0, 10);
+    const targetMonth = baseDateStr.slice(0, 7);
+
+    let finalVal = rawVal;
+    if (currency === "USD") {
+      if (currentDolarBlue <= 0) {
+        try {
+          const res = await fetch("https://dolarapi.com/v1/dolares/blue");
+          const json = await res.json();
+          if (json?.venta) currentDolarBlue = Number(json.venta);
+        } catch(e) {}
+      }
+      if (currentDolarBlue > 0) {
+        finalVal = rawVal * currentDolarBlue;
+      } else {
+        const customRate = prompt("Ingresá a cuánto querés tomar el dólar:", "1200");
+        if (!customRate) return;
+        finalVal = rawVal * Number(customRate);
+      }
+    }
+
+    const editingId = $("extraDialog").dataset.editingExtraId;
+
+    if (editingId) {
+      const month = $("monthPicker")?.value;
+      const current = data.months[month];
+      if (current && Array.isArray(current.extraIncomes)) {
+        const index = current.extraIncomes.findIndex(x => x.id === editingId);
+        if (index !== -1) {
+          current.extraIncomes[index] = {
+            ...current.extraIncomes[index],
+            date: baseDateStr,
+            category,
+            description,
+            amount: finalVal,
+            rawAmount: rawVal,
+            currency
+          };
+          current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+          if ($("budgetInput")) $("budgetInput").value = current.budget;
+          renderMensuales();
+          await saveMonthToFirestore(month);
+        }
+      }
+    } else {
+      const isRecurring = extraRecurring?.checked;
+
+      if (!isRecurring) {
+        const current = ensureMonth(targetMonth);
+        if (!Array.isArray(current.extraIncomes)) current.extraIncomes = [];
+        current.extraIncomes.push({
+          id: createId("extra"),
+          date: baseDateStr,
+          category,
+          description,
+          amount: finalVal,
+          rawAmount: rawVal,
+          currency
+        });
+        current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
+        renderMensuales();
+        await saveMonthToFirestore(targetMonth);
+      } else {
+        const count = Number(extraDuration?.value) || 6;
+        const interval = Number(extraMonthsInput?.value) || 1;
+        const dayNum = Number(extraDay?.value) || 10;
+        const changing = extraChangingAmount?.checked;
+        const customInputs = extraRecurringAmounts?.querySelectorAll(".extra-rec-amount-input");
+
+        let baseDate = new Date(baseDateStr + "T00:00:00");
+
+        for (let i = 0; i < count; i++) {
+          const targetDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), dayNum);
+          const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}`;
+          const dateStr = `${monthKey}-${String(targetDate.getDate()).padStart(2, "0")}`;
+
+          let currentRaw = rawVal;
+          let currentFinal = finalVal;
+
+          if (changing && customInputs && customInputs[i]) {
+            currentRaw = Number(customInputs[i].value) || rawVal;
+            currentFinal = currency === "USD" ? currentRaw * (currentDolarBlue > 0 ? currentDolarBlue : 1) : currentRaw;
+          }
+
+          const finalDesc = `🔄 ${description ? description + " " : ""}(Cuota ${i + 1}/${count})`.trim();
+          const monthData = ensureMonth(monthKey);
+          if (!Array.isArray(monthData.extraIncomes)) monthData.extraIncomes = [];
+
+          monthData.extraIncomes.push({
+            id: createId("extra"),
+            date: dateStr,
+            category,
+            description: finalDesc,
+            amount: currentFinal,
+            rawAmount: currentRaw,
+            currency
+          });
+          monthData.budget = monthData.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+          await saveMonthToFirestore(monthKey);
+        }
+        if ($("monthPicker")) $("monthPicker").value = targetMonth;
+        renderMensuales();
+        alert(`✓ Ingreso extra repetido exitosamente durante ${count} período(s).`);
+      }
+    }
+
+    $("extraDialog")?.close();
+  });
+
   $("saveBudgetBtn")?.addEventListener("click", async () => {
     const month = $("monthPicker")?.value;
     if (!month) return;
@@ -1393,98 +1612,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
     await saveMonthToFirestore(month);
     alert("Presupuesto guardado correctamente.");
-  });
-
-  $("openExtraModalBtn")?.addEventListener("click", () => {
-    if ($("modalExtraInput")) $("modalExtraInput").value = "";
-    if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
-    if ($("modalExtraCategory")) $("modalExtraCategory").value = "Sueldo";
-    delete $("extraDialog").dataset.editingExtraId;
-    const titleEl = $("extraDialog").querySelector("h3");
-    if (titleEl) titleEl.textContent = "➕ Sumar Dinero Extra";
-    $("extraDialog")?.showModal();
-  });
-
-  $("closeExtraDialog")?.addEventListener("click", () => {
-    $("extraDialog")?.close();
-  });
-
-  $("submitExtraBtn")?.addEventListener("click", async () => {
-    const month = $("monthPicker")?.value;
-    if (!month) return;
-    
-    const rawVal = Number($("modalExtraInput")?.value || 0);
-    if (rawVal <= 0) {
-      alert("Ingresá un monto válido para sumar.");
-      return;
-    }
-
-    const category = $("modalExtraCategory")?.value || "Otro";
-    const description = $("modalExtraDescription")?.value.trim() || "";
-    const currency = $("modalExtraCurrency")?.value || "ARS";
-    let finalVal = rawVal;
-
-    if (currency === "USD") {
-      if (currentDolarBlue <= 0) {
-        try {
-          const res = await fetch("https://dolarapi.com/v1/dolares/blue");
-          const json = await res.json();
-          if (json?.venta) currentDolarBlue = Number(json.venta);
-        } catch(e) {}
-      }
-
-      if (currentDolarBlue > 0) {
-        finalVal = rawVal * currentDolarBlue;
-        if (!confirm(`Vas a tomar USD ${rawVal} convertidos a pesos (${money(finalVal)}) usando la cotización del Dólar Blue de hoy ($${currentDolarBlue}). ¿Confirmás?`)) {
-          return;
-        }
-      } else {
-        const customRate = prompt("No se pudo obtener el Dólar Blue automáticamente. Ingresá a cuánto querés tomar el dólar:", "1200");
-        if (!customRate) return;
-        finalVal = rawVal * Number(customRate);
-      }
-    }
-
-    const current = ensureMonth(month);
-    if (!Array.isArray(current.extraIncomes)) current.extraIncomes = [];
-
-    const editingId = $("extraDialog").dataset.editingExtraId;
-
-    if (editingId) {
-      const index = current.extraIncomes.findIndex(x => x.id === editingId);
-      if (index !== -1) {
-        current.extraIncomes[index] = {
-          ...current.extraIncomes[index],
-          category,
-          description,
-          amount: finalVal,
-          rawAmount: rawVal,
-          currency
-        };
-      }
-    } else {
-      current.extraIncomes.push({
-        id: createId("extra"),
-        date: new Date().toISOString().slice(0, 10),
-        category,
-        description,
-        amount: finalVal,
-        rawAmount: rawVal,
-        currency
-      });
-    }
-
-    current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-    if ($("budgetInput")) $("budgetInput").value = current.budget;
-
-    renderMensuales();
-    await saveMonthToFirestore(month);
-    
-    if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
-    if ($("modalExtraInput")) $("modalExtraInput").value = "";
-    delete $("extraDialog").dataset.editingExtraId;
-    $("extraDialog")?.close();
-    alert(`✓ Ingreso guardado correctamente.`);
   });
 
   $("addExpenseBtn")?.addEventListener("click", () => {
@@ -1984,3 +2111,9 @@ document.addEventListener('click', (e) => {
     generateAnnualPDF();
   }
 });
+
+```
+
+*(Nota: Para que el formulario del modal de dinero extra permita elegir la fecha y frecuencia en el HTML, asegurate de tener un campo `<input type="date" id="modalExtraDate">` y los checkboxes de recurrencia correspondientes si querés que aparezcan visualmente en la ventana flotante).*
+
+¿Cómo lo ves con esta adición? 🌸✨
