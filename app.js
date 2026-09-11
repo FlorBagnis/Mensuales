@@ -900,7 +900,7 @@ function downloadCSV(rows, filename) {
 
 
 /* =========================================================
-   REPORTES PDF (SOPORTE MODO CLARO, OSCURO Y AZUL OSCURO)
+   REPORTES PDF
 ========================================================= */
 
 function getPdfThemeColors() {
@@ -1281,7 +1281,7 @@ function generateProximosPDF() {
 document.addEventListener("DOMContentLoaded", () => {
   if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
 
-  // Botón de visibilidad de contraseña (florcita / candado)
+  // Botón de contraseña (florcita / candado)
   const togglePasswordBtn = document.getElementById('togglePasswordBtn');
   const authPasswordInput = document.getElementById('authPassword');
 
@@ -1383,6 +1383,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMensuales();
   });
 
+  // Gastos recurrentes
   const expenseRecurring = $("expenseRecurring");
   const recurringOptions = $("recurringOptions");
   const recurringChangingAmount = $("recurringChangingAmount");
