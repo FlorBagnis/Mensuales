@@ -411,33 +411,18 @@ function editExtraIncome(id) {
   const item = current.extraIncomes.find(x => x.id === id);
   if (!item) return;
 
-  if (item.isBase) {
-    const newBudget = prompt("Editar Presupuesto Base del mes:", item.amount);
-    if (newBudget === null) return;
-    const val = Number(newBudget);
-    if (isNaN(val) || val < 0) {
-      alert("Ingresá un monto válido.");
-      return;
-    }
-    item.amount = val;
-    item.rawAmount = val;
-    current.budget = current.extraIncomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
-    if ($("budgetInput")) $("budgetInput").value = current.budget;
-    renderMensuales();
-    saveMonthToFirestore(month);
-  } else {
-    if ($("modalExtraCategory")) $("modalExtraCategory").value = item.category || "Sueldo";
-    if ($("modalExtraDescription")) $("modalExtraDescription").value = item.description || "";
-    if ($("modalExtraInput")) $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
-    if ($("modalExtraCurrency")) $("modalExtraCurrency").value = item.currency || "ARS";
-    if ($("modalExtraDate")) $("modalExtraDate").value = item.date || currentMonthValue() + "-01";
+  // Se abre el modal exactamente igual para Presupuesto Base y Dinero Extra
+  if ($("modalExtraCategory")) $("modalExtraCategory").value = item.category || "Sueldo";
+  if ($("modalExtraDescription")) $("modalExtraDescription").value = item.description || "";
+  if ($("modalExtraInput")) $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
+  if ($("modalExtraCurrency")) $("modalExtraCurrency").value = item.currency || "ARS";
+  if ($("modalExtraDate")) $("modalExtraDate").value = item.date || currentMonthValue() + "-01";
 
-    if ($("extraDialog")) {
-      $("extraDialog").dataset.editingExtraId = item.id;
-      const titleEl = $("extraDialog").querySelector("h3");
-      if (titleEl) titleEl.textContent = "✏️ Editar Ingreso Extra";
-      $("extraDialog").showModal();
-    }
+  if ($("extraDialog")) {
+    $("extraDialog").dataset.editingExtraId = item.id;
+    const titleEl = $("extraDialog").querySelector("h3");
+    if (titleEl) titleEl.textContent = item.isBase ? "✏️ Editar Presupuesto Base" : "✏️ Editar Ingreso Extra";
+    $("extraDialog").showModal();
   }
 }
 
@@ -448,6 +433,11 @@ window.deleteExtraIncome = async function(id) {
 
   const item = current.extraIncomes.find(x => x.id === id);
   if (!item) return;
+
+  if (item.isBase) {
+    alert("El presupuesto base no se puede eliminar, pero podés editarlo o ponerle $0.");
+    return;
+  }
 
   if (!confirm(`¿Eliminar el registro "${item.category}" por ${money(item.amount)}? Esto restará el monto del presupuesto del mes.`)) return;
 
@@ -1570,14 +1560,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (current && Array.isArray(current.extraIncomes)) {
         const index = current.extraIncomes.findIndex(x => x.id === editingId);
         if (index !== -1) {
+          const wasBase = current.extraIncomes[index].isBase;
           current.extraIncomes[index] = {
             ...current.extraIncomes[index],
             date: baseDateStr,
-            category,
+            category: wasBase ? "Presupuesto Base" : category,
             description,
             amount: finalVal,
             rawAmount: rawVal,
-            currency
+            currency,
+            isBase: wasBase
           };
           current.budget = current.extraIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
           if ($("budgetInput")) $("budgetInput").value = current.budget;
