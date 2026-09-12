@@ -1643,4 +1643,33 @@ body.dark-blue-mode.amounts-hidden strong::after {
 }
 
 
+/* =========================================================
+   FORZAR MODO AZUL EN MINI TARJETAS ANUALES Y MONTO OCULTO
+========================================================= */
+body.dark-blue-mode .annual-mini-card {
+  background-color: #070d1e !important;
+  border-color: #14244b !important;
+  color: #f1f5f9 !important;
+}
 
+body.dark-blue-mode .annual-mini-card span {
+  color: #8fa5ca !important;
+}
+
+body.dark-blue-mode .annual-mini-card strong {
+  color: #38bdf8 !important;
+}
+
+/* Limpiar por completo cualquier resto blanco en montos ocultos */
+body.dark-blue-mode.amounts-hidden .summary-card small,
+body.amounts-hidden body.dark-blue-mode .summary-card small {
+  background: transparent !important;
+  color: transparent !important;
+  text-shadow: none !important;
+}
+
+body.dark-blue-mode.amounts-hidden .summary-card small::after,
+body.amounts-hidden body.dark-blue-mode .summary-card small::after {
+  background-color: #0f1c3f !important;
+  color: #38bdf8 !important;
+}
