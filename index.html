@@ -485,15 +485,27 @@
 </main>
 
 <!-- MODAL: SUMAR EXTRA -->
-<dialog id="extraDialog" style="border-radius: 24px; border: 1px solid var(--border); padding: 30px; max-width: 380px; width: 100%; position: relative;">
+<dialog id="extraDialog" style="border-radius: 24px; border: 1px solid var(--border); padding: 30px; max-width: 420px; width: 100%; position: relative;">
   <button id="closeExtraDialog" type="button" style="position: absolute; top: 18px; right: 18px; border: none; background: var(--pink-soft, #ffe6ed); color: var(--pink-dark, #c43878); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 16px;">×</button>
   
   <div style="margin-bottom: 16px;">
-    <h3 style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0;">➕ Sumar Dinero Extra</h3>
+    <h3 id="extraModalTitle" style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0;">➕ Sumar Dinero Extra</h3>
     <p style="color: var(--muted); font-size: 12px; margin-top: 4px; margin-bottom: 0;">Se sumará automáticamente a tu presupuesto actual.</p>
   </div>
 
   <div style="display: grid; gap: 14px; margin-bottom: 22px;">
+    <!-- FECHA REAL E IMPUTAR AL MES -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
+        FECHA REAL
+        <input type="date" id="modalExtraDate" style="width: 100%; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); font-size: 12px;">
+      </label>
+      <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
+        IMPUTAR AL MES
+        <input type="month" id="modalExtraTargetMonth" style="width: 100%; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); font-size: 12px;">
+      </label>
+    </div>
+
     <!-- CATEGORÍA DE INGRESO -->
     <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
       CATEGORÍA DE INGRESO
@@ -529,10 +541,33 @@
     </label>
   </div>
 
+  <!-- OPCIONES DE RECURRENCIA IDÉNTICAS A GASTOS -->
+  <div style="margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px;">
+    <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">
+      <input type="checkbox" id="extraRecurring" style="width: auto;">
+      <span>🔄 Repetir este ingreso</span>
+    </label>
+  </div>
+
+  <div id="extraRecurringOptions" class="hidden" style="background: var(--pink-bg); padding: 12px; border-radius: 12px; margin-top: 8px; font-size: 12px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+      <label>Durante: <input type="number" id="extraDuration" value="6" min="1" max="24" style="width:100%; padding:4px;"></label>
+      <label>Cada cuántos meses: <input type="number" id="extraMonths" value="1" min="1" max="12" style="width:100%; padding:4px;"></label>
+    </div>
+    <div style="margin-bottom: 8px;">
+      <label>Día del mes: <input type="number" id="extraDay" value="10" min="1" max="31" style="width:100%; padding:4px;"></label>
+    </div>
+    <div>
+      <input type="checkbox" id="extraChangingAmount" style="width: auto;">
+      <label for="extraChangingAmount">💰 Montos variables por mes</label>
+    </div>
+    <div id="extraRecurringAmounts" class="hidden" style="margin-top: 6px;"></div>
+  </div>
+
   <!-- BOTONES DE ACCIÓN -->
-  <div style="display: flex; justify-content: flex-end; gap: 8px;">
-    <button type="button" class="btn btn-outline" onclick="document.getElementById('extraDialog').close()">Cancelar</button>
-    <button type="button" class="btn btn-pink" id="submitExtraBtn">Sumar dinero</button>
+  <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+    <button type="button" class="btn btn-outline" id="closeExtraCancelBtn">Cancelar</button>
+    <button type="button" class="pastel-btn" id="submitExtraBtn">Sumar dinero</button>
   </div>
 </dialog>
   
