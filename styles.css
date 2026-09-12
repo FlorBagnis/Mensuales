@@ -1357,3 +1357,37 @@ body.dark-blue-mode {
   --pink-700: #0ea5e9;
   --pink-bg: #10214a;
 }
+
+
+
+/* MODO AZUL OSCURO (Toda la app) */
+body.dark-blue-mode {
+  --bg: #070d1e;
+  --card: #0f1c3f;
+  --text: #f1f5f9;
+  --muted: #8fa5ca;
+  --line: #14244b;
+  --pink-500: #38bdf8;
+  --pink-700: #0ea5e9;
+  --pink-bg: #10214a;
+}
+
+body.dark-blue-mode .summary-card,
+body.dark-blue-mode .panel,
+body.dark-blue-mode .toolbar,
+body.dark-blue-mode .trend-box,
+body.dark-blue-mode .auth-card,
+body.dark-blue-mode dialog {
+  background-color: #0f1c3f !important;
+  color: #f1f5f9 !important;
+  border-color: #14244b !important;
+}
+
+body.dark-blue-mode input, 
+body.dark-blue-mode select {
+  background-color: #070d1e !important;
+  color: #f1f5f9 !important;
+  border-color: #14244b !important;
+}
+
+
