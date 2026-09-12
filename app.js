@@ -1420,7 +1420,7 @@ function generateAnnualPDF() {
 
 
 /* =========================================================
-   SISTEMA DE ALERTAS DE PRESUPUESTO
+   SISTEMA DE ALERTAS DE PRESUPUESTO (ESTÉTICO)
 ========================================================= */
 function checkFinancialAlerts(totalGastado, presupuesto, gastosDelMes) {
   let alertaPresupuestoContainer = document.getElementById("alertaPresupuesto");
@@ -1428,6 +1428,23 @@ function checkFinancialAlerts(totalGastado, presupuesto, gastosDelMes) {
     alertaPresupuestoContainer = document.createElement("div");
     alertaPresupuestoContainer.id = "alertaPresupuesto";
     alertaPresupuestoContainer.className = "budget-alert-banner";
+    
+    // Estilos estéticos integrados para que combine con la app
+    alertaPresupuestoContainer.style.cssText = `
+      margin: 16px 0 8px 0;
+      padding: 12px 18px;
+      background: rgba(234, 91, 142, 0.1);
+      border: 1px solid var(--pink-500, #ea5b8e);
+      border-radius: 12px;
+      color: var(--dark, #52162a);
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    `;
+
     const hero = document.querySelector("header.hero") || document.querySelector("main");
     if (hero) hero.insertAdjacentElement("afterend", alertaPresupuestoContainer);
   }
@@ -1435,9 +1452,13 @@ function checkFinancialAlerts(totalGastado, presupuesto, gastosDelMes) {
   if (presupuesto > 0 && totalGastado > presupuesto) {
     const exceso = totalGastado - presupuesto;
     alertaPresupuestoContainer.innerHTML = `
-      ⚠️ **¡Atención! Te excediste del presupuesto mensual** por $ ${exceso.toLocaleString('es-AR', {minimumFractionDigits: 2})}.
+      <span style="font-size: 1.2rem;">⚠️</span>
+      <div>
+        <strong>¡Atención! Te excediste del presupuesto mensual</strong> por 
+        <span style="font-weight: 700;">$ ${exceso.toLocaleString('es-AR', {minimumFractionDigits: 2})}</span>.
+      </div>
     `;
-    alertaPresupuestoContainer.style.display = "block";
+    alertaPresupuestoContainer.style.display = "flex";
   } else {
     if (alertaPresupuestoContainer) alertaPresupuestoContainer.style.display = "none";
   }
