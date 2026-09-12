@@ -1287,3 +1287,35 @@ body.dark-mode .gp-btn-action {
 .toggle-password:hover {
   transform: scale(1.1);
 }
+
+
+
+/* EFECTO ZOOM Y ELEVACIÓN EN MINI TARJETAS DE RESUMEN ANUAL */
+.annual-mini-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+  cursor: default;
+}
+
+.annual-mini-card:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 8px 20px rgba(180, 80, 110, 0.15) !important;
+}
+
+.annual-mini-card span {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+
+.annual-mini-card strong {
+  font-size: 16px;
+  color: var(--text);
+}
