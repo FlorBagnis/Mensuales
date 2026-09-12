@@ -1247,7 +1247,7 @@ function generateMensualesPDF() {
 
   // Análisis de tendencia al final de todo
   y += 12;
-  if (y > 230) {
+  if (y > 220) {
     pdf.addPage();
     if (theme.pageBg) {
       pdf.setFillColor(...theme.pageBg);
@@ -1263,7 +1263,14 @@ function generateMensualesPDF() {
     categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
   });
   const topCat = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
+  
+  // Limpiar emojis o caracteres raros del nombre del gasto para que no rompa el PDF
+  let highestExpenseText = "";
   const highestExpense = [...current.expenses].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+  if (highestExpense) {
+    const cleanDesc = String(highestExpense.description || "").replace(/[^\w\sáéíóúÁÉÍÓÚñÑ]/gi, "").trim();
+    highestExpenseText = ` Asimismo, tu gasto más elevado individualmente correspondió a "${cleanDesc}" por un monto de ${money(highestExpense.amount, highestExpense.currency || "ARS")}.`;
+  }
 
   pdf.setTextColor(...theme.dark);
   pdf.setFontSize(10);
@@ -1272,9 +1279,10 @@ function generateMensualesPDF() {
   
   y += 6;
 
+  // Agrandamos la caja a 34 mm de alto para que el texto entre cómodo
   pdf.setFillColor(...theme.light);
   pdf.setDrawColor(...theme.cardBorder);
-  pdf.roundedRect(15, y, 180, 26, 3, 3, "FD");
+  pdf.roundedRect(15, y, 180, 34, 3, 3, "FD");
 
   pdf.setTextColor(...theme.pink);
   pdf.setFontSize(7);
@@ -1285,12 +1293,10 @@ function generateMensualesPDF() {
   pdf.setFontSize(7.5);
   pdf.setFont("helvetica", "normal");
   
-  let trendSummary = `Durante ${monthName(month)}, registraste un total de ${current.expenses.length} movimientos. La categoría que mayor presupuesto demandó fue "${topCat[0]}" con un acumulado de ${money(topCat[1])}.`;
-  if (highestExpense) {
-    trendSummary += ` Asimismo, tu gasto más elevado individualmente correspondió a "${highestExpense.description}" por un monto de ${money(highestExpense.amount, highestExpense.currency || "ARS")}.`;
-  }
+  let trendSummary = `Durante ${monthName(month)}, registraste un total de ${current.expenses.length} movimientos. La categoría que mayor presupuesto demandó fue "${topCat[0]}" con un acumulado de ${money(topCat[1])}.${highestExpenseText}`;
   
-  const splitTrend = pdf.splitTextToSize(trendSummary, 168);
+  // Ajustamos el ancho del texto a 165 para que no toque los bordes
+  const splitTrend = pdf.splitTextToSize(trendSummary, 165);
   pdf.text(splitTrend, 21, y + 14);
 
   pdf.setFontSize(7);
