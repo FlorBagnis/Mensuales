@@ -751,6 +751,7 @@ function initApp() {
   });
 
   $("closeExtraDialog")?.addEventListener("click", () => $("extraDialog")?.close());
+  $("closeExtraCancelBtn")?.addEventListener("click", () => $("extraDialog")?.close());
 
   $("submitExtraBtn")?.addEventListener("click", async () => {
     const rawVal = Number($("modalExtraInput")?.value || 0);
@@ -1029,6 +1030,8 @@ document.addEventListener('click', (e) => {
     document.body.classList.remove("dark-blue-mode");
     localStorage.setItem("mensual_theme_mode", isDark ? "dark" : "light");
     themeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
+    const blueBtn = $("toggleBlueThemeBtn");
+    if (blueBtn) blueBtn.textContent = "🔹 Modo Azul";
   }
 
   const blueThemeBtn = e.target.closest('#toggleBlueThemeBtn');
@@ -1037,6 +1040,8 @@ document.addEventListener('click', (e) => {
     document.body.classList.remove("dark-mode");
     localStorage.setItem("mensual_theme_mode", isBlue ? "blue" : "light");
     blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "🔹 Modo Azul";
+    const darkBtn = $("toggleThemeBtn");
+    if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
   }
 
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
@@ -1047,8 +1052,15 @@ document.addEventListener('click', (e) => {
 });
 
 const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
-if (savedTheme === "dark") document.body.classList.add("dark-mode");
-else if (savedTheme === "blue") document.body.classList.add("dark-blue-mode");
+if (savedTheme === "dark") {
+  document.body.classList.add("dark-mode");
+  const darkBtn = $("toggleThemeBtn");
+  if (darkBtn) darkBtn.textContent = "☀️ Modo claro";
+} else if (savedTheme === "blue") {
+  document.body.classList.add("dark-blue-mode");
+  const blueBtn = $("toggleBlueThemeBtn");
+  if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
+}
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initApp);
