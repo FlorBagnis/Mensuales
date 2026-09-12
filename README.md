@@ -472,6 +472,17 @@ Aplicación web progresiva (PWA) de finanzas personales desarrollada con sincron
 * **Backend:** Firebase (Authentication & Cloud Firestore).
 * **APIs / Librerías:** DolarAPI, jsPDF.
 
+## 🚀 Novedades y Actualizaciones Recientes
+
+* **Sistema de Tres Modos Visuales**: Incorporación completa del **Modo Azul Oscuro** personalizado junto al Modo Claro y el Modo Oscuro, con persistencia automática en `localStorage` y soporte completo en toda la interfaz (incluyendo modales y pantalla de inicio de sesión).
+* **Consistencia Global de Temas**: Sincronización avanzada de colores en inputs, botones, tablas, barras de totales y tarjetas de resumen para cada modo visual.
+* **Mejoras de Privacidad (Ocultar Montos)**: Optimización del sistema de censura de montos con puntos flotantes limpios y sin fondos molestos en todos los temas.
+* **Interfaz y Experiencia de Usuario Refinadas**: 
+  * Botones de edición optimizados con diseño minimalista y efecto de zoom al pasar el cursor.
+  * Selector dinámico de emojis para el botón de cambio de tema.
+* **Reportes en PDF Dinámicos**: Generación de reportes mensuales y anuales en PDF adaptados automáticamente al esquema de colores activo (Claro, Oscuro o Azul).
+
+<img width="1837" height="876" alt="image" src="https://github.com/user-attachments/assets/bbfd8a52-17f0-4002-882e-a09cf24295a2" />
 
 
 ## 👩‍💻 Proyecto
