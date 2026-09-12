@@ -1183,7 +1183,7 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte - ${monthName(month)}`, 21, 34);
 
-  const cards = [
+ const cards = [
     ["PRESUPUESTO", presupuestoText],
     ["TOTAL GASTADO", cardSpentText],
     ["MES ANTERIOR", money(previousTotalARS)],
@@ -1201,8 +1201,16 @@ function generateMensualesPDF() {
     pdf.text(card[0], x + 3, 57);
 
     pdf.setTextColor(...theme.dark);
-    pdf.setFontSize(7.5);
-    pdf.text(card[1], x + 3, 65);
+    // Si es la tarjeta de presupuesto y tiene el texto de exceso, achicamos la letra y la adaptamos
+    if (index === 0 && card[1].length > 15) {
+      pdf.setFontSize(5.5);
+    } else {
+      pdf.setFontSize(7.5);
+    }
+    pdf.setFont("helvetica", "normal");
+    
+    const splitCardText = pdf.splitTextToSize(card[1], 35);
+    pdf.text(splitCardText, x + 3, 64);
   });
 
   let y = 84;
