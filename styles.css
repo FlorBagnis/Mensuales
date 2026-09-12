@@ -1322,6 +1322,31 @@ body.dark-mode .gp-btn-action {
 
 
 
+/* MODO CLARO (Por defecto) */
+body {
+  --bg: #fbf1f5;
+  --card: #ffffff;
+  --text: #52162a;
+  --muted: #8d737e;
+  --line: #f6d6df;
+  --pink-500: #ea5b8e;
+  --pink-700: #c93b6e;
+  --pink-bg: #fde8ee;
+}
+
+/* MODO OSCURO */
+body.dark-mode {
+  --bg: #1e0f17;
+  --card: #2d1422;
+  --text: #fdf2f6;
+  --muted: #b892a4;
+  --line: #4a2138;
+  --pink-500: #ff78a0;
+  --pink-700: #e0537f;
+  --pink-bg: #3c1a2f;
+}
+
+/* MODO AZUL OSCURO (Toda la app) */
 body.dark-blue-mode {
   --bg: #070d1e;
   --card: #0f1c3f;
