@@ -218,7 +218,6 @@ document.addEventListener("submit", (e) => {
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   
-  // ASEGURAR QUE EL TEMA SE APLIQUE INCLUSO ANTES DE LOGUEARSE
   const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
   document.body.classList.remove("dark-mode", "dark-blue-mode");
   if (savedTheme === "dark") {
@@ -250,6 +249,7 @@ onAuthStateChanged(auth, async user => {
     console.error("Error sincronización:", e);
   }
 });
+
 
 /* =========================================================
    FIRESTORE: MENSUALES
@@ -377,6 +377,11 @@ function renderMensuales() {
   renderHistory();
   renderCategories(current.expenses);
   renderTrend(month, totalARS, prevARS, totalUSD);
+
+  // 🟢 ACÁ SE EJECUTA LA VERIFICACIÓN DE ALERTA CADA VEZ QUE SE ACTUALIZA LA PANTALLA
+  const totalGastadoActual = Number(document.getElementById("totalSpent")?.textContent.replace(/[^0-9,-]+/g,"").replace(",", ".")) || 0;
+  const presupuestoActual = Number(document.getElementById("budgetInput")?.value) || 0;
+  checkFinancialAlerts(totalGastadoActual, presupuestoActual, current.expenses || []);
 }
 
 function renderExtraIncomesTable(extraIncomes) {
@@ -685,7 +690,7 @@ function initApp() {
     });
   });
 
-  // INGRESOS EXTRA RECURRENTES (MISMA LÓGICA QUE GASTOS)
+  // INGRESOS EXTRA RECURRENTES
   const extraRecurring = $("extraRecurring");
   const extraRecurringOptions = $("extraRecurringOptions");
   const extraChangingAmount = $("extraChangingAmount");
@@ -842,10 +847,6 @@ function initApp() {
     }
     $("extraDialog")?.close();
   });
-
-const totalGastadoActual = Number(document.getElementById("totalSpent")?.textContent.replace(/[^0-9,-]+/g,"").replace(",", ".")) || 0;
-const presupuestoActual = Number(document.getElementById("budgetInput")?.value) || 0;
-checkFinancialAlerts(totalGastadoActual, presupuestoActual, activeMonth ? (data.months[activeMonth]?.expenses || []) : []);
    
   // GUARDAR PRESUPUESTO BASE
   $("saveBudgetBtn")?.addEventListener("click", async () => {
@@ -950,7 +951,7 @@ checkFinancialAlerts(totalGastadoActual, presupuestoActual, activeMonth ? (data.
     renderMensuales();
   });
 
-$("newUserBtn")?.addEventListener("click", async () => {
+  $("newUserBtn")?.addEventListener("click", async () => {
     if (!confirm("⚠️ ¿Estás segura de reiniciar todo y borrar todos los meses?")) return;
     const snap = await getDocs(collection(db, "users", currentUser.uid, "months"));
     const batch = writeBatch(db);
@@ -958,14 +959,9 @@ $("newUserBtn")?.addEventListener("click", async () => {
     await batch.commit();
     data = { months: {} };
     renderMensuales();
-    
-    // Verificación de alerta
-    const totalGastadoActual = Number(document.getElementById("totalSpent")?.textContent.replace(/[^0-9,-]+/g,"").replace(",", ".")) || 0;
-    const presupuestoActual = Number(document.getElementById("budgetInput")?.value) || 0;
-    checkFinancialAlerts(totalGastadoActual, presupuestoActual, activeMonth ? (data.months[activeMonth]?.expenses || []) : []);
   });
 
-  // BOTÓN OCULTAR MONTOS (BLUR GLOBAL EN TODA LA APP)
+  // BOTÓN OCULTAR MONTOS
   const toggleAmountsBtn = $("toggleAmountsBtn");
   if (localStorage.getItem("mensuales_hide_amounts") === "true") {
     document.body.classList.add("amounts-hidden");
@@ -1014,7 +1010,7 @@ $("newUserBtn")?.addEventListener("click", async () => {
     link.click();
   });
 
-  // EXPORTAR PDF COMPLETO SEGÚN EL TEMA ACTIVO
+  // EXPORTAR PDF
   $("pdfBtn")?.addEventListener("click", generateMensualesPDF);
 }
 
@@ -1088,7 +1084,7 @@ if (document.readyState === "loading") {
 
 
 /* =========================================================
-   SELECTOR DE COLORES PARA PDF (CLARO / OSCURO / AZUL)
+   SELECTOR DE COLORES PARA PDF
 ========================================================= */
 
 function getPdfThemeColors() {
@@ -1423,9 +1419,9 @@ function generateAnnualPDF() {
 }
 
 
-// =========================================================
-// SISTEMA DE ALERTAS DE PRESUPUESTO
-// =========================================================
+/* =========================================================
+   SISTEMA DE ALERTAS DE PRESUPUESTO
+========================================================= */
 function checkFinancialAlerts(totalGastado, presupuesto, gastosDelMes) {
   let alertaPresupuestoContainer = document.getElementById("alertaPresupuesto");
   if (!alertaPresupuestoContainer) {
