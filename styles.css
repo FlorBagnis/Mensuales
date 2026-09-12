@@ -1621,3 +1621,24 @@ body.dark-blue-mode .table-total strong,
 body.dark-blue-mode .table-total small {
   color: #f1f5f9 !important;
 }
+
+/* =========================================================
+   FORZAR FONDO OSCURO EN MONTO OCULTO (MODO AZUL)
+========================================================= */
+body.dark-blue-mode.amounts-hidden #extraTotalSumDisplay::after {
+  background-color: #0f1c3f !important;
+  color: #38bdf8 !important;
+}
+
+body.dark-blue-mode.amounts-hidden strong,
+body.amounts-hidden body.dark-blue-mode strong {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+body.dark-blue-mode.amounts-hidden .amount::after,
+body.dark-blue-mode.amounts-hidden strong::after {
+  background-color: #0f1c3f !important;
+  color: #38bdf8 !important;
+}
+
