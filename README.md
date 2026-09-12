@@ -485,6 +485,22 @@ Aplicación web progresiva (PWA) de finanzas personales desarrollada con sincron
 <img width="1837" height="876" alt="image" src="https://github.com/user-attachments/assets/bbfd8a52-17f0-4002-882e-a09cf24295a2" />
 
 
+### ⚠️ Sistema de Alertas de Presupuesto en Tiempo Real
+- **Aviso Automático de Exceso:** La aplicación ahora evalúa en tiempo real si los gastos totales superan el presupuesto asignado, mostrando un banner dinámico de advertencia debajo de la cabecera.
+- **Cálculo Exacto:** Muestra el monto preciso del exceso formateado en moneda local (`ARS`).
+- **Soporte Multitema Integrado:** El diseño del banner se adapta automáticamente a los modos visuales activos:
+  - 🌸 **Modo Claro / Pastel:** Tonos rosa suave con tipografía contrastada.
+   <img width="1127" height="157" alt="image" src="https://github.com/user-attachments/assets/a93c7ad8-f5d8-4072-8062-26e743f56545" />
+
+  - 🌙 **Modo Oscuro:** Estética moderna con acentos rosados brillantes.
+   <img width="1132" height="136" alt="image" src="https://github.com/user-attachments/assets/f5feb818-e002-468a-b93e-ddd637d9eb67" />
+
+  - 💙 **Modo Azul:** Estilo dedicado con fondo celeste translúcido y letras completamente blancas para una lectura óptima.
+    <img width="1091" height="153" alt="image" src="https://github.com/user-attachments/assets/44218f62-0260-4991-9f2a-a34b888cecbb" />
+
+- **Interactividad Reactiva:** El cartel aparece y desaparece automáticamente al agregar, modificar o eliminar gastos y presupuestos.
+
+
 ## 👩‍💻 Proyecto
 
 **MENSUALES · Control de gastos**
