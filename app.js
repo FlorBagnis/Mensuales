@@ -1265,10 +1265,11 @@ function generateMensualesPDF() {
   const topCat = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
   
 // Limpiar emojis o caracteres raros del nombre del gasto para que no rompa el PDF
- let highestExpenseText = "";
+let highestExpenseText = "";
   const highestExpense = [...current.expenses].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
   if (highestExpense) {
-    const cleanDesc = String(highestExpense.description || "").replace("🔄 ", "").trim();
+    // Reemplazamos la barra diagonal por un guión para que el PDF no se confunda
+    const cleanDesc = String(highestExpense.description || "").replace("🔄 ", "").replace("/", " - ").trim();
     highestExpenseText = ` Asimismo, tu gasto más elevado individualmente correspondió a "${cleanDesc}" por un monto de ${money(highestExpense.amount, highestExpense.currency || "ARS")}.`;
   }
 
