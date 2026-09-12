@@ -217,6 +217,16 @@ document.addEventListener("submit", (e) => {
 
 onAuthStateChanged(auth, async user => {
   currentUser = user;
+  
+  // ASEGURAR QUE EL TEMA SE APLIQUE INCLUSO ANTES DE LOGUEARSE
+  const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
+  document.body.classList.remove("dark-mode", "dark-blue-mode");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+  } else if (savedTheme === "blue") {
+    document.body.classList.add("dark-blue-mode");
+  }
+
   if (!user) {
     localStorage.removeItem('user_logged_in');
     stopAllSync();
@@ -240,7 +250,6 @@ onAuthStateChanged(auth, async user => {
     console.error("Error sincronización:", e);
   }
 });
-
 
 /* =========================================================
    FIRESTORE: MENSUALES
