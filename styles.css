@@ -1807,3 +1807,35 @@ table {
   min-width: 600px !important; /* Fuerza a la tabla a mantener su ancho para que aparezca el scroll */
 }
 
+
+/* =========================================================
+   ESTILOS DEL BANNER DE ALERTA DE PRESUPUESTO
+========================================================= */
+.budget-alert-banner {
+  margin: 16px 0 8px 0;
+  padding: 12px 18px;
+  background: rgba(234, 91, 142, 0.1);
+  border: 1px solid #ea5b8e;
+  border-radius: 12px;
+  color: #52162a;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+/* Modo Oscuro */
+body.dark-mode .budget-alert-banner {
+  background: rgba(255, 120, 160, 0.12);
+  border-color: #ff78a0;
+  color: #fdf2f6;
+}
+
+/* Modo Azul (Celeste con letras blancas) */
+body.dark-blue-mode .budget-alert-banner {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
