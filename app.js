@@ -946,7 +946,7 @@ function initApp() {
     renderMensuales();
   });
 
-  $("newUserBtn")?.addEventListener("click", async () => {
+$("newUserBtn")?.addEventListener("click", async () => {
     if (!confirm("⚠️ ¿Estás segura de reiniciar todo y borrar todos los meses?")) return;
     const snap = await getDocs(collection(db, "users", currentUser.uid, "months"));
     const batch = writeBatch(db);
@@ -954,6 +954,11 @@ function initApp() {
     await batch.commit();
     data = { months: {} };
     renderMensuales();
+    
+    // Verificación de alerta
+    const totalGastadoActual = Number(document.getElementById("totalSpent")?.textContent.replace(/[^0-9,-]+/g,"").replace(",", ".")) || 0;
+    const presupuestoActual = Number(document.getElementById("budgetInput")?.value) || 0;
+    checkFinancialAlerts(totalGastadoActual, presupuestoActual, activeMonth ? (data.months[activeMonth]?.expenses || []) : []);
   });
 
   // BOTÓN OCULTAR MONTOS (BLUR GLOBAL EN TODA LA APP)
@@ -1411,4 +1416,29 @@ function generateAnnualPDF() {
   pdf.text("Resumen Anual - Creado por Flor Bagnis", 15, 287);
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
+}
+
+
+// =========================================================
+// SISTEMA DE ALERTAS DE PRESUPUESTO
+// =========================================================
+function checkFinancialAlerts(totalGastado, presupuesto, gastosDelMes) {
+  let alertaPresupuestoContainer = document.getElementById("alertaPresupuesto");
+  if (!alertaPresupuestoContainer) {
+    alertaPresupuestoContainer = document.createElement("div");
+    alertaPresupuestoContainer.id = "alertaPresupuesto";
+    alertaPresupuestoContainer.className = "budget-alert-banner";
+    const hero = document.querySelector("header.hero") || document.querySelector("main");
+    if (hero) hero.insertAdjacentElement("afterend", alertaPresupuestoContainer);
+  }
+  
+  if (presupuesto > 0 && totalGastado > presupuesto) {
+    const exceso = totalGastado - presupuesto;
+    alertaPresupuestoContainer.innerHTML = `
+      ⚠️ **¡Atención! Te excediste del presupuesto mensual** por $ ${exceso.toLocaleString('es-AR', {minimumFractionDigits: 2})}.
+    `;
+    alertaPresupuestoContainer.style.display = "block";
+  } else {
+    if (alertaPresupuestoContainer) alertaPresupuestoContainer.style.display = "none";
+  }
 }
