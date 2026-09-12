@@ -1733,3 +1733,33 @@ table .edit-extra-btn:hover {
   box-shadow: none !important;
   transform: scale(1.2) !important;
 }
+
+
+/* =========================================================
+   FORZAR BOTÓN DE EDITAR LIMPIO SIN CAJA EN NINGÚN MODO
+========================================================= */
+table button.edit-btn.pastel-btn,
+table button.edit-extra-btn.pastel-btn,
+table .edit-btn,
+table .edit-extra-btn {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 4px !important;
+  font-size: 16px !important;
+  cursor: pointer;
+  transition: transform 0.2s ease !important;
+}
+
+table button.edit-btn.pastel-btn:hover,
+table button.edit-extra-btn.pastel-btn:hover,
+table .edit-btn:hover,
+table .edit-extra-btn:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: scale(1.25) !important;
+}
