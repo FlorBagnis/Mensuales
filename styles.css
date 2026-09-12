@@ -1319,3 +1319,16 @@ body.dark-mode .gp-btn-action {
   font-size: 16px;
   color: var(--text);
 }
+
+
+
+body.dark-blue-mode {
+  --bg: #070d1e;
+  --card: #0f1c3f;
+  --text: #f1f5f9;
+  --muted: #8fa5ca;
+  --line: #14244b;
+  --pink-500: #38bdf8;
+  --pink-700: #0ea5e9;
+  --pink-bg: #10214a;
+}
