@@ -1182,12 +1182,12 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte - ${monthName(month)}`, 21, 31);
 
-  // Si hay exceso, agregamos la advertencia elegante dentro del mismo cuadro grande abajo del título
+// Si hay exceso, agregamos la advertencia elegante dentro del mismo cuadro grande abajo del título
   if (hayExceso) {
     pdf.setFontSize(7.5);
     pdf.setFont("helvetica", "bold");
     pdf.setTextColor(185, 28, 28); // Rojo oscuro elegante
-    pdf.text(`⚠️ Presupuesto superado por un total de ${money(exceso)} en este período.`, 21, 38);
+    pdf.text(`ATENCIÓN: Presupuesto superado por un total de ${money(exceso)} en este período.`, 21, 38);
   }
 
   const cards = [
