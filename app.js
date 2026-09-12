@@ -1268,7 +1268,7 @@ function generateMensualesPDF() {
   let highestExpenseText = "";
   const highestExpense = [...current.expenses].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
   if (highestExpense) {
-    const cleanDesc = String(highestExpense.description || "").replace(/[^\w\sáéíóúÁÉÍÓÚñÑ]/gi, "").trim();
+ const cleanDesc = String(highestExpense.description || "").replace(/[^\w\sáéíóúÁÉÍÓÚñÑ/\-_()]/gi, "").trim();
     highestExpenseText = ` Asimismo, tu gasto más elevado individualmente correspondió a "${cleanDesc}" por un monto de ${money(highestExpense.amount, highestExpense.currency || "ARS")}.`;
   }
 
