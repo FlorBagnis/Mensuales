@@ -1026,8 +1026,17 @@ document.addEventListener('click', (e) => {
   const themeBtn = e.target.closest('#toggleThemeBtn');
   if (themeBtn) {
     const isDark = document.body.classList.toggle("dark-mode");
+    document.body.classList.remove("dark-blue-mode");
     localStorage.setItem("mensual_theme_mode", isDark ? "dark" : "light");
     themeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
+  }
+
+  const blueThemeBtn = e.target.closest('#toggleBlueThemeBtn');
+  if (blueThemeBtn) {
+    const isBlue = document.body.classList.toggle("dark-blue-mode");
+    document.body.classList.remove("dark-mode");
+    localStorage.setItem("mensual_theme_mode", isBlue ? "blue" : "light");
+    blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "🔹 Modo Azul";
   }
 
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
@@ -1039,6 +1048,7 @@ document.addEventListener('click', (e) => {
 
 const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
 if (savedTheme === "dark") document.body.classList.add("dark-mode");
+else if (savedTheme === "blue") document.body.classList.add("dark-blue-mode");
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initApp);
@@ -1048,13 +1058,25 @@ if (document.readyState === "loading") {
 
 
 /* =========================================================
-   RESUMEN ANUAL Y PDF DINÁMICO (SEGÚN TEMA ACTIVO)
+   SELECTOR DE COLORES PARA PDF (CLARO / OSCURO / AZUL)
 ========================================================= */
 
 function getPdfThemeColors() {
   const isDarkMode = document.body.classList.contains("dark-mode");
+  const isBlueMode = document.body.classList.contains("dark-blue-mode");
 
-  if (isDarkMode) {
+  if (isBlueMode) {
+    return {
+      pink: [56, 189, 248],
+      dark: [241, 245, 249],
+      light: [15, 28, 63],
+      headerBg: [7, 13, 30],
+      cardBorder: [30, 53, 109],
+      lineDivider: [20, 36, 75],
+      pageBg: [7, 13, 30],
+      footerColor: [143, 165, 202]
+    };
+  } else if (isDarkMode) {
     return {
       pink: [255, 120, 160],
       dark: [253, 242, 246],
