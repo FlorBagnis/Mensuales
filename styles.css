@@ -1673,3 +1673,19 @@ body.amounts-hidden body.dark-blue-mode .summary-card small::after {
   background-color: #0f1c3f !important;
   color: #38bdf8 !important;
 }
+
+/* =========================================================
+   QUITAR FONDO DETRÁS DE MONTO OCULTO (MODO OSCURO)
+========================================================= */
+body.dark-mode.amounts-hidden .amount::after,
+body.dark-mode.amounts-hidden strong::after,
+body.amounts-hidden body.dark-mode strong::after {
+  background-color: transparent !important;
+  color: #ff78a0 !important;
+}
+
+body.dark-mode.amounts-hidden .summary-card small::after,
+body.amounts-hidden body.dark-mode .summary-card small::after {
+  background-color: transparent !important;
+  color: #ff78a0 !important;
+}
