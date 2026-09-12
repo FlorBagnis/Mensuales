@@ -843,6 +843,10 @@ function initApp() {
     $("extraDialog")?.close();
   });
 
+const totalGastadoActual = Number(document.getElementById("totalSpent")?.textContent.replace(/[^0-9,-]+/g,"").replace(",", ".")) || 0;
+const presupuestoActual = Number(document.getElementById("budgetInput")?.value) || 0;
+checkFinancialAlerts(totalGastadoActual, presupuestoActual, activeMonth ? (data.months[activeMonth]?.expenses || []) : []);
+   
   // GUARDAR PRESUPUESTO BASE
   $("saveBudgetBtn")?.addEventListener("click", async () => {
     const month = $("monthPicker")?.value;
