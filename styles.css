@@ -1791,3 +1791,19 @@ body.amounts-hidden body.dark-mode #extraTotalSumDisplay::after {
   background-color: transparent !important;
   box-shadow: none !important;
 }
+
+/* =========================================================
+   SCROLL HORIZONTAL FLUIDO PARA TABLAS EN CELULAR
+========================================================= */
+.table-responsive,
+.table-container,
+div:has(> table) {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+table {
+  min-width: 600px !important; /* Fuerza a la tabla a mantener su ancho para que aparezca el scroll */
+}
+
