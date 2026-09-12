@@ -1507,3 +1507,68 @@ body.dark-blue-mode select {
     border: 1px solid #1e3a8a !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
   }
+
+
+
+/* =========================================================
+   FORZAR MODO AZUL TOTAL EN TODA LA APP (DESDE CSS)
+========================================================= */
+body.dark-blue-mode,
+body.dark-blue-mode main.app,
+body.dark-blue-mode dialog {
+  background-color: #070d1e !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-blue-mode header.hero,
+body.dark-blue-mode .summary-card,
+body.dark-blue-mode .panel,
+body.dark-blue-mode .toolbar,
+body.dark-blue-mode .trend-box,
+body.dark-blue-mode .auth-card {
+  background-color: #0f1c3f !important;
+  border-color: #14244b !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-blue-mode header.hero .eyebrow,
+body.dark-blue-mode header.hero h1,
+body.dark-blue-mode header.hero .subtitle {
+  color: #f1f5f9 !important;
+}
+
+/* TODOS LOS BOTONES E INPUTS AZULES */
+body.dark-blue-mode .pastel-btn,
+body.dark-blue-mode button.pastel-btn,
+body.dark-blue-mode .btn,
+body.dark-blue-mode button,
+body.dark-blue-mode select,
+body.dark-blue-mode input[type="search"],
+body.dark-blue-mode input[type="month"],
+body.dark-blue-mode input[type="date"],
+body.dark-blue-mode input[type="number"],
+body.dark-blue-mode input[type="text"],
+body.dark-blue-mode input[type="email"],
+body.dark-blue-mode input[type="password"] {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e3a8a !important;
+}
+
+body.dark-blue-mode .pastel-btn:hover,
+body.dark-blue-mode button.pastel-btn:hover,
+body.dark-blue-mode .btn:hover {
+  background-color: #1e3a8a !important;
+  color: #ffffff !important;
+}
+
+body.dark-blue-mode thead, 
+body.dark-blue-mode th, 
+body.dark-blue-mode .table-wrap th {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+}
+
+body.dark-blue-mode input::placeholder {
+  color: #8fa5ca !important;
+}
