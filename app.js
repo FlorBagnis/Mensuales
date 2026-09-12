@@ -1163,13 +1163,18 @@ function generateMensualesPDF() {
 
   const diffText = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
 
-  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+ const pdf = new jsPDF({ unit: "mm", format: "a4" });
   const theme = getPdfThemeColors();
 
   if (theme.pageBg) {
     pdf.setFillColor(...theme.pageBg);
     pdf.rect(0, 0, 210, 297, "F");
   }
+
+  // Verificamos si hay exceso de presupuesto para mostrar la alerta arriba
+  const presupuestoActual = Number(current.budget || 0);
+  const hayExceso = presupuestoActual > 0 && totalARS > presupuestoActual;
+  const exceso = hayExceso ? totalARS - presupuestoActual : 0;
 
   pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
@@ -1183,7 +1188,23 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte - ${monthName(month)}`, 21, 34);
 
- const cards = [
+  // Si hay exceso, dibujamos un banner de alerta prolijo justo debajo del header
+  let cardsY = 49;
+  if (hayExceso) {
+    pdf.setFillColor(254, 226, 226); 
+    pdf.setDrawColor(239, 68, 68);    
+    pdf.roundedRect(15, 45, 180, 8, 2, 2, "FD");
+
+    pdf.setTextColor(185, 28, 28);    
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(`⚠️ ATENCIÓN: El presupuesto fue superado por un total de ${money(exceso)} en este período.`, 19, 50);
+    
+    cardsY = 56; // Desplazamos las tarjetas un poquito hacia abajo
+  }
+
+  const presupuestoText = money(presupuestoActual);
+  const cards = [
     ["PRESUPUESTO", presupuestoText],
     ["TOTAL GASTADO", cardSpentText],
     ["MES ANTERIOR", money(previousTotalARS)],
@@ -1193,27 +1214,20 @@ function generateMensualesPDF() {
   cards.forEach((card, index) => {
     const x = 15 + index * 45;
     pdf.setDrawColor(...theme.cardBorder);
-    pdf.roundedRect(x, 49, 41, 25, 3, 3, "S");
+    pdf.roundedRect(x, cardsY, 41, 25, 3, 3, "S");
 
     pdf.setTextColor(...theme.pink);
     pdf.setFontSize(6.5);
     pdf.setFont("helvetica", "bold");
-    pdf.text(card[0], x + 3, 57);
+    pdf.text(card[0], x + 3, cardsY + 8);
 
     pdf.setTextColor(...theme.dark);
-    // Si es la tarjeta de presupuesto y tiene el texto de exceso, achicamos la letra y la adaptamos
-    if (index === 0 && card[1].length > 15) {
-      pdf.setFontSize(5.5);
-    } else {
-      pdf.setFontSize(7.5);
-    }
+    pdf.setFontSize(7.5);
     pdf.setFont("helvetica", "normal");
-    
-    const splitCardText = pdf.splitTextToSize(card[1], 35);
-    pdf.text(splitCardText, x + 3, 64);
+    pdf.text(card[1], x + 3, cardsY + 16);
   });
 
-  let y = 84;
+  let y = cardsY + 31;
   pdf.setFillColor(...theme.pink);
   pdf.rect(15, y, 180, 8, "F");
 
