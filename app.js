@@ -1213,8 +1213,7 @@ function generateMensualesPDF() {
 
   pdf.setFontSize(7);
   pdf.setTextColor(...theme.footerColor);
-  pdf.text("MENSUALES · Creado por Florencia Bagnis ♡", 15, 287);
-
+pdf.text("MENSUALES - Creado por Flor Bagnis", 15, 287);
   pdf.save(`MENSUALES-${month}.pdf`);
 }
 
@@ -1315,7 +1314,7 @@ function generateAnnualPDF() {
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
   pdf.setTextColor(...theme.footerColor);
-  pdf.text(`Generado por Flor Bagnis · Mensuales PWA ♡`, 21, 33);
+  pdf.text(`Generado por Flor Bagnis · Mensuales, 21, 33);
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
