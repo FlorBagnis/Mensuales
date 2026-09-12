@@ -1152,7 +1152,15 @@ function generateMensualesPDF() {
 
   const diffARS = totalARS - previousTotalARS;
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
-  const budgetText = money(current.budget);
+  
+  // Cálculo de presupuesto y exceso para la tarjeta del PDF
+  const presupuestoActual = Number(current.budget || 0);
+  let presupuestoText = money(presupuestoActual);
+  if (presupuestoActual > 0 && totalARS > presupuestoActual) {
+    const exceso = totalARS - presupuestoActual;
+    presupuestoText += ` (Excedido por ${money(exceso)})`;
+  }
+
   const diffText = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
 
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
@@ -1176,7 +1184,7 @@ function generateMensualesPDF() {
   pdf.text(`Reporte - ${monthName(month)}`, 21, 34);
 
   const cards = [
-    ["PRESUPUESTO", budgetText],
+    ["PRESUPUESTO", presupuestoText],
     ["TOTAL GASTADO", cardSpentText],
     ["MES ANTERIOR", money(previousTotalARS)],
     ["DIFERENCIA", diffText]
@@ -1193,8 +1201,8 @@ function generateMensualesPDF() {
     pdf.text(card[0], x + 3, 57);
 
     pdf.setTextColor(...theme.dark);
-    pdf.setFontSize(8.5);
-    pdf.text(card[1], x + 3, 66);
+    pdf.setFontSize(7.5);
+    pdf.text(card[1], x + 3, 65);
   });
 
   let y = 84;
@@ -1213,7 +1221,7 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
 
   current.expenses.slice().sort((a, b) => String(a.date || "").localeCompare(String(b.date || ""))).forEach(expense => {
-    if (y > 270) {
+    if (y > 230) {
       pdf.addPage();
       if (theme.pageBg) {
         pdf.setFillColor(...theme.pageBg);
@@ -1236,6 +1244,54 @@ function generateMensualesPDF() {
     pdf.line(15, y + 8, 195, y + 8);
     y += 10;
   });
+
+  // Análisis de tendencia al final de todo
+  y += 12;
+  if (y > 230) {
+    pdf.addPage();
+    if (theme.pageBg) {
+      pdf.setFillColor(...theme.pageBg);
+      pdf.rect(0, 0, 210, 297, "F");
+    }
+    y = 25;
+  }
+
+  const categoryTotals = {};
+  current.expenses.forEach(e => {
+    const cat = e.category || "Otros";
+    const amt = Number(e.amount || 0);
+    categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
+  });
+  const topCat = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
+  const highestExpense = [...current.expenses].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+
+  pdf.setTextColor(...theme.dark);
+  pdf.setFontSize(10);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("RESUMEN Y TENDENCIA DEL PERÍODO", 15, y);
+  
+  y += 6;
+
+  pdf.setFillColor(...theme.light);
+  pdf.setDrawColor(...theme.cardBorder);
+  pdf.roundedRect(15, y, 180, 26, 3, 3, "FD");
+
+  pdf.setTextColor(...theme.pink);
+  pdf.setFontSize(7);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("ANÁLISIS DE HÁBITOS FINANCIEROS", 21, y + 7);
+
+  pdf.setTextColor(...theme.dark);
+  pdf.setFontSize(7.5);
+  pdf.setFont("helvetica", "normal");
+  
+  let trendSummary = `Durante ${monthName(month)}, registraste un total de ${current.expenses.length} movimientos. La categoría que mayor presupuesto demandó fue "${topCat[0]}" con un acumulado de ${money(topCat[1])}.`;
+  if (highestExpense) {
+    trendSummary += ` Asimismo, tu gasto más elevado individualmente correspondió a "${highestExpense.description}" por un monto de ${money(highestExpense.amount, highestExpense.currency || "ARS")}.`;
+  }
+  
+  const splitTrend = pdf.splitTextToSize(trendSummary, 168);
+  pdf.text(splitTrend, 21, y + 14);
 
   pdf.setFontSize(7);
   pdf.setTextColor(...theme.footerColor);
