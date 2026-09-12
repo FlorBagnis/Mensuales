@@ -1182,7 +1182,7 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte - ${monthName(month)}`, 21, 31);
 
-// Si hay exceso, agregamos la advertencia abajo del título
+// Si hay exceso, agregamos la advertencia sin tildes para que no rompa el PDF
   if (hayExceso) {
     pdf.setFontSize(7.5);
     pdf.setFont("helvetica", "bold");
