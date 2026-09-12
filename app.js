@@ -1048,7 +1048,7 @@ document.addEventListener('click', (e) => {
     const isBlue = document.body.classList.toggle("dark-blue-mode");
     document.body.classList.remove("dark-mode");
     localStorage.setItem("mensual_theme_mode", isBlue ? "blue" : "light");
-    blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "🔹 Modo Azul";
+    blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "💙 Modo Azul";
     const darkBtn = $("toggleThemeBtn");
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
   }
