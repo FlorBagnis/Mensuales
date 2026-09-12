@@ -1434,3 +1434,55 @@ body.dark-blue-mode select {
   color: #f1f5f9 !important;
   border-color: #14244b !important;
 }
+
+
+/* MODO AZUL OSCURO TOTAL E INQUEBRANTABLE */
+body.dark-blue-mode,
+body.dark-blue-mode main.app,
+body.dark-blue-mode .hero,
+body.dark-blue-mode .summary-card,
+body.dark-blue-mode .panel,
+body.dark-blue-mode .toolbar,
+body.dark-blue-mode .trend-box,
+body.dark-blue-mode .auth-card,
+body.dark-blue-mode dialog {
+  background-color: #070d1e !important;
+  color: #f1f5f9 !important;
+  border-color: #14244b !important;
+}
+
+body.dark-blue-mode .hero,
+body.dark-blue-mode .summary-card,
+body.dark-blue-mode .panel,
+body.dark-blue-mode .toolbar,
+body.dark-blue-mode .trend-box,
+body.dark-blue-mode dialog {
+  background-color: #0f1c3f !important;
+}
+
+body.dark-blue-mode .pastel-btn,
+body.dark-blue-mode button.pastel-btn {
+  background: #14244b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e3a8a !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.dark-blue-mode .pastel-btn:hover {
+  background: #1e3a8a !important;
+}
+
+body.dark-blue-mode thead, 
+body.dark-blue-mode th, 
+body.dark-blue-mode .table-wrap th {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+}
+
+body.dark-blue-mode input, 
+body.dark-blue-mode select {
+  background-color: #070d1e !important;
+  color: #f1f5f9 !important;
+  border-color: #14244b !important;
+}
+
