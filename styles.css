@@ -1391,3 +1391,46 @@ body.dark-blue-mode select {
 }
 
 
+/* MODO AZUL OSCURO COMPLETO (Toda la app) */
+body.dark-blue-mode {
+  --bg: #070d1e !important;
+  --card: #0f1c3f !important;
+  --text: #f1f5f9 !important;
+  --muted: #8fa5ca !important;
+  --line: #14244b !important;
+  --pink-500: #38bdf8 !important;
+  --pink-700: #0ea5e9 !important;
+  --pink-bg: #10214a !important;
+  background-color: #070d1e !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-blue-mode .app,
+body.dark-blue-mode .hero,
+body.dark-blue-mode .summary-card,
+body.dark-blue-mode .panel,
+body.dark-blue-mode .toolbar,
+body.dark-blue-mode .trend-box,
+body.dark-blue-mode .auth-card,
+body.dark-blue-mode dialog,
+body.dark-blue-mode table,
+body.dark-blue-mode th,
+body.dark-blue-mode td {
+  background-color: #0f1c3f !important;
+  color: #f1f5f9 !important;
+  border-color: #14244b !important;
+}
+
+body.dark-blue-mode thead, 
+body.dark-blue-mode th, 
+body.dark-blue-mode .table-wrap th {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+}
+
+body.dark-blue-mode input, 
+body.dark-blue-mode select {
+  background-color: #070d1e !important;
+  color: #f1f5f9 !important;
+  border-color: #14244b !important;
+}
