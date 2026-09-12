@@ -602,7 +602,7 @@ function renderTrend(month, totalARS, prevARS, totalUSD) {
 
 
 /* =========================================================
-   INICIALIZACIÓN DE EVENTOS Y BOTONES
+   INICIALIZACIÓN DE EVENTOS Y RECURRENCIA COMPLETA
 ========================================================= */
 
 function initApp() {
@@ -676,7 +676,7 @@ function initApp() {
     });
   });
 
-  // INGRESOS EXTRA RECURRENTES
+  // INGRESOS EXTRA RECURRENTES (MISMA LÓGICA QUE GASTOS)
   const extraRecurring = $("extraRecurring");
   const extraRecurringOptions = $("extraRecurringOptions");
   const extraChangingAmount = $("extraChangingAmount");
@@ -946,7 +946,7 @@ function initApp() {
     renderMensuales();
   });
 
-  // BOTÓN OCULTAR MONTOS (BLUR GLOBAL)
+  // BOTÓN OCULTAR MONTOS (BLUR GLOBAL EN TODA LA APP)
   const toggleAmountsBtn = $("toggleAmountsBtn");
   if (localStorage.getItem("mensuales_hide_amounts") === "true") {
     document.body.classList.add("amounts-hidden");
@@ -995,14 +995,8 @@ function initApp() {
     link.click();
   });
 
-  // EXPORTAR PDF
-  $("pdfBtn")?.addEventListener("click", () => {
-    if (!window.jspdf) { alert("No se pudo cargar jsPDF."); return; }
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF();
-    pdf.text("Reporte de Gastos Mensuales", 15, 20);
-    pdf.save(`MENSUALES-${$("monthPicker")?.value || currentMonthValue()}.pdf`);
-  });
+  // EXPORTAR PDF COMPLETO SEGÚN EL TEMA ACTIVO
+  $("pdfBtn")?.addEventListener("click", generateMensualesPDF);
 }
 
 
@@ -1064,8 +1058,165 @@ if (document.readyState === "loading") {
 
 
 /* =========================================================
-   RESUMEN ANUAL Y PDF
+   RESUMEN ANUAL Y PDF DINÁMICO (SEGÚN TEMA ACTIVO)
 ========================================================= */
+
+function getPdfThemeColors() {
+  const isDarkMode = document.body.classList.contains("dark-mode");
+  const isBlueMode = document.body.classList.contains("dark-blue-mode");
+
+  if (isBlueMode) {
+    return {
+      pink: [56, 189, 248],
+      dark: [241, 245, 249],
+      light: [15, 28, 63],
+      headerBg: [7, 13, 30],
+      cardBorder: [30, 53, 109],
+      lineDivider: [20, 36, 75],
+      pageBg: [7, 13, 30],
+      footerColor: [143, 165, 202]
+    };
+  } else if (isDarkMode) {
+    return {
+      pink: [255, 120, 160],
+      dark: [253, 242, 246],
+      light: [45, 20, 34],
+      headerBg: [30, 15, 23],
+      cardBorder: [74, 33, 56],
+      lineDivider: [50, 22, 38],
+      pageBg: [30, 15, 23],
+      footerColor: [184, 146, 164]
+    };
+  } else {
+    return {
+      pink: [234, 91, 142],
+      dark: [82, 22, 42],
+      light: [253, 232, 238],
+      headerBg: [255, 174, 195],
+      cardBorder: [246, 214, 223],
+      lineDivider: [246, 214, 223],
+      pageBg: null,
+      footerColor: [125, 80, 98]
+    };
+  }
+}
+
+function generateMensualesPDF() {
+  if (!window.jspdf) {
+    alert("No se pudo cargar el generador de PDF.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const month = $("monthPicker")?.value || currentMonthValue();
+  const current = ensureMonth(month);
+
+  let totalARS = 0;
+  let totalUSD = 0;
+  current.expenses.forEach(e => {
+    if (e.currency === "USD") totalUSD += Number(e.amount || 0);
+    else totalARS += Number(e.amount || 0);
+  });
+
+  const previous = data.months[previousMonth(month)] || { expenses: [] };
+  let previousTotalARS = 0;
+  previous.expenses.forEach(e => {
+    if (e.currency !== "USD") previousTotalARS += Number(e.amount || 0);
+  });
+
+  const diffARS = totalARS - previousTotalARS;
+  const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
+  const budgetText = money(current.budget);
+  const diffText = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
+
+  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const theme = getPdfThemeColors();
+
+  if (theme.pageBg) {
+    pdf.setFillColor(...theme.pageBg);
+    pdf.rect(0, 0, 210, 297, "F");
+  }
+
+  pdf.setFillColor(...theme.headerBg);
+  pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
+
+  pdf.setTextColor(...theme.dark);
+  pdf.setFontSize(17);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);
+
+  pdf.setFontSize(8);
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Reporte · ${monthName(month)}`, 21, 34);
+
+  const cards = [
+    ["PRESUPUESTO", budgetText],
+    ["TOTAL GASTADO", cardSpentText],
+    ["MES ANTERIOR", money(previousTotalARS)],
+    ["DIFERENCIA", diffText]
+  ];
+
+  cards.forEach((card, index) => {
+    const x = 15 + index * 45;
+    pdf.setDrawColor(...theme.cardBorder);
+    pdf.roundedRect(x, 49, 41, 25, 3, 3, "S");
+
+    pdf.setTextColor(...theme.pink);
+    pdf.setFontSize(6.5);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(card[0], x + 3, 57);
+
+    pdf.setTextColor(...theme.dark);
+    pdf.setFontSize(8.5);
+    pdf.text(card[1], x + 3, 66);
+  });
+
+  let y = 84;
+  pdf.setFillColor(...theme.pink);
+  pdf.rect(15, y, 180, 8, "F");
+
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFontSize(7);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("FECHA", 18, y + 5);
+  pdf.text("CONCEPTO / DESCRIPCIÓN", 45, y + 5);
+  pdf.text("CATEGORÍA", 120, y + 5);
+  pdf.text("MONTO", 165, y + 5);
+
+  y += 8;
+  pdf.setFont("helvetica", "normal");
+
+  current.expenses.slice().sort((a, b) => String(a.date || "").localeCompare(String(b.date || ""))).forEach(expense => {
+    if (y > 270) {
+      pdf.addPage();
+      if (theme.pageBg) {
+        pdf.setFillColor(...theme.pageBg);
+        pdf.rect(0, 0, 210, 297, "F");
+      }
+      y = 20;
+    }
+
+    const curr = expense.currency || "ARS";
+    const cleanDescription = String(expense.description || "").replace("🔄 ", "").trim();
+
+    pdf.setTextColor(...theme.dark);
+    pdf.setFontSize(7);
+    pdf.text(formatDate(expense.date), 18, y + 5);
+    pdf.text(cleanDescription.slice(0, 35), 45, y + 5);
+    pdf.text(String(expense.category).slice(0, 18), 120, y + 5);
+    pdf.text(money(expense.amount, curr), 165, y + 5);
+
+    pdf.setDrawColor(...theme.lineDivider);
+    pdf.line(15, y + 8, 195, y + 8);
+    y += 10;
+  });
+
+  pdf.setFontSize(7);
+  pdf.setTextColor(...theme.footerColor);
+  pdf.text("MENSUALES · Creado por Florencia Bagnis ♡", 15, 287);
+
+  pdf.save(`MENSUALES-${month}.pdf`);
+}
 
 function calculateAnnualData() {
   const currentYear = new Date().getFullYear().toString();
@@ -1146,18 +1297,25 @@ function generateAnnualPDF() {
 
   const annual = calculateAnnualData();
   const pdf = new jsPDFLib({ unit: "mm", format: "a4" });
+  const theme = getPdfThemeColors();
 
-  pdf.setFillColor(255, 174, 195);
+  if (theme.pageBg) {
+    pdf.setFillColor(...theme.pageBg);
+    pdf.rect(0, 0, 210, 297, "F");
+  }
+
+  pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 26, 4, 4, "F");
 
-  pdf.setTextColor(82, 22, 42);
+  pdf.setTextColor(...theme.dark);
   pdf.setFontSize(15);
   pdf.setFont("helvetica", "bold");
   pdf.text(`RESUMEN FINANCIERO ANUAL (${annual.currentYear})`, 21, 25);
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Generado por Florencia Bagnis · Mensuales PWA ♡`, 21, 33);
+  pdf.setTextColor(...theme.footerColor);
+  pdf.text(`Generado por Flor Bagnis · Mensuales PWA ♡`, 21, 33);
 
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
