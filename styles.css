@@ -1709,3 +1709,27 @@ body.amounts-hidden body.dark-blue-mode #extraTotalSumDisplay::after {
   box-shadow: none !important;
 }
 
+
+/* =========================================================
+   BOTÓN DE EDITAR LIMPIO CON ZOOM AL PASAR EL MOUSE
+========================================================= */
+table .edit-btn,
+table .edit-extra-btn {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 4px !important;
+  font-size: 16px !important;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease !important;
+}
+
+table .edit-btn:hover,
+table .edit-extra-btn:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: scale(1.2) !important;
+}
