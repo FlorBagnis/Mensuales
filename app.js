@@ -1153,17 +1153,15 @@ function generateMensualesPDF() {
   const diffARS = totalARS - previousTotalARS;
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
   
-  // Cálculo de presupuesto y exceso para la tarjeta del PDF
+  // Cálculo de presupuesto, tarjeta y exceso
   const presupuestoActual = Number(current.budget || 0);
-  let presupuestoText = money(presupuestoActual);
-  if (presupuestoActual > 0 && totalARS > presupuestoActual) {
-    const exceso = totalARS - presupuestoActual;
-    presupuestoText += ` (Excedido por ${money(exceso)})`;
-  }
+  const presupuestoText = money(presupuestoActual);
+  const hayExceso = presupuestoActual > 0 && totalARS > presupuestoActual;
+  const exceso = hayExceso ? totalARS - presupuestoActual : 0;
 
   const diffText = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
 
- const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const pdf = new jsPDF({ unit: "mm", format: "a4" });
   const theme = getPdfThemeColors();
 
   if (theme.pageBg) {
@@ -1171,39 +1169,27 @@ function generateMensualesPDF() {
     pdf.rect(0, 0, 210, 297, "F");
   }
 
-  // Verificamos si hay exceso de presupuesto para mostrar la alerta arriba
-  const presupuestoActual = Number(current.budget || 0);
-  const hayExceso = presupuestoActual > 0 && totalARS > presupuestoActual;
-  const exceso = hayExceso ? totalARS - presupuestoActual : 0;
-
+  // Cuadro grande del encabezado
   pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
 
   pdf.setTextColor(...theme.dark);
   pdf.setFontSize(17);
   pdf.setFont("helvetica", "bold");
-  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 27);
+  pdf.text("CONTROL DE GASTOS MENSUALES", 21, 25);
 
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
-  pdf.text(`Reporte - ${monthName(month)}`, 21, 34);
+  pdf.text(`Reporte - ${monthName(month)}`, 21, 31);
 
-  // Si hay exceso, dibujamos un banner de alerta prolijo justo debajo del header
-  let cardsY = 49;
+  // Si hay exceso, agregamos la advertencia elegante dentro del mismo cuadro grande abajo del título
   if (hayExceso) {
-    pdf.setFillColor(254, 226, 226); 
-    pdf.setDrawColor(239, 68, 68);    
-    pdf.roundedRect(15, 45, 180, 8, 2, 2, "FD");
-
-    pdf.setTextColor(185, 28, 28);    
-    pdf.setFontSize(7);
+    pdf.setFontSize(7.5);
     pdf.setFont("helvetica", "bold");
-    pdf.text(`⚠️ ATENCIÓN: El presupuesto fue superado por un total de ${money(exceso)} en este período.`, 19, 50);
-    
-    cardsY = 56; // Desplazamos las tarjetas un poquito hacia abajo
+    pdf.setTextColor(185, 28, 28); // Rojo oscuro elegante
+    pdf.text(`⚠️ Presupuesto superado por un total de ${money(exceso)} en este período.`, 21, 38);
   }
 
-  const presupuestoText = money(presupuestoActual);
   const cards = [
     ["PRESUPUESTO", presupuestoText],
     ["TOTAL GASTADO", cardSpentText],
@@ -1214,20 +1200,20 @@ function generateMensualesPDF() {
   cards.forEach((card, index) => {
     const x = 15 + index * 45;
     pdf.setDrawColor(...theme.cardBorder);
-    pdf.roundedRect(x, cardsY, 41, 25, 3, 3, "S");
+    pdf.roundedRect(x, 49, 41, 25, 3, 3, "S");
 
     pdf.setTextColor(...theme.pink);
     pdf.setFontSize(6.5);
     pdf.setFont("helvetica", "bold");
-    pdf.text(card[0], x + 3, cardsY + 8);
+    pdf.text(card[0], x + 3, 57);
 
     pdf.setTextColor(...theme.dark);
     pdf.setFontSize(7.5);
     pdf.setFont("helvetica", "normal");
-    pdf.text(card[1], x + 3, cardsY + 16);
+    pdf.text(card[1], x + 3, 65);
   });
 
-  let y = cardsY + 31;
+  let y = 84;
   pdf.setFillColor(...theme.pink);
   pdf.rect(15, y, 180, 8, "F");
 
