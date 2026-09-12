@@ -1763,3 +1763,31 @@ table .edit-extra-btn:hover {
   box-shadow: none !important;
   transform: scale(1.25) !important;
 }
+
+
+/* =========================================================
+   QUITAR FONDO BLANCO EN MONTO OCULTO (MODO CLARO)
+========================================================= */
+body.amounts-hidden .amount::after,
+body.amounts-hidden strong::after,
+body.amounts-hidden small::after,
+body.amounts-hidden #extraTotalSumDisplay::after {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+
+/* =========================================================
+   QUITAR FONDO EN MONTO OCULTO (MODO OSCURO Y GENERAL)
+========================================================= */
+body.dark-mode.amounts-hidden .amount::after,
+body.amounts-hidden body.dark-mode .amount::after,
+body.dark-mode.amounts-hidden strong::after,
+body.amounts-hidden body.dark-mode strong::after,
+body.dark-mode.amounts-hidden small::after,
+body.amounts-hidden body.dark-mode small::after,
+body.dark-mode.amounts-hidden #extraTotalSumDisplay::after,
+body.amounts-hidden body.dark-mode #extraTotalSumDisplay::after {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
