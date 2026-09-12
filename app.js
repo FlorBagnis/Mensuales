@@ -1295,5 +1295,77 @@ function generateAnnualPDF() {
   pdf.setTextColor(...theme.footerColor);
   pdf.text(`Generado por Flor Bagnis - Mensuales PWA`, 21, 33);
 
+  const cardWidth = 87;
+  const cardHeight = 24;
+  let startY = 48;
+
+  const cardsData = [
+    { title: "TOTAL GASTADO (ARS)", value: money(annual.totalARS) },
+    { title: "PROMEDIO MENSUAL", value: money(annual.avgARS) },
+    { title: "MES MÁS ALTO", value: `${annual.highestMonth.name} (${money(annual.highestMonth.amount)})` },
+    { title: "CATEGORÍA PRINCIPAL", value: annual.topCategory[0] }
+  ];
+
+  cardsData.forEach((card, index) => {
+    const col = index % 2;
+    const row = Math.floor(index / 2);
+    const x = 15 + col * (cardWidth + 6);
+    const y = startY + row * (cardHeight + 6);
+
+    pdf.setFillColor(...theme.light);
+    pdf.setDrawColor(...theme.cardBorder);
+    pdf.roundedRect(x, y, cardWidth, cardHeight, 3, 3, "FD");
+
+    pdf.setTextColor(...theme.footerColor);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(card.title, x + 6, y + 8);
+
+    pdf.setTextColor(...theme.dark);
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(String(card.value), x + 6, y + 17);
+  });
+
+  let currentY = startY + 2 * (cardHeight + 6) + 5;
+
+  if (annual.totalUSD > 0) {
+    pdf.setFillColor(...theme.light);
+    pdf.setDrawColor(...theme.cardBorder);
+    pdf.roundedRect(15, currentY, 180, 18, 3, 3, "FD");
+
+    pdf.setTextColor(...theme.footerColor);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("TOTAL GASTADO EN USD", 21, currentY + 6);
+
+    pdf.setTextColor(...theme.dark);
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "bold");
+    pdf.text(money(annual.totalUSD, "USD"), 21, currentY + 13);
+
+    currentY += 24;
+  }
+
+  pdf.setFillColor(...theme.light);
+  pdf.setDrawColor(...theme.cardBorder);
+  pdf.roundedRect(15, currentY, 180, 26, 3, 3, "FD");
+
+  pdf.setTextColor(...theme.dark);
+  pdf.setFontSize(9);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Análisis del período", 21, currentY + 7);
+
+  pdf.setFontSize(8);
+  pdf.setFont("helvetica", "normal");
+  pdf.setTextColor(...theme.dark);
+  const summaryText = `Durante el año ${annual.currentYear}, registraste movimientos en ${annual.monthsCount} meses. Tu mes con mayor actividad financiera fue ${annual.highestMonth.name} y la categoría que acumuló más gastos resultó ser "${annual.topCategory[0]}".`;
+  const splitSummary = pdf.splitTextToSize(summaryText, 168);
+  pdf.text(splitSummary, 21, currentY + 14);
+
+  pdf.setFontSize(7);
+  pdf.setTextColor(...theme.footerColor);
+  pdf.text("Resumen Anual - Creado por Flor Bagnis", 15, 287);
+
   pdf.save(`Resumen-Anual-${annual.currentYear}.pdf`);
 }
