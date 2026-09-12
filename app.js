@@ -1420,59 +1420,18 @@ function generateAnnualPDF() {
 
 
 /* =========================================================
-   SISTEMA DE ALERTAS DE PRESUPUESTO (DINÁMICO SEGÚN TEMA)
+   SISTEMA DE ALERTAS DE PRESUPUESTO
 ========================================================= */
 function checkFinancialAlerts(totalGastado, presupuesto, gastosDelMes) {
   let alertaPresupuestoContainer = document.getElementById("alertaPresupuesto");
-  
-  // Detectar el modo activo en el body
-  const isBlueMode = document.body.classList.contains("dark-blue-mode");
-  const isDarkMode = document.body.classList.contains("dark-mode");
-
-  // Definir colores según el tema actual
-  let bgStyle, borderStyle, textStyle;
-  if (isBlueMode) {
-    // Modo Azul: Fondo celeste oscuro translúcido, borde celeste brillante y texto blanco
-    bgStyle = "rgba(56, 189, 248, 0.15)";
-    borderStyle = "#38bdf8";
-    textStyle = "#f1f5f9";
-  } else if (isDarkMode) {
-    // Modo Oscuro
-    bgStyle = "rgba(255, 120, 160, 0.12)";
-    borderStyle = "#ff78a0";
-    textStyle = "#fdf2f6";
-  } else {
-    // Modo Claro / Pastel por defecto
-    bgStyle = "rgba(234, 91, 142, 0.1)";
-    borderStyle = "#ea5b8e";
-    textStyle = "#52162a";
-  }
-
   if (!alertaPresupuestoContainer) {
     alertaPresupuestoContainer = document.createElement("div");
     alertaPresupuestoContainer.id = "alertaPresupuesto";
-    alertaPresupuestoContainer.className = "budget-alert-banner";
-    
+    alertaPresupuestoContainer.className = "budget-alert-banner hidden";
     const hero = document.querySelector("header.hero") || document.querySelector("main");
     if (hero) hero.insertAdjacentElement("afterend", alertaPresupuestoContainer);
   }
   
-  // Aplicar estilos dinámicos actualizados
-  alertaPresupuestoContainer.style.cssText = `
-    margin: 16px 0 8px 0;
-    padding: 12px 18px;
-    background: ${bgStyle};
-    border: 1px solid ${borderStyle};
-    border-radius: 12px;
-    color: ${textStyle};
-    font-size: 0.9rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  `;
-
   if (presupuesto > 0 && totalGastado > presupuesto) {
     const exceso = totalGastado - presupuesto;
     alertaPresupuestoContainer.innerHTML = `
@@ -1482,8 +1441,8 @@ function checkFinancialAlerts(totalGastado, presupuesto, gastosDelMes) {
         <span style="font-weight: 700;">$ ${exceso.toLocaleString('es-AR', {minimumFractionDigits: 2})}</span>.
       </div>
     `;
-    alertaPresupuestoContainer.style.display = "flex";
+    alertaPresupuestoContainer.classList.remove("hidden");
   } else {
-    if (alertaPresupuestoContainer) alertaPresupuestoContainer.style.display = "none";
+    alertaPresupuestoContainer.classList.add("hidden");
   }
 }
