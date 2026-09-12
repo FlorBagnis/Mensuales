@@ -1606,3 +1606,18 @@ body.dark-blue-mode textarea {
   border-color: #14244b !important;
 }
 
+
+/* =========================================================
+   FORZAR TOTAL DE LA TABLA EN MODO AZUL
+========================================================= */
+body.dark-blue-mode .table-total {
+  background-color: #0f1c3f !important;
+  color: #f1f5f9 !important;
+  border-top: 1px solid #14244b !important;
+}
+
+body.dark-blue-mode .table-total span,
+body.dark-blue-mode .table-total strong,
+body.dark-blue-mode .table-total small {
+  color: #f1f5f9 !important;
+}
