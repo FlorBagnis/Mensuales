@@ -1689,3 +1689,23 @@ body.amounts-hidden body.dark-mode .summary-card small::after {
   background-color: transparent !important;
   color: #ff78a0 !important;
 }
+
+/* =========================================================
+   ELIMINAR FONDO DE CENSURA EN MODO OSCURO Y AZUL
+========================================================= */
+body.dark-mode.amounts-hidden strong::after,
+body.amounts-hidden body.dark-mode strong::after,
+body.dark-blue-mode.amounts-hidden strong::after,
+body.amounts-hidden body.dark-blue-mode strong::after,
+body.dark-mode.amounts-hidden small::after,
+body.amounts-hidden body.dark-mode small::after,
+body.dark-blue-mode.amounts-hidden small::after,
+body.amounts-hidden body.dark-blue-mode small::after,
+body.dark-mode.amounts-hidden #extraTotalSumDisplay::after,
+body.amounts-hidden body.dark-mode #extraTotalSumDisplay::after,
+body.dark-blue-mode.amounts-hidden #extraTotalSumDisplay::after,
+body.amounts-hidden body.dark-blue-mode #extraTotalSumDisplay::after {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
