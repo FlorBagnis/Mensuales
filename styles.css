@@ -1572,3 +1572,37 @@ body.dark-blue-mode .table-wrap th {
 body.dark-blue-mode input::placeholder {
   color: #8fa5ca !important;
 }
+
+/* =========================================================
+   DETALLES FINALES MODO AZUL TOTAL (SIGNOS PESOS Y CATEGORÍAS)
+========================================================= */
+body.dark-blue-mode .money-input span,
+body.dark-blue-mode .money-input,
+body.dark-blue-mode span.category {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+  border-color: #1e3a8a !important;
+}
+
+body.dark-blue-mode .category {
+  background: #14244b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e3a8a !important;
+}
+
+body.dark-blue-mode span.month-pill,
+body.dark-blue-mode .month-pill {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e3a8a !important;
+}
+
+/* Forzar cualquier fondo blanco remanente en inputs o contenedores */
+body.dark-blue-mode input,
+body.dark-blue-mode select,
+body.dark-blue-mode textarea {
+  background-color: #070d1e !important;
+  color: #f1f5f9 !important;
+  border-color: #14244b !important;
+}
+
