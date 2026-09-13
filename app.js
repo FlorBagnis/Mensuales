@@ -937,9 +937,15 @@ function initApp() {
         }
       }
     }
-    if ($("monthPicker")) $("monthPicker").value = targetMonth;
+     
+if ($("monthPicker")) $("monthPicker").value = targetMonth;
     renderMensuales();
-    $("expenseDialog")?.close();
+    
+    // Forzamos el cierre del modal de gastos limpio
+    const dialog = $("expenseDialog");
+    if (dialog && typeof dialog.close === "function") {
+      dialog.close();
+    }
   });
 
   $("clearMonthBtn")?.addEventListener("click", async () => {
