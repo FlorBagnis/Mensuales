@@ -2260,54 +2260,54 @@ body.black-mode .modal button {
 }
 
 
-
-
 /* =========================================================
-   MODO BLACK: NEGRO ABSOLUTO EN SOLAPAS Y LIMPIEZA DE BLOQUES
+   MODO BLACK: EFECTO BLUR / TRASLÚCIDO ATRÁS Y SOLAPAS LIMPIAS
 ========================================================= */
 
-/* 1. Fondo general de la app y del backdrop totalmente negro OLED */
-body.black-mode,
+/* 1. Fondo de los modales (backdrop) con efecto oscuro translúcido y blur */
 body.black-mode dialog::backdrop,
 body.black-mode .modal-backdrop,
 body.black-mode .backdrop {
-  background-color: #000000 !important;
+  background-color: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
 }
 
-/* 2. Forzar las solapas/modales a negro absoluto OLED (#000000) */
+/* 2. Estética limpia para las solapas/modales */
 body.black-mode dialog,
 body.black-mode .modal,
 body.black-mode .modal-content,
 body.black-mode .modal-box,
 body.black-mode div[class*="modal"],
 body.black-mode div[class*="popup"] {
-  background-color: #000000 !important;
+  background-color: #111111 !important;
   color: #ffffff !important;
-  border: 1px solid #222222 !important;
-  box-shadow: 0 0 40px rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid #262626 !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8) !important;
 }
 
-/* 3. Matar cualquier rectángulo o bloque blanco interno dentro de las solapas */
+/* 3. Unificar los encabezados internos para que no queden bloques blancos */
 body.black-mode dialog .annual-header,
 body.black-mode dialog [class*="header"],
 body.black-mode .modal header,
 body.black-mode .modal-content > div:first-child {
-  background-color: #0a0a0a !important;
+  background-color: #161616 !important;
   color: #ffffff !important;
 }
 
-/* 4. Forzar absolutamente todo texto dentro de los modales a blanco */
+/* 4. Asegurar texto blanco en todo el contenido del modal */
 body.black-mode dialog *,
 body.black-mode .modal *,
 body.black-mode .modal-content * {
   color: #ffffff !important;
 }
 
-/* 5. Botones dentro de los modales en negro bien oscuro */
+/* 5. Botones estilizados dentro del modal */
 body.black-mode dialog button,
 body.black-mode .modal button {
-  background-color: #121212 !important;
+  background-color: #1a1a1a !important;
   color: #ffffff !important;
   border: 1px solid #333333 !important;
 }
+
 
