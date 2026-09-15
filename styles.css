@@ -2219,3 +2219,42 @@ body.black-mode .modal *,
 body.black-mode .modal-content * {
   color: #ffffff !important;
 }
+
+
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA DE MODALES Y FONDO EN MODO BLACK
+========================================================= */
+
+/* 1. Forzar que el fondo detrás de los diálogos/modales sea negro puro OLED */
+body.black-mode dialog::backdrop,
+body.black-mode .modal-backdrop,
+body.black-mode .backdrop {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 2. Forzar que la ventana modal (<dialog>) sea completamente negra/gris oscura */
+body.black-mode dialog,
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-box {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95) !important;
+}
+
+/* 3. Forzar que absolutamente todo texto dentro del diálogo sea blanco */
+body.black-mode dialog *,
+body.black-mode .modal *,
+body.black-mode .modal-content * {
+  color: #ffffff !important;
+}
+
+/* 4. Asegurar que los botones internos del modal combinen perfectamente */
+body.black-mode dialog button,
+body.black-mode .modal button {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
