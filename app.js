@@ -219,11 +219,13 @@ onAuthStateChanged(auth, async user => {
   currentUser = user;
   
   const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
-  document.body.classList.remove("dark-mode", "dark-blue-mode");
+  document.body.classList.remove("dark-mode", "dark-blue-mode", "black-mode");
   if (savedTheme === "dark") {
     document.body.classList.add("dark-mode");
   } else if (savedTheme === "blue") {
     document.body.classList.add("dark-blue-mode");
+  } else if (savedTheme === "black") {
+    document.body.classList.add("black-mode");
   }
 
   if (!user) {
@@ -378,7 +380,6 @@ function renderMensuales() {
   renderCategories(current.expenses);
   renderTrend(month, totalARS, prevARS, totalUSD);
 
-  // 🟢 ACÁ SE EJECUTA LA VERIFICACIÓN DE ALERTA CADA VEZ QUE SE ACTUALIZA LA PANTALLA
   const totalGastadoActual = Number(document.getElementById("totalSpent")?.textContent.replace(/[^0-9,-]+/g,"").replace(",", ".")) || 0;
   const presupuestoActual = Number(document.getElementById("budgetInput")?.value) || 0;
   checkFinancialAlerts(totalGastadoActual, presupuestoActual, current.expenses || []);
@@ -938,10 +939,9 @@ function initApp() {
       }
     }
      
-if ($("monthPicker")) $("monthPicker").value = targetMonth;
+    if ($("monthPicker")) $("monthPicker").value = targetMonth;
     renderMensuales();
     
-    // Forzamos el cierre del modal de gastos limpio
     const dialog = $("expenseDialog");
     if (dialog && typeof dialog.close === "function") {
       dialog.close();
@@ -1016,8 +1016,92 @@ if ($("monthPicker")) $("monthPicker").value = targetMonth;
     link.click();
   });
 
+  // 📂 INICIALIZAR IMPORTAR CSV
+  initCsvImport();
+
   // EXPORTAR PDF
   $("pdfBtn")?.addEventListener("click", generateMensualesPDF);
+}
+
+
+/* =========================================================
+   FUNCIÓN DE IMPORTAR CSV
+========================================================= */
+function initCsvImport() {
+  const importCsvBtn = $("importCsvBtn");
+  const csvFileInput = $("csvFileInput");
+
+  importCsvBtn?.addEventListener("click", () => {
+    csvFileInput?.click();
+  });
+
+  csvFileInput?.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const text = event.target.result;
+        const lines = text.split(/\r\n|\n/);
+        
+        if (lines.length <= 1) {
+          alert("El archivo CSV está vacío o no tiene formato válido.");
+          return;
+        }
+
+        const header = lines[0];
+        const separator = header.includes(";") ? ";" : ",";
+
+        const activeMonth = $("monthPicker")?.value || currentMonthValue();
+        const currentData = ensureMonth(activeMonth);
+        let importedCount = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          const cols = line.split(separator);
+          if (cols.length >= 4) {
+            const date = cols[0]?.trim() || `${activeMonth}-01`;
+            const description = (cols[1] || "").replace(/^["']|["']$/g, "").trim();
+            const category = (cols[2] || "").replace(/^["']|["']$/g, "").trim() || "Otros";
+            
+            const rawAmount = cols[3]?.trim().replace(/[^0-9,.-]/g, "").replace(",", ".") || "0";
+            const amount = Number(rawAmount);
+            const currency = cols[4]?.trim().toUpperCase() || "ARS";
+
+            if (amount > 0) {
+              currentData.expenses.push({
+                id: createId("expense"),
+                date,
+                description: description || "Gasto importado",
+                category,
+                amount,
+                currency
+              });
+              importedCount++;
+            }
+          }
+        }
+
+        if (importedCount > 0) {
+          renderMensuales();
+          await saveMonthToFirestore(activeMonth);
+          alert(`¡Éxito! Se importaron ${importedCount} gastos correctamente.`);
+        } else {
+          alert("No se pudieron leer registros válidos. Verificá que el archivo coincida con el formato de exportación.");
+        }
+      } catch (err) {
+        console.error("Error al procesar el CSV:", err);
+        alert("Hubo un error al leer el archivo CSV.");
+      } finally {
+        csvFileInput.value = "";
+      }
+    };
+
+    reader.readAsText(file, "UTF-8");
+  });
 }
 
 
@@ -1047,7 +1131,7 @@ document.addEventListener('click', (e) => {
   const themeBtn = e.target.closest('#toggleThemeBtn');
   if (themeBtn) {
     const isDark = document.body.classList.toggle("dark-mode");
-    document.body.classList.remove("dark-blue-mode");
+    document.body.classList.remove("dark-blue-mode", "black-mode");
     localStorage.setItem("mensual_theme_mode", isDark ? "dark" : "light");
     themeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
     const blueBtn = $("toggleBlueThemeBtn");
@@ -1057,11 +1141,18 @@ document.addEventListener('click', (e) => {
   const blueThemeBtn = e.target.closest('#toggleBlueThemeBtn');
   if (blueThemeBtn) {
     const isBlue = document.body.classList.toggle("dark-blue-mode");
-    document.body.classList.remove("dark-mode");
+    document.body.classList.remove("dark-mode", "black-mode");
     localStorage.setItem("mensual_theme_mode", isBlue ? "blue" : "light");
     blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "💙 Modo Azul";
     const darkBtn = $("toggleThemeBtn");
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
+  }
+
+  const blackThemeBtn = e.target.closest('#btnBlackMode');
+  if (blackThemeBtn) {
+    const isBlack = document.body.classList.toggle("black-mode");
+    document.body.classList.remove("dark-mode", "dark-blue-mode");
+    localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
   }
 
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
@@ -1080,6 +1171,8 @@ if (savedTheme === "dark") {
   document.body.classList.add("dark-blue-mode");
   const blueBtn = $("toggleBlueThemeBtn");
   if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
+} else if (savedTheme === "black") {
+  document.body.classList.add("black-mode");
 }
 
 if (document.readyState === "loading") {
@@ -1096,8 +1189,9 @@ if (document.readyState === "loading") {
 function getPdfThemeColors() {
   const isDarkMode = document.body.classList.contains("dark-mode");
   const isBlueMode = document.body.classList.contains("dark-blue-mode");
+  const isBlackMode = document.body.classList.contains("black-mode");
 
-  if (isBlueMode) {
+  if (isBlackMode || isBlueMode) {
     return {
       pink: [56, 189, 248],
       dark: [241, 245, 249],
@@ -1159,7 +1253,6 @@ function generateMensualesPDF() {
   const diffARS = totalARS - previousTotalARS;
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
   
-  // Cálculo de presupuesto, tarjeta y exceso
   const presupuestoActual = Number(current.budget || 0);
   const presupuestoText = money(presupuestoActual);
   const hayExceso = presupuestoActual > 0 && totalARS > presupuestoActual;
@@ -1175,7 +1268,6 @@ function generateMensualesPDF() {
     pdf.rect(0, 0, 210, 297, "F");
   }
 
-  // Cuadro grande del encabezado
   pdf.setFillColor(...theme.headerBg);
   pdf.roundedRect(15, 15, 180, 28, 4, 4, "F");
 
@@ -1188,7 +1280,6 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte - ${monthName(month)}`, 21, 31);
 
-// Si hay exceso, agregamos la advertencia sin tildes para que no rompa el PDF
   if (hayExceso) {
     pdf.setFontSize(7.5);
     pdf.setFont("helvetica", "bold");
@@ -1259,7 +1350,6 @@ function generateMensualesPDF() {
     y += 10;
   });
 
-  // Análisis de tendencia al final de todo
   y += 12;
   if (y > 220) {
     pdf.addPage();
@@ -1278,11 +1368,9 @@ function generateMensualesPDF() {
   });
   const topCat = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
   
-// Limpiar emojis o caracteres raros del nombre del gasto para que no rompa el PDF
-let highestExpenseText = "";
+  let highestExpenseText = "";
   const highestExpense = [...current.expenses].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
   if (highestExpense) {
-    // Reemplazamos la barra diagonal por un guión para que el PDF no se confunda
     const cleanDesc = String(highestExpense.description || "").replace("🔄 ", "").replace("/", " - ").trim();
     highestExpenseText = ` Asimismo, tu gasto más elevado individualmente correspondió a "${cleanDesc}" por un monto de ${money(highestExpense.amount, highestExpense.currency || "ARS")}.`;
   }
@@ -1294,7 +1382,6 @@ let highestExpenseText = "";
   
   y += 6;
 
-  // Agrandamos la caja a 34 mm de alto para que el texto entre cómodo
   pdf.setFillColor(...theme.light);
   pdf.setDrawColor(...theme.cardBorder);
   pdf.roundedRect(15, y, 180, 34, 3, 3, "FD");
@@ -1310,7 +1397,6 @@ let highestExpenseText = "";
   
   let trendSummary = `Durante ${monthName(month)}, registraste un total de ${current.expenses.length} movimientos. La categoría que mayor presupuesto demandó fue "${topCat[0]}" con un acumulado de ${money(topCat[1])}.${highestExpenseText}`;
   
-  // Ajustamos el ancho del texto a 165 para que no toque los bordes
   const splitTrend = pdf.splitTextToSize(trendSummary, 165);
   pdf.text(splitTrend, 21, y + 14);
 
