@@ -1854,36 +1854,47 @@ body.dark-blue-mode .budget-alert-banner span {
   color: #ffffff !important;
 }
 
+
+
 /* =========================================================
-   MODO BLACK (NEGRO PURO Y TEXTOS BLANCOS)
+   MODO BLACK ABSOLUTO (PANTALLAS OLED)
 ========================================================= */
 body.black-mode {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-/* Forzar fondo negro y texto blanco en el header principal y hero */
+/* Forzar que el banner principal, las tarjetas y contenedores sean negros/grises oscuros */
 body.black-mode header,
 body.black-mode .hero,
 body.black-mode .card,
-body.black-mode .pastel-card {
+body.black-mode .pastel-card,
+body.black-mode section {
   background-color: #121212 !important;
   color: #ffffff !important;
   border-color: #222222 !important;
+  box-shadow: none !important;
 }
 
-/* Forzar textos secundarios o títulos dentro de las tarjetas */
+/* Forzar que CUALQUIER texto dentro de la app sea blanco o gris claro legible */
 body.black-mode h1,
 body.black-mode h2,
 body.black-mode h3,
 body.black-mode h4,
 body.black-mode p,
 body.black-mode span,
-body.black-mode label {
+body.black-mode label,
+body.black-mode strong,
+body.black-mode div {
   color: #ffffff !important;
 }
 
-/* Ajustar inputs, selects y áreas de búsqueda */
+/* Excepción para que los botones mantengan su contraste o se vean bien */
+body.black-mode button {
+  color: #ffffff !important;
+}
+
+/* Ajustar los campos de texto, inputs y selects */
 body.black-mode input, 
 body.black-mode select,
 body.black-mode textarea {
@@ -1892,11 +1903,12 @@ body.black-mode textarea {
   border-color: #333333 !important;
 }
 
-/* Ajustar tablas y filas */
+/* Ajustar tablas */
 body.black-mode table,
 body.black-mode th,
 body.black-mode td {
   color: #ffffff !important;
+  background-color: transparent !important;
   border-color: #222222 !important;
 }
 
