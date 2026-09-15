@@ -1857,26 +1857,28 @@ body.dark-blue-mode .budget-alert-banner span {
 
 
 /* =========================================================
-   MODO BLACK ABSOLUTO (PANTALLAS OLED)
+   MODO BLACK TOTAL Y DEFINITIVO (PANTALLAS OLED)
 ========================================================= */
 body.black-mode {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-/* Forzar que el banner principal, las tarjetas y contenedores sean negros/grises oscuros */
+/* Forzar fondo negro/gris oscuro en cualquier contenedor, header, tarjeta o sección */
 body.black-mode header,
 body.black-mode .hero,
 body.black-mode .card,
 body.black-mode .pastel-card,
-body.black-mode section {
+body.black-mode section,
+body.black-mode tr,
+body.black-mode td,
+body.black-mode th {
   background-color: #121212 !important;
   color: #ffffff !important;
   border-color: #222222 !important;
-  box-shadow: none !important;
 }
 
-/* Forzar que CUALQUIER texto dentro de la app sea blanco o gris claro legible */
+/* Forzar que CUALQUIER texto, título o etiqueta sea blanco */
 body.black-mode h1,
 body.black-mode h2,
 body.black-mode h3,
@@ -1885,16 +1887,17 @@ body.black-mode p,
 body.black-mode span,
 body.black-mode label,
 body.black-mode strong,
-body.black-mode div {
+body.black-mode div,
+body.black-mode a {
   color: #ffffff !important;
 }
 
-/* Excepción para que los botones mantengan su contraste o se vean bien */
+/* Excepción para los botones de acción para que no se pierdan */
 body.black-mode button {
   color: #ffffff !important;
 }
 
-/* Ajustar los campos de texto, inputs y selects */
+/* Campos de entrada, selects y buscadores */
 body.black-mode input, 
 body.black-mode select,
 body.black-mode textarea {
@@ -1903,15 +1906,16 @@ body.black-mode textarea {
   border-color: #333333 !important;
 }
 
-/* Ajustar tablas */
-body.black-mode table,
-body.black-mode th,
-body.black-mode td {
-  color: #ffffff !important;
-  background-color: transparent !important;
-  border-color: #222222 !important;
-}
-
+/* Efecto hover en las tablas */
 body.black-mode tr:hover {
   background-color: #1a1a1a !important;
+}
+
+/* Arreglar las barritas del gráfico de categorías para que resalten en OLED */
+body.black-mode #categoryChart div[style*="background: var(--pink-bg)"] {
+  background-color: #222222 !important;
+}
+
+body.black-mode #categoryChart div[style*="background: var(--pink-500)"] {
+  background-color: #38bdf8 !important; /* Cambia a un celeste brillante o dejalo en #ff78a0 si preferís rosa fuerte */
 }
