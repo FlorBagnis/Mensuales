@@ -2042,3 +2042,22 @@ body.black-mode div[class*="card"] * {
   color: #ffffff !important;
 }
 
+
+/* =========================================================
+   FORZAR PÍLDORA/BOTÓN DE MES A MODO BLACK
+========================================================= */
+body.black-mode #monthPill,
+body.black-mode .month-pill,
+body.black-mode span[id*="Month"],
+body.black-mode button.pastel-btn,
+body.black-mode span.pastel-btn {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+body.black-mode #monthPill *,
+body.black-mode .month-pill * {
+  color: #ffffff !important;
+}
+
