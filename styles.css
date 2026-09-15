@@ -2177,3 +2177,45 @@ body.black-mode .modal-box *,
 body.black-mode div[class*="modal"] * {
   color: #ffffff !important;
 }
+
+
+
+/* =========================================================
+   MODO BLACK: ANIQUILACIÓN TOTAL DE BLANCOS Y FONDOS CLAROS
+========================================================= */
+
+/* Fondo general de la app en negro OLED */
+body.black-mode {
+  background-color: #000000 !important;
+}
+
+/* Forzar que CUALQUIER elemento con fondo blanco o claro pase a ser oscuro en Modo Black */
+body.black-mode [style*="background-color: rgb(255"],
+body.black-mode [style*="background: white"],
+body.black-mode [style*="background: #fff"],
+body.black-mode [style*="background:#fff"],
+body.black-mode .modal-overlay,
+body.black-mode .swal2-container {
+  background-color: #000000 !important;
+}
+
+/* Forzar las cajas contenedoras de los modales (la tarjeta blanca gigante) a negro/gris oscuro */
+body.black-mode div[class*="modal"],
+body.black-mode section[class*="modal"],
+body.black-mode div[class*="popup"],
+body.black-mode div[class*="dialog"],
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-box {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+  box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.85), 0 10px 40px rgba(0, 0, 0, 1) !important;
+}
+
+/* Forzar todo texto dentro de los modales a blanco puro */
+body.black-mode div[class*="modal"] *,
+body.black-mode .modal *,
+body.black-mode .modal-content * {
+  color: #ffffff !important;
+}
