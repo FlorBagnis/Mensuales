@@ -2258,3 +2258,56 @@ body.black-mode .modal button {
   color: #ffffff !important;
   border: 1px solid #333333 !important;
 }
+
+
+
+
+/* =========================================================
+   MODO BLACK: NEGRO ABSOLUTO EN SOLAPAS Y LIMPIEZA DE BLOQUES
+========================================================= */
+
+/* 1. Fondo general de la app y del backdrop totalmente negro OLED */
+body.black-mode,
+body.black-mode dialog::backdrop,
+body.black-mode .modal-backdrop,
+body.black-mode .backdrop {
+  background-color: #000000 !important;
+}
+
+/* 2. Forzar las solapas/modales a negro absoluto OLED (#000000) */
+body.black-mode dialog,
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-box,
+body.black-mode div[class*="modal"],
+body.black-mode div[class*="popup"] {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 3. Matar cualquier rectángulo o bloque blanco interno dentro de las solapas */
+body.black-mode dialog .annual-header,
+body.black-mode dialog [class*="header"],
+body.black-mode .modal header,
+body.black-mode .modal-content > div:first-child {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+}
+
+/* 4. Forzar absolutamente todo texto dentro de los modales a blanco */
+body.black-mode dialog *,
+body.black-mode .modal *,
+body.black-mode .modal-content * {
+  color: #ffffff !important;
+}
+
+/* 5. Botones dentro de los modales en negro bien oscuro */
+body.black-mode dialog button,
+body.black-mode .modal button {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
