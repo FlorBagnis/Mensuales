@@ -1185,13 +1185,23 @@ if (document.readyState === "loading") {
 /* =========================================================
    SELECTOR DE COLORES PARA PDF
 ========================================================= */
-
 function getPdfThemeColors() {
   const isDarkMode = document.body.classList.contains("dark-mode");
   const isBlueMode = document.body.classList.contains("dark-blue-mode");
   const isBlackMode = document.body.classList.contains("black-mode");
 
-  if (isBlackMode || isBlueMode) {
+  if (isBlackMode) {
+    return {
+      pink: [255, 255, 255],      // Blanco puro para Modo Black
+      dark: [241, 245, 249],      
+      light: [18, 18, 18],        
+      headerBg: [10, 10, 10],     
+      cardBorder: [40, 40, 40],   
+      lineDivider: [30, 30, 30],  
+      pageBg: [0, 0, 0],          
+      footerColor: [150, 150, 150]
+    };
+  } else if (isBlueMode) {
     return {
       pink: [56, 189, 248],
       dark: [241, 245, 249],
