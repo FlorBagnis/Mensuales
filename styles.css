@@ -2147,3 +2147,33 @@ body.black-mode .modal .pastel-btn {
 }
 
 
+/* =========================================================
+   FORZAR NEGRO OLED EN FONDO Y MODALES (MÁXIMA PRIORIDAD)
+========================================================= */
+
+/* 1. Fondo general de la página y capas oscuras detrás de todo */
+body.black-mode,
+body.black-mode #app,
+body.black-mode .main-container {
+  background-color: #000000 !important;
+}
+
+/* 2. Matar el fondo blanco de cualquier caja o ventana modal */
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-box,
+body.black-mode .popup-container,
+body.black-mode div[class*="modal"] {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.95) !important;
+}
+
+/* 3. Asegurar que todo texto dentro de los modales sea blanco */
+body.black-mode .modal *,
+body.black-mode .modal-content *,
+body.black-mode .modal-box *,
+body.black-mode div[class*="modal"] * {
+  color: #ffffff !important;
+}
