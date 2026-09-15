@@ -2310,3 +2310,22 @@ body.black-mode .modal button {
   color: #ffffff !important;
   border: 1px solid #333333 !important;
 }
+
+
+/* =========================================================
+   ELIMINAR LÍNEAS RECTAS Y BORDES INTERNOS EN MODO BLACK
+========================================================= */
+body.black-mode dialog hr,
+body.black-mode dialog .annual-header + div,
+body.black-mode .modal hr,
+body.black-mode .modal [style*="border-top"],
+body.black-mode .modal [style*="border-bottom"],
+body.black-mode .modal-content hr {
+  display: none !important;
+  border: none !important;
+}
+
+/* Forzar que cualquier separador interno desaparezca o sea sutil */
+body.black-mode .modal div[style*="border"] {
+  border-color: transparent !important;
+}
