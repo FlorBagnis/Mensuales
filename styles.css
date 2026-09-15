@@ -2328,4 +2328,5 @@ body.black-mode .modal-content hr {
 /* Forzar que cualquier separador interno desaparezca o sea sutil */
 body.black-mode .modal div[style*="border"] {
   border-color: transparent !important;
+
 }
