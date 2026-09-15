@@ -2261,10 +2261,10 @@ body.black-mode .modal button {
 
 
 /* =========================================================
-   MODO BLACK: UNIFICACIÓN PERFECTA DE MODALES Y ENCABEZADOS
+   MODO BLACK: UNIFICACIÓN TOTAL Y LIMPIEZA DE CONTRASTES
 ========================================================= */
 
-/* 1. Fondo del backdrop con efecto blur y transparencia oscura */
+/* 1. Fondo translúcido con blur detrás del modal */
 body.black-mode dialog::backdrop,
 body.black-mode .modal-backdrop,
 body.black-mode .backdrop {
@@ -2273,7 +2273,7 @@ body.black-mode .backdrop {
   -webkit-backdrop-filter: blur(8px) !important;
 }
 
-/* 2. Contenedor principal de los modales en gris muy oscuro OLED */
+/* 2. Tarjeta principal del modal con un gris oscuro uniforme */
 body.black-mode dialog,
 body.black-mode .modal,
 body.black-mode .modal-content,
@@ -2286,27 +2286,27 @@ body.black-mode div[class*="popup"] {
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9) !important;
 }
 
-/* 3. Unificar los encabezados internos para que no queden bloques negros aislados */
+/* 3. Eliminar cajitas interiores oscuras/negras para que el fondo sea fluido */
 body.black-mode dialog .annual-header,
 body.black-mode dialog [class*="header"],
 body.black-mode .modal header,
 body.black-mode .modal-content > div:first-child {
   background-color: transparent !important;
-  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
-/* 4. Forzar que todo texto dentro de los modales sea blanco y legible */
+/* 4. Forzar que todo texto dentro de los modales sea blanco */
 body.black-mode dialog *,
 body.black-mode .modal *,
 body.black-mode .modal-content * {
   color: #ffffff !important;
 }
 
-/* 5. Estilo de los botones dentro de los modales */
+/* 5. Botones limpios y bien integrados */
 body.black-mode dialog button,
 body.black-mode .modal button {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
   border: 1px solid #333333 !important;
 }
-
