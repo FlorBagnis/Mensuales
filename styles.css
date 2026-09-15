@@ -2021,3 +2021,24 @@ body.black-mode .hero * {
   color: #ffffff !important;
 }
 
+
+/* =========================================================
+   FORZAR TARJETAS DE RESUMEN A MODO BLACK
+========================================================= */
+body.black-mode .card,
+body.black-mode .pastel-card,
+body.black-mode .summary-card,
+body.black-mode div[class*="card"] {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+}
+
+/* Forzar que todos los textos, números y subtítulos de esas tarjetas sean blancos */
+body.black-mode .card *,
+body.black-mode .pastel-card *,
+body.black-mode .summary-card *,
+body.black-mode div[class*="card"] * {
+  color: #ffffff !important;
+}
+
