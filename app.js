@@ -1320,8 +1320,16 @@ function generateMensualesPDF() {
     pdf.text(card[1], x + 3, 65);
   });
 
-  let y = 84;
-  pdf.setFillColor(...theme.pink);
+   let y = 84;
+   
+// 🖤 Forzar barra oscura en Modo Black, sino usa el color del tema
+  const isBlackMode = document.body.classList.contains("black-mode");
+  if (isBlackMode) {
+    pdf.setFillColor(30, 30, 30); 
+  } else {
+    pdf.setFillColor(...theme.pink);
+  }
+  
   pdf.rect(15, y, 180, 8, "F");
 
   pdf.setTextColor(255, 255, 255);
