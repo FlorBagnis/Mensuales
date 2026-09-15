@@ -1853,3 +1853,36 @@ body.dark-blue-mode .budget-alert-banner strong,
 body.dark-blue-mode .budget-alert-banner span {
   color: #ffffff !important;
 }
+
+/* =========================================================
+   MODO BLACK (NEGRO PURO OLED)
+========================================================= */
+body.black-mode {
+  background-color: #000000;
+  color: #f1f1f1;
+}
+
+body.black-mode .card,
+body.black-mode .pastel-card {
+  background-color: #121212;
+  border: 1px solid #222222;
+  color: #f1f1f1;
+}
+
+body.black-mode input, 
+body.black-mode select,
+body.black-mode textarea {
+  background-color: #1a1a1a;
+  color: #fff;
+  border-color: #333;
+}
+
+body.black-mode table {
+  color: #f1f1f1;
+}
+
+body.black-mode tr:hover {
+  background-color: #1a1a1a;
+}
+
+
