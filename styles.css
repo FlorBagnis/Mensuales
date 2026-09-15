@@ -2001,3 +2001,27 @@ body.black-mode .category {
   background-color: #262626 !important;
   color: #ffffff !important;
 }
+
+
+/* =========================================================
+   FORZAR HEADER SUPERIOR Y TARJETAS A MODO BLACK
+========================================================= */
+body.black-mode header.hero,
+body.black-mode .hero,
+body.black-mode .card,
+body.black-mode .pastel-card,
+body.black-mode .summary-card,
+body.black-mode .main-header {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+}
+
+/* Forzar todos los textos dentro de esas tarjetas y header para que sean blancos */
+body.black-mode header.hero *,
+body.black-mode .hero *,
+body.black-mode .card *,
+body.black-mode .pastel-card * {
+  color: #ffffff !important;
+}
+
