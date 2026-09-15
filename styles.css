@@ -1855,34 +1855,51 @@ body.dark-blue-mode .budget-alert-banner span {
 }
 
 /* =========================================================
-   MODO BLACK (NEGRO PURO OLED)
+   MODO BLACK (NEGRO PURO Y TEXTOS BLANCOS)
 ========================================================= */
 body.black-mode {
-  background-color: #000000;
-  color: #f1f1f1;
+  background-color: #000000 !important;
+  color: #ffffff !important;
 }
 
+/* Forzar fondo negro y texto blanco en el header principal y hero */
+body.black-mode header,
+body.black-mode .hero,
 body.black-mode .card,
 body.black-mode .pastel-card {
-  background-color: #121212;
-  border: 1px solid #222222;
-  color: #f1f1f1;
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border-color: #222222 !important;
 }
 
+/* Forzar textos secundarios o títulos dentro de las tarjetas */
+body.black-mode h1,
+body.black-mode h2,
+body.black-mode h3,
+body.black-mode h4,
+body.black-mode p,
+body.black-mode span,
+body.black-mode label {
+  color: #ffffff !important;
+}
+
+/* Ajustar inputs, selects y áreas de búsqueda */
 body.black-mode input, 
 body.black-mode select,
 body.black-mode textarea {
-  background-color: #1a1a1a;
-  color: #fff;
-  border-color: #333;
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
 }
 
-body.black-mode table {
-  color: #f1f1f1;
+/* Ajustar tablas y filas */
+body.black-mode table,
+body.black-mode th,
+body.black-mode td {
+  color: #ffffff !important;
+  border-color: #222222 !important;
 }
 
 body.black-mode tr:hover {
-  background-color: #1a1a1a;
+  background-color: #1a1a1a !important;
 }
-
-
