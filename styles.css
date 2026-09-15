@@ -1919,3 +1919,85 @@ body.black-mode #categoryChart div[style*="background: var(--pink-bg)"] {
 body.black-mode #categoryChart div[style*="background: var(--pink-500)"] {
   background-color: #38bdf8 !important; /* Cambia a un celeste brillante o dejalo en #ff78a0 si preferís rosa fuerte */
 }
+
+
+
+
+
+/* =========================================================
+   MODO BLACK SUPREMO - FUERZA BRUTA (PANTALLAS OLED)
+========================================================= */
+body.black-mode,
+body.black-mode * {
+  border-color: #222222 !important;
+}
+
+body.black-mode {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Forzar todo contenedor, tarjeta, header y sección a negro/gris oscuro */
+body.black-mode header,
+body.black-mode .hero,
+body.black-mode .card,
+body.black-mode .pastel-card,
+body.black-mode section,
+body.black-mode div,
+body.black-mode table,
+body.black-mode tr,
+body.black-mode td,
+body.black-mode th {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+}
+
+/* El banner principal superior de la app */
+body.black-mode header.hero {
+  background-color: #121212 !important;
+  border: 1px solid #222222 !important;
+}
+
+/* Forzar que CUALQUIER texto, título o etiqueta sea blanco puro */
+body.black-mode h1,
+body.black-mode h2,
+body.black-mode h3,
+body.black-mode h4,
+body.black-mode p,
+body.black-mode span,
+body.black-mode label,
+body.black-mode strong,
+body.black-mode a,
+body.black-mode th,
+body.black-mode td {
+  color: #ffffff !important;
+}
+
+/* Botones en Modo Black (Fondo oscuro, texto blanco) */
+body.black-mode button,
+body.black-mode .pastel-btn,
+body.black-mode .btn {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+body.black-mode button:hover,
+body.black-mode .pastel-btn:hover {
+  background-color: #2a2a2a !important;
+}
+
+/* Inputs, selects y campos de texto */
+body.black-mode input, 
+body.black-mode select,
+body.black-mode textarea {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+/* Etiquetas de categoría en las tablas */
+body.black-mode .category {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
