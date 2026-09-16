@@ -2139,3 +2139,44 @@ body.black-mode div[style*="width:"][style*="border-radius"] {
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
 }
 
+
+
+
+
+
+
+
+
+/* Botón de cierre circular del modal anual */
+#closeAnnualDialog {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  background-color: var(--pink-soft, #f1f5f9);
+  color: var(--text, #ffffff);
+  border: 1px solid var(--border, transparent);
+}
+
+#closeAnnualDialog:hover {
+  transform: scale(1.1);
+}
+
+/* En Modo Black: botón circular grafito con borde sutil */
+body.black-mode #closeAnnualDialog {
+  background-color: #17171a !important;
+  color: #ffffff !important;
+  border: 1px solid #2a2a32 !important;
+}
+
+body.black-mode #closeAnnualDialog:hover {
+  background-color: #222228 !important;
+  border-color: #4a4a58 !important;
+}
