@@ -2418,623 +2418,142 @@ body.black-mode textarea {
 
 
 /* =========================================================
-   3. MODO BLACK (NEGRO OLED PROFESIONAL Y LIMPIO)
+   MODO BLACK (ESTÉTICA PULIDA PREMIUM / OLED)
 ========================================================= */
 body.black-mode {
   background-color: #000000 !important;
-  color: #ffffff !important;
+  color: #f1f5f9 !important;
 }
 
-body.black-mode .hero,
+/* 1. Tarjetas con bordes nítidos y fondo grafito oscuro */
+body.black-mode header.hero,
 body.black-mode .summary-card,
 body.black-mode .panel,
 body.black-mode .toolbar,
+body.black-mode .trend-box,
 body.black-mode .auth-card,
 body.black-mode dialog {
-  background-color: #121212 !important;
-  border: 1px solid #262626 !important;
+  background: #0d0e11 !important;
+  border: 1px solid #1f242d !important;
   border-radius: 16px !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7) !important;
 }
 
-body.black-mode h1, body.black-mode h2, body.black-mode h3, 
-body.black-mode p, body.black-mode span, body.black-mode label, 
-body.black-mode strong, body.black-mode td, body.black-mode th {
+/* 2. Jerarquía tipográfica: Títulos blancos, subtítulos en gris tenue */
+body.black-mode .eyebrow {
+  color: #e2e8f0 !important;
+  letter-spacing: 1.5px;
+}
+
+body.black-mode h1,
+body.black-mode h2,
+body.black-mode h3,
+body.black-mode strong {
   color: #ffffff !important;
 }
 
+body.black-mode .subtitle,
+body.black-mode .summary-card span,
+body.black-mode .summary-card small,
+body.black-mode .section-heading p,
+body.black-mode footer,
+body.black-mode #differenceLabel {
+  color: #8b9bb4 !important;
+}
+
+/* 3. Botones con presencia, borde nítido y hover con brillo */
 body.black-mode .pastel-btn,
 body.black-mode .btn,
 body.black-mode .custom-collapse-btn {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
+  background: #161b24 !important;
+  color: #f8fafc !important;
+  border: 1px solid #2a3342 !important;
+  border-radius: 10px !important;
+  font-weight: 600;
+  transition: all 0.2s ease !important;
 }
 
 body.black-mode .pastel-btn:hover,
 body.black-mode .btn:hover,
 body.black-mode .custom-collapse-btn:hover {
-  background-color: #262626 !important;
-  border-color: #ffffff !important;
+  background: #232b3a !important;
+  border-color: #4b5a75 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
 }
 
+/* Botón primario destacado (+ Nuevo gasto) */
+body.black-mode #addExpenseBtn {
+  background: #2b3548 !important;
+  border-color: #506488 !important;
+  color: #ffffff !important;
+}
+
+/* 4. Inputs y cajas de texto integradas */
 body.black-mode input,
 body.black-mode select,
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
+body.black-mode textarea,
+body.black-mode .money-input {
+  background: #050608 !important;
+  border: 1px solid #1f242d !important;
   color: #ffffff !important;
-  border: 1px solid #333333 !important;
+  border-radius: 10px !important;
 }
 
-body.black-mode thead,
-body.black-mode th {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #333333 !important;
+body.black-mode input:focus,
+body.black-mode select:focus {
+  border-color: #506488 !important;
 }
 
-body.black-mode td {
-  border-bottom: 1px solid #1f1f1f !important;
+body.black-mode .money-input span {
+  color: #94a3b8 !important;
 }
 
-body.black-mode tbody tr:hover {
-  background-color: #181818 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #161616 !important;
-  border-top: 1px solid #262626 !important;
-}
-
-body.black-mode dialog::backdrop {
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(8px) !important;
-}
-
-
-
-
-/* =========================================================
-   MODO BLACK (FORZADO ABAJO PARA PANTALLAS OLED)
-========================================================= */
-body.black-mode,
-body.black-mode main.app,
-body.black-mode dialog {
-  background-color: #000000 !important;
-  color: #f1f5f9 !important;
-}
-
-body.black-mode header.hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card,
-body.black-mode dialog {
-  background-color: #121212 !important;
-  border: 1px solid #222222 !important;
-  border-radius: 20px !important;
-  color: #f1f5f9 !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.black-mode header.hero {
-  padding: 28px !important;
-  margin-bottom: 24px !important;
-}
-
-body.black-mode header.hero .eyebrow,
-body.black-mode header.hero h1,
-body.black-mode header.hero .subtitle {
-  color: #f1f5f9 !important;
-}
-
-body.black-mode .pastel-btn,
-body.black-mode button.pastel-btn,
-body.black-mode .btn,
-body.black-mode button,
-body.black-mode select,
-body.black-mode input[type="search"],
-body.black-mode input[type="month"],
-body.black-mode input[type="date"],
-body.black-mode input[type="number"],
-body.black-mode input[type="text"],
-body.black-mode input[type="email"],
-body.black-mode input[type="password"] {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode button.pastel-btn:hover,
-body.black-mode .btn:hover {
-  background-color: #2a2a2a !important;
-  color: #ffffff !important;
-}
-
-body.black-mode thead, 
-body.black-mode th, 
-body.black-mode .table-wrap th {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #333333 !important;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #1f1f1f !important;
-  color: #f1f5f9 !important;
-}
-
-body.black-mode tbody tr:hover {
-  background-color: #181818 !important;
-}
-
-body.black-mode input::placeholder {
-  color: #888888 !important;
-}
-
-body.black-mode .money-input span,
-body.black-mode .money-input,
-body.black-mode span.category,
-body.black-mode .category,
-body.black-mode .month-pill {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #121212 !important;
-  color: #f1f5f9 !important;
-  border-top: 1px solid #222222 !important;
-}
-
-body.black-mode .annual-mini-card {
-  background-color: #121212 !important;
-  border-color: #222222 !important;
-  color: #f1f5f9 !important;
-}
-
-body.black-mode .annual-mini-card span {
-  color: #888888 !important;
-}
-
-body.black-mode .annual-mini-card strong {
-  color: #ffffff !important;
-}
-
-body.black-mode dialog::backdrop {
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-
-/* =========================================================
-   MODO BLACK PERFECTO (COPIA EXACTA DE LA ESTRUCTURA DEL MODO AZUL)
-========================================================= */
-body.black-mode,
-body.black-mode main.app,
-body.black-mode dialog {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode header.hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card,
-body.black-mode dialog,
-body.black-mode .modal {
-  background-color: #121212 !important;
-  border: 1px solid #262626 !important;
-  border-radius: 20px !important;
-  color: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
-}
-
-body.black-mode header.hero {
-  padding: 28px !important;
-  margin-bottom: 24px !important;
-}
-
-body.black-mode header.hero .eyebrow,
-body.black-mode header.hero h1,
-body.black-mode header.hero .subtitle {
-  color: #ffffff !important;
-}
-
-/* Forzar todos los botones e inputs a la estética OLED prolija */
-body.black-mode .pastel-btn,
-body.black-mode button.pastel-btn,
-body.black-mode .btn,
-body.black-mode button,
-body.black-mode select,
-body.black-mode input[type="search"],
-body.black-mode input[type="month"],
-body.black-mode input[type="date"],
-body.black-mode input[type="number"],
-body.black-mode input[type="text"],
-body.black-mode input[type="email"],
-body.black-mode input[type="password"],
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode button.pastel-btn:hover,
-body.black-mode .btn:hover {
-  background-color: #262626 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode thead, 
-body.black-mode th, 
-body.black-mode .table-wrap th {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #333333 !important;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #1f1f1f !important;
-  color: #ffffff !important;
-}
-
-body.black-mode tbody tr:hover {
-  background-color: #181818 !important;
-}
-
-body.black-mode input::placeholder,
-body.black-mode textarea::placeholder {
-  color: #888888 !important;
-}
-
-body.black-mode .money-input span,
-body.black-mode .money-input,
-body.black-mode span.category,
-body.black-mode .category,
-body.black-mode .month-pill {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border-top: 1px solid #262626 !important;
-}
-
-body.black-mode .annual-mini-card {
-  background-color: #121212 !important;
-  border-color: #262626 !important;
-  color: #ffffff !important;
-}
-
-/* Fondo oscuro translúcido con blur exacto al del modo azul para los modales */
-body.black-mode dialog::backdrop,
-body.black-mode .modal-backdrop {
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-
-/* =========================================================
-   MODO BLACK (COPIA EXACTA DE LA ESTÉTICA DEL MODO AZUL)
-========================================================= */
-body.black-mode,
-body.black-mode main.app,
-body.black-mode dialog {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode header.hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card,
-body.black-mode dialog,
-body.black-mode .modal {
-  background-color: #121212 !important;
-  border: 1px solid #262626 !important;
-  border-radius: 20px !important;
-  color: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.black-mode header.hero {
-  padding: 28px !important;
-  margin-bottom: 24px !important;
-}
-
-body.black-mode .pastel-btn,
-body.black-mode button.pastel-btn,
-body.black-mode .btn,
-body.black-mode button,
-body.black-mode select,
-body.black-mode input[type="search"],
-body.black-mode input[type="month"],
-body.black-mode input[type="date"],
-body.black-mode input[type="number"],
-body.black-mode input[type="text"],
-body.black-mode input[type="email"],
-body.black-mode input[type="password"],
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode button.pastel-btn:hover,
-body.black-mode .btn:hover {
-  background-color: #262626 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode thead, 
-body.black-mode th, 
-body.black-mode .table-wrap th {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #333333 !important;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #1f1f1f !important;
-  color: #ffffff !important;
-}
-
-body.black-mode tbody tr:hover {
-  background-color: #181818 !important;
-}
-
-body.black-mode .money-input span,
-body.black-mode .money-input,
-body.black-mode span.category,
-body.black-mode .category,
-body.black-mode .month-pill {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border-top: 1px solid #262626 !important;
-}
-
-body.black-mode dialog::backdrop,
-body.black-mode .modal-backdrop {
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-
-/* =========================================================
-   MODO BLACK OLED (REFINADO, ELEGANTE Y DEFINITIVO)
-========================================================= */
-body.black-mode {
-  background-color: #000000 !important;
-  color: #f8fafc !important;
-}
-
-body.black-mode main.app,
-body.black-mode dialog {
-  background-color: #000000 !important;
-  color: #f8fafc !important;
-}
-
-/* Contenedores y tarjetas principales con un gris oscuro bien distinguible */
-body.black-mode header.hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card,
-body.black-mode dialog,
-body.black-mode .modal {
-  background-color: #111113 !important;
-  border: 1px solid #27272a !important;
-  border-radius: 20px !important;
-  color: #f8fafc !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
-}
-
-body.black-mode header.hero {
-  padding: 28px !important;
-  margin-bottom: 24px !important;
-}
-
-body.black-mode header.hero .eyebrow,
-body.black-mode header.hero h1,
-body.black-mode header.hero .subtitle {
-  color: #ffffff !important;
-}
-
-/* Botones, inputs y selectores con relieve sutil */
-body.black-mode .pastel-btn,
-body.black-mode button.pastel-btn,
-body.black-mode .btn,
-body.black-mode button,
-body.black-mode select,
-body.black-mode input[type="search"],
-body.black-mode input[type="month"],
-body.black-mode input[type="date"],
-body.black-mode input[type="number"],
-body.black-mode input[type="text"],
-body.black-mode input[type="email"],
-body.black-mode input[type="password"],
-body.black-mode textarea {
-  background-color: #18181b !important;
-  color: #ffffff !important;
-  border: 1px solid #3f3f46 !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode button.pastel-btn:hover,
-body.black-mode .btn:hover {
-  background-color: #27272a !important;
-  border-color: #71717a !important;
-  color: #ffffff !important;
-}
-
-/* Tablas con separación elegante y filas alternadas */
-body.black-mode thead, 
-body.black-mode th, 
-body.black-mode .table-wrap th {
-  background-color: #18181b !important;
-  color: #a1a1aa !important;
-  border-bottom: 1px solid #3f3f46 !important;
-  font-weight: 700;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #27272a !important;
-  color: #f8fafc !important;
-}
-
-body.black-mode tbody tr:nth-child(even) {
-  background-color: #141416 !important;
-}
-
-body.black-mode tbody tr:hover {
-  background-color: #1c1c1f !important;
-}
-
-body.black-mode input::placeholder,
-body.black-mode textarea::placeholder {
-  color: #71717a !important;
-}
-
-body.black-mode .money-input span,
-body.black-mode .money-input,
-body.black-mode span.category,
-body.black-mode .category,
-body.black-mode .month-pill {
-  background-color: #18181b !important;
-  color: #f8fafc !important;
-  border: 1px solid #3f3f46 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #111113 !important;
-  color: #ffffff !important;
-  border-top: 1px solid #27272a !important;
-}
-
-body.black-mode .annual-mini-card {
-  background-color: #18181b !important;
-  border-color: #27272a !important;
-  color: #f8fafc !important;
-}
-
-body.black-mode .annual-mini-card span {
-  color: #a1a1aa !important;
-}
-
-body.black-mode .annual-mini-card strong {
-  color: #ffffff !important;
-}
-
-body.black-mode dialog::backdrop,
-body.black-mode .modal-backdrop {
-  background: rgba(0, 0, 0, 0.8) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-}
-
-
-/* =========================================================
-   MODO BLACK (ESTRUCTURA NATIVA IDÉNTICA AL MODO AZUL)
-========================================================= */
-body.black-mode {
-  --bg: #000000;
-  --card: #121214;
-  --text: #f4f4f5;
-  --muted: #a1a1aa;
-  --line: #27272a;
-  --pink-500: #ffffff;
-  --pink-700: #e4e4e7;
-  --pink-bg: #18181b;
-  background-color: #000000 !important;
-  color: #f4f4f5 !important;
-}
-
-body.black-mode .hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .auth-card,
-body.black-mode dialog {
-  background: #121214 !important;
-  border-color: #27272a !important;
-  color: #f4f4f5 !important;
-}
-
-body.black-mode .pastel-btn,
-body.black-mode .btn,
-body.black-mode .custom-collapse-btn {
-  background: #1c1c20 !important;
-  color: #ffffff !important;
-  border: 1px solid #3f3f46 !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode .btn:hover {
-  background: #27272a !important;
-}
-
-body.black-mode input,
-body.black-mode select,
-body.black-mode textarea {
-  background-color: #09090b !important;
-  color: #f4f4f5 !important;
-  border-color: #27272a !important;
-}
-
+/* 5. Tablas: filas alternadas limpias y cabeceras elegantes */
 body.black-mode thead,
 body.black-mode th,
 body.black-mode .table-wrap th {
-  background-color: #18181b !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #27272a !important;
+  background: #141923 !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid #1f242d !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 body.black-mode td {
-  border-bottom: 1px solid #1c1c20 !important;
-  color: #f4f4f5 !important;
+  border-bottom: 1px solid #151921 !important;
+  color: #e2e8f0 !important;
 }
 
 body.black-mode tbody tr:nth-child(even) {
-  background-color: #0d0d0f !important;
+  background: #090a0d !important;
 }
 
 body.black-mode tbody tr:hover {
-  background-color: #18181b !important;
+  background: #161b24 !important;
 }
 
+/* Píldoras de categorías y badges */
 body.black-mode .category,
 body.black-mode .month-pill {
-  background: #27272a !important;
-  color: #ffffff !important;
+  background: #1a212d !important;
+  color: #cbd5e1 !important;
+  border: 1px solid #283345 !important;
 }
 
 body.black-mode .table-total {
-  background: #121214 !important;
-  color: #ffffff !important;
-  border-top: 1px solid #27272a !important;
+  background: #0d0e11 !important;
+  border-top: 1px solid #1f242d !important;
+  color: #f8fafc !important;
 }
 
+/* Resumen anual y modales */
+body.black-mode .annual-mini-card {
+  background: #08090c !important;
+  border: 1px solid #1f242d !important;
+}
+
+body.black-mode dialog::backdrop {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+}
