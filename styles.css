@@ -1291,3 +1291,89 @@ body.black-mode .annual-mini-card {
   .hero { padding: 20px; }
   th, td { white-space: nowrap; }
 }
+
+
+/* =========================================================
+   CORRECCIÓN URGENTE: LOGIN Y MODAL
+========================================================= */
+
+/* 1. Restaurar el input de contraseña y su botón de ojito/icono a su tamaño normal */
+.auth-card .password-wrap,
+.auth-card .password-wrap input {
+  background: white !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  padding: 10px 12px !important;
+  margin: 0 !important;
+}
+
+.auth-card .password-wrap input {
+  padding-right: 42px !important;
+}
+
+/* El botón del icono/flor dentro del password no debe ser un botón gigante rosa */
+.auth-card .toggle-password,
+.auth-card .password-wrap button {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 4px !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+/* 2. El botón de Registro / ¿No tenés cuenta? debe ser un texto plano, no un botón rosa */
+.auth-card .auth-switch {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  width: auto !important;
+  margin: 12px auto 0 !important;
+  color: var(--pink-700) !important;
+  font-weight: 800 !important;
+}
+
+.auth-card .auth-switch:hover {
+  background: transparent !important;
+  transform: none !important;
+  color: var(--pink-500) !important;
+}
+
+/* 3. Único botón de envío del login con estilo correcto */
+.auth-card button[type="submit"],
+.auth-card input[type="submit"],
+#authSubmitBtn,
+.auth-submit {
+  width: 100% !important;
+  background: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+  border-radius: 12px !important;
+  padding: 13px 18px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
+  margin-top: 6px !important;
+}
+
+/* 4. Alinear los botones del modal de Resumen Anual (Foto 2) para que no se estiren mal */
+dialog .modal-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+dialog .modal-actions button,
+dialog .modal-actions .pastel-btn,
+dialog .modal-actions .btn-pink {
+  width: auto !important;
+  flex: initial !important;
+  padding: 10px 18px !important;
+  border-radius: 12px !important;
+}
