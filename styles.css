@@ -2138,3 +2138,55 @@ body.black-mode div[style*="width:"][style*="border-radius"] {
   background-color: #ffffff !important;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
 }
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   CABECERA RESUMEN ANUAL: ÍCONO FLOR Y BOTÓN CERRAR
+   ========================================================= */
+
+/* 1. Contenedor/cajita de la flor: fondo oscuro sutil con borde fino */
+body.black-mode dialog .annual-header > div:first-child,
+body.black-mode dialog [class*="icon-wrap"],
+body.black-mode dialog [class*="badge"],
+body.black-mode .annual-header span:has(> img),
+body.black-mode .annual-header div:has(> svg),
+body.black-mode .annual-header img,
+body.black-mode dialog header > div:first-child {
+  background: #18181c !important;
+  background-color: #18181c !important;
+  border: 1px solid #282830 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* 2. Botón de cierre (X) en la esquina superior derecha */
+body.black-mode dialog button[class*="close"],
+body.black-mode dialog .btn-close,
+body.black-mode dialog #closeAnnualDialog,
+body.black-mode dialog [aria-label="Cerrar"] {
+  background-color: #18181c !important;
+  border: 1px solid #282830 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+}
+
+body.black-mode dialog button[class*="close"]:hover,
+body.black-mode dialog .btn-close:hover,
+body.black-mode dialog #closeAnnualDialog:hover {
+  background-color: #24242b !important;
+  border-color: #4a4a58 !important;
+  transform: scale(1.08) !important;
+}
+
+/* 3. Subtítulo (Año 2026...) en gris suave legible */
+body.black-mode dialog .annual-header p,
+body.black-mode dialog .annual-header small {
+  color: #94a3b8 !important;
+}
