@@ -2117,3 +2117,24 @@ body.black-mode .section-heading p {
 
 
 
+/* =========================================================
+   BARRA DE PORCENTAJE EN BLANCO PURO (MODO BLACK)
+   ========================================================= */
+
+/* 1. Fondo / carril base donde corre la barra */
+body.black-mode #categoryChart > div > div:last-child,
+body.black-mode [class*="category"] [class*="progress-bar"],
+body.black-mode [class*="progress-track"],
+body.black-mode div[style*="height"][style*="border-radius"] {
+  background-color: #1f1f24 !important;
+}
+
+/* 2. Relleno del porcentaje en blanco puro y nítido */
+body.black-mode #categoryChart div[style*="width"],
+body.black-mode [class*="progress-fill"],
+body.black-mode [class*="progress-value"],
+body.black-mode div[style*="width:"][style*="border-radius"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
+}
