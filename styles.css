@@ -2418,14 +2418,14 @@ body.black-mode textarea {
 
 
 /* =========================================================
-   MODO BLACK (ESTÉTICA PULIDA PREMIUM / OLED)
+   MODO BLACK OLED REFINADO (ALTO CONTRASTE Y PROFUNDIDAD)
 ========================================================= */
 body.black-mode {
   background-color: #000000 !important;
-  color: #f1f5f9 !important;
+  color: #f3f4f6 !important;
 }
 
-/* 1. Tarjetas con bordes nítidos y fondo grafito oscuro */
+/* 1. Tarjetas con separación real del fondo negro puro */
 body.black-mode header.hero,
 body.black-mode .summary-card,
 body.black-mode .panel,
@@ -2433,15 +2433,15 @@ body.black-mode .toolbar,
 body.black-mode .trend-box,
 body.black-mode .auth-card,
 body.black-mode dialog {
-  background: #0d0e11 !important;
-  border: 1px solid #1f242d !important;
-  border-radius: 16px !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7) !important;
+  background: #111215 !important;
+  border: 1px solid #23262d !important;
+  border-radius: 18px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75) !important;
 }
 
-/* 2. Jerarquía tipográfica: Títulos blancos, subtítulos en gris tenue */
+/* 2. Jerarquía tipográfica nítida */
 body.black-mode .eyebrow {
-  color: #e2e8f0 !important;
+  color: #9ca3af !important;
   letter-spacing: 1.5px;
 }
 
@@ -2458,102 +2458,134 @@ body.black-mode .summary-card small,
 body.black-mode .section-heading p,
 body.black-mode footer,
 body.black-mode #differenceLabel {
-  color: #8b9bb4 !important;
+  color: #9ca3af !important;
 }
 
-/* 3. Botones con presencia, borde nítido y hover con brillo */
+/* 3. Inputs, selects y campos: terminación prolija y bordes visibles */
+body.black-mode input,
+body.black-mode select,
+body.black-mode textarea,
+body.black-mode .money-input {
+  background-color: #181a20 !important;
+  color: #ffffff !important;
+  border: 1px solid #2e333d !important;
+  border-radius: 10px !important;
+}
+
+body.black-mode input:focus,
+body.black-mode select:focus,
+body.black-mode textarea:focus {
+  border-color: #4b5563 !important;
+  outline: none !important;
+}
+
+body.black-mode input::placeholder,
+body.black-mode textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+body.black-mode .money-input span {
+  color: #9ca3af !important;
+  background: transparent !important;
+}
+
+/* 4. Botones: terminación pulida con contraste */
 body.black-mode .pastel-btn,
 body.black-mode .btn,
 body.black-mode .custom-collapse-btn {
-  background: #161b24 !important;
-  color: #f8fafc !important;
-  border: 1px solid #2a3342 !important;
+  background: #1e222b !important;
+  color: #f3f4f6 !important;
+  border: 1px solid #333945 !important;
   border-radius: 10px !important;
   font-weight: 600;
-  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
 }
 
 body.black-mode .pastel-btn:hover,
 body.black-mode .btn:hover,
 body.black-mode .custom-collapse-btn:hover {
-  background: #232b3a !important;
-  border-color: #4b5a75 !important;
-  color: #ffffff !important;
-  transform: translateY(-1px);
-}
-
-/* Botón primario destacado (+ Nuevo gasto) */
-body.black-mode #addExpenseBtn {
-  background: #2b3548 !important;
-  border-color: #506488 !important;
+  background: #282e3a !important;
+  border-color: #4b5568 !important;
   color: #ffffff !important;
 }
 
-/* 4. Inputs y cajas de texto integradas */
-body.black-mode input,
-body.black-mode select,
-body.black-mode textarea,
-body.black-mode .money-input {
-  background: #050608 !important;
-  border: 1px solid #1f242d !important;
+/* Botón primario de acción destacada */
+body.black-mode #addExpenseBtn,
+body.black-mode #submitExtraBtn,
+body.black-mode #submitExpenseBtn {
+  background: #2b3240 !important;
+  border: 1px solid #4a5568 !important;
   color: #ffffff !important;
-  border-radius: 10px !important;
 }
 
-body.black-mode input:focus,
-body.black-mode select:focus {
-  border-color: #506488 !important;
+body.black-mode #addExpenseBtn:hover,
+body.black-mode #submitExtraBtn:hover,
+body.black-mode #submitExpenseBtn:hover {
+  background: #374151 !important;
+  border-color: #6b7280 !important;
 }
 
-body.black-mode .money-input span {
-  color: #94a3b8 !important;
-}
-
-/* 5. Tablas: filas alternadas limpias y cabeceras elegantes */
-body.black-mode thead,
-body.black-mode th,
-body.black-mode .table-wrap th {
-  background: #141923 !important;
-  color: #94a3b8 !important;
-  border-bottom: 1px solid #1f242d !important;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #151921 !important;
-  color: #e2e8f0 !important;
-}
-
-body.black-mode tbody tr:nth-child(even) {
-  background: #090a0d !important;
-}
-
-body.black-mode tbody tr:hover {
-  background: #161b24 !important;
-}
-
-/* Píldoras de categorías y badges */
-body.black-mode .category,
-body.black-mode .month-pill {
-  background: #1a212d !important;
-  color: #cbd5e1 !important;
-  border: 1px solid #283345 !important;
-}
-
-body.black-mode .table-total {
-  background: #0d0e11 !important;
-  border-top: 1px solid #1f242d !important;
-  color: #f8fafc !important;
-}
-
-/* Resumen anual y modales */
-body.black-mode .annual-mini-card {
-  background: #08090c !important;
-  border: 1px solid #1f242d !important;
+/* 5. Modales flotantes limpios */
+body.black-mode dialog {
+  padding: 24px !important;
 }
 
 body.black-mode dialog::backdrop {
-  background: rgba(0, 0, 0, 0.85) !important;
-  backdrop-filter: blur(8px) !important;
+  background: rgba(0, 0, 0, 0.82) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+body.black-mode dialog button[id*="close"],
+body.black-mode dialog .close {
+  background: #1e222b !important;
+  color: #9ca3af !important;
+  border: 1px solid #2e333d !important;
+  border-radius: 50% !important;
+}
+
+body.black-mode dialog button[id*="close"]:hover,
+body.black-mode dialog .close:hover {
+  color: #ffffff !important;
+  border-color: #4b5563 !important;
+}
+
+/* 6. Tablas y badges de categoría */
+body.black-mode thead,
+body.black-mode th,
+body.black-mode .table-wrap th {
+  background: #15171c !important;
+  color: #9ca3af !important;
+  border-bottom: 1px solid #23262d !important;
+}
+
+body.black-mode td {
+  border-bottom: 1px solid #1c1e24 !important;
+  color: #e5e7eb !important;
+}
+
+body.black-mode tbody tr:nth-child(even) {
+  background: #13151a !important;
+}
+
+body.black-mode tbody tr:hover {
+  background: #1a1d24 !important;
+}
+
+body.black-mode .category,
+body.black-mode .month-pill {
+  background: #20242d !important;
+  color: #e5e7eb !important;
+  border: 1px solid #333945 !important;
+}
+
+body.black-mode .table-total {
+  background: #111215 !important;
+  border-top: 1px solid #23262d !important;
+  color: #ffffff !important;
+}
+
+/* Resumen anual */
+body.black-mode .annual-mini-card {
+  background: #16181f !important;
+  border: 1px solid #282c37 !important;
 }
