@@ -897,3 +897,246 @@ body.black-mode .annual-mini-card strong,
 body.black-mode .annual-mini-card span {
   color: #ffffff !important;
 }
+
+
+/* Diálogo y tarjeta contenedora */
+dialog.app-dialog {
+  border: none;
+  background: transparent;
+  padding: 0;
+  max-width: 95vw;
+}
+
+dialog.app-dialog::backdrop {
+  background: rgba(85, 21, 45, 0.25);
+  backdrop-filter: blur(3px);
+}
+
+.modal-extra-card {
+  width: 440px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px 26px;
+  box-shadow: 0 16px 40px rgba(85, 21, 45, 0.16);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* Cabecera foto 1 */
+.modal-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-title-group h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--pink-700, #9f2449);
+}
+
+.modal-plus-icon {
+  font-size: 1.1rem;
+}
+
+.btn-close-circle {
+  background: var(--pink-100, #ffe3ea);
+  color: var(--pink-700, #9f2449);
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.modal-caption {
+  font-size: 0.78rem;
+  color: var(--muted, #8f6876);
+  margin: 3px 0 14px 0;
+}
+
+/* Labels e Inputs generales */
+.modal-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--pink-700, #9f2449);
+  margin-bottom: 11px;
+  letter-spacing: 0.02em;
+}
+
+.custom-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  border: 1px solid var(--pink-200, #ffc5d2);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.86rem;
+  color: var(--ink, #55152d);
+  background: #fff;
+  outline: none;
+}
+
+.custom-input:focus {
+  border-color: var(--pink-500, #f56b8b);
+}
+
+.modal-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Split de Monto y Moneda */
+.amount-split {
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.amount-field-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.prefix-symbol {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pink-500, #f56b8b);
+}
+
+.amount-field-wrap .field-amount {
+  margin-top: 0;
+  padding-left: 30px;
+}
+
+.select-currency {
+  margin-top: 0;
+  width: 78px;
+  cursor: pointer;
+}
+
+/* Checkbox principal */
+.checkbox-custom-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--ink, #55152d);
+}
+
+.checkbox-custom-row input[type="checkbox"] {
+  accent-color: var(--pink-500, #f56b8b);
+  width: 15px;
+  height: 15px;
+}
+
+/* Panel Rosa interior de Recurrencia */
+.pink-subpanel {
+  background: #fff5f8;
+  border: 1px solid var(--pink-100, #ffe3ea);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.subpanel-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink, #55152d);
+  display: block;
+}
+
+.subpanel-input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+  border: 1px solid var(--pink-200, #ffc5d2);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 0.82rem;
+  background: #ffffff;
+  outline: none;
+}
+
+.full-row {
+  margin-top: 8px;
+}
+
+.subpanel-check {
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+
+/* Renglones de meses variables generados dinámicamente */
+.recurring-amounts-list > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--ink, #55152d);
+  padding: 3px 0;
+}
+
+.recurring-amounts-list input {
+  width: 90px;
+  text-align: right;
+  border: 1px solid var(--pink-200, #ffc5d2);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+}
+
+/* Botones Cancelar / Guardar centrados */
+.modal-actions-centered {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-clean-cancel {
+  background: #ffffff;
+  border: 1px solid var(--pink-300, #ff9db4);
+  color: var(--pink-700, #9f2449);
+  padding: 7px 22px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-clean-submit {
+  background: var(--pink-200, #ffc5d2);
+  border: 1px solid var(--pink-200, #ffc5d2);
+  color: var(--pink-700, #9f2449);
+  padding: 7px 22px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
