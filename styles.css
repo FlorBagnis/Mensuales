@@ -3136,3 +3136,68 @@ body.black-mode table .delete-btn,
 body.black-mode table .delete-extra-btn {
   color: #ffffff !important;
 }
+
+
+
+/* =========================================================
+   ELIMINAR LÍNEAS RECTAS / BORDES RESIDUALES (BLACK Y AZUL)
+   ========================================================= */
+
+/* Limpieza general del elemento dialog nativo */
+body.black-mode dialog,
+body.dark-blue-mode dialog,
+body.black-mode #annualDialog,
+body.dark-blue-mode #annualDialog {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 28px !important;
+  overflow: hidden !important;
+}
+
+/* 1. MODO BLACK */
+body.black-mode #annualDialog .modal-box,
+body.black-mode #annualDialog > div {
+  border: 1px solid #222222 !important; /* Borde uniforme y sutil */
+  border-radius: 28px !important;
+  outline: none !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Quitar líneas cuadradas de las tarjetas y botones interiores */
+body.black-mode #annualDialog .annual-mini-card {
+  border: 1px solid #222222 !important;
+  border-radius: 18px !important;
+  outline: none !important;
+}
+
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  border: 1px solid #2e2e2e !important;
+  border-radius: 14px !important;
+  outline: none !important;
+}
+
+
+/* 2. MODO AZUL */
+body.dark-blue-mode #annualDialog .modal-box,
+body.dark-blue-mode #annualDialog > div {
+  border: 1px solid #14244b !important;
+  border-radius: 28px !important;
+  outline: none !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7) !important;
+}
+
+body.dark-blue-mode #annualDialog .annual-mini-card {
+  border: 1px solid #1a2f5d !important;
+  border-radius: 18px !important;
+  outline: none !important;
+}
+
+body.dark-blue-mode #annualDialog #annualPdfBtn,
+body.dark-blue-mode #annualDialog #closeAnnualCancelBtn {
+  border: 1px solid #1e3a8a !important;
+  border-radius: 14px !important;
+  outline: none !important;
+}
