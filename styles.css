@@ -3278,13 +3278,20 @@ body.black-mode table .delete-btn {
 
 
 /* =========================================================
-   MODO BLACK PURO OLED (100% NEGRO + ZOOM + EFECTOS)
+   MODO BLACK: UNIFORMIDAD TOTAL (CLON EXACTO MODO AZUL)
    ========================================================= */
 
-/* 1. Fondo absoluto para pantalla, tarjetas y contenedores */
+/* 1. Fondo negro puro en raíz, cuerpo y contenedor general */
 html.black-mode,
 body.black-mode,
 body.black-mode main.app,
+body.black-mode #appContent {
+  background-color: #000000 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+}
+
+/* 2. Todos los paneles principales en negro puro con borde fino uniforme */
 body.black-mode header.hero,
 body.black-mode .summary-card,
 body.black-mode .panel,
@@ -3293,28 +3300,28 @@ body.black-mode .trend-box,
 body.black-mode .auth-card,
 body.black-mode .modal-box,
 body.black-mode dialog {
-  background: #000000 !important;
   background-color: #000000 !important;
   background-image: none !important;
-  color: #ffffff !important;
-  border-color: #1c1c1c !important; /* Delimitador fino uniforme */
+  border: 1px solid #1a1a1a !important;
+  border-radius: 16px !important;
   box-shadow: none !important;
+  color: #ffffff !important;
 }
 
-/* 2. Textos, números y etiquetas en blanco */
+/* 3. Tipografía blanca pura */
 body.black-mode h1,
 body.black-mode h2,
 body.black-mode h3,
+body.black-mode h4,
+body.black-mode p,
+body.black-mode span,
 body.black-mode strong,
 body.black-mode td,
 body.black-mode th,
+body.black-mode label,
 body.black-mode .eyebrow,
 body.black-mode .subtitle,
-body.black-mode .user-email,
-body.black-mode label,
-body.black-mode span,
-body.black-mode p,
-body.black-mode small {
+body.black-mode .user-email {
   color: #ffffff !important;
 }
 
@@ -3322,23 +3329,24 @@ body.black-mode .subtitle,
 body.black-mode .section-heading p,
 body.black-mode .summary-card small,
 body.black-mode footer {
-  color: #888888 !important;
+  color: #777777 !important;
 }
 
-/* 3. Inputs, selects y campos de dinero en negro puro */
+/* 4. Inputs y selectores integrados en negro puro */
 body.black-mode input,
 body.black-mode select,
 body.black-mode textarea,
 body.black-mode .money-input {
-  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
   border: 1px solid #222222 !important;
+  border-radius: 10px !important;
 }
 
 body.black-mode input:focus,
 body.black-mode select:focus {
   border-color: #444444 !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
 }
 
 body.black-mode .money-input span {
@@ -3347,19 +3355,18 @@ body.black-mode .money-input span {
   border: none !important;
 }
 
-/* 4. Botones con zoom y efecto iluminado al pasar el cursor */
+/* 5. Botones: mismo efecto de hover, borde e interacción que en el modo azul */
 body.black-mode .pastel-btn,
 body.black-mode button.pastel-btn,
 body.black-mode .btn,
 body.black-mode .btn-outline,
 body.black-mode .custom-collapse-btn {
-  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border: 1px solid #282828 !important;
+  border: 1px solid #2a2a2a !important;
   border-radius: 10px !important;
   box-shadow: none !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, background-color 0.2s ease !important;
 }
 
 body.black-mode .pastel-btn:hover,
@@ -3367,80 +3374,79 @@ body.black-mode button.pastel-btn:hover,
 body.black-mode .btn:hover,
 body.black-mode .btn-outline:hover,
 body.black-mode .custom-collapse-btn:hover {
-  background: #000000 !important;
+  background-color: #000000 !important;
   border-color: #ffffff !important;
   transform: scale(1.05) translateY(-2px) !important;
   box-shadow: 0 4px 14px rgba(255, 255, 255, 0.12) !important;
 }
 
-/* 5. Pastillas y categorías */
+/* 6. Pastillas y categorías */
 body.black-mode .category,
 body.black-mode .month-pill,
 body.black-mode #extraTotalSumDisplay {
-  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border: 1px solid #282828 !important;
+  border: 1px solid #222222 !important;
 }
 
-/* 6. Tablas sin franjas grises */
+/* 7. Tablas uniformes en negro absoluto */
 body.black-mode thead,
 body.black-mode th,
 body.black-mode .table-wrap th {
-  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border-bottom: 1px solid #1c1c1c !important;
+  border-bottom: 1px solid #1a1a1a !important;
 }
 
 body.black-mode td {
-  background: #000000 !important;
   background-color: #000000 !important;
-  border-bottom: 1px solid #151515 !important;
+  border-bottom: 1px solid #141414 !important;
   color: #ffffff !important;
 }
 
 body.black-mode tbody tr,
 body.black-mode tbody tr:nth-child(even),
 body.black-mode tbody tr:hover {
-  background: #000000 !important;
   background-color: #000000 !important;
 }
 
 body.black-mode .table-total {
-  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border-top: 1px solid #1c1c1c !important;
+  border-top: 1px solid #1a1a1a !important;
 }
 
-/* 7. Iconos de acción (lápiz y cruz sin recuadro) */
+/* 8. Botones de acción (lápiz y cruz) limpios */
 body.black-mode table .edit-btn,
 body.black-mode table .edit-extra-btn,
 body.black-mode table .delete-btn,
 body.black-mode table .delete-extra-btn {
   background: transparent !important;
   border: none !important;
-  box-shadow: none !important;
   color: #ffffff !important;
+  box-shadow: none !important;
 }
 
-/* 8. Tarjetas del Resumen Anual en negro puro con zoom */
+body.black-mode table .edit-btn:hover,
+body.black-mode table .delete-btn:hover {
+  transform: scale(1.25) !important;
+}
+
+/* 9. Modales y tarjetas anuales */
 body.black-mode .annual-mini-card {
-  background: #000000 !important;
   background-color: #000000 !important;
-  border: 1px solid #222222 !important;
+  border: 1px solid #1a1a1a !important;
   color: #ffffff !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease !important;
+  border-radius: 14px !important;
+  transition: transform 0.2s ease, border-color 0.2s ease !important;
 }
 
 body.black-mode .annual-mini-card:hover {
-  background: #000000 !important;
+  background-color: #000000 !important;
   border-color: #ffffff !important;
   transform: scale(1.04) translateY(-2px) !important;
 }
 
-/* 9. Backdrop translúcido con desenfoque para modales */
 body.black-mode dialog::backdrop {
   background: rgba(0, 0, 0, 0.85) !important;
   backdrop-filter: blur(8px) !important;
