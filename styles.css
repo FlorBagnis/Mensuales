@@ -1377,3 +1377,90 @@ dialog .modal-actions .btn-pink {
   padding: 10px 18px !important;
   border-radius: 12px !important;
 }
+
+
+
+
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA MODAL RESUMEN ANUAL (LOS 4 MODOS)
+========================================================= */
+
+/* Contenedor general del modal para asegurar estructura limpia */
+dialog#annualDialog,
+dialog {
+  width: min(480px, calc(100vw - 32px)) !important;
+  max-width: 480px !important;
+  padding: 28px 26px !important;
+  border-radius: 24px !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+}
+
+/* Alineación limpia de los botones al pie del modal en todos los temas */
+dialog .annual-actions,
+dialog .modal-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 22px !important;
+  width: 100% !important;
+}
+
+/* Tamaño de los botones del modal para que no se estiren como bloques */
+dialog .annual-actions button,
+dialog .modal-actions button,
+dialog .annual-actions .pastel-btn,
+dialog .annual-actions .btn-pink,
+dialog .modal-actions .pastel-btn,
+dialog .modal-actions .btn-pink {
+  flex: initial !important;
+  width: auto !important;
+  min-width: 120px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+/* =========================================================
+   ADAPTACIÓN DE LOS BOTONES DEL MODAL POR CADA MODO
+========================================================= */
+
+/* Modo Claro / Default */
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .annual-actions .pastel-btn,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .modal-actions .pastel-btn {
+  background: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+}
+
+/* Modo Oscuro (Pink Aesthetic) */
+body.dark-mode dialog .annual-actions button,
+body.dark-mode dialog .modal-actions button {
+  background: #3d222b !important;
+  color: #ffb6c1 !important;
+  border: 1px solid #6b3b4a !important;
+}
+
+/* Modo Azul */
+body.dark-blue-mode dialog .annual-actions button,
+body.dark-blue-mode dialog .modal-actions button {
+  background: #14244b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e3a8a !important;
+}
+
+/* Modo Black (OLED) */
+body.black-mode dialog .annual-actions button,
+body.black-mode dialog .modal-actions button {
+  background: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #2e2e2e !important;
+}
