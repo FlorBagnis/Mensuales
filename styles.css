@@ -1856,10 +1856,9 @@ body.dark-blue-mode .budget-alert-banner span {
 
 
 /* =========================================================
-   MODO BLACK PURISTA (100% NEGRO ABSOLUTO / OLED PURE BLACK)
+   MODO BLACK PURISTA TOTAL (100% NEGRO Y TEXTOS BLANCOS)
 ========================================================= */
 
-/* 1. Fondo de pantalla, aplicación y HTML */
 html.black-mode,
 body.black-mode,
 body.black-mode main.app {
@@ -1868,7 +1867,7 @@ body.black-mode main.app {
   color: #ffffff !important;
 }
 
-/* 2. Banner superior Hero (elimina el parche cortado del título) */
+/* 1. Header Hero y Banner superior */
 body.black-mode header.hero,
 body.black-mode .hero,
 body.black-mode .hero div,
@@ -1877,35 +1876,23 @@ body.black-mode header.hero div {
   background-color: #000000 !important;
   background-image: none !important;
   box-shadow: none !important;
-}
-
-body.black-mode header.hero {
   border: 1px solid #222222 !important;
   border-radius: 16px !important;
   padding: 24px 28px !important;
 }
 
-body.black-mode header.hero .eyebrow {
-  color: #888888 !important;
-}
-
-body.black-mode header.hero h1 {
+body.black-mode header.hero *,
+body.black-mode .hero * {
   color: #ffffff !important;
-}
-
-body.black-mode header.hero .subtitle,
-body.black-mode header.hero .user-email {
-  color: #666666 !important;
 }
 
 body.black-mode #dolarBadge {
   background: #000000 !important;
-  background-color: #000000 !important;
   border: 1px solid #262626 !important;
-  color: #cccccc !important;
+  color: #ffffff !important;
 }
 
-/* 3. Tarjetas de resumen, paneles, toolbar y cajas */
+/* 2. Paneles, tarjetas y toolbar */
 body.black-mode .summary-card,
 body.black-mode .panel,
 body.black-mode .toolbar,
@@ -1919,22 +1906,27 @@ body.black-mode .auth-card {
   color: #ffffff !important;
 }
 
+/* Forzar TODOS los textos, títulos, subtítulos y etiquetas a blanco puro */
 body.black-mode h1,
 body.black-mode h2,
 body.black-mode h3,
-body.black-mode strong {
-  color: #ffffff !important;
-}
-
+body.black-mode h4,
+body.black-mode p,
+body.black-mode span,
+body.black-mode label,
+body.black-mode strong,
+body.black-mode small,
+body.black-mode .eyebrow,
+body.black-mode .subtitle,
 body.black-mode .summary-card span,
 body.black-mode .summary-card small,
 body.black-mode .section-heading p,
 body.black-mode footer,
 body.black-mode #differenceLabel {
-  color: #666666 !important;
+  color: #ffffff !important;
 }
 
-/* 4. Solapas y Modales (<dialog>) - Elimina doble caja y fondos raros */
+/* 3. Modales (<dialog>) y cajas de recurrencia rosadas eliminadas */
 body.black-mode dialog,
 body.black-mode dialog[id*="Dialog"],
 body.black-mode .modal,
@@ -1953,28 +1945,33 @@ body.black-mode dialog {
 }
 
 body.black-mode dialog::backdrop {
-  background: rgba(0, 0, 0, 0.85) !important;
+  background: rgba(0, 0, 0, 0.9) !important;
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* ELIMINAR EL FONDO ROSADO DE RECURRENCIA EN MODALES */
+body.black-mode #extraRecurringOptions,
+body.black-mode div[id*="RecurringOptions"],
+body.black-mode .recurring-box,
+body.black-mode [style*="background: var(--pink-bg)"],
+body.black-mode [style*="background:#fde8ee"] {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #222222 !important;
+  color: #ffffff !important;
 }
 
 body.black-mode dialog .close,
 body.black-mode dialog button[id*="close"],
 body.black-mode dialog button[id*="Close"] {
   background: #000000 !important;
-  background-color: #000000 !important;
   border: 1px solid #262626 !important;
   color: #ffffff !important;
   border-radius: 50% !important;
 }
 
-body.black-mode #extraRecurringOptions {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border: 1px solid #222222 !important;
-}
-
-/* 5. Inputs, selects y campos de formulario */
+/* 4. Inputs, selects y campos de formulario */
 body.black-mode input,
 body.black-mode select,
 body.black-mode textarea,
@@ -1990,22 +1987,22 @@ body.black-mode .money-input input {
 body.black-mode input:focus,
 body.black-mode select:focus,
 body.black-mode textarea:focus {
-  border-color: #444444 !important;
+  border-color: #555555 !important;
   outline: none !important;
 }
 
 body.black-mode input::placeholder,
 body.black-mode textarea::placeholder {
-  color: #555555 !important;
+  color: #777777 !important;
 }
 
 body.black-mode .money-input span {
   background: transparent !important;
-  color: #888888 !important;
+  color: #ffffff !important;
   border: none !important;
 }
 
-/* 6. Botones (Negro absoluto con borde limpio) */
+/* 5. Botones */
 body.black-mode .pastel-btn,
 body.black-mode .btn,
 body.black-mode .custom-collapse-btn,
@@ -2022,19 +2019,19 @@ body.black-mode .pastel-btn:hover,
 body.black-mode .btn:hover,
 body.black-mode .custom-collapse-btn:hover,
 body.black-mode button:hover {
-  background: #111111 !important;
-  background-color: #111111 !important;
-  border-color: #444444 !important;
+  background: #151515 !important;
+  background-color: #151515 !important;
+  border-color: #555555 !important;
   color: #ffffff !important;
 }
 
-/* 7. Tablas y celdas */
+/* 6. Tablas y celdas */
 body.black-mode thead,
 body.black-mode th,
 body.black-mode .table-wrap th {
   background: #000000 !important;
   background-color: #000000 !important;
-  color: #888888 !important;
+  color: #ffffff !important;
   border-bottom: 1px solid #222222 !important;
 }
 
@@ -2072,18 +2069,9 @@ body.black-mode .table-total {
   color: #ffffff !important;
 }
 
-/* Mini tarjetas de Resumen Anual */
 body.black-mode .annual-mini-card {
   background: #000000 !important;
   background-color: #000000 !important;
   border: 1px solid #222222 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode .annual-mini-card span {
-  color: #888888 !important;
-}
-
-body.black-mode .annual-mini-card strong {
   color: #ffffff !important;
 }
