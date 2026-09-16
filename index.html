@@ -425,61 +425,62 @@
   </form>
 </dialog>
   
-<!-- MODAL GASTOS -->
-<dialog id="expenseDialog">
-  <form id="expenseForm" class="modal">
-    <button id="closeDialog" type="button" class="close" aria-label="Cerrar">×</button>
-    <div>
-      <p id="modalEyebrow" class="eyebrow">NUEVO REGISTRO</p>
+
+<!-- MODAL: AGREGAR GASTO -->
+<dialog id="expenseDialog" class="clean-dialog">
+  <form id="expenseForm" class="modal-box">
+    
+    <div class="modal-header-classic">
+      <button id="closeDialog" type="button" class="btn-close-box" aria-label="Cerrar">×</button>
+      <span class="badge-eyebrow">NUEVO REGISTRO</span>
       <h2 id="modalTitle">Agregar gasto</h2>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div class="field-row-2">
       <label>
-        Fecha real
+        FECHA REAL
         <input id="expenseDate" type="date" required>
       </label>
-
       <label>
-        Imputar al mes
+        IMPUTAR AL MES
         <input id="expenseTargetMonth" type="month" required>
       </label>
     </div>
 
-    <label>
-      Descripción
-      <input id="expenseDescription" type="text" placeholder="Ej. Supermercado" maxlength="100" required>
-    </label>
-
-    <label>
-      Categoría
-      <select id="expenseCategory" required>
-        <option value="">Seleccioná una categoría</option>
-        <option value="Alimentos">Alimentos</option>
-        <option value="Transporte">Transporte</option>
-        <option value="Hogar">Hogar</option>
-        <option value="Servicios">Servicios</option>
-        <option value="Salud">Salud</option>
-        <option value="Ropa">Ropa</option>
-        <option value="Entretenimiento">Entretenimiento</option>
-        <option value="Educación">Educación</option>
-        <option value="Mascotas">Mascotas</option>
-        <option value="Otros">Otros</option>
-        <option value="Cuotas">Cuotas</option>
-        <option value="Personal">Personal</option>
-        <option value="Gimnasio">Gimnasio</option>
-        <option value="Agua">Agua</option>
-      </select>
-    </label>
-
-    <div style="display: grid; grid-template-columns: 1fr 140px; gap: 10px; align-items: end;">
+    <div class="field-row-2">
       <label>
-        Monto
+        DESCRIPCIÓN
+        <input id="expenseDescription" type="text" placeholder="Ej. Supermercado" maxlength="100" required>
+      </label>
+      <label>
+        CATEGORÍA
+        <select id="expenseCategory" required>
+          <option value="">Seleccioná una categoría</option>
+          <option value="Alimentos">Alimentos</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Hogar">Hogar</option>
+          <option value="Servicios">Servicios</option>
+          <option value="Salud">Salud</option>
+          <option value="Ropa">Ropa</option>
+          <option value="Entretenimiento">Entretenimiento</option>
+          <option value="Educación">Educación</option>
+          <option value="Mascotas">Mascotas</option>
+          <option value="Otros">Otros</option>
+          <option value="Cuotas">Cuotas</option>
+          <option value="Personal">Personal</option>
+          <option value="Gimnasio">Gimnasio</option>
+          <option value="Agua">Agua</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="field-row-2">
+      <label>
+        MONTO
         <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
       </label>
-
       <label>
-        Moneda
+        MONEDA
         <select id="expenseCurrency" required>
           <option value="ARS" selected>ARS ($)</option>
           <option value="USD">USD (u$s)</option>
@@ -487,49 +488,139 @@
       </label>
     </div>
 
-    <div class="recurring-box">
-      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; margin-bottom: 0;">
-        <input id="expenseRecurring" type="checkbox" style="width: 16px; height: 16px; margin: 0;">
-        <span>🔁 Repetir este gasto</span>
+    <!-- REPETIR GASTO -->
+    <div class="recur-wrap">
+      <label class="check-line">
+        <input id="expenseRecurring" type="checkbox">
+        <span>🔄 <strong>REPETIR ESTE GASTO</strong></span>
       </label>
 
-      <div id="recurringOptions" class="hidden" style="margin-top: 10px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+      <div id="recurringOptions" class="hidden recur-box-fields">
+        <div class="field-row-2">
           <label>
             Repetir cada
-            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-              <input id="recurringMonths" type="number" min="1" max="60" value="1" style="width: 70px;">
-              <span>mes(es)</span>
-            </div>
+            <input id="recurringMonths" type="number" min="1" max="60" value="1">
           </label>
-
           <label>
             Día del mes
-            <input id="recurringDay" type="number" min="1" max="31" value="10" style="margin-top: 4px;">
+            <input id="recurringDay" type="number" min="1" max="31" value="10">
           </label>
         </div>
 
-        <label style="margin-bottom: 10px;">
-          Durante
-          <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-            <input id="recurringDuration" type="number" min="1" max="60" value="6" style="width: 70px;">
-            <span>mes(es)</span>
-          </div>
+        <label style="margin-top: 8px;">
+          Durante (meses)
+          <input id="recurringDuration" type="number" min="1" max="60" value="6">
         </label>
 
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; margin-top: 6px;">
-          <input id="recurringChangingAmount" type="checkbox" style="width: 16px; height: 16px; margin: 0;">
-          <span>💰 Quiero usar un monto diferente en cada mes</span>
+        <label class="check-line" style="margin-top: 10px;">
+          <input id="recurringChangingAmount" type="checkbox">
+          <span>💰 Montos variables por mes</span>
         </label>
 
-        <div id="recurringAmounts" class="hidden" style="margin-top: 8px;"></div>
+        <div id="recurringAmounts" class="hidden amounts-list"></div>
       </div>
     </div>
 
-    <div class="modal-actions">
-      <button id="cancelDialog" type="button" class="btn btn-outline">Cancelar</button>
-      <button id="submitExpenseBtn" class="pastel-btn" type="submit">Guardar gasto</button>
+    <div class="actions-left">
+      <button id="cancelDialog" type="button" class="btn-box-cancel">Cancelar</button>
+      <button id="submitExpenseBtn" type="submit" class="btn-box-pink">Guardar gasto</button>
     </div>
+
+  </form>
+</dialog>
+
+
+<!-- MODAL: DINERO EXTRA -->
+<dialog id="extraDialog" class="clean-dialog">
+  <form method="dialog" class="modal-box">
+    
+    <div class="modal-header-classic">
+      <button id="closeExtraDialog" type="button" class="btn-close-box" aria-label="Cerrar">×</button>
+      <span class="badge-eyebrow">DINERO EXTRA</span>
+      <h2 id="extraModalTitle">Sumar dinero extra</h2>
+    </div>
+
+    <div class="field-row-2">
+      <label>
+        FECHA REAL
+        <input type="date" id="modalExtraDate">
+      </label>
+      <label>
+        IMPUTAR AL MES
+        <input type="month" id="modalExtraTargetMonth">
+      </label>
+    </div>
+
+    <div class="field-row-2">
+      <label>
+        DESCRIPCIÓN
+        <input type="text" id="modalExtraDescription" placeholder="Ej: Venta de campera, quincena...">
+      </label>
+      <label>
+        CATEGORÍA
+        <select id="modalExtraCategory">
+          <option value="Sueldo">💼 Sueldo</option>
+          <option value="Aporte familiar">🏠 Aporte familiar</option>
+          <option value="Regalo">🎁 Regalo</option>
+          <option value="Venta">🛍️ Venta</option>
+          <option value="Reintegro">🔄 Reintegro</option>
+          <option value="Otro">✨ Otro</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="field-row-2">
+      <label>
+        MONTO
+        <input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0">
+      </label>
+      <label>
+        MONEDA
+        <select id="modalExtraCurrency">
+          <option value="ARS" selected>ARS ($)</option>
+          <option value="USD">USD (u$s)</option>
+        </select>
+      </label>
+    </div>
+
+    <!-- REPETIR EXTRA -->
+    <div class="recur-wrap">
+      <label class="check-line">
+        <input type="checkbox" id="extraRecurring">
+        <span>🔄 <strong>REPETIR ESTE INGRESO</strong></span>
+      </label>
+
+      <div id="extraRecurringOptions" class="hidden recur-box-fields">
+        <div class="field-row-2">
+          <label>
+            Repetir cada
+            <input type="number" id="extraMonths" value="1" min="1" max="12">
+          </label>
+          <label>
+            Día del mes
+            <input type="number" id="extraDay" value="10" min="1" max="31">
+          </label>
+        </div>
+
+        <label style="margin-top: 8px;">
+          Durante (meses)
+          <input type="number" id="extraDuration" value="6" min="1" max="24">
+        </label>
+
+        <label class="check-line" style="margin-top: 10px;">
+          <input type="checkbox" id="extraChangingAmount">
+          <span>💰 Montos variables por mes</span>
+        </label>
+
+        <div id="extraRecurringAmounts" class="hidden amounts-list"></div>
+      </div>
+    </div>
+
+    <div class="actions-left">
+      <button type="button" class="btn-box-cancel" id="closeExtraCancelBtn">Cancelar</button>
+      <button type="button" class="btn-box-pink" id="submitExtraBtn">Guardar dinero</button>
+    </div>
+
   </form>
 </dialog>
 
