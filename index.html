@@ -526,12 +526,12 @@
 </dialog>
 
 <!-- MODAL RESUMEN ANUAL -->
-<dialog id="annualDialog" class="clean-dialog">
-  <div class="modal-box" style="width: 440px;">
-    <button id="closeAnnualDialog" type="button" class="btn-close-box" aria-label="Cerrar">×</button>
+<dialog id="annualDialog" class="clean-dialog modal-dialog">
+  <div class="modal-box modal" style="width: 440px;">
+    <button id="closeAnnualDialog" type="button" class="btn-close-box close" aria-label="Cerrar">×</button>
     
     <div class="modal-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-      <div style="font-size: 30px;">🌸</div>
+      <div class="modal-icon" style="font-size: 30px;">🌸</div>
       <div>
         <h2 style="font-size: 22px; font-weight: 800; margin: 0; color: var(--ink);">Resumen Anual</h2>
         <p id="annualSubtitle" style="color: var(--muted); font-size: 12px; margin: 2px 0 0;">Análisis completo de tus finanzas</p>
@@ -540,13 +540,13 @@
     
     <div id="annualContent" style="margin-bottom: 20px;"></div>
 
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+    <div class="modal-actions" style="display: flex; gap: 10px; justify-content: flex-end;">
       <button id="annualPdfBtn" class="pastel-btn" type="button">📥 Descargar PDF</button>
       <button id="closeAnnualCancelBtn" class="btn btn-outline" type="button">Cerrar</button>
     </div>
   </div>
 </dialog>
 
-<script type="module" src="app.js?v=2.5"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
