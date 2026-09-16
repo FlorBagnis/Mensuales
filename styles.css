@@ -2148,45 +2148,55 @@ body.black-mode div[style*="width:"][style*="border-radius"] {
 
 
 /* =========================================================
-   CABECERA RESUMEN ANUAL: ÍCONO FLOR Y BOTÓN CERRAR
+   CABECERA RESUMEN ANUAL: FLOR LIBRE Y BOTÓN CIRCULAR
    ========================================================= */
 
-/* 1. Contenedor/cajita de la flor: fondo oscuro sutil con borde fino */
+/* 1. Flor flotante: quitar cualquier caja blanca, borde y sombra */
 body.black-mode dialog .annual-header > div:first-child,
 body.black-mode dialog [class*="icon-wrap"],
 body.black-mode dialog [class*="badge"],
-body.black-mode .annual-header span:has(> img),
-body.black-mode .annual-header div:has(> svg),
-body.black-mode .annual-header img,
-body.black-mode dialog header > div:first-child {
-  background: #18181c !important;
-  background-color: #18181c !important;
-  border: 1px solid #282830 !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6) !important;
+body.black-mode dialog .annual-header span,
+body.black-mode dialog .annual-header img,
+body.black-mode dialog .annual-header svg {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
-/* 2. Botón de cierre (X) en la esquina superior derecha */
+/* 2. Botón de cerrar: réplica circular con la cruz en blanco/gris */
 body.black-mode dialog button[class*="close"],
 body.black-mode dialog .btn-close,
 body.black-mode dialog #closeAnnualDialog,
-body.black-mode dialog [aria-label="Cerrar"] {
-  background-color: #18181c !important;
-  border: 1px solid #282830 !important;
+body.black-mode dialog [aria-label="Cerrar"],
+body.black-mode dialog .btn-close-circle {
+  background-color: #1a1a20 !important;
+  border: 1px solid #2a2a34 !important;
   color: #ffffff !important;
-  border-radius: 8px !important;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+  border-radius: 50% !important; /* Totalmente redondo */
+  width: 36px !important;
+  height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
+  cursor: pointer !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease !important;
 }
 
 body.black-mode dialog button[class*="close"]:hover,
 body.black-mode dialog .btn-close:hover,
-body.black-mode dialog #closeAnnualDialog:hover {
-  background-color: #24242b !important;
-  border-color: #4a4a58 !important;
-  transform: scale(1.08) !important;
+body.black-mode dialog #closeAnnualDialog:hover,
+body.black-mode dialog .btn-close-circle:hover {
+  background-color: #24242e !important;
+  border-color: #ffffff !important;
+  transform: scale(1.1) !important;
 }
 
-/* 3. Subtítulo (Año 2026...) en gris suave legible */
+/* 3. Subtítulo limpio en gris tenue */
 body.black-mode dialog .annual-header p,
-body.black-mode dialog .annual-header small {
-  color: #94a3b8 !important;
+body.black-mode dialog .annual-header small,
+body.black-mode dialog [class*="subtitle"] {
+  color: #8da2be !important;
 }
