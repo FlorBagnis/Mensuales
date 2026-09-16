@@ -3105,3 +3105,80 @@ body.black-mode .annual-mini-card span {
 body.black-mode .annual-mini-card strong {
   color: #ffffff !important;
 }
+
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA DE MODALES EN MODO BLACK
+========================================================= */
+
+body.black-mode dialog {
+  background-color: #121212 !important;
+  border: 1px solid #262626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95) !important;
+}
+
+body.black-mode dialog::backdrop {
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(6px) !important;
+}
+
+body.black-mode .modal h2,
+body.black-mode .modal label,
+body.black-mode dialog label,
+body.black-mode .modal .eyebrow {
+  color: #ffffff !important;
+}
+
+/* Cajas de recurrencia internas en modo black */
+body.black-mode .recurring-options,
+body.black-mode #extraRecurringOptions,
+body.black-mode #recurringOptions {
+  background-color: #181818 !important;
+  border: 1px solid #2e2e2e !important;
+  border-radius: 12px !important;
+  padding: 14px !important;
+  margin-top: 10px !important;
+  color: #ffffff !important;
+}
+
+/* Inputs y selects dentro de los modales en Modo Black */
+body.black-mode dialog input,
+body.black-mode dialog select {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+body.black-mode dialog input:focus,
+body.black-mode dialog select:focus {
+  border-color: #666666 !important;
+}
+
+/* Botones inferiores del modal en Modo Black */
+body.black-mode .modal-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  margin-top: 20px !important;
+}
+
+body.black-mode .modal-actions .btn-outline {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+body.black-mode .modal-actions .btn-outline:hover {
+  background-color: #262626 !important;
+}
+
+body.black-mode .modal-actions .pastel-btn {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+}
+
+body.black-mode .modal-actions .pastel-btn:hover {
+  background-color: #e0e0e0 !important;
+}
