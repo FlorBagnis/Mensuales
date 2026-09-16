@@ -120,7 +120,7 @@ body {
   margin: 5px auto 0;
 }
 
-/* HEADER */
+/* HEADER / BANNER */
 .hero {
   background: linear-gradient(110deg, #ffb0c2, #ffa5bb);
   border-radius: 15px;
@@ -164,6 +164,11 @@ h1 {
   font-size: 10px;
   color: #7d2c46;
   font-weight: 700;
+}
+
+/* TÍTULOS DE SECCIÓN GENERALES */
+h3 {
+  color: var(--pink-700);
 }
 
 /* EFECTOS Y ZOOM EN TODOS LOS BOTONES */
@@ -850,6 +855,9 @@ body.dark-mode {
   background: #140e13;
   color: #fceef3;
 }
+body.dark-mode h3 {
+  color: #ffb6c1;
+}
 body.dark-mode .auth-card,
 body.dark-mode .summary-card,
 body.dark-mode .panel,
@@ -885,12 +893,15 @@ body.dark-mode .pastel-btn {
   border: 1px solid #6b3b4a !important;
 }
 
-/* MODO AZUL */
+/* MODO AZUL (100% AZUL Y CELESTE) */
 body.dark-blue-mode,
 body.dark-blue-mode main.app,
 body.dark-blue-mode dialog {
   background-color: #070d1e !important;
   color: #f1f5f9 !important;
+}
+body.dark-blue-mode h3 {
+  color: #38bdf8 !important;
 }
 body.dark-blue-mode header.hero,
 body.dark-blue-mode .summary-card,
@@ -926,11 +937,14 @@ body.dark-blue-mode td {
   color: #f1f5f9 !important;
 }
 
-/* MODO BLACK */
+/* MODO BLACK (NEGRO OLED UNIFORME ABSOLUTO) */
 body.black-mode,
 body.black-mode main.app,
 body.black-mode dialog {
   background-color: #000000 !important;
+  color: #ffffff !important;
+}
+body.black-mode h3 {
   color: #ffffff !important;
 }
 body.black-mode header.hero,
