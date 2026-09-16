@@ -1013,3 +1013,39 @@ body.black-mode .custom-collapse-btn:hover {
   .auth-card { padding: 25px 20px; }
   .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
 }
+
+
+/* =========================================================
+   BLINDAJE TOTAL: FORZAR BANNER NEGRO Y AZUL (CERO ROSA)
+========================================================= */
+body.black-mode header.hero,
+body.black-mode .hero {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  border: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode header.hero h1,
+body.black-mode header.hero .subtitle,
+body.black-mode header.hero .eyebrow,
+body.black-mode header.hero .user-email {
+  color: #ffffff !important;
+}
+
+body.dark-blue-mode header.hero,
+body.dark-blue-mode .hero {
+  background: #0f1c3f !important;
+  background-color: #0f1c3f !important;
+  background-image: none !important;
+  border: 1px solid #14244b !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-blue-mode header.hero h1,
+body.dark-blue-mode header.hero .subtitle,
+body.dark-blue-mode header.hero .eyebrow,
+body.dark-blue-mode header.hero .user-email {
+  color: #f1f5f9 !important;
+}
