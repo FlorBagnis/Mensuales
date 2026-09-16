@@ -1107,9 +1107,8 @@ function initCsvImport() {
   });
 }
 
-
 /* =========================================================
-   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA)
+   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA) - DEFINITIVO
 ========================================================= */
 
 document.addEventListener('click', (e) => {
@@ -1131,7 +1130,7 @@ document.addEventListener('click', (e) => {
     }
   }
 
- const themeBtn = e.target.closest('#toggleThemeBtn');
+  const themeBtn = e.target.closest('#toggleThemeBtn');
   if (themeBtn) {
     const isDark = document.body.classList.toggle("dark-mode");
     document.body.classList.remove("dark-blue-mode", "black-mode");
@@ -1194,6 +1193,8 @@ if (document.readyState === "loading") {
 } else {
   initApp();
 }
+
+
 
 /* =========================================================
    SELECTOR DE COLORES PARA PDF
