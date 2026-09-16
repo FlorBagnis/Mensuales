@@ -1104,9 +1104,8 @@ function initCsvImport() {
   });
 }
 
-
 /* =========================================================
-   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA)
+   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA) - LIMPIO Y FUNCIONAL
 ========================================================= */
 
 document.addEventListener('click', (e) => {
@@ -1136,6 +1135,8 @@ document.addEventListener('click', (e) => {
     themeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
     const blueBtn = $("toggleBlueThemeBtn");
     if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
+    const blackBtn = $("btnBlackMode");
+    if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
   }
 
   const blueThemeBtn = e.target.closest('#toggleBlueThemeBtn');
@@ -1146,6 +1147,8 @@ document.addEventListener('click', (e) => {
     blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "💙 Modo Azul";
     const darkBtn = $("toggleThemeBtn");
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
+    const blackBtn = $("btnBlackMode");
+    if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
   }
 
   const blackThemeBtn = e.target.closest('#btnBlackMode');
@@ -1153,6 +1156,11 @@ document.addEventListener('click', (e) => {
     const isBlack = document.body.classList.toggle("black-mode");
     document.body.classList.remove("dark-mode", "dark-blue-mode");
     localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
+    blackThemeBtn.textContent = isBlack ? "🖤 Modo Black" : "🖤 Modo Black";
+    const darkBtn = $("toggleThemeBtn");
+    if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
+    const blueBtn = $("toggleBlueThemeBtn");
+    if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
   }
 
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
@@ -1173,12 +1181,8 @@ if (savedTheme === "dark") {
   if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
 } else if (savedTheme === "black") {
   document.body.classList.add("black-mode");
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initApp);
-} else {
-  initApp();
+  const blackBtn = $("btnBlackMode");
+  if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
 }
 
 
