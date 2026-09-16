@@ -981,3 +981,109 @@ body.amounts-hidden .amount::after {
   background: #f9b2c6 !important;
   transform: translateY(-1px) !important;
 }
+
+
+
+
+
+/* =========================================================
+   SOLUCIÓN DEFINITIVA: IDS EXACTOS DE AUTH
+========================================================= */
+
+/* 1. Contenedor de contraseña idéntico al email */
+.auth-card #authForm .password-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  background: #eef4ff !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Input de contraseña dentro del contenedor */
+.auth-card #authForm .password-wrap #authPassword {
+  width: 100% !important;
+  height: 40px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 42px 0 14px !important;
+  color: var(--ink) !important;
+  font-size: 13px !important;
+}
+
+/* 2. Candado: icono flotante a la derecha, sin fondo rosa */
+.auth-card #authForm .password-wrap button#togglePasswordBtn {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: auto !important;
+  min-width: unset !important;
+  height: auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 3. Botón "¿No tenés una cuenta? Registrate": texto plano sin caja rosa */
+.auth-card button#authSwitchBtn {
+  width: auto !important;
+  min-width: unset !important;
+  display: block !important;
+  margin: 16px auto 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  color: var(--pink-700) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  transform: none !important;
+}
+
+.auth-card button#authSwitchBtn:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  color: var(--pink-500) !important;
+}
+
+/* 4. Botón Iniciar sesión: único botón rosa */
+.auth-card #authForm button#authSubmitBtn {
+  width: 100% !important;
+  height: 44px !important;
+  background: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: 10px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
+}
+
+.auth-card #authForm button#authSubmitBtn:hover {
+  background: #f9b2c6 !important;
+  transform: translateY(-2px) !important;
+}
