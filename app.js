@@ -1148,13 +1148,14 @@ document.addEventListener('click', (e) => {
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
   }
 
-  const blackThemeBtn = e.target.closest('#btnBlackMode');
-  if (blackThemeBtn) {
-    const isBlack = document.body.classList.toggle("black-mode");
-    document.body.classList.remove("dark-mode", "dark-blue-mode");
-    localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
-  }
+const blackThemeBtn = e.target.closest('#btnBlackMode');
+if (blackThemeBtn) {
+  document.body.classList.remove("dark-mode", "dark-blue-mode");
+  document.body.classList.add("black-mode");
+  localStorage.setItem("mensual_theme_mode", "black");
+}
 
+   
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
   if (e.target.closest('#closeAnnualDialog') || e.target.closest('#closeAnnualCancelBtn')) $("annualDialog")?.close();
   if (e.target.closest('#annualPdfBtn')) {
