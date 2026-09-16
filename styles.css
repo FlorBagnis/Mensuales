@@ -864,3 +864,120 @@ body.amounts-hidden .amount::after {
   opacity: 0.7 !important;
   box-shadow: none !important;
 }
+
+
+
+
+
+/* =========================================================
+   FIJACIÓN TOTAL DEL LOGIN (RESET DE ESPECIFICIDAD)
+========================================================= */
+
+/* 1. Contenedor del campo contraseña: que se vea idéntico al email */
+.auth-card .password-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: auto !important;
+  background: #eef4ff !important; /* Mismo fondo azul clarito del input email */
+  border: 1px solid #d0d7de !important;
+  border-radius: 10px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+/* El input dentro del wrapper */
+.auth-card .password-wrap input {
+  width: 100% !important;
+  height: 42px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 42px 0 14px !important;
+  color: var(--ink) !important;
+  font: inherit !important;
+  font-size: 13px !important;
+}
+
+/* 2. Botón del candado/ojo: icono flotante a la derecha, NUNCA botón rosa */
+.auth-card .password-wrap button,
+.auth-card .password-wrap .toggle-password {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: unset !important;
+  max-width: unset !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+/* 3. Botón de "¿No tenés una cuenta? Registrate": texto simple, NO botón rosa */
+.auth-card button.auth-switch,
+.auth-card .auth-switch {
+  width: auto !important;
+  min-width: unset !important;
+  max-width: unset !important;
+  display: block !important;
+  margin: 16px auto 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  color: #9f2449 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  text-align: center !important;
+  transform: none !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.auth-card button.auth-switch:hover,
+.auth-card .auth-switch:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 0.75 !important;
+}
+
+/* 4. Único botón rosa pastel: Iniciar sesión */
+.auth-card form > button[type="submit"],
+.auth-card form > input[type="submit"],
+.auth-card #authSubmitBtn {
+  width: 100% !important;
+  height: 44px !important;
+  background: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: 10px !important;
+  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
+}
+
+.auth-card form > button[type="submit"]:hover,
+.auth-card form > input[type="submit"]:hover,
+.auth-card #authSubmitBtn:hover {
+  background: #f9b2c6 !important;
+  transform: translateY(-1px) !important;
+}
