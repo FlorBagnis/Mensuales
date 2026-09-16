@@ -3182,3 +3182,99 @@ body.black-mode .modal-actions .pastel-btn {
 body.black-mode .modal-actions .pastel-btn:hover {
   background-color: #e0e0e0 !important;
 }
+
+/* =========================================================
+   MODO BLACK: UNIFORMIDAD OLED TOTAL (NEGRO PURO)
+========================================================= */
+
+body.black-mode {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode .app,
+body.black-mode .hero,
+body.black-mode .summary-card,
+body.black-mode .panel,
+body.black-mode .toolbar,
+body.black-mode .trend-box,
+body.black-mode .auth-card,
+body.black-mode dialog,
+body.black-mode .modal,
+body.black-mode .recurring-options,
+body.black-mode #extraRecurringOptions,
+body.black-mode #recurringOptions {
+  background-color: #000000 !important;
+  border: 1px solid #222222 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body.black-mode header.hero {
+  background: #000000 !important;
+  border: 1px solid #222222 !important;
+}
+
+body.black-mode input,
+body.black-mode select,
+body.black-mode textarea {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+}
+
+body.black-mode input:focus,
+body.black-mode select:focus {
+  border-color: #555555 !important;
+}
+
+body.black-mode th,
+body.black-mode .table-wrap th {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #222222 !important;
+}
+
+body.black-mode td {
+  border-bottom: 1px solid #141414 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode tbody tr:nth-child(even) {
+  background-color: #050505 !important;
+}
+
+body.black-mode tbody tr:hover {
+  background-color: #111111 !important;
+}
+
+body.black-mode .table-total {
+  background-color: #000000 !important;
+  border-top: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode .category,
+body.black-mode .month-pill {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+}
+
+body.black-mode .pastel-btn,
+body.black-mode .btn-outline,
+body.black-mode .custom-collapse-btn {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+}
+
+body.black-mode .pastel-btn:hover,
+body.black-mode .btn-outline:hover,
+body.black-mode .custom-collapse-btn:hover {
+  background-color: #222222 !important;
+  border-color: #444444 !important;
+}
+
+
+
