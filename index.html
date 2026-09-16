@@ -626,14 +626,14 @@
 
     <!-- FECHA REAL E IMPUTAR AL MES -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <label style="margin-bottom: 0;">
+      <label>
         Fecha real
         <input id="expenseDate" type="date" required>
       </label>
 
-      <label style="margin-bottom: 0;">
+      <label>
         Imputar al mes
-        <input id="expenseTargetMonth" type="month" required style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card-bg); color: var(--text); font-size: 13px;">
+        <input id="expenseTargetMonth" type="month" required>
       </label>
     </div>
 
@@ -664,12 +664,12 @@
     </label>
 
     <div style="display: grid; grid-template-columns: 1fr 140px; gap: 10px; align-items: end;">
-      <label style="margin-bottom: 0;">
+      <label>
         Monto
         <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
       </label>
 
-      <label style="margin-bottom: 0;">
+      <label>
         Moneda
         <select id="expenseCurrency" required>
           <option value="ARS" selected>ARS ($)</option>
@@ -678,42 +678,43 @@
       </label>
     </div>
 
+    <!-- RECURRENCIA -->
     <div class="recurring-box">
-      <label class="checkbox-label">
-        <input id="expenseRecurring" type="checkbox">
+      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; margin-bottom: 0;">
+        <input id="expenseRecurring" type="checkbox" style="width: 16px; height: 16px; margin: 0;">
         <span>🔁 Repetir este gasto</span>
       </label>
 
-      <div id="recurringOptions" class="recurring-options hidden">
-        <div class="recurring-grid">
+      <div id="recurringOptions" class="hidden" style="margin-top: 10px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
           <label>
             Repetir cada
-            <div class="inline-input">
-              <input id="recurringMonths" type="number" min="1" max="60" value="1">
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+              <input id="recurringMonths" type="number" min="1" max="60" value="1" style="width: 70px;">
               <span>mes(es)</span>
             </div>
           </label>
 
           <label>
             Día del mes
-            <input id="recurringDay" type="number" min="1" max="31" value="10">
-          </label>
-
-          <label>
-            Durante
-            <div class="inline-input">
-              <input id="recurringDuration" type="number" min="1" max="60" value="6">
-              <span>mes(es)</span>
-            </div>
+            <input id="recurringDay" type="number" min="1" max="31" value="10" style="margin-top: 4px;">
           </label>
         </div>
 
-        <label class="checkbox-label recurring-changing-label">
-          <input id="recurringChangingAmount" type="checkbox">
+        <label style="margin-bottom: 10px;">
+          Durante
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+            <input id="recurringDuration" type="number" min="1" max="60" value="6" style="width: 70px;">
+            <span>mes(es)</span>
+          </div>
+        </label>
+
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; margin-top: 6px;">
+          <input id="recurringChangingAmount" type="checkbox" style="width: 16px; height: 16px; margin: 0;">
           <span>💰 Quiero usar un monto diferente en cada mes</span>
         </label>
 
-        <div id="recurringAmounts" class="recurring-amounts"></div>
+        <div id="recurringAmounts" class="hidden" style="margin-top: 8px;"></div>
       </div>
     </div>
 
