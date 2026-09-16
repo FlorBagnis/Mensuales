@@ -2108,3 +2108,33 @@ body.black-mode .summary-card small,
 body.black-mode .section-heading p {
   color: #d1d5db !important;
 }
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   BARRAS DE PROGRESO DE CATEGORÍAS (MODO BLACK)
+   ========================================================= */
+
+/* 1. Canaleta / Fondo de la barra */
+body.black-mode #categoryChart > div > div:last-child,
+body.black-mode [class*="category"] [class*="progress-bar"],
+body.black-mode [class*="progress-track"],
+body.black-mode div[style*="height"][style*="border-radius"] {
+  background-color: #1a1a22 !important;
+}
+
+/* 2. Relleno activo de la barra (Celeste neón idéntico al modo azul) */
+body.black-mode #categoryChart div[style*="width"],
+body.black-mode [class*="progress-fill"],
+body.black-mode [class*="progress-value"],
+body.black-mode div[style*="width:"][style*="border-radius"] {
+  background-color: #38bdf8 !important;
+  background-image: none !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.45) !important;
+}
