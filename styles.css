@@ -2084,3 +2084,81 @@ html.dark-mode,
 body.dark-mode {
   background-color: #140e13 !important;
 }
+
+
+/* =========================================================
+   ARREGLO DE MODALES (SIMETRÍA, RECURRENCIA Y BOTONES)
+========================================================= */
+
+/* 1. Modales: espacio al pie para que los botones nunca se corten */
+body.black-mode dialog {
+  padding: 24px !important;
+  padding-bottom: 28px !important;
+  overflow: visible !important;
+}
+
+body.black-mode .modal-actions {
+  margin-top: 20px !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  padding-bottom: 4px !important;
+}
+
+/* 2. Ocultar cualquier elemento huérfano/desfasado en el modal */
+body.black-mode dialog input[type="range"],
+body.black-mode dialog progress {
+  display: none !important;
+}
+
+/* 3. Estructura de la caja de recurrencia idéntica en ambos modales */
+body.black-mode .recurring-box {
+  margin-top: 14px !important;
+  border-top: 1px solid #262626 !important;
+  padding-top: 12px !important;
+}
+
+body.black-mode .recurring-box .checkbox-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+}
+
+body.black-mode .recurring-options {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  border-radius: 12px !important;
+  padding: 14px !important;
+  margin-top: 10px !important;
+}
+
+/* 4. Grilla de 2 columnas para Durante y Repetir cada */
+body.black-mode .recurring-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+body.black-mode .inline-input {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+}
+
+body.black-mode .inline-input input {
+  width: 70px !important;
+}
+
+body.black-mode .recurring-changing-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+  cursor: pointer !important;
+}
+
