@@ -1190,3 +1190,110 @@ body.black-mode .annual-mini-card strong {
     white-space: nowrap;
   }
 }
+
+/* CORRECCIÓN HERO, TÍTULOS Y TABLA MODO BLACK */
+body.black-mode header.hero,
+body.black-mode .hero {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  border: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode header.hero h1,
+body.black-mode header.hero .eyebrow,
+body.black-mode header.hero .subtitle,
+body.black-mode header.hero .user-email {
+  color: #ffffff !important;
+}
+
+/* Quitar color bordó en los títulos en Modo Black */
+body.black-mode h3 {
+  color: #ffffff !important;
+}
+
+/* Limpiar tabla: fondo negro parejo sin recuadros celestes */
+body.black-mode table td,
+body.black-mode table td * {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+body.black-mode table tr {
+  background: transparent !important;
+}
+
+body.black-mode table tbody tr:nth-child(even) {
+  background: #080808 !important;
+}
+
+body.black-mode table tbody tr:hover {
+  background: #121212 !important;
+}
+
+body.black-mode table td .amount,
+body.black-mode table td a {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.black-mode .table-total {
+  background-color: #000000 !important;
+  border-top: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+
+/* CORRECCIÓN HERO, TÍTULOS Y TABLA MODO BLACK */
+body.black-mode header.hero,
+body.black-mode .hero {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  border: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode header.hero h1,
+body.black-mode header.hero .eyebrow,
+body.black-mode header.hero .subtitle,
+body.black-mode header.hero .user-email {
+  color: #ffffff !important;
+}
+
+/* Quitar color bordó en los títulos en Modo Black */
+body.black-mode h3 {
+  color: #ffffff !important;
+}
+
+/* Limpiar tabla: fondo negro parejo sin recuadros celestes */
+body.black-mode table td,
+body.black-mode table td * {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+body.black-mode table tr {
+  background: transparent !important;
+}
+
+body.black-mode table tbody tr:nth-child(even) {
+  background: #080808 !important;
+}
+
+body.black-mode table tbody tr:hover {
+  background: #121212 !important;
+}
+
+body.black-mode table td .amount,
+body.black-mode table td a {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.black-mode .table-total {
+  background-color: #000000 !important;
+  border-top: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
