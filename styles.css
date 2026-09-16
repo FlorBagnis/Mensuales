@@ -1855,178 +1855,571 @@ body.dark-blue-mode .budget-alert-banner span {
 }
 
 
-/* ==========================================
-   MODO OSCURO (Dark Aesthetic Pink)
-========================================== */
-body.dark-mode {
-  background: #140e13;
-  color: #fceef3;
+
+/* =========================================================
+   MODO BLACK TOTAL Y DEFINITIVO (PANTALLAS OLED)
+========================================================= */
+body.black-mode {
+  background-color: #000000 !important;
+  color: #ffffff !important;
 }
 
-body.dark-mode .auth-card,
-body.dark-mode .summary-card,
-body.dark-mode .panel,
-body.dark-mode dialog,
-body.dark-mode .modal {
-  background: #211620;
-  border-color: #3b2334;
-  color: #fceef3;
+/* Forzar fondo negro/gris oscuro en cualquier contenedor, header, tarjeta o sección */
+body.black-mode header,
+body.black-mode .hero,
+body.black-mode .card,
+body.black-mode .pastel-card,
+body.black-mode section,
+body.black-mode tr,
+body.black-mode td,
+body.black-mode th {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border-color: #222222 !important;
 }
 
-body.dark-mode .toolbar {
-  background: rgba(33, 22, 32, 0.85);
-  border-color: #3b2334;
+/* Forzar que CUALQUIER texto, título o etiqueta sea blanco */
+body.black-mode h1,
+body.black-mode h2,
+body.black-mode h3,
+body.black-mode h4,
+body.black-mode p,
+body.black-mode span,
+body.black-mode label,
+body.black-mode strong,
+body.black-mode div,
+body.black-mode a {
+  color: #ffffff !important;
 }
 
-body.dark-mode .hero {
-  background: linear-gradient(110deg, #42182b, #2e111e);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+/* Excepción para los botones de acción para que no se pierdan */
+body.black-mode button {
+  color: #ffffff !important;
 }
 
-body.dark-mode .hero h1 {
-  color: #ffdbe4;
+/* Campos de entrada, selects y buscadores */
+body.black-mode input, 
+body.black-mode select,
+body.black-mode textarea {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
 }
 
-body.dark-mode .hero .subtitle,
-body.dark-mode .hero .user-email {
-  color: #e5a7be;
+/* Efecto hover en las tablas */
+body.black-mode tr:hover {
+  background-color: #1a1a1a !important;
 }
 
-body.dark-mode .eyebrow {
-  color: #ff9db4;
+/* Arreglar las barritas del gráfico de categorías para que resalten en OLED */
+body.black-mode #categoryChart div[style*="background: var(--pink-bg)"] {
+  background-color: #222222 !important;
 }
 
-body.dark-mode .auth-subtitle,
-body.dark-mode .section-heading p,
-body.dark-mode .summary-card small,
-body.dark-mode footer {
-  color: #b893a4;
-}
-
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea,
-body.dark-mode .money-input {
-  background: #170f16;
-  border-color: #3b2334;
-  color: #fceef3;
-}
-
-body.dark-mode .money-input span {
-  color: #ff9db4;
-}
-
-body.dark-mode input:focus,
-body.dark-mode select:focus {
-  border-color: var(--pink-500);
-}
-
-body.dark-mode .btn-outline {
-  background: #211620;
-  color: #ff9db4;
-  border-color: #592e47;
-}
-
-body.dark-mode .btn-outline:hover {
-  background: #331d2b;
-}
-
-body.dark-mode .custom-collapse-btn {
-  background-color: #211620 !important;
-  color: #ff9db4 !important;
-  border-color: #592e47 !important;
-}
-
-body.dark-mode .custom-collapse-btn:hover {
-  background-color: #331d2b !important;
-}
-
-body.dark-mode table td {
-  border-bottom: 1px solid #331f2c;
-  color: #fceef3;
-}
-
-body.dark-mode tbody tr:nth-child(even) {
-  background: #281b26;
-}
-
-body.dark-mode .table-total {
-  background: #2d1825;
-  color: #ffdbe4;
-}
-
-body.dark-mode .month-pill,
-body.dark-mode .category {
-  background: #3d1b2e;
-  color: #ffb0c2;
-}
-
-body.dark-mode .bar-bg {
-  background: #2d1825;
-}
-
-body.dark-mode .bar-label {
-  color: #e5a7be;
-}
-
-body.dark-mode .trend-box {
-  background: #211620;
-  border-color: #592e47;
-}
-
-body.dark-mode .trend-box p {
-  color: #d1abbc;
-}
-
-body.dark-mode .empty-state strong {
-  color: #ffdbe4;
+body.black-mode #categoryChart div[style*="background: var(--pink-500)"] {
+  background-color: #38bdf8 !important; /* Cambia a un celeste brillante o dejalo en #ff78a0 si preferís rosa fuerte */
 }
 
 
-/* ==========================================
-   MODO AZUL
-========================================== */
-body.dark-blue-mode,
-body.dark-blue-mode main.app,
-body.dark-blue-mode dialog {
-  background-color: #070d1e !important;
-  color: #f1f5f9 !important;
+
+
+
+/* =========================================================
+   MODO BLACK SUPREMO - FUERZA BRUTA (PANTALLAS OLED)
+========================================================= */
+body.black-mode,
+body.black-mode * {
+  border-color: #222222 !important;
 }
 
-body.dark-blue-mode .hero,
-body.dark-blue-mode .summary-card,
-body.dark-blue-mode .panel,
-body.dark-blue-mode .toolbar,
-body.dark-blue-mode dialog {
-  background-color: #0f1c3f !important;
-  border-color: #14244b !important;
-  color: #f1f5f9 !important;
+body.black-mode {
+  background-color: #000000 !important;
+  color: #ffffff !important;
 }
 
-body.dark-blue-mode .pastel-btn,
-body.dark-blue-mode .btn {
-  background-color: #14244b !important;
-  color: #38bdf8 !important;
-  border: 1px solid #1e3a8a !important;
+/* Forzar todo contenedor, tarjeta, header y sección a negro/gris oscuro */
+body.black-mode header,
+body.black-mode .hero,
+body.black-mode .card,
+body.black-mode .pastel-card,
+body.black-mode section,
+body.black-mode div,
+body.black-mode table,
+body.black-mode tr,
+body.black-mode td,
+body.black-mode th {
+  background-color: #121212 !important;
+  color: #ffffff !important;
 }
 
-body.dark-blue-mode input,
-body.dark-blue-mode select,
-body.dark-blue-mode textarea {
-  background-color: #070d1e !important;
-  color: #f1f5f9 !important;
-  border-color: #14244b !important;
+/* El banner principal superior de la app */
+body.black-mode header.hero {
+  background-color: #121212 !important;
+  border: 1px solid #222222 !important;
 }
 
-body.dark-blue-mode thead, body.dark-blue-mode th {
-  background-color: #14244b !important;
-  color: #38bdf8 !important;
+/* Forzar que CUALQUIER texto, título o etiqueta sea blanco puro */
+body.black-mode h1,
+body.black-mode h2,
+body.black-mode h3,
+body.black-mode h4,
+body.black-mode p,
+body.black-mode span,
+body.black-mode label,
+body.black-mode strong,
+body.black-mode a,
+body.black-mode th,
+body.black-mode td {
+  color: #ffffff !important;
+}
+
+/* Botones en Modo Black (Fondo oscuro, texto blanco) */
+body.black-mode button,
+body.black-mode .pastel-btn,
+body.black-mode .btn {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+body.black-mode button:hover,
+body.black-mode .pastel-btn:hover {
+  background-color: #2a2a2a !important;
+}
+
+/* Inputs, selects y campos de texto */
+body.black-mode input, 
+body.black-mode select,
+body.black-mode textarea {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+/* Etiquetas de categoría en las tablas */
+body.black-mode .category {
+  background-color: #262626 !important;
+  color: #ffffff !important;
 }
 
 
-/* ==========================================
-   MODO BLACK (NEGRO OLED CON BORDES SUTILES)
-========================================== */
+/* =========================================================
+   FORZAR HEADER SUPERIOR ROSADO A NEGRO ABSOLUTO
+========================================================= */
+body.black-mode header.hero,
+body.black-mode .hero,
+body.black-mode header {
+  background-color: #121212 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+}
+
+/* Forzar absolutamente todo texto dentro del header superior a blanco */
+body.black-mode header.hero *,
+body.black-mode .hero * {
+  color: #ffffff !important;
+}
+
+
+/* =========================================================
+   FORZAR TARJETAS DE RESUMEN A MODO BLACK
+========================================================= */
+body.black-mode .card,
+body.black-mode .pastel-card,
+body.black-mode .summary-card,
+body.black-mode div[class*="card"] {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+}
+
+/* Forzar que todos los textos, números y subtítulos de esas tarjetas sean blancos */
+body.black-mode .card *,
+body.black-mode .pastel-card *,
+body.black-mode .summary-card *,
+body.black-mode div[class*="card"] * {
+  color: #ffffff !important;
+}
+
+
+/* =========================================================
+   FORZAR PÍLDORA/BOTÓN DE MES A MODO BLACK
+========================================================= */
+body.black-mode #monthPill,
+body.black-mode .month-pill,
+body.black-mode span[id*="Month"],
+body.black-mode button.pastel-btn,
+body.black-mode span.pastel-btn {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+body.black-mode #monthPill *,
+body.black-mode .month-pill * {
+  color: #ffffff !important;
+}
+
+
+
+/* =========================================================
+   MODO BLACK ABSOLUTO - CORRECCIÓN DE MODALES Y FONDO GENERAL
+========================================================= */
+
+/* 1. Forzar que el fondo de toda la aplicación sea negro puro OLED */
+body.black-mode {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* 2. Forzar que los modales / popups y sus contenedores internos sean oscuros */
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .popup,
+body.black-mode .dialog,
+body.black-mode div[class*="modal"],
+body.black-mode div[class*="popup"] {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 3. Forzar todos los textos dentro de los modales a blanco */
+body.black-mode .modal *,
+body.black-mode .modal-content *,
+body.black-mode .popup *,
+body.black-mode div[class*="modal"] * {
+  color: #ffffff !important;
+}
+
+/* 4. Asegurar que las "X" de cerrar o botones de los modales se vean bien */
+body.black-mode .modal .close-btn,
+body.black-mode .modal button {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+
+/* =========================================================
+   SOLUCIÓN DEFINITIVA: MODO BLACK EN FONDO Y MODALES
+========================================================= */
+
+/* 1. Forzar que el fondo general y el fondo detrás de los modales sea negro puro */
+body.black-mode,
+body.black-mode .modal-overlay,
+body.black-mode .backdrop,
+body.black-mode .modal-backdrop {
+  background-color: #000000 !important;
+}
+
+/* 2. Forzar la caja contenedora principal del modal (la tarjeta blanca gigante) a gris muy oscuro OLED */
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .popup,
+body.black-mode .dialog,
+body.black-mode div[class*="modal"],
+body.black-mode div[class*="popup"],
+body.black-mode div[class*="content"] {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95) !important;
+}
+
+/* 3. Forzar que TODO texto e ícono dentro de los modales sea blanco */
+body.black-mode .modal *,
+body.black-mode .modal-content *,
+body.black-mode .popup *,
+body.black-mode div[class*="modal"] * {
+  color: #ffffff !important;
+}
+
+/* 4. Botones dentro de los modales */
+body.black-mode .modal button,
+body.black-mode .modal .btn,
+body.black-mode .modal .pastel-btn {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+
+/* =========================================================
+   FORZAR NEGRO OLED EN FONDO Y MODALES (MÁXIMA PRIORIDAD)
+========================================================= */
+
+/* 1. Fondo general de la página y capas oscuras detrás de todo */
+body.black-mode,
+body.black-mode #app,
+body.black-mode .main-container {
+  background-color: #000000 !important;
+}
+
+/* 2. Matar el fondo blanco de cualquier caja o ventana modal */
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-box,
+body.black-mode .popup-container,
+body.black-mode div[class*="modal"] {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.95) !important;
+}
+
+/* 3. Asegurar que todo texto dentro de los modales sea blanco */
+body.black-mode .modal *,
+body.black-mode .modal-content *,
+body.black-mode .modal-box *,
+body.black-mode div[class*="modal"] * {
+  color: #ffffff !important;
+}
+
+
+
+/* =========================================================
+   MODO BLACK: ANIQUILACIÓN TOTAL DE BLANCOS Y FONDOS CLAROS
+========================================================= */
+
+/* Fondo general de la app en negro OLED */
+body.black-mode {
+  background-color: #000000 !important;
+}
+
+/* Forzar que CUALQUIER elemento con fondo blanco o claro pase a ser oscuro en Modo Black */
+body.black-mode [style*="background-color: rgb(255"],
+body.black-mode [style*="background: white"],
+body.black-mode [style*="background: #fff"],
+body.black-mode [style*="background:#fff"],
+body.black-mode .modal-overlay,
+body.black-mode .swal2-container {
+  background-color: #000000 !important;
+}
+
+/* Forzar las cajas contenedoras de los modales (la tarjeta blanca gigante) a negro/gris oscuro */
+body.black-mode div[class*="modal"],
+body.black-mode section[class*="modal"],
+body.black-mode div[class*="popup"],
+body.black-mode div[class*="dialog"],
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-box {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+  box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.85), 0 10px 40px rgba(0, 0, 0, 1) !important;
+}
+
+/* Forzar todo texto dentro de los modales a blanco puro */
+body.black-mode div[class*="modal"] *,
+body.black-mode .modal *,
+body.black-mode .modal-content * {
+  color: #ffffff !important;
+}
+
+
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA DE MODALES Y FONDO EN MODO BLACK
+========================================================= */
+
+/* 1. Forzar que el fondo detrás de los diálogos/modales sea negro puro OLED */
+body.black-mode dialog::backdrop,
+body.black-mode .modal-backdrop,
+body.black-mode .backdrop {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 2. Forzar que la ventana modal (<dialog>) sea completamente negra/gris oscura */
+body.black-mode dialog,
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-box {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #222222 !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95) !important;
+}
+
+/* 3. Forzar que absolutamente todo texto dentro del diálogo sea blanco */
+body.black-mode dialog *,
+body.black-mode .modal *,
+body.black-mode .modal-content * {
+  color: #ffffff !important;
+}
+
+/* 4. Asegurar que los botones internos del modal combinen perfectamente */
+body.black-mode dialog button,
+body.black-mode .modal button {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+
+/* =========================================================
+   MODO BLACK: UNIFICACIÓN TOTAL Y LIMPIEZA DE CONTRASTES
+========================================================= */
+
+/* 1. Fondo translúcido con blur detrás del modal */
+body.black-mode dialog::backdrop,
+body.black-mode .modal-backdrop,
+body.black-mode .backdrop {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* 2. Tarjeta principal del modal con un gris oscuro uniforme */
+body.black-mode dialog,
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-box,
+body.black-mode div[class*="modal"],
+body.black-mode div[class*="popup"] {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 3. Eliminar cajitas interiores oscuras/negras para que el fondo sea fluido */
+body.black-mode dialog .annual-header,
+body.black-mode dialog [class*="header"],
+body.black-mode .modal header,
+body.black-mode .modal-content > div:first-child {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 4. Forzar que todo texto dentro de los modales sea blanco */
+body.black-mode dialog *,
+body.black-mode .modal *,
+body.black-mode .modal-content * {
+  color: #ffffff !important;
+}
+
+/* 5. Botones limpios y bien integrados */
+body.black-mode dialog button,
+body.black-mode .modal button {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+
+/* =========================================================
+   ELIMINAR LÍNEAS RECTAS Y BORDES INTERNOS EN MODO BLACK
+========================================================= */
+body.black-mode dialog hr,
+body.black-mode dialog .annual-header + div,
+body.black-mode .modal hr,
+body.black-mode .modal [style*="border-top"],
+body.black-mode .modal [style*="border-bottom"],
+body.black-mode .modal-content hr {
+  display: none !important;
+  border: none !important;
+}
+
+/* Forzar que cualquier separador interno desaparezca o sea sutil */
+body.black-mode .modal div[style*="border"] {
+  border-color: transparent !important;
+
+}
+
+
+
+/* =========================================================
+   FORZADO OLED ABSOLUTO Y BLUR ELEGANTE - MODO BLACK
+========================================================= */
+
+/* 1. Fondo absoluto de la pantalla entera en negro OLED */
+html.black-mode,
+body.black-mode,
+body.black-mode main,
+body.black-mode #appContent,
+body.black-mode .app-container {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* 2. Todas las tarjetas, cabeceras y bloques en gris OLED profundo */
+body.black-mode header,
+body.black-mode .expense,
+body.black-mode article,
+body.black-mode div[class*="card"],
+body.black-mode section,
+body.black-mode .summary-card,
+body.black-mode #emptyState {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 3. Textos, números y etiquetas totalmente blancos */
+body.black-mode h1,
+body.black-mode h2,
+body.black-mode h3,
+body.black-mode p,
+body.black-mode span,
+body.black-mode strong,
+body.black-mode label,
+body.black-mode small {
+  color: #ffffff !important;
+}
+
+/* 4. Efecto BLUR translúcido elegante en el fondo al abrir solapas */
+body.black-mode dialog::backdrop,
+body.black-mode .modal-backdrop,
+body.black-mode .backdrop,
+body.black-mode .modal.show {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* 5. Ventana flotante del modal en negro OLED */
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-box,
+body.black-mode dialog {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+  box-shadow: c 0 25px 60px rgba(0, 0, 0, 0.95) !important;
+}
+
+/* 6. Matar recuadros blancos en selectores internos (Gasto / Deuda) */
+body.black-mode .modal label,
+body.black-mode .modal div[style*="background"],
+body.black-mode .modal input[type="radio"] + label,
+body.black-mode .type-selector,
+body.black-mode .modal fieldset,
+body.black-mode .modal label[style*="background"],
+body.black-mode label[style*="background-color"] {
+  background-color: #1a1a1a !important;
+  border-color: #333333 !important;
+  color: #ffffff !important;
+}
+
+/* 7. Inputs, selects y campos de texto oscuros */
+body.black-mode input,
+body.black-mode select,
+body.black-mode textarea {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+
+/* =========================================================
+   3. MODO BLACK (NEGRO OLED PROFESIONAL Y LIMPIO)
+========================================================= */
 body.black-mode {
   background-color: #000000 !important;
   color: #ffffff !important;
