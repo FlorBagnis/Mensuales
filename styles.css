@@ -1,3 +1,6 @@
+/* =========================================================
+   VARIABLES GLOBALES & RESET
+   ========================================================= */
 * {
   box-sizing: border-box;
 }
@@ -49,7 +52,7 @@ body {
 
 /* =========================================================
    LOGIN Y REGISTRO (AUTH)
-========================================================= */
+   ========================================================= */
 .auth-section {
   min-height: 90vh;
   display: grid;
@@ -199,13 +202,9 @@ body {
   transition: opacity 0.2s ease;
 }
 
-.auth-card button#authSwitchBtn:hover {
-  opacity: 0.75;
-}
-
 /* =========================================================
-   HEADER / HERO (COMO EN TU CAPTURA)
-========================================================= */
+   HEADER / HERO
+   ========================================================= */
 .hero {
   background: linear-gradient(110deg, #f5a7bb 0%, #f098af 100%);
   border-radius: 16px;
@@ -256,7 +255,7 @@ h1 {
 
 /* =========================================================
    BOTONES
-========================================================= */
+   ========================================================= */
 .btn {
   border-radius: 11px;
   padding: 9px 15px;
@@ -276,7 +275,6 @@ h1 {
   transform: translateY(-1px);
 }
 
-/* Pastilla rosa suave */
 .pastel-btn,
 .header-actions a.pastel-btn {
   background: var(--btn-pastel) !important;
@@ -303,7 +301,6 @@ h1 {
   box-shadow: 0 4px 10px rgba(90, 35, 55, 0.12);
 }
 
-/* Botón primario vino/bordó "+ Nuevo gasto" / "Cerrar sesión" */
 .btn-dark {
   background: var(--btn-dark) !important;
   color: #ffffff !important;
@@ -319,7 +316,6 @@ h1 {
   transform: translateY(-1px);
 }
 
-/* Botones secundarios blancos con borde rosado */
 .btn-outline,
 .btn-danger {
   background: #ffffff !important;
@@ -355,8 +351,8 @@ h1 {
 }
 
 /* =========================================================
-   TOOLBAR & ENTRADAS
-========================================================= */
+   TOOLBAR
+   ========================================================= */
 .toolbar {
   margin: 18px 0;
   padding: 15px 18px;
@@ -374,8 +370,7 @@ h1 {
   gap: 5px;
 }
 
-.field label,
-.modal label {
+.field label {
   font-size: 10px;
   font-weight: 800;
   color: var(--pink-700);
@@ -424,12 +419,18 @@ select:focus {
 
 /* =========================================================
    RESUMEN (4 CARDS)
-========================================================= */
+   ========================================================= */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   margin-bottom: 20px;
+}
+
+@media (max-width: 860px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .summary-card {
@@ -464,8 +465,21 @@ select:focus {
 }
 
 /* =========================================================
-   PANELES Y TABLAS
-========================================================= */
+   PANELES, DOS COLUMNAS Y TABLAS
+   ========================================================= */
+.two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .two-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
 .panel {
   background: #ffffff;
   border: 1px solid var(--pink-200);
@@ -567,586 +581,72 @@ th:last-child {
 }
 
 /* =========================================================
-   MODAL RESUMEN ANUAL (FOTO EXACTA)
-========================================================= */
-dialog#annualDialog,
-dialog {
-  border: 0;
-  border-radius: 24px;
-  padding: 28px 24px !important;
-  width: min(440px, calc(100% - 28px));
-  box-shadow: 0 20px 60px rgba(100, 25, 45, 0.22);
-  background: #ffffff;
+   CATEGORÍAS (BARRAS DE PROGRESO) Y TENDENCIA
+   ========================================================= */
+.category-chart {
+  padding: 14px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--ink);
 }
 
-dialog::backdrop {
-  background: rgba(80, 20, 40, 0.35);
-  backdrop-filter: blur(4px);
-}
-
-/* Encabezado con la flor 🌸 */
-#annualDialog .modal-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-#annualDialog .modal-icon {
-  font-size: 32px;
-}
-
-#annualDialog h2 {
-  font-size: 22px;
-  font-weight: 800;
-  margin: 0 0 2px;
-  color: #4a1325;
-}
-
-#annualDialog p#annualSubtitle {
-  margin: 0;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* Botón cerrar "x" */
-#annualDialog button.close {
-  position: absolute;
-  top: 18px;
-  right: 20px;
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 4px;
-}
-
-/* Grilla de mini cards */
-.annual-card-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.annual-mini-card {
-  background: #ffffff;
-  border: 1px solid #f6d1db;
-  border-radius: 14px;
-  padding: 14px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  box-shadow: 0 2px 6px rgba(132, 38, 67, 0.02);
-}
-
-.annual-mini-card span {
-  font-size: 9px;
-  font-weight: 800;
-  color: #7d203e;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.annual-mini-card strong {
-  font-size: 14px;
-  font-weight: 800;
-  color: #4a1325;
-}
-
-/* Botones al pie del modal */
-.annual-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 22px;
-}
-
-.annual-actions button#annualPdfBtn {
-  background: var(--btn-pastel) !important;
-  color: var(--btn-pastel-text) !important;
-  border: 1px solid var(--btn-pastel-border) !important;
-  border-radius: 11px !important;
-  padding: 9px 18px !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  cursor: pointer;
-}
-
-.annual-actions button#closeAnnualCancelBtn {
-  background: #ffffff !important;
-  color: var(--pink-700) !important;
-  border: 1px solid var(--pink-300) !important;
-  border-radius: 11px !important;
-  padding: 9px 18px !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  cursor: pointer;
-}
-
-/* =========================================================
-   ANIMACIONES Y ACORDEONES
-========================================================= */
-.collapsible-section,
-.table-container-collapsible {
+.category-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: var(--pink-100);
+  border-radius: 999px;
   overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-  max-height: 2000px;
-  opacity: 1;
 }
 
-.collapsible-section.collapsed,
-.table-container-collapsible.collapsed {
-  max-height: 0 !important;
-  opacity: 0;
-  pointer-events: none;
+.category-bar-fill {
+  height: 100%;
+  background: var(--pink-500);
+  border-radius: 999px;
+  transition: width 0.4s ease;
 }
 
-/* =========================================================
-   MODO 2: OSCURO (AESTHETIC PINK)
-========================================================= */
-body.dark-mode {
-  background-color: #140e13;
-  color: #fceef3;
-}
-
-body.dark-mode .hero {
-  background: linear-gradient(110deg, #42182b, #2e111e);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-}
-
-body.dark-mode .hero h1 { color: #ffdbe4; }
-body.dark-mode .hero .subtitle,
-body.dark-mode .hero .user-email { color: #e5a7be; }
-body.dark-mode .eyebrow { color: #ff9db4; }
-
-body.dark-mode .summary-card,
-body.dark-mode .panel,
-body.dark-mode .toolbar,
-body.dark-mode dialog {
-  background: #211620 !important;
-  border-color: #3b2334 !important;
-  color: #fceef3 !important;
-}
-
-body.dark-mode input,
-body.dark-mode select {
-  background: #170f16 !important;
-  border-color: #3b2334 !important;
-  color: #fceef3 !important;
-}
-
-body.dark-mode .pastel-btn {
-  background: #3d222b !important;
-  color: #ffb6c1 !important;
-  border: 1px solid #592e47 !important;
-}
-
-body.dark-mode th {
-  background: #3d222b !important;
-  color: #ffb6c1 !important;
-}
-
-body.dark-mode td {
-  border-color: #331f2c !important;
-}
-
-body.dark-mode tbody tr:nth-child(even) {
-  background: #281b26 !important;
-}
-
-body.dark-mode .table-total {
-  background: #2d1825 !important;
-  color: #ffdbe4 !important;
-}
-
-/* =========================================================
-   MODO 3: AZUL COMPLETO
-========================================================= */
-body.dark-blue-mode {
-  background-color: #070d1e !important;
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode header.hero,
-body.dark-blue-mode .summary-card,
-body.dark-blue-mode .panel,
-body.dark-blue-mode .toolbar,
-body.dark-blue-mode dialog {
-  background: #0f1c3f !important;
-  border-color: #14244b !important;
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode header.hero h1,
-body.dark-blue-mode header.hero .eyebrow,
-body.dark-blue-mode header.hero .subtitle {
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode .pastel-btn,
-body.dark-blue-mode .btn-outline,
-body.dark-blue-mode .custom-collapse-btn {
-  background: #14244b !important;
-  color: #38bdf8 !important;
-  border: 1px solid #1e3a8a !important;
-}
-
-body.dark-blue-mode input,
-body.dark-blue-mode select {
-  background: #070d1e !important;
-  border-color: #14244b !important;
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode th {
-  background: #14244b !important;
-  color: #38bdf8 !important;
-}
-
-body.dark-blue-mode td {
-  border-color: #14244b !important;
-}
-
-body.dark-blue-mode tbody tr:nth-child(even) {
-  background: #0b1736 !important;
-}
-
-body.dark-blue-mode .table-total {
-  background: #0f1c3f !important;
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode .annual-mini-card {
-  background: #070d1e !important;
-  border-color: #14244b !important;
-}
-
-body.dark-blue-mode .annual-mini-card span { color: #8fa5ca !important; }
-body.dark-blue-mode .annual-mini-card strong { color: #38bdf8 !important; }
-
-/* =========================================================
-   MODO 4: BLACK (OLED)
-========================================================= */
-body.black-mode {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode header.hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode dialog {
-  background: #000000 !important;
-  border: 1px solid #262626 !important;
-  box-shadow: none !important;
-  color: #ffffff !important;
-}
-
-body.black-mode header.hero h1,
-body.black-mode header.hero .eyebrow,
-body.black-mode header.hero .subtitle,
-body.black-mode header.hero .user-email {
-  color: #ffffff !important;
-}
-
-body.black-mode .pastel-btn,
-body.black-mode .btn-outline,
-body.black-mode .custom-collapse-btn {
-  background: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #2e2e2e !important;
-}
-
-body.black-mode input,
-body.black-mode select {
-  background: #0a0a0a !important;
-  border: 1px solid #262626 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode th {
-  background: #0a0a0a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #222222 !important;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #141414 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode tbody tr:nth-child(even) {
-  background: #080808 !important;
-}
-
-body.black-mode .table-total {
-  background: #000000 !important;
-  color: #ffffff !important;
-  border-top: 1px solid #222222 !important;
-}
-
-body.black-mode .annual-mini-card {
-  background: #000000 !important;
-  border-color: #262626 !important;
-}
-
-body.black-mode .annual-mini-card strong,
-body.black-mode .annual-mini-card span {
-  color: #ffffff !important;
-}
-
-
-/* Diálogo y tarjeta contenedora */
-dialog.app-dialog {
-  border: none;
-  background: transparent;
-  padding: 0;
-  max-width: 95vw;
-}
-
-dialog.app-dialog::backdrop {
-  background: rgba(85, 21, 45, 0.25);
-  backdrop-filter: blur(3px);
-}
-
-.modal-extra-card {
-  width: 440px;
-  max-width: 100%;
+.trend-box {
   background: #ffffff;
-  border-radius: 20px;
-  padding: 24px 26px;
-  box-shadow: 0 16px 40px rgba(85, 21, 45, 0.16);
-  max-height: 90vh;
-  overflow-y: auto;
-  box-sizing: border-box;
-}
-
-/* Cabecera foto 1 */
-.modal-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-title-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.modal-title-group h2 {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--pink-700, #9f2449);
-}
-
-.modal-plus-icon {
-  font-size: 1.1rem;
-}
-
-.btn-close-circle {
-  background: var(--pink-100, #ffe3ea);
-  color: var(--pink-700, #9f2449);
-  border: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  font-size: 0.75rem;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.modal-caption {
-  font-size: 0.78rem;
-  color: var(--muted, #8f6876);
-  margin: 3px 0 14px 0;
-}
-
-/* Labels e Inputs generales */
-.modal-label {
-  display: block;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--pink-700, #9f2449);
-  margin-bottom: 11px;
-  letter-spacing: 0.02em;
-}
-
-.custom-input {
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 5px;
-  border: 1px solid var(--pink-200, #ffc5d2);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 0.86rem;
-  color: var(--ink, #55152d);
-  background: #fff;
-  outline: none;
-}
-
-.custom-input:focus {
-  border-color: var(--pink-500, #f56b8b);
-}
-
-.modal-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-/* Split de Monto y Moneda */
-.amount-split {
-  display: flex;
-  gap: 8px;
-  margin-top: 5px;
-}
-
-.amount-field-wrap {
-  position: relative;
-  flex: 1;
-}
-
-.prefix-symbol {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--pink-500, #f56b8b);
-}
-
-.amount-field-wrap .field-amount {
-  margin-top: 0;
-  padding-left: 30px;
-}
-
-.select-currency {
-  margin-top: 0;
-  width: 78px;
-  cursor: pointer;
-}
-
-/* Checkbox principal */
-.checkbox-custom-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 10px 0;
-  cursor: pointer;
-  font-size: 0.82rem;
-  color: var(--ink, #55152d);
-}
-
-.checkbox-custom-row input[type="checkbox"] {
-  accent-color: var(--pink-500, #f56b8b);
-  width: 15px;
-  height: 15px;
-}
-
-/* Panel Rosa interior de Recurrencia */
-.pink-subpanel {
-  background: #fff5f8;
-  border: 1px solid var(--pink-100, #ffe3ea);
+  border: 1px solid var(--pink-200);
   border-radius: 14px;
-  padding: 12px 14px;
-  margin-top: 6px;
-  margin-bottom: 12px;
+  padding: 18px 20px;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 15px rgba(132, 38, 67, 0.02);
 }
 
-.subpanel-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--ink, #55152d);
-  display: block;
+.trend-box h2 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  color: var(--ink);
 }
 
-.subpanel-input {
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 4px;
-  border: 1px solid var(--pink-200, #ffc5d2);
-  border-radius: 8px;
-  padding: 6px 8px;
-  font-size: 0.82rem;
-  background: #ffffff;
-  outline: none;
+.trend-box p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
 }
-
-.full-row {
-  margin-top: 8px;
-}
-
-.subpanel-check {
-  margin-top: 10px;
-  margin-bottom: 6px;
-}
-
-/* Renglones de meses variables generados dinámicamente */
-.recurring-amounts-list > div {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.78rem;
-  color: var(--ink, #55152d);
-  padding: 3px 0;
-}
-
-.recurring-amounts-list input {
-  width: 90px;
-  text-align: right;
-  border: 1px solid var(--pink-200, #ffc5d2);
-  border-radius: 6px;
-  padding: 4px 6px;
-  font-size: 0.8rem;
-}
-
-/* Botones Cancelar / Guardar centrados */
-.modal-actions-centered {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.btn-clean-cancel {
-  background: #ffffff;
-  border: 1px solid var(--pink-300, #ff9db4);
-  color: var(--pink-700, #9f2449);
-  padding: 7px 22px;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-clean-submit {
-  background: var(--pink-200, #ffc5d2);
-  border: 1px solid var(--pink-200, #ffc5d2);
-  color: var(--pink-700, #9f2449);
-  padding: 7px 22px;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 
 /* =========================================================
-   MODAL SUMAR DINERO EXTRA (ESTRUCTURA EXACTA FOTO 1)
+   MODALES LIMPIOS Y COMPACTOS (FOTO CLÁSICA)
    ========================================================= */
-
-#extraDialog {
+dialog {
   border: none !important;
   background: transparent !important;
   padding: 0 !important;
@@ -1154,463 +654,8 @@ dialog.app-dialog::backdrop {
   overflow: visible !important;
 }
 
-#extraDialog::backdrop {
-  background: rgba(0, 0, 0, 0.45) !important;
-  backdrop-filter: blur(4px) !important;
-}
-
-#extraDialog .modal {
-  width: 440px !important;
-  max-width: 92vw !important;
-  background: #ffffff !important;
-  border-radius: 20px !important;
-  padding: 22px 24px !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2) !important;
-  max-height: 88vh !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important; /* Elimina la barra de scroll horizontal */
-  box-sizing: border-box !important;
-}
-
-/* Scrollbar vertical sutil */
-#extraDialog .modal::-webkit-scrollbar {
-  width: 5px;
-}
-#extraDialog .modal::-webkit-scrollbar-thumb {
-  background: rgba(180, 180, 180, 0.4);
-  border-radius: 4px;
-}
-
-/* Cabecera */
-#extraDialog .modal-header-row,
-#extraDialog .modal-top-bar {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-bottom: 2px !important;
-}
-
-#extraDialog .modal-title-group {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-}
-
-#extraDialog #extraModalTitle {
-  margin: 0 !important;
-  font-size: 1.15rem !important;
-  font-weight: 800 !important;
-  color: #9f2449 !important;
-}
-
-#extraDialog .modal-caption {
-  font-size: 0.76rem !important;
-  color: #8f6876 !important;
-  margin: 2px 0 12px 0 !important;
-}
-
-/* Botón cerrar cruz circular */
-#extraDialog #closeExtraDialog {
-  background: #ffe3ea !important;
-  color: #9f2449 !important;
-  border: none !important;
-  width: 26px !important;
-  height: 26px !important;
-  border-radius: 50% !important;
-  font-size: 0.8rem !important;
-  font-weight: bold !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 !important;
-  line-height: 1 !important;
-}
-
-/* Labels y Campos */
-#extraDialog label {
-  display: block !important;
-  font-size: 0.7rem !important;
-  font-weight: 800 !important;
-  color: #9f2449 !important;
-  letter-spacing: 0.03em !important;
-  margin-bottom: 10px !important;
-}
-
-#extraDialog input[type="text"],
-#extraDialog input[type="number"],
-#extraDialog input[type="date"],
-#extraDialog input[type="month"],
-#extraDialog select {
-  display: block !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  margin-top: 4px !important;
-  border: 1px solid #ffc5d2 !important;
-  border-radius: 10px !important;
-  padding: 8px 12px !important;
-  font-size: 0.85rem !important;
-  color: #55152d !important;
-  background: #ffffff !important;
-  outline: none !important;
-}
-
-#extraDialog .modal-grid-2 {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 10px !important;
-}
-
-#extraDialog .amount-split {
-  display: flex !important;
-  gap: 8px !important;
-  margin-top: 4px !important;
-}
-
-#extraDialog .amount-field-wrap {
-  position: relative !important;
-  flex: 1 !important;
-}
-
-#extraDialog .prefix-symbol {
-  position: absolute !important;
-  left: 10px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  font-size: 0.82rem !important;
-  font-weight: 700 !important;
-  color: #f56b8b !important;
-}
-
-#extraDialog .field-amount {
-  margin-top: 0 !important;
-  padding-left: 30px !important;
-}
-
-#extraDialog .select-currency {
-  margin-top: 0 !important;
-  width: 80px !important;
-}
-
-/* Checkbox */
-#extraDialog .checkbox-custom-row {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  margin: 10px 0 !important;
-  cursor: pointer !important;
-  font-size: 0.8rem !important;
-  color: #55152d !important;
-}
-
-#extraDialog input[type="checkbox"] {
-  accent-color: #f56b8b !important;
-  width: 15px !important;
-  height: 15px !important;
-}
-
-/* Panel Rosa Recurrencia */
-#extraDialog .pink-subpanel,
-#extraDialog .recurring-box {
-  background: #fff5f8 !important;
-  border: 1px solid #ffe3ea !important;
-  border-radius: 14px !important;
-  padding: 12px 14px !important;
-  margin: 8px 0 12px 0 !important;
-}
-
-#extraDialog .subpanel-label {
-  font-size: 0.74rem !important;
-  font-weight: 600 !important;
-  color: #55152d !important;
-  display: block !important;
-  margin-bottom: 6px !important;
-}
-
-#extraDialog .subpanel-input {
-  width: 100% !important;
-  box-sizing: border-box !important;
-  margin-top: 3px !important;
-  border: 1px solid #ffc5d2 !important;
-  border-radius: 8px !important;
-  padding: 6px 8px !important;
-  font-size: 0.82rem !important;
-  background: #ffffff !important;
-}
-
-#extraDialog .recurring-amounts-list > div {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  font-size: 0.76rem !important;
-  color: #55152d !important;
-  padding: 3px 0 !important;
-}
-
-#extraDialog .recurring-amounts-list input {
-  width: 90px !important;
-  text-align: right !important;
-  border: 1px solid #ffc5d2 !important;
-  border-radius: 6px !important;
-  padding: 4px 6px !important;
-}
-
-/* Botones Inferiores */
-#extraDialog .modal-actions-centered,
-#extraDialog .modal-actions {
-  display: flex !important;
-  justify-content: center !important;
-  gap: 12px !important;
-  margin-top: 14px !important;
-}
-
-#extraDialog .btn-clean-cancel,
-#extraDialog #closeExtraCancelBtn {
-  background: #ffffff !important;
-  border: 1px solid #ff9db4 !important;
-  color: #9f2449 !important;
-  padding: 7px 22px !important;
-  border-radius: 10px !important;
-  font-size: 0.85rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-}
-
-#extraDialog .btn-clean-submit,
-#extraDialog #submitExtraBtn {
-  background: #ffc5d2 !important;
-  border: 1px solid #ffc5d2 !important;
-  color: #9f2449 !important;
-  padding: 7px 22px !important;
-  border-radius: 10px !important;
-  font-size: 0.85rem !important;
-  font-weight: 700 !important;
-  cursor: pointer !important;
-}
-
-
-/* =========================================================
-   FORZADO DE MODOS: OSCURO, AZUL Y BLACK
-   ========================================================= */
-
-/* 1. MODO OSCURO (dark-mode) */
-html.dark-mode #extraDialog .modal,
-body.dark-mode #extraDialog .modal {
-  background: #231d25 !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7) !important;
-}
-html.dark-mode #extraDialog #extraModalTitle,
-body.dark-mode #extraDialog #extraModalTitle,
-html.dark-mode #extraDialog label,
-body.dark-mode #extraDialog label {
-  color: #ff9db4 !important;
-}
-html.dark-mode #extraDialog .modal-caption,
-body.dark-mode #extraDialog .modal-caption {
-  color: #d1b5c2 !important;
-}
-html.dark-mode #extraDialog input[type="text"],
-html.dark-mode #extraDialog input[type="number"],
-html.dark-mode #extraDialog input[type="date"],
-html.dark-mode #extraDialog input[type="month"],
-html.dark-mode #extraDialog select,
-body.dark-mode #extraDialog input,
-body.dark-mode #extraDialog select {
-  background: #2e2632 !important;
-  color: #ffffff !important;
-  border-color: #5a3e4c !important;
-}
-html.dark-mode #extraDialog .pink-subpanel,
-html.dark-mode #extraDialog .recurring-box,
-body.dark-mode #extraDialog .pink-subpanel,
-body.dark-mode #extraDialog .recurring-box {
-  background: #2e2430 !important;
-  border-color: #4f3342 !important;
-}
-html.dark-mode #extraDialog .subpanel-label,
-html.dark-mode #extraDialog .checkbox-custom-row,
-html.dark-mode #extraDialog .recurring-amounts-list > div,
-body.dark-mode #extraDialog .subpanel-label,
-body.dark-mode #extraDialog .checkbox-custom-row,
-body.dark-mode #extraDialog .recurring-amounts-list > div {
-  color: #ffffff !important;
-}
-html.dark-mode #extraDialog #closeExtraDialog,
-body.dark-mode #extraDialog #closeExtraDialog {
-  background: #472635 !important;
-  color: #ff9db4 !important;
-}
-html.dark-mode #extraDialog .btn-clean-cancel,
-html.dark-mode #extraDialog #closeExtraCancelBtn,
-body.dark-mode #extraDialog .btn-clean-cancel,
-body.dark-mode #extraDialog #closeExtraCancelBtn {
-  background: #2e2632 !important;
-  border-color: #5a3e4c !important;
-  color: #ffffff !important;
-}
-html.dark-mode #extraDialog .btn-clean-submit,
-html.dark-mode #extraDialog #submitExtraBtn,
-body.dark-mode #extraDialog .btn-clean-submit,
-body.dark-mode #extraDialog #submitExtraBtn {
-  background: #872847 !important;
-  border-color: #872847 !important;
-  color: #ffffff !important;
-}
-
-
-/* 2. MODO AZUL (dark-blue-mode) -> Letras blancas forzadas */
-html.dark-blue-mode #extraDialog .modal,
-body.dark-blue-mode #extraDialog .modal {
-  background: #111b2b !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8) !important;
-}
-html.dark-blue-mode #extraDialog #extraModalTitle,
-body.dark-blue-mode #extraDialog #extraModalTitle {
-  color: #ffffff !important;
-}
-html.dark-blue-mode #extraDialog label,
-body.dark-blue-mode #extraDialog label {
-  color: #90c2ff !important;
-}
-html.dark-blue-mode #extraDialog .modal-caption,
-body.dark-blue-mode #extraDialog .modal-caption {
-  color: #cbdcf7 !important;
-}
-html.dark-blue-mode #extraDialog input[type="text"],
-html.dark-blue-mode #extraDialog input[type="number"],
-html.dark-blue-mode #extraDialog input[type="date"],
-html.dark-blue-mode #extraDialog input[type="month"],
-html.dark-blue-mode #extraDialog select,
-body.dark-blue-mode #extraDialog input,
-body.dark-blue-mode #extraDialog select {
-  background: #19273c !important;
-  color: #ffffff !important;
-  border-color: #2e476d !important;
-}
-html.dark-blue-mode #extraDialog .pink-subpanel,
-html.dark-blue-mode #extraDialog .recurring-box,
-body.dark-blue-mode #extraDialog .pink-subpanel,
-body.dark-blue-mode #extraDialog .recurring-box {
-  background: #162235 !important;
-  border-color: #2a3e5c !important;
-}
-html.dark-blue-mode #extraDialog .subpanel-label,
-html.dark-blue-mode #extraDialog .checkbox-custom-row,
-html.dark-blue-mode #extraDialog .recurring-amounts-list > div,
-body.dark-blue-mode #extraDialog .subpanel-label,
-body.dark-blue-mode #extraDialog .checkbox-custom-row,
-body.dark-blue-mode #extraDialog .recurring-amounts-list > div {
-  color: #ffffff !important;
-}
-html.dark-blue-mode #extraDialog #closeExtraDialog,
-body.dark-blue-mode #extraDialog #closeExtraDialog {
-  background: #233754 !important;
-  color: #ffffff !important;
-}
-html.dark-blue-mode #extraDialog .btn-clean-cancel,
-html.dark-blue-mode #extraDialog #closeExtraCancelBtn,
-body.dark-blue-mode #extraDialog .btn-clean-cancel,
-body.dark-blue-mode #extraDialog #closeExtraCancelBtn {
-  background: #19273c !important;
-  border-color: #3b5c8d !important;
-  color: #ffffff !important;
-}
-html.dark-blue-mode #extraDialog .btn-clean-submit,
-html.dark-blue-mode #extraDialog #submitExtraBtn,
-body.dark-blue-mode #extraDialog .btn-clean-submit,
-body.dark-blue-mode #extraDialog #submitExtraBtn {
-  background: #2563eb !important;
-  border-color: #2563eb !important;
-  color: #ffffff !important;
-}
-
-
-/* 3. MODO BLACK (black-mode) -> Letras blancas forzadas */
-html.black-mode #extraDialog .modal,
-body.black-mode #extraDialog .modal {
-  background: #0d0d0d !important;
-  border: 1px solid #262626 !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95) !important;
-}
-html.black-mode #extraDialog #extraModalTitle,
-body.black-mode #extraDialog #extraModalTitle {
-  color: #ffffff !important;
-}
-html.black-mode #extraDialog label,
-body.black-mode #extraDialog label {
-  color: #e5e5e5 !important;
-}
-html.black-mode #extraDialog .modal-caption,
-body.black-mode #extraDialog .modal-caption {
-  color: #a3a3a3 !important;
-}
-html.black-mode #extraDialog input[type="text"],
-html.black-mode #extraDialog input[type="number"],
-html.black-mode #extraDialog input[type="date"],
-html.black-mode #extraDialog input[type="month"],
-html.black-mode #extraDialog select,
-body.black-mode #extraDialog input,
-body.black-mode #extraDialog select {
-  background: #171717 !important;
-  color: #ffffff !important;
-  border-color: #333333 !important;
-}
-html.black-mode #extraDialog .pink-subpanel,
-html.black-mode #extraDialog .recurring-box,
-body.black-mode #extraDialog .pink-subpanel,
-body.black-mode #extraDialog .recurring-box {
-  background: #141414 !important;
-  border-color: #262626 !important;
-}
-html.black-mode #extraDialog .subpanel-label,
-html.black-mode #extraDialog .checkbox-custom-row,
-html.black-mode #extraDialog .recurring-amounts-list > div,
-body.black-mode #extraDialog .subpanel-label,
-body.black-mode #extraDialog .checkbox-custom-row,
-body.black-mode #extraDialog .recurring-amounts-list > div {
-  color: #ffffff !important;
-}
-html.black-mode #extraDialog #closeExtraDialog,
-body.black-mode #extraDialog #closeExtraDialog {
-  background: #262626 !important;
-  color: #ffffff !important;
-}
-html.black-mode #extraDialog .btn-clean-cancel,
-html.black-mode #extraDialog #closeExtraCancelBtn,
-body.black-mode #extraDialog .btn-clean-cancel,
-body.black-mode #extraDialog #closeExtraCancelBtn {
-  background: #1a1a1a !important;
-  border-color: #404040 !important;
-  color: #ffffff !important;
-}
-html.black-mode #extraDialog .btn-clean-submit,
-html.black-mode #extraDialog #submitExtraBtn,
-body.black-mode #extraDialog .btn-clean-submit,
-body.black-mode #extraDialog #submitExtraBtn {
-  background: #ffffff !important;
-  border-color: #ffffff !important;
-  color: #000000 !important;
-  font-weight: 800 !important;
-}
-
-
-
-
-
-/* =========================================================
-   DISEÑO BASE MODALES COMPACTOS (FOTO 1)
-   ========================================================= */
-
-dialog.clean-dialog {
-  border: none !important;
-  background: transparent !important;
-  padding: 0 !important;
-  max-width: 95vw !important;
-  overflow: visible !important;
-}
-
-dialog.clean-dialog::backdrop {
-  background: rgba(85, 21, 45, 0.2) !important;
+dialog::backdrop {
+  background: rgba(85, 21, 45, 0.25) !important;
   backdrop-filter: blur(4px) !important;
 }
 
@@ -1619,7 +664,7 @@ dialog.clean-dialog::backdrop {
   max-width: 92vw !important;
   background: #ffffff !important;
   border-radius: 26px !important;
-  padding: 26px 28px !important;
+  padding: 24px 26px !important;
   box-shadow: 0 16px 40px rgba(85, 21, 45, 0.15) !important;
   max-height: 90vh !important;
   overflow-y: auto !important;
@@ -1627,9 +672,8 @@ dialog.clean-dialog::backdrop {
   box-sizing: border-box !important;
 }
 
-/* Cabecera Clásica */
 .modal-header-classic {
-  margin-bottom: 14px !important;
+  margin-bottom: 12px !important;
 }
 
 .btn-close-box {
@@ -1660,17 +704,16 @@ dialog.clean-dialog::backdrop {
 
 .modal-header-classic h2 {
   margin: 0 !important;
-  font-size: 1.6rem !important;
+  font-size: 1.55rem !important;
   font-weight: 800 !important;
   color: #4a0d1e !important;
 }
 
-/* Grilla en 2 Columnas */
 .field-row-2 {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
-  margin-bottom: 12px !important;
+  margin-bottom: 10px !important;
 }
 
 .modal-box label {
@@ -1689,20 +732,18 @@ dialog.clean-dialog::backdrop {
 .modal-box select {
   width: 100% !important;
   box-sizing: border-box !important;
-  margin-top: 6px !important;
-  padding: 9px 14px !important;
+  margin-top: 5px !important;
+  padding: 8px 12px !important;
   border: 1px solid #f3c2ce !important;
   border-radius: 12px !important;
   background: #ffffff !important;
   color: #4a0d1e !important;
   font-size: 0.88rem !important;
-  font-weight: 500 !important;
   outline: none !important;
 }
 
-/* Checkbox y Recurrencia */
 .recur-wrap {
-  margin: 12px 0 16px 0 !important;
+  margin: 10px 0 14px 0 !important;
 }
 
 .check-line {
@@ -1743,12 +784,11 @@ dialog.clean-dialog::backdrop {
   text-align: right !important;
 }
 
-/* Botones Izquierda */
 .actions-left {
   display: flex !important;
   justify-content: flex-start !important;
   gap: 10px !important;
-  margin-top: 18px !important;
+  margin-top: 16px !important;
 }
 
 .btn-box-cancel {
@@ -1773,156 +813,344 @@ dialog.clean-dialog::backdrop {
   cursor: pointer !important;
 }
 
+/* Modal Resumen Anual */
+#annualDialog .modal-box {
+  width: 440px !important;
+}
+#annualDialog .modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+#annualDialog .modal-icon {
+  font-size: 32px;
+}
+#annualDialog h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0;
+  color: #4a1325;
+}
+.annual-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.annual-mini-card {
+  background: #ffffff;
+  border: 1px solid #f6d1db;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.annual-mini-card span {
+  font-size: 9px;
+  font-weight: 800;
+  color: #7d203e;
+  text-transform: uppercase;
+}
+.annual-mini-card strong {
+  font-size: 14px;
+  font-weight: 800;
+  color: #4a1325;
+}
 
 /* =========================================================
-   FORZADO DE MODOS: OSCURO, AZUL Y BLACK
+   ANIMACIONES Y ACORDEONES
    ========================================================= */
-
-/* 1. MODO OSCURO */
-html.dark-mode .modal-box,
-body.dark-mode .modal-box {
-  background: #231d25 !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7) !important;
+.collapsible-section,
+.table-container-collapsible {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 2000px;
+  opacity: 1;
 }
-html.dark-mode .modal-header-classic h2,
+
+.collapsible-section.collapsed,
+.table-container-collapsible.collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* =========================================================
+   MODO 2: OSCURO
+   ========================================================= */
+body.dark-mode {
+  background-color: #140e13 !important;
+  color: #fceef3 !important;
+}
+
+body.dark-mode .hero {
+  background: linear-gradient(110deg, #42182b, #2e111e) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+}
+body.dark-mode .hero h1 { color: #ffdbe4 !important; }
+body.dark-mode .hero .subtitle,
+body.dark-mode .hero .user-email { color: #e5a7be !important; }
+body.dark-mode .eyebrow { color: #ff9db4 !important; }
+
+body.dark-mode .summary-card,
+body.dark-mode .panel,
+body.dark-mode .toolbar,
+body.dark-mode .trend-box,
+body.dark-mode .modal-box {
+  background: #211620 !important;
+  border-color: #3b2334 !important;
+  color: #fceef3 !important;
+}
+
+body.dark-mode .summary-card strong,
+body.dark-mode .section-heading h2,
+body.dark-mode .trend-box h2,
+body.dark-mode .category-row-header,
+body.dark-mode td {
+  color: #fceef3 !important;
+}
+
+body.dark-mode input,
+body.dark-mode select {
+  background: #170f16 !important;
+  border-color: #3b2334 !important;
+  color: #fceef3 !important;
+}
+
 body.dark-mode .modal-header-classic h2,
-html.dark-mode .modal-box label,
-body.dark-mode .modal-box label,
-html.dark-mode .badge-eyebrow,
-body.dark-mode .badge-eyebrow {
+body.dark-mode .badge-eyebrow,
+body.dark-mode .modal-box label {
   color: #ff9db4 !important;
 }
-html.dark-mode .btn-close-box,
+
 body.dark-mode .btn-close-box {
   background: #2e2632 !important;
   border-color: #ff9db4 !important;
   color: #ff9db4 !important;
 }
-html.dark-mode .modal-box input,
-html.dark-mode .modal-box select,
-body.dark-mode .modal-box input,
-body.dark-mode .modal-box select {
-  background: #2e2632 !important;
-  color: #ffffff !important;
-  border-color: #5a3e4c !important;
-}
-html.dark-mode .recur-box-fields,
+
 body.dark-mode .recur-box-fields {
   background: #2a222e !important;
   border-color: #45323e !important;
 }
-html.dark-mode .btn-box-cancel,
+
 body.dark-mode .btn-box-cancel {
   background: #2e2632 !important;
   border-color: #5a3e4c !important;
   color: #ffffff !important;
 }
-html.dark-mode .btn-box-pink,
+
 body.dark-mode .btn-box-pink {
   background: #872847 !important;
   border-color: #872847 !important;
   color: #ffffff !important;
 }
 
-
-/* 2. MODO AZUL (Letras Blancas Forzadas) */
-html.dark-blue-mode .modal-box,
-body.dark-blue-mode .modal-box {
-  background: #111b2b !important;
-  border: 1px solid #1e2f47 !important;
+body.dark-mode th {
+  background: #3d222b !important;
+  color: #ffb6c1 !important;
 }
-html.dark-blue-mode .modal-header-classic h2,
-body.dark-blue-mode .modal-header-classic h2,
-html.dark-blue-mode .modal-box label,
-body.dark-blue-mode .modal-box label,
-html.dark-blue-mode .badge-eyebrow,
-body.dark-blue-mode .badge-eyebrow,
-html.dark-blue-mode .check-line,
-body.dark-blue-mode .check-line,
-html.dark-blue-mode .amounts-list > div,
-body.dark-blue-mode .amounts-list > div {
+
+body.dark-mode td {
+  border-color: #331f2c !important;
+}
+
+body.dark-mode tbody tr:nth-child(even) {
+  background: #281b26 !important;
+}
+
+body.dark-mode .table-total {
+  background: #2d1825 !important;
+  color: #ffdbe4 !important;
+}
+
+/* =========================================================
+   MODO 3: AZUL COMPLETO (LETRAS BLANCAS FORZADAS)
+   ========================================================= */
+body.dark-blue-mode {
+  background-color: #070d1e !important;
   color: #ffffff !important;
 }
-html.dark-blue-mode .btn-close-box,
+
+body.dark-blue-mode header.hero,
+body.dark-blue-mode .summary-card,
+body.dark-blue-mode .panel,
+body.dark-blue-mode .toolbar,
+body.dark-blue-mode .trend-box,
+body.dark-blue-mode .modal-box {
+  background: #0f1c3f !important;
+  border-color: #14244b !important;
+  color: #ffffff !important;
+}
+
+body.dark-blue-mode header.hero h1,
+body.dark-blue-mode header.hero .eyebrow,
+body.dark-blue-mode header.hero .subtitle,
+body.dark-blue-mode .summary-card strong,
+body.dark-blue-mode .section-heading h2,
+body.dark-blue-mode .trend-box h2,
+body.dark-blue-mode .trend-box p,
+body.dark-blue-mode .category-row-header,
+body.dark-blue-mode .modal-header-classic h2,
+body.dark-blue-mode .modal-box label,
+body.dark-blue-mode .badge-eyebrow,
+body.dark-blue-mode .check-line,
+body.dark-blue-mode .amounts-list > div,
+body.dark-blue-mode td {
+  color: #ffffff !important;
+}
+
+body.dark-blue-mode .pastel-btn,
+body.dark-blue-mode .btn-outline,
+body.dark-blue-mode .custom-collapse-btn {
+  background: #14244b !important;
+  color: #ffffff !important;
+  border: 1px solid #1e3a8a !important;
+}
+
+body.dark-blue-mode input,
+body.dark-blue-mode select {
+  background: #070d1e !important;
+  border-color: #14244b !important;
+  color: #ffffff !important;
+}
+
 body.dark-blue-mode .btn-close-box {
   background: #19273c !important;
   border-color: #5c8ed1 !important;
   color: #ffffff !important;
 }
-html.dark-blue-mode .modal-box input,
-html.dark-blue-mode .modal-box select,
-body.dark-blue-mode .modal-box input,
-body.dark-blue-mode .modal-box select {
-  background: #19273c !important;
-  color: #ffffff !important;
-  border-color: #2e476d !important;
-}
-html.dark-blue-mode .recur-box-fields,
+
 body.dark-blue-mode .recur-box-fields {
   background: #162335 !important;
   border-color: #263852 !important;
 }
-html.dark-blue-mode .btn-box-cancel,
+
 body.dark-blue-mode .btn-box-cancel {
   background: #19273c !important;
   border-color: #3b5c8d !important;
   color: #ffffff !important;
 }
-html.dark-blue-mode .btn-box-pink,
+
 body.dark-blue-mode .btn-box-pink {
   background: #2563eb !important;
   border-color: #2563eb !important;
   color: #ffffff !important;
 }
 
-
-/* 3. MODO BLACK (Letras Blancas Forzadas) */
-html.black-mode .modal-box,
-body.black-mode .modal-box {
-  background: #0d0d0d !important;
-  border: 1px solid #262626 !important;
-}
-html.black-mode .modal-header-classic h2,
-body.black-mode .modal-header-classic h2,
-html.black-mode .modal-box label,
-body.black-mode .modal-box label,
-html.black-mode .badge-eyebrow,
-body.black-mode .badge-eyebrow,
-html.black-mode .check-line,
-body.black-mode .check-line,
-html.black-mode .amounts-list > div,
-body.black-mode .amounts-list > div {
+body.dark-blue-mode th {
+  background: #14244b !important;
   color: #ffffff !important;
 }
-html.black-mode .btn-close-box,
+
+body.dark-blue-mode td {
+  border-color: #14244b !important;
+}
+
+body.dark-blue-mode tbody tr:nth-child(even) {
+  background: #0b1736 !important;
+}
+
+body.dark-blue-mode .table-total {
+  background: #0f1c3f !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   MODO 4: BLACK OLED (LETRAS BLANCAS FORZADAS)
+   ========================================================= */
+body.black-mode {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode header.hero,
+body.black-mode .summary-card,
+body.black-mode .panel,
+body.black-mode .toolbar,
+body.black-mode .trend-box,
+body.black-mode .modal-box {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+body.black-mode header.hero h1,
+body.black-mode header.hero .eyebrow,
+body.black-mode header.hero .subtitle,
+body.black-mode header.hero .user-email,
+body.black-mode .summary-card strong,
+body.black-mode .section-heading h2,
+body.black-mode .trend-box h2,
+body.black-mode .trend-box p,
+body.black-mode .category-row-header,
+body.black-mode .modal-header-classic h2,
+body.black-mode .modal-box label,
+body.black-mode .badge-eyebrow,
+body.black-mode .check-line,
+body.black-mode .amounts-list > div,
+body.black-mode td {
+  color: #ffffff !important;
+}
+
+body.black-mode .pastel-btn,
+body.black-mode .btn-outline,
+body.black-mode .custom-collapse-btn {
+  background: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #2e2e2e !important;
+}
+
+body.black-mode input,
+body.black-mode select {
+  background: #0a0a0a !important;
+  border: 1px solid #262626 !important;
+  color: #ffffff !important;
+}
+
 body.black-mode .btn-close-box {
   background: #1a1a1a !important;
   border-color: #444444 !important;
   color: #ffffff !important;
 }
-html.black-mode .modal-box input,
-html.black-mode .modal-box select,
-body.black-mode .modal-box input,
-body.black-mode .modal-box select {
-  background: #171717 !important;
-  color: #ffffff !important;
-  border-color: #333333 !important;
-}
-html.black-mode .recur-box-fields,
+
 body.black-mode .recur-box-fields {
   background: #141414 !important;
   border-color: #262626 !important;
 }
-html.black-mode .btn-box-cancel,
+
 body.black-mode .btn-box-cancel {
   background: #1a1a1a !important;
   border-color: #404040 !important;
   color: #ffffff !important;
 }
-html.black-mode .btn-box-pink,
+
 body.black-mode .btn-box-pink {
   background: #ffffff !important;
   border-color: #ffffff !important;
   color: #000000 !important;
   font-weight: 800 !important;
+}
+
+body.black-mode th {
+  background: #0a0a0a !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #222222 !important;
+}
+
+body.black-mode td {
+  border-bottom: 1px solid #141414 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode tbody tr:nth-child(even) {
+  background: #080808 !important;
+}
+
+body.black-mode .table-total {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-top: 1px solid #222222 !important;
 }
