@@ -2138,3 +2138,131 @@ html.dark-mode,
 body.dark-mode {
   background-color: #140e13 !important;
 }
+
+
+
+/* =========================================================
+   MODALES EN MODO BLACK: AIRE, ESPACIADO Y BOTONES VISIBLES
+========================================================= */
+
+/* Ventana principal con altura flexible y espacio al pie */
+body.black-mode dialog {
+  background: #000000 !important;
+  border: 1px solid #2e2e2e !important;
+  border-radius: 20px !important;
+  padding: 24px 24px 32px 24px !important;
+  width: min(440px, calc(100% - 24px)) !important;
+  max-width: 440px !important;
+  height: auto !important;
+  max-height: 92vh !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.95) !important;
+  color: #ffffff !important;
+}
+
+body.black-mode dialog form,
+body.black-mode form.modal {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+}
+
+/* Títulos y subtítulos con separación limpia */
+body.black-mode dialog h2,
+body.black-mode dialog h3 {
+  margin: 0 0 4px 0 !important;
+  font-size: 20px !important;
+}
+
+body.black-mode dialog .subtitle {
+  margin: 0 0 14px 0 !important;
+}
+
+/* Campos de entrada con altura y respiro visual */
+body.black-mode dialog label {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+body.black-mode dialog input,
+body.black-mode dialog select {
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+  border-radius: 10px !important;
+}
+
+/* Caja de recurrencia con márgenes claros */
+body.black-mode .recurring-box {
+  margin-top: 14px !important;
+  margin-bottom: 8px !important;
+  border-top: 1px solid #262626 !important;
+  padding-top: 14px !important;
+}
+
+body.black-mode .recurring-options,
+body.black-mode #extraRecurringOptions,
+body.black-mode #recurringOptions {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  border-radius: 14px !important;
+  padding: 16px !important;
+  margin-top: 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+body.black-mode .recurring-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+  margin-bottom: 0 !important;
+}
+
+body.black-mode .inline-input {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+body.black-mode .inline-input input {
+  width: 80px !important;
+}
+
+body.black-mode .recurring-changing-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+  cursor: pointer !important;
+}
+
+/* Botones de acción inferiores completamente visibles */
+body.black-mode .modal-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-top: 20px !important;
+  padding-top: 10px !important;
+  padding-bottom: 6px !important;
+}
+
+body.black-mode .modal-actions .btn,
+body.black-mode .modal-actions .pastel-btn {
+  padding: 11px 20px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  height: auto !important;
+  min-height: 42px !important;
+}
+
