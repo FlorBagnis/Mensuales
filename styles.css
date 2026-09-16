@@ -1856,367 +1856,24 @@ body.dark-blue-mode .budget-alert-banner span {
 
 
 /* =========================================================
-   MODO BLACK PURISTA TOTAL (100% NEGRO Y TEXTOS BLANCOS)
+   MODO BLACK PURO (BANNER ENTERO + MODAL PERFECTO)
 ========================================================= */
 
-html.black-mode,
+/* Fondo general de la página */
 body.black-mode,
 body.black-mode main.app {
-  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-/* 1. Header Hero y Banner superior */
-body.black-mode header.hero,
-body.black-mode .hero,
-body.black-mode .hero div,
-body.black-mode header.hero div {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  background-image: none !important;
-  box-shadow: none !important;
-  border: 1px solid #222222 !important;
-  border-radius: 16px !important;
-  padding: 24px 28px !important;
-}
-
-body.black-mode header.hero *,
-body.black-mode .hero * {
-  color: #ffffff !important;
-}
-
-body.black-mode #dolarBadge {
-  background: #000000 !important;
-  border: 1px solid #262626 !important;
-  color: #ffffff !important;
-}
-
-/* 2. Paneles, tarjetas y toolbar */
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border: 1px solid #222222 !important;
-  border-radius: 14px !important;
-  box-shadow: none !important;
-  color: #ffffff !important;
-}
-
-/* Forzar TODOS los textos, títulos, subtítulos y etiquetas a blanco puro */
-body.black-mode h1,
-body.black-mode h2,
-body.black-mode h3,
-body.black-mode h4,
-body.black-mode p,
-body.black-mode span,
-body.black-mode label,
-body.black-mode strong,
-body.black-mode small,
-body.black-mode .eyebrow,
-body.black-mode .subtitle,
-body.black-mode .summary-card span,
-body.black-mode .summary-card small,
-body.black-mode .section-heading p,
-body.black-mode footer,
-body.black-mode #differenceLabel {
-  color: #ffffff !important;
-}
-
-/* 3. Modales (<dialog>) y cajas de recurrencia rosadas eliminadas */
-body.black-mode dialog,
-body.black-mode dialog[id*="Dialog"],
-body.black-mode .modal,
-body.black-mode form.modal,
-body.black-mode dialog form {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  box-shadow: none !important;
-}
-
-body.black-mode dialog {
-  border: 1px solid #262626 !important;
-  border-radius: 18px !important;
-  padding: 24px !important;
-}
-
-body.black-mode dialog::backdrop {
-  background: rgba(0, 0, 0, 0.9) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-/* ELIMINAR EL FONDO ROSADO DE RECURRENCIA EN MODALES */
-body.black-mode #extraRecurringOptions,
-body.black-mode div[id*="RecurringOptions"],
-body.black-mode .recurring-box,
-body.black-mode [style*="background: var(--pink-bg)"],
-body.black-mode [style*="background:#fde8ee"] {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border: 1px solid #222222 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode dialog .close,
-body.black-mode dialog button[id*="close"],
-body.black-mode dialog button[id*="Close"] {
-  background: #000000 !important;
-  border: 1px solid #262626 !important;
-  color: #ffffff !important;
-  border-radius: 50% !important;
-}
-
-/* 4. Inputs, selects y campos de formulario */
-body.black-mode input,
-body.black-mode select,
-body.black-mode textarea,
-body.black-mode .money-input,
-body.black-mode .money-input input {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border: 1px solid #262626 !important;
-  border-radius: 9px !important;
-}
-
-body.black-mode input:focus,
-body.black-mode select:focus,
-body.black-mode textarea:focus {
-  border-color: #555555 !important;
-  outline: none !important;
-}
-
-body.black-mode input::placeholder,
-body.black-mode textarea::placeholder {
-  color: #777777 !important;
-}
-
-body.black-mode .money-input span {
-  background: transparent !important;
-  color: #ffffff !important;
-  border: none !important;
-}
-
-/* 5. Botones */
-body.black-mode .pastel-btn,
-body.black-mode .btn,
-body.black-mode .custom-collapse-btn,
-body.black-mode button {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border: 1px solid #262626 !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode .btn:hover,
-body.black-mode .custom-collapse-btn:hover,
-body.black-mode button:hover {
-  background: #151515 !important;
-  background-color: #151515 !important;
-  border-color: #555555 !important;
-  color: #ffffff !important;
-}
-
-/* 6. Tablas y celdas */
-body.black-mode thead,
-body.black-mode th,
-body.black-mode .table-wrap th {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #222222 !important;
-}
-
-body.black-mode table,
-body.black-mode td {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border-bottom: 1px solid #1a1a1a !important;
-  color: #ffffff !important;
-}
-
-body.black-mode tbody tr:nth-child(even),
-body.black-mode tbody tr:nth-child(even) td {
-  background: #050505 !important;
-  background-color: #050505 !important;
-}
-
-body.black-mode tbody tr:hover td {
-  background: #111111 !important;
-  background-color: #111111 !important;
-}
-
-body.black-mode .category,
-body.black-mode .month-pill {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border: 1px solid #262626 !important;
-}
-
-body.black-mode .table-total {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border-top: 1px solid #222222 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode .annual-mini-card {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border: 1px solid #222222 !important;
-  color: #ffffff !important;
-}
-
-
-/* =========================================================
-   FORZADO TOTAL RECURRENCIA Y TEXTOS EN BLANCO
-========================================================= */
-body.black-mode #extraRecurringOptions,
-body.black-mode #recurringOptions,
-body.black-mode .recurring-box,
-body.black-mode div[id*="ecurring"] {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border: 1px solid #262626 !important;
-}
-
-body.black-mode #extraRecurringOptions *,
-body.black-mode #recurringOptions *,
-body.black-mode .recurring-box *,
-body.black-mode dialog label,
-body.black-mode dialog span,
-body.black-mode dialog p,
-body.black-mode dialog div {
-  color: #ffffff !important;
-}
-
-body.black-mode #extraRecurringOptions input,
-body.black-mode #recurringOptions input {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-
-/* =========================================================
-   FORZADO DEFINITIVO DE RECURRENCIA Y TEXTOS (MODO BLACK)
-========================================================= */
-
-/* Forzar caja de recurrencia en negro absoluto y eliminar el fondo rosado */
-body.black-mode #extraRecurringOptions,
-body.black-mode #recurringOptions,
-body.black-mode .recurring-box,
-body.black-mode #extraRecurringAmounts,
-body.black-mode #recurringAmounts,
-body.black-mode div[id*="Recurring"],
-body.black-mode [id*="ecurringOptions"] {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border: 1px solid #262626 !important;
-  color: #ffffff !important;
-}
-
-/* Forzar todas las etiquetas, títulos, textos y spans internos a blanco nítido */
-body.black-mode #extraRecurringOptions *,
-body.black-mode #recurringOptions *,
-body.black-mode .recurring-box *,
-body.black-mode dialog label,
-body.black-mode dialog label span,
-body.black-mode dialog p,
-body.black-mode dialog div,
-body.black-mode dialog span {
-  color: #ffffff !important;
-}
-
-/* Inputs numéricos de días, cuotas y montos dentro de la recurrencia */
-body.black-mode #extraRecurringOptions input,
-body.black-mode #recurringOptions input,
-body.black-mode .rec-amount-input,
-body.black-mode .extra-rec-amount-input {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-  border-radius: 8px !important;
-}
-
-/* Checkboxes visibles en negro puro con tilde nítida */
-body.black-mode input[type="checkbox"] {
-  accent-color: #ffffff !important;
-}
-
-
-/* =========================================================
-   ELIMINAR CAJA ROSADA Y FORZAR TEXTOS BLANCOS EN EL MODAL
-========================================================= */
-
-/* 1. Matar el fondo rosado inline del contenedor de recurrencia */
-body.black-mode div#extraRecurringOptions,
-body.black-mode #extraRecurringOptions,
-body.black-mode [id="extraRecurringOptions"] {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border: 1px solid #2e2e2e !important;
-  border-radius: 12px !important;
-}
-
-/* 2. Forzar a blanco puro todos los títulos rosados inline (FECHA REAL, IMPUTAR AL MES, etc.) */
-body.black-mode dialog label,
-body.black-mode dialog label[style*="color"],
-body.black-mode dialog [style*="color: var(--pink-700)"],
-body.black-mode dialog [style*="color:var(--pink-700)"] {
-  color: #ffffff !important;
-}
-
-/* 3. Textos internos de recurrencia (Durante, Cada cuántos meses, Día del mes, Montos variables) */
-body.black-mode #extraRecurringOptions label,
-body.black-mode #extraRecurringOptions span,
-body.black-mode #extraRecurringOptions div,
-body.black-mode #extraRecurringOptions p {
-  color: #ffffff !important;
-}
-
-/* 4. Inputs numéricos dentro de la caja de recurrencia */
-body.black-mode #extraRecurringOptions input[type="number"] {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-  border-radius: 8px !important;
-}
-
-/* 5. Checkbox de montos variables legible */
-body.black-mode #extraRecurringOptions input[type="checkbox"] {
-  accent-color: #ffffff !important;
-}
-
-/* =========================================================
-   MODO BLACK PURO (BANNER UNIFICADO + MODAL SIN SCROLL)
-========================================================= */
-
-/* Fondo base y textos */
-body.black-mode,
-body.black-mode html,
-body.black-mode main.app {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-/* 1. Header / Banner: tarjeta única continua (sin cajas interiores partidas) */
+/* 1. Header / Banner superior: tarjeta única continua sin partir */
 body.black-mode header.hero {
   background: #000000 !important;
+  background-image: none !important;
   border: 1px solid #262626 !important;
   border-radius: 16px !important;
   box-shadow: none !important;
+  padding: 24px 28px !important;
 }
 
 body.black-mode header.hero > div,
@@ -2239,7 +1896,7 @@ body.black-mode #dolarBadge {
   color: #ffffff !important;
 }
 
-/* 2. Tarjetas, paneles y toolbar */
+/* 2. Tarjetas de resumen, paneles y toolbar */
 body.black-mode .summary-card,
 body.black-mode .panel,
 body.black-mode .toolbar,
@@ -2248,36 +1905,37 @@ body.black-mode .auth-card {
   background: #000000 !important;
   border: 1px solid #262626 !important;
   border-radius: 14px !important;
-  color: #ffffff !important;
   box-shadow: none !important;
+  color: #ffffff !important;
 }
 
 body.black-mode h1,
 body.black-mode h2,
 body.black-mode h3,
+body.black-mode h4,
 body.black-mode strong,
-body.black-mode label,
-body.black-mode span,
 body.black-mode p,
+body.black-mode span,
+body.black-mode label,
 body.black-mode small {
   color: #ffffff !important;
 }
 
-/* 3. Modal flotante limpio, proporcional y sin barra de scroll */
+/* 3. Modales flotantes (<dialog>) con tamaño nativo y sin scroll */
 body.black-mode dialog {
   background: #000000 !important;
   border: 1px solid #2e2e2e !important;
   border-radius: 20px !important;
   padding: 24px !important;
-  max-height: 90vh !important;
-  overflow-y: auto !important;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.95) !important;
+  width: min(440px, calc(100% - 30px)) !important;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.95) !important;
+  color: #ffffff !important;
+  overflow: visible !important;
 }
 
 body.black-mode dialog::backdrop {
   background: rgba(0, 0, 0, 0.88) !important;
   backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
 }
 
 body.black-mode dialog form,
@@ -2290,19 +1948,20 @@ body.black-mode form.modal {
 
 body.black-mode dialog .close,
 body.black-mode dialog button[id*="close"] {
-  background: #111111 !important;
+  background: #000000 !important;
   border: 1px solid #2e2e2e !important;
   color: #ffffff !important;
   border-radius: 50% !important;
 }
 
-/* Opciones de recurrencia en negro absoluto y tipografía blanca */
+/* Caja de opciones de recurrencia en negro total */
 body.black-mode #extraRecurringOptions,
 body.black-mode #recurringOptions,
 body.black-mode .recurring-box {
   background: #000000 !important;
   border: 1px solid #262626 !important;
   border-radius: 12px !important;
+  padding: 12px !important;
 }
 
 body.black-mode #extraRecurringOptions *,
@@ -2311,11 +1970,12 @@ body.black-mode .recurring-box * {
   color: #ffffff !important;
 }
 
-/* 4. Inputs, selects y campos de formulario */
+/* 4. Inputs, selects y campos */
 body.black-mode input,
 body.black-mode select,
 body.black-mode textarea,
-body.black-mode .money-input {
+body.black-mode .money-input,
+body.black-mode .money-input input {
   background: #000000 !important;
   color: #ffffff !important;
   border: 1px solid #2e2e2e !important;
@@ -2325,7 +1985,7 @@ body.black-mode .money-input {
 body.black-mode input:focus,
 body.black-mode select:focus,
 body.black-mode textarea:focus {
-  border-color: #555555 !important;
+  border-color: #666666 !important;
   outline: none !important;
 }
 
