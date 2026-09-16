@@ -1105,7 +1105,7 @@ function initCsvImport() {
 }
 
 /* =========================================================
-   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA) - CORREGIDO
+   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA) - LIMPIO Y FUNCIONAL
 ========================================================= */
 
 document.addEventListener('click', (e) => {
@@ -1135,6 +1135,8 @@ document.addEventListener('click', (e) => {
     themeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
     const blueBtn = $("toggleBlueThemeBtn");
     if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
+    const blackBtn = $("btnBlackMode");
+    if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
   }
 
   const blueThemeBtn = e.target.closest('#toggleBlueThemeBtn');
@@ -1145,6 +1147,8 @@ document.addEventListener('click', (e) => {
     blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "💙 Modo Azul";
     const darkBtn = $("toggleThemeBtn");
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
+    const blackBtn = $("btnBlackMode");
+    if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
   }
 
   const blackThemeBtn = e.target.closest('#btnBlackMode');
@@ -1152,8 +1156,7 @@ document.addEventListener('click', (e) => {
     const isBlack = document.body.classList.toggle("black-mode");
     document.body.classList.remove("dark-mode", "dark-blue-mode");
     localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
-    // Mantiene el texto del botón de Modo Black intacto o con indicador claro
-    blackThemeBtn.textContent = isBlack ? "🖤 Modo Black (Activo)" : "🖤 Modo Black";
+    blackThemeBtn.textContent = isBlack ? "🖤 Modo Black" : "🖤 Modo Black";
     const darkBtn = $("toggleThemeBtn");
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
     const blueBtn = $("toggleBlueThemeBtn");
@@ -1179,7 +1182,7 @@ if (savedTheme === "dark") {
 } else if (savedTheme === "black") {
   document.body.classList.add("black-mode");
   const blackBtn = $("btnBlackMode");
-  if (blackBtn) blackBtn.textContent = "🖤 Modo Black (Activo)";
+  if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
 }
 
 
