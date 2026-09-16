@@ -1104,8 +1104,9 @@ function initCsvImport() {
   });
 }
 
+
 /* =========================================================
-   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA) - CORREGIDA
+   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA)
 ========================================================= */
 
 document.addEventListener('click', (e) => {
@@ -1152,13 +1153,8 @@ document.addEventListener('click', (e) => {
     const isBlack = document.body.classList.toggle("black-mode");
     document.body.classList.remove("dark-mode", "dark-blue-mode");
     localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
-    blackThemeBtn.textContent = isBlack ? "☀️ Modo claro" : "🖤 Modo Black";
-    const darkBtn = $("toggleThemeBtn");
-    if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
-    const blueBtn = $("toggleBlueThemeBtn");
-    if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
   }
-   
+
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
   if (e.target.closest('#closeAnnualDialog') || e.target.closest('#closeAnnualCancelBtn')) $("annualDialog")?.close();
   if (e.target.closest('#annualPdfBtn')) {
@@ -1177,8 +1173,12 @@ if (savedTheme === "dark") {
   if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
 } else if (savedTheme === "black") {
   document.body.classList.add("black-mode");
-  const blackBtn = $("btnBlackMode");
-  if (blackBtn) blackBtn.textContent = "☀️ Modo claro";
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
 }
 
 
