@@ -218,18 +218,15 @@ document.addEventListener("submit", (e) => {
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   
-const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
-if (savedTheme === "dark") {
-  document.body.classList.add("dark-mode");
-  const darkBtn = $("toggleThemeBtn");
-  if (darkBtn) darkBtn.textContent = "☀️ Modo claro";
-} else if (savedTheme === "blue") {
-  document.body.classList.add("dark-blue-mode");
-  const blueBtn = $("toggleBlueThemeBtn");
-  if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
-} else if (savedTheme === "black") {
-  document.body.classList.add("black-mode");
-}
+  const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
+  document.body.classList.remove("dark-mode", "dark-blue-mode", "black-mode");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+  } else if (savedTheme === "blue") {
+    document.body.classList.add("dark-blue-mode");
+  } else if (savedTheme === "black") {
+    document.body.classList.add("black-mode");
+  }
 
   if (!user) {
     localStorage.removeItem('user_logged_in');
@@ -1107,8 +1104,9 @@ function initCsvImport() {
   });
 }
 
+
 /* =========================================================
-   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA) - DEFINITIVO
+   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA)
 ========================================================= */
 
 document.addEventListener('click', (e) => {
@@ -1138,8 +1136,6 @@ document.addEventListener('click', (e) => {
     themeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
     const blueBtn = $("toggleBlueThemeBtn");
     if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
-    const blackBtn = $("btnBlackMode");
-    if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
   }
 
   const blueThemeBtn = e.target.closest('#toggleBlueThemeBtn');
@@ -1150,8 +1146,6 @@ document.addEventListener('click', (e) => {
     blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "💙 Modo Azul";
     const darkBtn = $("toggleThemeBtn");
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
-    const blackBtn = $("btnBlackMode");
-    if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
   }
 
   const blackThemeBtn = e.target.closest('#btnBlackMode');
@@ -1159,11 +1153,6 @@ document.addEventListener('click', (e) => {
     const isBlack = document.body.classList.toggle("black-mode");
     document.body.classList.remove("dark-mode", "dark-blue-mode");
     localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
-    blackThemeBtn.textContent = isBlack ? "☀️ Modo claro" : "🖤 Modo Black";
-    const darkBtn = $("toggleThemeBtn");
-    if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
-    const blueBtn = $("toggleBlueThemeBtn");
-    if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
   }
 
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
@@ -1184,8 +1173,6 @@ if (savedTheme === "dark") {
   if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
 } else if (savedTheme === "black") {
   document.body.classList.add("black-mode");
-  const blackBtn = $("btnBlackMode");
-  if (blackBtn) blackBtn.textContent = "☀️ Modo claro";
 }
 
 if (document.readyState === "loading") {
@@ -1193,7 +1180,6 @@ if (document.readyState === "loading") {
 } else {
   initApp();
 }
-
 
 
 /* =========================================================
