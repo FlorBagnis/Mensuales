@@ -4435,3 +4435,134 @@ body.black-mode #annualDialog .annual-mini-card {
   border-radius: 14px !important;
   padding: 14px !important;
 }
+
+
+/* =========================================================
+   RESUMEN ANUAL MODO BLACK (RÉPLICA EXACTA DEL MODO AZUL)
+========================================================= */
+
+/* Ventana modal: mismas proporciones y esquinas del modo azul */
+body.black-mode #annualDialog {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  border-radius: 28px !important;
+  padding: 35px !important;
+  width: min(520px, calc(100% - 32px)) !important;
+  max-width: 520px !important;
+  height: auto !important;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95) !important;
+  color: #ffffff !important;
+}
+
+/* Botón de cerrar superior */
+body.black-mode #annualDialog #closeAnnualDialog {
+  background: #141414 !important;
+  border: 1px solid #262626 !important;
+  color: #ffffff !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 18px !important;
+  top: 22px !important;
+  right: 22px !important;
+}
+
+body.black-mode #annualDialog #closeAnnualDialog:hover {
+  background: #222222 !important;
+}
+
+/* Título y subtítulo */
+body.black-mode #annualDialog h2 {
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin: 0 0 6px 0 !important;
+}
+
+body.black-mode #annualDialog #annualSubtitle {
+  color: #888888 !important;
+  font-size: 13px !important;
+  margin: 0 0 20px 0 !important;
+}
+
+/* Grilla de 2 columnas para las 4 tarjetas */
+body.black-mode #annualDialog .annual-card-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+}
+
+/* Tarjetas interiores: fondo negro suave con relieve y bordes idénticos al modo azul */
+body.black-mode #annualDialog .annual-mini-card {
+  background: #0a0a0a !important;
+  border: 1px solid #262626 !important;
+  border-radius: 18px !important;
+  padding: 18px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card span {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.6px !important;
+  color: #888888 !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card strong {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+}
+
+/* Botones de acción inferiores: rectángulos redondeados como en el modo azul */
+body.black-mode #annualDialog .annual-actions,
+body.black-mode #annualDialog > div[style*="display: flex"] {
+  display: flex !important;
+  gap: 12px !important;
+  margin-top: 22px !important;
+}
+
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  flex: 1 !important;
+  width: 100% !important;
+  height: 48px !important;
+  border-radius: 14px !important;
+  padding: 0 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+}
+
+/* Botón Descargar PDF */
+body.black-mode #annualDialog #annualPdfBtn {
+  background: #121212 !important;
+  border: 1px solid #2e2e2e !important;
+  color: #ffffff !important;
+}
+
+body.black-mode #annualDialog #annualPdfBtn:hover {
+  background: #1c1c1c !important;
+  border-color: #444444 !important;
+}
+
+/* Botón Cerrar */
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  background: #080808 !important;
+  border: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
+  background: #141414 !important;
+  border-color: #333333 !important;
+}
