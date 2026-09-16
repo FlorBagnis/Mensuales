@@ -1,8 +1,10 @@
-* {
-  box-sizing: border-box;
-}
-
 :root {
+  --bg-main: #f9eef2;
+  --bg-card: #ffffff;
+  --ink: #55152d;
+  --muted: #8f6876;
+  --line: #f3c9d4;
+
   --pink-50: #fff3f6;
   --pink-100: #ffe3ea;
   --pink-200: #ffc5d2;
@@ -10,22 +12,78 @@
   --pink-500: #f56b8b;
   --pink-700: #9f2449;
 
-  --ink: #55152d;
-  --muted: #8f6876;
-  --line: #f3c9d4;
+  --btn-bg: #fbc4d4;
+  --btn-text: #5a2337;
+  --btn-border: #f29cb5;
+  --btn-hover: #f9b2c6;
 
   --green: #269b58;
   --red: #c63b55;
-
   --white: #ffffff;
+}
+
+/* =========================================================
+   MODO OSCURO (DARK AESTHETIC PINK)
+========================================================= */
+body.dark-mode {
+  --bg-main: #140e13;
+  --bg-card: #211620;
+  --ink: #fceef3;
+  --muted: #c49ba9;
+  --line: #3b2334;
+
+  --btn-bg: #3d222b;
+  --btn-text: #ffb6c1;
+  --btn-border: #592e47;
+  --btn-hover: #4e2b37;
+}
+
+/* =========================================================
+   MODO AZUL
+========================================================= */
+body.dark-blue-mode {
+  --bg-main: #070d1e;
+  --bg-card: #0f1c3f;
+  --ink: #f1f5f9;
+  --muted: #94a3b8;
+  --line: #14244b;
+
+  --btn-bg: #14244b;
+  --btn-text: #38bdf8;
+  --btn-border: #1e3a8a;
+  --btn-hover: #1e3a8a;
+}
+
+/* =========================================================
+   MODO BLACK (OLED)
+========================================================= */
+body.black-mode {
+  --bg-main: #000000;
+  --bg-card: #000000;
+  --ink: #ffffff;
+  --muted: #a0a0a0;
+  --line: #262626;
+
+  --btn-bg: #121212;
+  --btn-text: #ffffff;
+  --btn-border: #2e2e2e;
+  --btn-hover: #222222;
+}
+
+/* =========================================================
+   ESTILOS GENERALES
+========================================================= */
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: #f9eef2;
+  background: var(--bg-main);
   color: var(--ink);
   font-family: Inter, Arial, sans-serif;
   min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .hidden {
@@ -37,9 +95,7 @@ body {
   margin: 30px auto 50px;
 }
 
-/* =========================================================
-   AUTH (LOGIN Y REGISTRO)
-========================================================= */
+/* AUTH (LOGIN Y REGISTRO) */
 .auth-section {
   min-height: 90vh;
   display: grid;
@@ -48,11 +104,11 @@ body {
 
 .auth-card {
   width: min(420px, 100%);
-  background: white;
-  border: 1px solid var(--pink-200);
+  background: var(--bg-card);
+  border: 1px solid var(--line);
   border-radius: 24px;
   padding: 38px 32px;
-  box-shadow: 0 20px 60px rgba(132, 38, 67, .10);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .10);
   text-align: left;
 }
 
@@ -62,8 +118,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--pink-100);
-  color: var(--pink-500);
+  background: var(--btn-bg);
+  color: var(--btn-text);
   border-radius: 50%;
   font-size: 24px;
   margin-bottom: 20px;
@@ -93,10 +149,10 @@ body {
   gap: 7px;
   font-size: 12px;
   font-weight: 800;
-  color: var(--pink-700);
+  color: var(--btn-text);
 }
 
-/* Botón Iniciar sesión rosa pastel original */
+/* Botón Iniciar sesión adaptado al tema */
 .auth-card button,
 .auth-card input[type="submit"],
 .auth-card input[type="button"],
@@ -105,29 +161,27 @@ body {
 #authSubmitBtn,
 .auth-submit {
   width: 100% !important;
-  background: #fbc4d4 !important;
-  color: #5a2337 !important;
-  border: 1px solid #f29cb5 !important;
+  background: var(--btn-bg) !important;
+  color: var(--btn-text) !important;
+  border: 1px solid var(--btn-border) !important;
   border-radius: 12px !important;
   padding: 13px 18px !important;
   font-family: inherit !important;
   font-size: 13px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
-  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
-  margin-top: 6px !important;
   display: block !important;
   text-align: center !important;
+  transition: background 0.2s ease, transform 0.2s ease !important;
+  margin-top: 6px !important;
 }
 
 .auth-card button:hover,
 .auth-card input[type="submit"]:hover,
 .auth-card .auth-submit:hover,
 #authSubmitBtn:hover {
-  background: #f9b2c6 !important;
+  background: var(--btn-hover) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 16px rgba(90, 35, 55, 0.16) !important;
 }
 
 .auth-message {
@@ -146,32 +200,34 @@ body {
 .auth-switch {
   border: 0;
   background: transparent;
-  color: var(--pink-700);
+  color: var(--btn-text);
   font: inherit;
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
   display: block;
   margin: 12px auto 0;
-  transition: color 0.2s ease;
 }
 
 .auth-switch:hover {
-  color: var(--pink-500);
+  opacity: 0.8;
 }
 
-/* =========================================================
-   HEADER / HERO
-========================================================= */
+/* HEADER / HERO */
 .hero {
-  background: linear-gradient(110deg, #ffb0c2, #ffa5bb);
+  background: var(--bg-card);
+  border: 1px solid var(--line);
   border-radius: 16px;
   padding: 24px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  box-shadow: 0 10px 30px rgba(132, 38, 67, .08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+}
+
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) .hero {
+  background: linear-gradient(110deg, #ffb0c2, #ffa5bb);
 }
 
 .eyebrow {
@@ -179,7 +235,7 @@ body {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.3px;
-  color: var(--pink-700);
+  color: var(--btn-text);
   text-transform: uppercase;
 }
 
@@ -188,15 +244,16 @@ h1 {
   font-size: clamp(20px, 3vw, 30px);
   letter-spacing: -.5px;
   font-weight: 800;
+  color: var(--ink);
 }
 
 h3 {
-  color: var(--pink-700);
+  color: var(--btn-text);
 }
 
 .subtitle {
   margin: 0;
-  color: #7d2c46;
+  color: var(--muted);
   font-size: 13px;
 }
 
@@ -210,16 +267,15 @@ h3 {
 
 .user-email {
   font-size: 11px;
-  color: #7d2c46;
+  color: var(--muted);
   font-weight: 700;
 }
 
-/* Pastilla "🌸 Próximos & Deudas" */
 .hero a,
 header.hero a {
-  background: #fbc4d4 !important;
-  color: #5a2337 !important;
-  border: 1px solid #f29cb5 !important;
+  background: var(--btn-bg) !important;
+  color: var(--btn-text) !important;
+  border: 1px solid var(--btn-border) !important;
   border-radius: 12px !important;
   padding: 9px 16px !important;
   font-size: 12px !important;
@@ -228,23 +284,18 @@ header.hero a {
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
-  box-shadow: 0 2px 6px rgba(90, 35, 55, 0.08) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
 
-.hero a:hover,
-header.hero a:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 14px rgba(90, 35, 55, 0.16) !important;
-}
-
-/* =========================================================
-   BOTONES
-========================================================= */
-.btn {
-  border: 0;
-  border-radius: 10px;
-  padding: 10px 16px;
+/* BOTONES GENERALES */
+.btn,
+.pastel-btn,
+.btn-pink,
+.custom-collapse-btn {
+  background: var(--btn-bg) !important;
+  color: var(--btn-text) !important;
+  border: 1px solid var(--btn-border) !important;
+  border-radius: 10px !important;
+  padding: 10px 16px !important;
   font: inherit;
   font-size: 12px;
   font-weight: 700;
@@ -253,114 +304,30 @@ header.hero a:hover {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+  transition: transform 0.2s ease, background 0.2s ease !important;
 }
 
-.btn:hover {
-  transform: translateY(-2px) !important;
-}
-
-.btn:disabled {
-  opacity: .6;
-  cursor: wait;
-  transform: none !important;
-}
-
-/* Botones rosas pastel */
-.pastel-btn,
-.btn-pink,
-button.btn-pink,
-.toolbar button:not(.btn-dark):not(.btn-outline):not(.btn-danger):not(.custom-collapse-btn) {
-  background: #fbc4d4 !important;
-  color: #5a2337 !important;
-  border: 1px solid #f29cb5 !important;
-  border-radius: 12px !important;
-  padding: 10px 16px !important;
-  font-weight: 700 !important;
-  text-decoration: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  font-size: 12px !important;
-  box-shadow: 0 2px 6px rgba(90, 35, 55, 0.08) !important;
-}
-
-.pastel-btn:hover,
-.btn-pink:hover,
-button.btn-pink:hover,
-.toolbar button:not(.btn-dark):not(.btn-outline):not(.btn-danger):not(.custom-collapse-btn):hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 14px rgba(90, 35, 55, 0.16) !important;
+.btn:hover,
+.pastel-btn:hover {
+  background: var(--btn-hover) !important;
+  transform: translateY(-2px);
 }
 
 /* Botón principal "+ Nuevo gasto" */
 .btn-dark {
-  background: #6e203b !important;
-  color: #ffffff !important;
-  border: none !important;
+  background: var(--ink) !important;
+  color: var(--bg-card) !important;
+  border: 1px solid var(--line) !important;
   border-radius: 10px !important;
   padding: 10px 16px !important;
   font-weight: 800 !important;
-  box-shadow: 0 4px 12px rgba(110, 32, 59, 0.25) !important;
 }
 
-.btn-dark:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 16px rgba(110, 32, 59, 0.35) !important;
-}
-
-/* Botones secundarios con contorno */
-.btn-outline,
-.btn-danger,
-.toolbar .btn-outline,
-.toolbar .btn-danger,
-.toolbar label.btn {
-  background: #ffffff !important;
-  color: var(--pink-700) !important;
-  border: 1px solid var(--pink-300) !important;
-  border-radius: 10px !important;
-  padding: 10px 16px !important;
-  font-weight: 700 !important;
-  box-shadow: 0 2px 6px rgba(132, 38, 67, 0.04) !important;
-}
-
-.btn-outline:hover,
-.btn-danger:hover,
-.toolbar .btn-outline:hover,
-.toolbar .btn-danger:hover {
-  background: var(--pink-50) !important;
-  border-color: var(--pink-500) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 10px rgba(132, 38, 67, 0.12) !important;
-}
-
-.custom-collapse-btn {
-  background-color: #ffffff !important;
-  color: var(--pink-700) !important;
-  border: 1px solid var(--pink-300) !important;
-  padding: 0.35rem 0.75rem !important;
-  font-size: 0.85rem !important;
-  border-radius: 8px !important;
-  cursor: pointer;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 5px !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-.custom-collapse-btn:hover {
-  background-color: var(--pink-50) !important;
-}
-
-/* =========================================================
-   TOOLBAR E INPUTS
-========================================================= */
+/* TOOLBAR E INPUTS */
 .toolbar {
   margin: 18px 0;
   padding: 16px;
-  background: rgba(255, 255, 255, .75);
+  background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: 14px;
   display: flex;
@@ -378,33 +345,26 @@ button.btn-pink:hover,
 .modal label {
   font-size: 11px;
   font-weight: 800;
-  color: var(--pink-700);
+  color: var(--btn-text);
 }
 
 input,
 select {
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: white;
+  background: var(--bg-card);
   color: var(--ink);
   padding: 10px 14px;
   outline: none;
   font: inherit;
   font-size: 13px;
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-}
-
-input:focus,
-select:focus {
-  border-color: var(--pink-500);
-  box-shadow: 0 0 0 3px rgba(245, 107, 139, .15);
 }
 
 .money-input {
   display: flex;
   align-items: center;
   border: 1px solid var(--line);
-  background: white;
+  background: var(--bg-card);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -412,18 +372,17 @@ select:focus {
 .money-input span {
   padding-left: 12px;
   font-weight: 800;
-  color: var(--pink-500);
+  color: var(--btn-text);
 }
 
 .money-input input {
   border: 0;
   border-radius: 0;
   width: 130px;
+  background: transparent;
 }
 
-/* =========================================================
-   RESUMEN Y PANELES
-========================================================= */
+/* RESUMEN Y PANELES */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -431,20 +390,21 @@ select:focus {
   margin-bottom: 20px;
 }
 
-.summary-card {
-  background: white;
-  border: 1px solid var(--pink-200);
+.summary-card,
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 18px 16px;
-  min-height: 105px;
-  box-shadow: 0 4px 12px rgba(132, 38, 67, 0.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  color: var(--ink);
 }
 
 .summary-card span {
   display: block;
   font-size: 10px;
   font-weight: 800;
-  color: var(--pink-700);
+  color: var(--btn-text);
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -461,15 +421,6 @@ select:focus {
   font-size: 11px;
 }
 
-.panel {
-  background: white;
-  border: 1px solid var(--pink-200);
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(132, 38, 67, 0.03);
-}
-
 .section-heading {
   padding: 18px 20px 14px;
   display: flex;
@@ -484,24 +435,18 @@ select:focus {
   margin: 0 0 3px;
 }
 
-.section-heading p {
-  margin: 0;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.month-pill {
-  background: var(--pink-100);
-  color: var(--pink-700);
+.month-pill,
+.category {
+  background: var(--btn-bg);
+  color: var(--btn-text);
   font-size: 11px;
   font-weight: 800;
   padding: 6px 12px;
   border-radius: 999px;
+  border: 1px solid var(--btn-border);
 }
 
-/* =========================================================
-   TABLAS
-========================================================= */
+/* TABLAS */
 .table-wrap {
   overflow-x: auto;
 }
@@ -513,8 +458,8 @@ table {
 }
 
 th {
-  background: #fbc4d4;
-  color: #5a2337;
+  background: var(--btn-bg);
+  color: var(--btn-text);
   text-align: left;
   padding: 10px 14px;
   font-size: 10px;
@@ -524,11 +469,12 @@ th {
 
 td {
   padding: 11px 14px;
-  border-bottom: 1px solid #f7dce3;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
 }
 
 tbody tr:nth-child(even) {
-  background: #fff8fa;
+  background: rgba(150, 150, 150, 0.04);
 }
 
 td:last-child,
@@ -536,179 +482,29 @@ th:last-child {
   text-align: right;
 }
 
-.amount {
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.category {
-  display: inline-block;
-  background: var(--pink-100);
-  color: var(--pink-700);
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.actions {
-  white-space: nowrap;
-  text-align: right;
-}
-
-.edit-btn,
-.delete-btn {
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  font-size: 15px;
-  padding: 3px 6px;
-  transition: transform .18s ease;
-}
-
-.edit-btn {
-  color: #c44f70;
-}
-
-.edit-btn:hover {
-  transform: scale(1.2);
-}
-
-.delete-btn {
-  color: #c98295;
-}
-
-.delete-btn:hover {
-  color: var(--red);
-  transform: scale(1.2);
-}
-
 .table-total {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #ffe7ec;
+  background: var(--bg-card);
+  border-top: 1px solid var(--line);
   padding: 12px 14px;
   font-size: 11px;
 }
 
-.table-total strong {
-  font-size: 14px;
-}
-
-.empty-state {
-  display: grid;
-  place-items: center;
-  gap: 4px;
-  padding: 38px 15px;
-  color: var(--muted);
-}
-
-.empty-state div {
-  font-size: 25px;
-  color: var(--pink-300);
-}
-
-.empty-state strong {
-  font-size: 13px;
-  color: var(--ink);
-}
-
-.empty-state span {
-  font-size: 10px;
-}
-
-.two-columns {
-  display: grid;
-  grid-template-columns: 1.2fr .8fr;
-  gap: 18px;
-}
-
-.two-columns .panel {
-  margin-bottom: 0;
-}
-
-.result-good {
-  color: var(--green);
-  font-weight: 800;
-}
-
-.result-bad {
-  color: var(--red);
-  font-weight: 800;
-}
-
-.category-chart {
-  padding: 8px 18px 20px;
-}
-
-.bar-row {
-  margin: 10px 0;
-}
-
-.bar-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  margin-bottom: 5px;
-}
-
-.bar-bg {
-  height: 8px;
-  background: #fce8ed;
-  border-radius: 99px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  background: var(--pink-500);
-  border-radius: 99px;
-}
-
-.trend-box {
-  margin-top: 18px;
-  background: white;
-  border: 1px dashed var(--pink-300);
-  border-radius: 10px;
-  padding: 15px 18px;
-}
-
-.trend-box h2 {
-  font-size: 12px;
-  margin: 0 0 6px;
-}
-
-.trend-box p {
-  font-size: 10px;
-  color: #765967;
-  margin: 0;
-  line-height: 1.6;
-}
-
-footer {
-  border-top: 1px solid var(--pink-200);
-  margin-top: 20px;
-  padding: 14px;
-  text-align: center;
-  color: #b07a8a;
-  font-size: 9px;
-}
-
-/* =========================================================
-   MODAL RESUMEN ANUAL
-========================================================= */
+/* MODAL */
 dialog {
   border: 0;
   border-radius: 24px;
   padding: 0;
   width: min(480px, calc(100% - 30px));
-  box-shadow: 0 25px 80px rgba(75, 19, 39, .25);
-  background: white;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, .35);
+  background: var(--bg-card);
+  color: var(--ink);
 }
 
 dialog::backdrop {
-  background: rgba(65, 15, 32, .35);
+  background: rgba(0, 0, 0, .5);
   backdrop-filter: blur(3px);
 }
 
@@ -719,58 +515,27 @@ dialog::backdrop {
   position: relative;
 }
 
-.modal h2 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 800;
-}
-
-.close {
-  position: absolute;
-  right: 18px;
-  top: 14px;
-  border: 0;
-  background: transparent;
-  font-size: 24px;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.annual-card-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
 .annual-mini-card {
-  background: #fff8fa;
-  border: 1px solid #fde2ec;
+  background: var(--bg-main);
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
-  cursor: default;
-}
-
-.annual-mini-card:hover {
-  transform: translateY(-3px) scale(1.02) !important;
-  box-shadow: 0 8px 20px rgba(180, 80, 110, 0.15) !important;
 }
 
 .annual-mini-card span {
   font-size: 10px;
   font-weight: 700;
-  color: #9e5b72;
-  letter-spacing: 0.5px;
+  color: var(--btn-text);
   text-transform: uppercase;
 }
 
 .annual-mini-card strong {
   font-size: 16px;
   font-weight: 800;
-  color: #5a2337;
+  color: var(--ink);
 }
 
 .modal-actions {
@@ -780,16 +545,7 @@ dialog::backdrop {
   margin-top: 10px;
 }
 
-.modal-actions button.btn-pink,
-.modal-actions button.pastel-btn {
-  background: #fbc4d4 !important;
-  color: #5a2337 !important;
-  border: 1px solid #f29cb5 !important;
-}
-
-/* =========================================================
-   UTILIDADES (CONTRASEÑA, OCULTAR MONTOS, ACORDEONES)
-========================================================= */
+/* PASSWORD & OCULTAR MONTOS */
 .password-wrap {
   position: relative;
   display: flex;
@@ -813,32 +569,17 @@ dialog::backdrop {
 }
 
 body.amounts-hidden .money,
-body.amounts-hidden #totalSpent,
-body.amounts-hidden #previousSpent,
-body.amounts-hidden #difference,
-body.amounts-hidden #budgetTotal,
-body.amounts-hidden #tableTotal,
 body.amounts-hidden .amount,
-body.amounts-hidden #budgetStatus,
-body.amounts-hidden #budgetInput,
-body.amounts-hidden #extraTotalSumDisplay {
+body.amounts-hidden strong {
   color: transparent !important;
   position: relative;
   user-select: none;
 }
 
 body.amounts-hidden .money::after,
-body.amounts-hidden #totalSpent::after,
-body.amounts-hidden #previousSpent::after,
-body.amounts-hidden #difference::after,
-body.amounts-hidden #budgetTotal::after,
-body.amounts-hidden #tableTotal::after,
-body.amounts-hidden .amount::after,
-body.amounts-hidden #budgetStatus::after,
-body.amounts-hidden #budgetInput::after,
-body.amounts-hidden #extraTotalSumDisplay::after {
+body.amounts-hidden .amount::after {
   content: "••••••";
-  color: var(--pink-700) !important;
+  color: var(--btn-text) !important;
   visibility: visible;
   position: absolute;
   left: 12px;
@@ -848,752 +589,8 @@ body.amounts-hidden #extraTotalSumDisplay::after {
   font-weight: 700;
 }
 
-body.amounts-hidden .summary-card strong::after,
-body.amounts-hidden .summary-card small::after {
-  left: 0;
-}
-
-.collapsible-section,
-.table-container-collapsible {
-  overflow: hidden;
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  max-height: 2000px;
-  opacity: 1;
-}
-
-.collapsible-section.collapsed,
-.table-container-collapsible.collapsed {
-  max-height: 0 !important;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.table-responsive,
-.table-container,
-div:has(> table) {
-  width: 100% !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-}
-
-/* =========================================================
-   BANNER DE ALERTA
-========================================================= */
-.budget-alert-banner {
-  margin: 16px 0 8px 0;
-  padding: 12px 18px;
-  background: rgba(234, 91, 142, 0.1);
-  border: 1px solid #ea5b8e;
-  border-radius: 12px;
-  color: #52162a;
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-}
-
-.budget-alert-banner.hidden {
-  display: none !important;
-}
-
-/* =========================================================
-   MODO 2: OSCURO (DARK AESTHETIC PINK)
-========================================================= */
-body.dark-mode {
-  background: #140e13;
-  color: #fceef3;
-}
-
-body.dark-mode .auth-card,
-body.dark-mode .summary-card,
-body.dark-mode .panel,
-body.dark-mode dialog,
-body.dark-mode .modal {
-  background: #211620 !important;
-  border-color: #3b2334 !important;
-  color: #fceef3 !important;
-}
-
-body.dark-mode .toolbar {
-  background: rgba(33, 22, 32, 0.85) !important;
-  border-color: #3b2334 !important;
-}
-
-body.dark-mode .hero {
-  background: linear-gradient(110deg, #42182b, #2e111e) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
-  border: 1px solid #3b2334 !important;
-}
-
-body.dark-mode .hero h1 { color: #ffdbe4 !important; }
-body.dark-mode .hero .subtitle,
-body.dark-mode .hero .user-email { color: #e5a7be !important; }
-body.dark-mode .eyebrow,
-body.dark-mode h3 { color: #ff9db4 !important; }
-
-body.dark-mode .hero a {
-  background: #3d222b !important;
-  color: #ffb6c1 !important;
-  border: 1px solid #592e47 !important;
-  border-radius: 12px !important;
-}
-
-body.dark-mode .toolbar .btn,
-body.dark-mode .toolbar .btn-outline,
-body.dark-mode .toolbar button,
-body.dark-mode .custom-collapse-btn {
-  background: #281b26 !important;
-  color: #ff9db4 !important;
-  border: 1px solid #592e47 !important;
-}
-
-body.dark-mode .toolbar .btn:hover,
-body.dark-mode .custom-collapse-btn:hover {
-  background: #331d2b !important;
-}
-
-body.dark-mode .toolbar .btn-pink {
-  background: var(--pink-500) !important;
-  color: white !important;
-  border: none !important;
-}
-
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea,
-body.dark-mode .money-input {
-  background: #170f16 !important;
-  border-color: #3b2334 !important;
-  color: #fceef3 !important;
-}
-
-body.dark-mode .money-input span { color: #ff9db4 !important; }
-
-body.dark-mode table td {
-  border-bottom: 1px solid #331f2c !important;
-  color: #fceef3 !important;
-}
-
-body.dark-mode table tbody tr:nth-child(even) { background: #281b26 !important; }
-body.dark-mode table th {
-  background-color: #3d222b !important;
-  color: #ffb6c1 !important;
-}
-
-body.dark-mode .table-total {
-  background: #2d1825 !important;
-  color: #ffdbe4 !important;
-}
-
-body.dark-mode .month-pill,
-body.dark-mode .category {
-  background: #3d1b2e !important;
-  color: #ffb0c2 !important;
-}
-
-body.dark-mode .budget-alert-banner {
-  background: rgba(255, 120, 160, 0.12) !important;
-  border-color: #ff78a0 !important;
-  color: #fdf2f6 !important;
-}
-
-body.dark-mode.amounts-hidden .amount::after,
-body.dark-mode.amounts-hidden strong::after,
-body.dark-mode.amounts-hidden small::after,
-body.dark-mode.amounts-hidden #extraTotalSumDisplay::after {
-  background-color: transparent !important;
-  color: #ff78a0 !important;
-}
-
-/* =========================================================
-   MODO 3: AZUL (TODO AZUL MARINO Y CELESTE)
-========================================================= */
-body.dark-blue-mode,
-body.dark-blue-mode main.app {
-  background-color: #070d1e !important;
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode header.hero,
-body.dark-blue-mode .hero {
-  background: #0f1c3f !important;
-  background-color: #0f1c3f !important;
-  background-image: none !important;
-  border: 1px solid #14244b !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.dark-blue-mode header.hero h1,
-body.dark-blue-mode header.hero .eyebrow,
-body.dark-blue-mode header.hero .subtitle {
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode header.hero .user-email {
-  color: #94a3b8 !important;
-}
-
-body.dark-blue-mode .hero a {
-  background: #14244b !important;
-  color: #38bdf8 !important;
-  border: 1px solid #1e3a8a !important;
-  border-radius: 12px !important;
-}
-
-body.dark-blue-mode h3 {
-  color: #38bdf8 !important;
-}
-
-body.dark-blue-mode .summary-card,
-body.dark-blue-mode .panel,
-body.dark-blue-mode .toolbar,
-body.dark-blue-mode .auth-card,
-body.dark-blue-mode dialog {
-  background-color: #0f1c3f !important;
-  border-color: #14244b !important;
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode .summary-card span,
-body.dark-blue-mode .field label {
-  color: #38bdf8 !important;
-}
-
-body.dark-blue-mode .btn,
-body.dark-blue-mode .pastel-btn,
-body.dark-blue-mode .custom-collapse-btn,
-body.dark-blue-mode button {
-  background-color: #14244b !important;
-  color: #38bdf8 !important;
-  border: 1px solid #1e3a8a !important;
-  box-shadow: none !important;
-}
-
-body.dark-blue-mode .btn:hover,
-body.dark-blue-mode .custom-collapse-btn:hover,
-body.dark-blue-mode button:hover {
-  background-color: #1e3a8a !important;
-  color: #ffffff !important;
-}
-
-body.dark-blue-mode input,
-body.dark-blue-mode select {
-  background-color: #070d1e !important;
-  color: #f1f5f9 !important;
-  border-color: #14244b !important;
-}
-
-body.dark-blue-mode .money-input span {
-  background-color: #14244b !important;
-  color: #38bdf8 !important;
-}
-
-body.dark-blue-mode thead,
-body.dark-blue-mode th {
-  background-color: #14244b !important;
-  color: #38bdf8 !important;
-}
-
-body.dark-blue-mode table td {
-  border-bottom: 1px solid #14244b !important;
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode table td * {
-  color: #f1f5f9 !important;
-  text-decoration: none !important;
-}
-
-body.dark-blue-mode table tbody tr:nth-child(even) {
-  background-color: #0b1736 !important;
-}
-
-body.dark-blue-mode .table-total {
-  background-color: #0f1c3f !important;
-  color: #f1f5f9 !important;
-  border-top: 1px solid #14244b !important;
-}
-
-body.dark-blue-mode .month-pill,
-body.dark-blue-mode .category {
-  background-color: #14244b !important;
-  color: #38bdf8 !important;
-  border: 1px solid #1e3a8a !important;
-}
-
-body.dark-blue-mode .annual-mini-card {
-  background-color: #070d1e !important;
-  border-color: #14244b !important;
-  color: #f1f5f9 !important;
-}
-
-body.dark-blue-mode .budget-alert-banner {
-  background: rgba(56, 189, 248, 0.25) !important;
-  border-color: #38bdf8 !important;
-  color: #ffffff !important;
-}
-
-body.dark-blue-mode.amounts-hidden .amount::after,
-body.dark-blue-mode.amounts-hidden strong::after,
-body.dark-blue-mode.amounts-hidden small::after,
-body.dark-blue-mode.amounts-hidden #extraTotalSumDisplay::after {
-  background-color: transparent !important;
-  color: #38bdf8 !important;
-}
-
-/* =========================================================
-   MODO 4: BLACK (100% OLED NEGRO Y BLANCO)
-========================================================= */
-body.black-mode,
-body.black-mode main.app {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode header.hero,
-body.black-mode .hero {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  background-image: none !important;
-  border: 1px solid #262626 !important;
-  box-shadow: none !important;
-}
-
-body.black-mode header.hero h1,
-body.black-mode header.hero .eyebrow,
-body.black-mode header.hero .subtitle,
-body.black-mode header.hero .user-email {
-  color: #ffffff !important;
-}
-
-body.black-mode .hero a {
-  background: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #2e2e2e !important;
-  border-radius: 12px !important;
-}
-
-body.black-mode h3 {
-  color: #ffffff !important;
-}
-
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .auth-card,
-body.black-mode dialog {
-  background-color: #000000 !important;
-  border: 1px solid #262626 !important;
-  color: #ffffff !important;
-  box-shadow: none !important;
-}
-
-body.black-mode .summary-card span,
-body.black-mode .field label {
-  color: #ffffff !important;
-}
-
-body.black-mode .btn,
-body.black-mode .pastel-btn,
-body.black-mode .custom-collapse-btn,
-body.black-mode button {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #2e2e2e !important;
-  box-shadow: none !important;
-}
-
-body.black-mode .btn:hover,
-body.black-mode .custom-collapse-btn:hover,
-body.black-mode button:hover {
-  background-color: #222222 !important;
-  border-color: #444444 !important;
-}
-
-body.black-mode input,
-body.black-mode select {
-  background-color: #0a0a0a !important;
-  color: #ffffff !important;
-  border: 1px solid #262626 !important;
-}
-
-body.black-mode .money-input span {
-  background-color: transparent !important;
-  color: #ffffff !important;
-}
-
-body.black-mode thead,
-body.black-mode th {
-  background-color: #0a0a0a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #222222 !important;
-}
-
-body.black-mode table td {
-  border-bottom: 1px solid #141414 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode table td * {
-  color: #ffffff !important;
-  text-decoration: none !important;
-}
-
-body.black-mode table tbody tr:nth-child(even) {
-  background-color: #080808 !important;
-}
-
-body.black-mode table tbody tr:hover {
-  background-color: #121212 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-  border-top: 1px solid #222222 !important;
-}
-
-body.black-mode .month-pill,
-body.black-mode .category {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #262626 !important;
-}
-
-body.black-mode .annual-mini-card {
-  background-color: #000000 !important;
-  border-color: #222222 !important;
-  color: #ffffff !important;
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+/* RESPONSIVE */
 @media (max-width: 900px) {
   .summary-grid { grid-template-columns: repeat(2, 1fr); }
-  .two-columns { grid-template-columns: 1fr; }
   .hero { align-items: flex-start; flex-direction: column; }
-  .header-actions { justify-content: flex-start; }
 }
-
-@media (max-width: 600px) {
-  .app { width: calc(100% - 18px); margin-top: 9px; }
-  .auth-card { padding: 25px 20px; }
-  .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .toolbar { align-items: stretch; }
-  .toolbar .field, .toolbar .field input, .toolbar .money-input { width: 100%; }
-  .toolbar .money-input input { width: 100%; }
-  .toolbar .btn { flex: 1; }
-  .header-actions { width: 100%; flex-direction: column; align-items: stretch; }
-  .user-email { text-align: left; }
-  .hero { padding: 20px; }
-  th, td { white-space: nowrap; }
-}
-
-
-/* =========================================================
-   CORRECCIÓN URGENTE: LOGIN Y MODAL
-========================================================= */
-
-/* 1. Restaurar el input de contraseña y su botón de ojito/icono a su tamaño normal */
-.auth-card .password-wrap,
-.auth-card .password-wrap input {
-  background: white !important;
-  color: var(--ink) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  padding: 10px 12px !important;
-  margin: 0 !important;
-}
-
-.auth-card .password-wrap input {
-  padding-right: 42px !important;
-}
-
-/* El botón del icono/flor dentro del password no debe ser un botón gigante rosa */
-.auth-card .toggle-password,
-.auth-card .password-wrap button {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 4px !important;
-  width: auto !important;
-  height: auto !important;
-  margin: 0 !important;
-  display: grid !important;
-  place-items: center !important;
-}
-
-/* 2. El botón de Registro / ¿No tenés cuenta? debe ser un texto plano, no un botón rosa */
-.auth-card .auth-switch {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  width: auto !important;
-  margin: 12px auto 0 !important;
-  color: var(--pink-700) !important;
-  font-weight: 800 !important;
-}
-
-.auth-card .auth-switch:hover {
-  background: transparent !important;
-  transform: none !important;
-  color: var(--pink-500) !important;
-}
-
-/* 3. Único botón de envío del login con estilo correcto */
-.auth-card button[type="submit"],
-.auth-card input[type="submit"],
-#authSubmitBtn,
-.auth-submit {
-  width: 100% !important;
-  background: #fbc4d4 !important;
-  color: #5a2337 !important;
-  border: 1px solid #f29cb5 !important;
-  border-radius: 12px !important;
-  padding: 13px 18px !important;
-  font-weight: 700 !important;
-  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
-  margin-top: 6px !important;
-}
-
-/* 4. Alinear los botones del modal de Resumen Anual (Foto 2) para que no se estiren mal */
-dialog .modal-actions {
-  display: flex !important;
-  justify-content: flex-end !important;
-  gap: 10px !important;
-  width: 100% !important;
-}
-
-dialog .modal-actions button,
-dialog .modal-actions .pastel-btn,
-dialog .modal-actions .btn-pink {
-  width: auto !important;
-  flex: initial !important;
-  padding: 10px 18px !important;
-  border-radius: 12px !important;
-}
-
-
-
-
-
-/* =========================================================
-   CORRECCIÓN DEFINITIVA MODAL RESUMEN ANUAL (LOS 4 MODOS)
-========================================================= */
-
-/* Contenedor general del modal para asegurar estructura limpia */
-dialog#annualDialog,
-dialog {
-  width: min(480px, calc(100vw - 32px)) !important;
-  max-width: 480px !important;
-  padding: 28px 26px !important;
-  border-radius: 24px !important;
-  overflow: visible !important;
-  box-sizing: border-box !important;
-}
-
-/* Alineación limpia de los botones al pie del modal en todos los temas */
-dialog .annual-actions,
-dialog .modal-actions {
-  display: flex !important;
-  flex-direction: row !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-  gap: 12px !important;
-  margin-top: 22px !important;
-  width: 100% !important;
-}
-
-/* Tamaño de los botones del modal para que no se estiren como bloques */
-dialog .annual-actions button,
-dialog .modal-actions button,
-dialog .annual-actions .pastel-btn,
-dialog .annual-actions .btn-pink,
-dialog .modal-actions .pastel-btn,
-dialog .modal-actions .btn-pink {
-  flex: initial !important;
-  width: auto !important;
-  min-width: 120px !important;
-  height: 44px !important;
-  border-radius: 12px !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-}
-
-/* =========================================================
-   ADAPTACIÓN DE LOS BOTONES DEL MODAL POR CADA MODO
-========================================================= */
-
-/* Modo Claro / Default */
-body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .annual-actions .pastel-btn,
-body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .modal-actions .pastel-btn {
-  background: #fbc4d4 !important;
-  color: #5a2337 !important;
-  border: 1px solid #f29cb5 !important;
-}
-
-/* Modo Oscuro (Pink Aesthetic) */
-body.dark-mode dialog .annual-actions button,
-body.dark-mode dialog .modal-actions button {
-  background: #3d222b !important;
-  color: #ffb6c1 !important;
-  border: 1px solid #6b3b4a !important;
-}
-
-/* Modo Azul */
-body.dark-blue-mode dialog .annual-actions button,
-body.dark-blue-mode dialog .modal-actions button {
-  background: #14244b !important;
-  color: #38bdf8 !important;
-  border: 1px solid #1e3a8a !important;
-}
-
-/* Modo Black (OLED) */
-body.black-mode dialog .annual-actions button,
-body.black-mode dialog .modal-actions button {
-  background: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #2e2e2e !important;
-}
-
-
-/* =========================================================
-   BOTÓN DE LOGIN EXACTO A TU REFERENCIA
-========================================================= */
-.auth-card button[type="submit"],
-.auth-card input[type="submit"],
-#authSubmitBtn,
-.auth-submit {
-  width: 100% !important;
-  display: block !important;
-  background-color: #fbc4d4 !important;
-  color: #5a2337 !important;
-  border: 1px solid #f29cb5 !important;
-  border-radius: 12px !important;
-  padding: 12px 20px !important;
-  font-family: inherit !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  text-align: center !important;
-  cursor: pointer !important;
-  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
-  margin-top: 10px !important;
-  box-sizing: border-box !important;
-  transition: background-color 0.2s ease, transform 0.2s ease !important;
-}
-
-.auth-card button[type="submit"]:hover,
-.auth-card input[type="submit"]:hover,
-#authSubmitBtn:hover,
-.auth-submit:hover {
-  background-color: #f9b2c6 !important;
-  transform: translateY(-1px) !important;
-}
-
-
-
-
-/* =========================================================
-   1. AISLAR Y CORREGIR EL LOGIN (MODO CLARO Y GENERAL)
-   Evita que el botón de login se deforme o se estire mal
-========================================================= */
-.auth-card .auth-submit,
-.auth-card #authSubmitBtn,
-.auth-card button[type="submit"],
-.auth-card input[type="submit"] {
-  width: 100% !important;
-  display: block !important;
-  background-color: #fbc4d4 !important;
-  color: #5a2337 !important;
-  border: 1px solid #f29cb5 !important;
-  border-radius: 12px !important;
-  padding: 12px 20px !important;
-  font-family: inherit !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  text-align: center !important;
-  cursor: pointer !important;
-  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
-  margin-top: 10px !important;
-  box-sizing: border-box !important;
-  transition: background-color 0.2s ease, transform 0.2s ease !important;
-}
-
-.auth-card .auth-submit:hover,
-.auth-card #authSubmitBtn:hover,
-.auth-card button[type="submit"]:hover,
-.auth-card input[type="submit"]:hover {
-  background-color: #f9b2c6 !important;
-  transform: translateY(-1px) !important;
-}
-
-/* =========================================================
-   2. MATAR EL ROSA EN MODO OSCURO, AZUL Y BLACK
-   Forzar que los botones adopten el color exacto de su tema
-========================================================= */
-
-/* --- MODO OSCURO --- */
-body.dark-mode .auth-card button[type="submit"],
-body.dark-mode .auth-card input[type="submit"],
-body.dark-mode #authSubmitBtn,
-body.dark-mode .auth-submit,
-body.dark-mode .pastel-btn,
-body.dark-mode button:not(.btn-dark):not(.btn-pink) {
-  background-color: #3d222b !important;
-  color: #ffb6c1 !important;
-  border: 1px solid #6b3b4a !important;
-  box-shadow: none !important;
-}
-
-body.dark-mode .pastel-btn:hover,
-body.dark-mode button:not(.btn-dark):not(.btn-pink):hover {
-  background-color: #4e2b37 !important;
-}
-
-/* --- MODO AZUL --- */
-body.dark-blue-mode .auth-card button[type="submit"],
-body.dark-blue-mode .auth-card input[type="submit"],
-body.dark-blue-mode #authSubmitBtn,
-body.dark-blue-mode .auth-submit,
-body.dark-blue-mode .pastel-btn,
-body.dark-blue-mode button:not(.btn-dark) {
-  background-color: #14244b !important;
-  color: #38bdf8 !important;
-  border: 1px solid #1e3a8a !important;
-  box-shadow: none !important;
-}
-
-body.dark-blue-mode .pastel-btn:hover,
-body.dark-blue-mode button:hover {
-  background-color: #1e3a8a !important;
-  color: #ffffff !important;
-}
-
-/* --- MODO BLACK --- */
-body.black-mode .auth-card button[type="submit"],
-body.black-mode .auth-card input[type="submit"],
-body.black-mode #authSubmitBtn,
-body.black-mode .auth-submit,
-body.black-mode .pastel-btn,
-body.black-mode button {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #2e2e2e !important;
-  box-shadow: none !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode button:hover {
-  background-color: #222222 !important;
-  border-color: #444444 !important;
-}
-
