@@ -3005,7 +3005,34 @@ body.black-mode header.hero .subtitle {
   color: #ffffff !important;
 }
 
-/* Replicar la misma distribución de botones e inputs del modo azul */
+/* =========================================================
+   MODO BLACK: INTERFAZ IDÉNTICA AL MODO AZUL
+========================================================= */
+body.black-mode,
+body.black-mode main.app,
+body.black-mode dialog {
+  background-color: #000000 !important;
+  color: #f1f5f9 !important;
+}
+
+body.black-mode header.hero,
+body.black-mode .summary-card,
+body.black-mode .panel,
+body.black-mode .toolbar,
+body.black-mode .trend-box,
+body.black-mode .auth-card,
+body.black-mode dialog {
+  background-color: #121212 !important;
+  border-color: #262626 !important;
+  color: #f1f5f9 !important;
+}
+
+body.black-mode header.hero .eyebrow,
+body.black-mode header.hero h1,
+body.black-mode header.hero .subtitle {
+  color: #ffffff !important;
+}
+
 body.black-mode .pastel-btn,
 body.black-mode button.pastel-btn,
 body.black-mode .btn,
