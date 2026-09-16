@@ -2199,3 +2199,211 @@ body.black-mode #extraRecurringOptions input[type="checkbox"] {
   accent-color: #ffffff !important;
 }
 
+/* =========================================================
+   MODO BLACK PURO (BANNER UNIFICADO + MODAL SIN SCROLL)
+========================================================= */
+
+/* Fondo base y textos */
+body.black-mode,
+body.black-mode html,
+body.black-mode main.app {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* 1. Header / Banner: tarjeta única continua (sin cajas interiores partidas) */
+body.black-mode header.hero {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+body.black-mode header.hero > div,
+body.black-mode header.hero .header-actions {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+body.black-mode header.hero h1,
+body.black-mode header.hero .eyebrow,
+body.black-mode header.hero .subtitle,
+body.black-mode header.hero .user-email {
+  color: #ffffff !important;
+}
+
+body.black-mode #dolarBadge {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  color: #ffffff !important;
+}
+
+/* 2. Tarjetas, paneles y toolbar */
+body.black-mode .summary-card,
+body.black-mode .panel,
+body.black-mode .toolbar,
+body.black-mode .trend-box,
+body.black-mode .auth-card {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  border-radius: 14px !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body.black-mode h1,
+body.black-mode h2,
+body.black-mode h3,
+body.black-mode strong,
+body.black-mode label,
+body.black-mode span,
+body.black-mode p,
+body.black-mode small {
+  color: #ffffff !important;
+}
+
+/* 3. Modal flotante limpio, proporcional y sin barra de scroll */
+body.black-mode dialog {
+  background: #000000 !important;
+  border: 1px solid #2e2e2e !important;
+  border-radius: 20px !important;
+  padding: 24px !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.95) !important;
+}
+
+body.black-mode dialog::backdrop {
+  background: rgba(0, 0, 0, 0.88) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+body.black-mode dialog form,
+body.black-mode form.modal {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+body.black-mode dialog .close,
+body.black-mode dialog button[id*="close"] {
+  background: #111111 !important;
+  border: 1px solid #2e2e2e !important;
+  color: #ffffff !important;
+  border-radius: 50% !important;
+}
+
+/* Opciones de recurrencia en negro absoluto y tipografía blanca */
+body.black-mode #extraRecurringOptions,
+body.black-mode #recurringOptions,
+body.black-mode .recurring-box {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  border-radius: 12px !important;
+}
+
+body.black-mode #extraRecurringOptions *,
+body.black-mode #recurringOptions *,
+body.black-mode .recurring-box * {
+  color: #ffffff !important;
+}
+
+/* 4. Inputs, selects y campos de formulario */
+body.black-mode input,
+body.black-mode select,
+body.black-mode textarea,
+body.black-mode .money-input {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #2e2e2e !important;
+  border-radius: 9px !important;
+}
+
+body.black-mode input:focus,
+body.black-mode select:focus,
+body.black-mode textarea:focus {
+  border-color: #555555 !important;
+  outline: none !important;
+}
+
+body.black-mode input::placeholder,
+body.black-mode textarea::placeholder {
+  color: #777777 !important;
+}
+
+body.black-mode .money-input span {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+body.black-mode input[type="checkbox"] {
+  accent-color: #ffffff !important;
+}
+
+/* 5. Botones */
+body.black-mode .pastel-btn,
+body.black-mode .btn,
+body.black-mode .custom-collapse-btn,
+body.black-mode button {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #2e2e2e !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+}
+
+body.black-mode .pastel-btn:hover,
+body.black-mode .btn:hover,
+body.black-mode .custom-collapse-btn:hover,
+body.black-mode button:hover {
+  background: #151515 !important;
+  border-color: #555555 !important;
+  color: #ffffff !important;
+}
+
+/* 6. Tablas */
+body.black-mode thead,
+body.black-mode th,
+body.black-mode .table-wrap th {
+  background: #0a0a0a !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #222222 !important;
+}
+
+body.black-mode table,
+body.black-mode td {
+  background: #000000 !important;
+  border-bottom: 1px solid #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+body.black-mode tbody tr:nth-child(even) td {
+  background: #050505 !important;
+}
+
+body.black-mode tbody tr:hover td {
+  background: #111111 !important;
+}
+
+body.black-mode .category,
+body.black-mode .month-pill {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+}
+
+body.black-mode .table-total {
+  background: #000000 !important;
+  border-top: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode .annual-mini-card {
+  background: #000000 !important;
+  border: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
