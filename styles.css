@@ -1140,3 +1140,455 @@ dialog.app-dialog::backdrop {
   font-weight: 700;
   cursor: pointer;
 }
+
+
+/* =========================================================
+   MODAL SUMAR DINERO EXTRA (ESTRUCTURA EXACTA FOTO 1)
+   ========================================================= */
+
+#extraDialog {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  max-width: 95vw !important;
+  overflow: visible !important;
+}
+
+#extraDialog::backdrop {
+  background: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+#extraDialog .modal {
+  width: 440px !important;
+  max-width: 92vw !important;
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  padding: 22px 24px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2) !important;
+  max-height: 88vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important; /* Elimina la barra de scroll horizontal */
+  box-sizing: border-box !important;
+}
+
+/* Scrollbar vertical sutil */
+#extraDialog .modal::-webkit-scrollbar {
+  width: 5px;
+}
+#extraDialog .modal::-webkit-scrollbar-thumb {
+  background: rgba(180, 180, 180, 0.4);
+  border-radius: 4px;
+}
+
+/* Cabecera */
+#extraDialog .modal-header-row,
+#extraDialog .modal-top-bar {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 2px !important;
+}
+
+#extraDialog .modal-title-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+#extraDialog #extraModalTitle {
+  margin: 0 !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  color: #9f2449 !important;
+}
+
+#extraDialog .modal-caption {
+  font-size: 0.76rem !important;
+  color: #8f6876 !important;
+  margin: 2px 0 12px 0 !important;
+}
+
+/* Botón cerrar cruz circular */
+#extraDialog #closeExtraDialog {
+  background: #ffe3ea !important;
+  color: #9f2449 !important;
+  border: none !important;
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  font-size: 0.8rem !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Labels y Campos */
+#extraDialog label {
+  display: block !important;
+  font-size: 0.7rem !important;
+  font-weight: 800 !important;
+  color: #9f2449 !important;
+  letter-spacing: 0.03em !important;
+  margin-bottom: 10px !important;
+}
+
+#extraDialog input[type="text"],
+#extraDialog input[type="number"],
+#extraDialog input[type="date"],
+#extraDialog input[type="month"],
+#extraDialog select {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-top: 4px !important;
+  border: 1px solid #ffc5d2 !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  font-size: 0.85rem !important;
+  color: #55152d !important;
+  background: #ffffff !important;
+  outline: none !important;
+}
+
+#extraDialog .modal-grid-2 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+#extraDialog .amount-split {
+  display: flex !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+}
+
+#extraDialog .amount-field-wrap {
+  position: relative !important;
+  flex: 1 !important;
+}
+
+#extraDialog .prefix-symbol {
+  position: absolute !important;
+  left: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  color: #f56b8b !important;
+}
+
+#extraDialog .field-amount {
+  margin-top: 0 !important;
+  padding-left: 30px !important;
+}
+
+#extraDialog .select-currency {
+  margin-top: 0 !important;
+  width: 80px !important;
+}
+
+/* Checkbox */
+#extraDialog .checkbox-custom-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 10px 0 !important;
+  cursor: pointer !important;
+  font-size: 0.8rem !important;
+  color: #55152d !important;
+}
+
+#extraDialog input[type="checkbox"] {
+  accent-color: #f56b8b !important;
+  width: 15px !important;
+  height: 15px !important;
+}
+
+/* Panel Rosa Recurrencia */
+#extraDialog .pink-subpanel,
+#extraDialog .recurring-box {
+  background: #fff5f8 !important;
+  border: 1px solid #ffe3ea !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  margin: 8px 0 12px 0 !important;
+}
+
+#extraDialog .subpanel-label {
+  font-size: 0.74rem !important;
+  font-weight: 600 !important;
+  color: #55152d !important;
+  display: block !important;
+  margin-bottom: 6px !important;
+}
+
+#extraDialog .subpanel-input {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-top: 3px !important;
+  border: 1px solid #ffc5d2 !important;
+  border-radius: 8px !important;
+  padding: 6px 8px !important;
+  font-size: 0.82rem !important;
+  background: #ffffff !important;
+}
+
+#extraDialog .recurring-amounts-list > div {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  font-size: 0.76rem !important;
+  color: #55152d !important;
+  padding: 3px 0 !important;
+}
+
+#extraDialog .recurring-amounts-list input {
+  width: 90px !important;
+  text-align: right !important;
+  border: 1px solid #ffc5d2 !important;
+  border-radius: 6px !important;
+  padding: 4px 6px !important;
+}
+
+/* Botones Inferiores */
+#extraDialog .modal-actions-centered,
+#extraDialog .modal-actions {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin-top: 14px !important;
+}
+
+#extraDialog .btn-clean-cancel,
+#extraDialog #closeExtraCancelBtn {
+  background: #ffffff !important;
+  border: 1px solid #ff9db4 !important;
+  color: #9f2449 !important;
+  padding: 7px 22px !important;
+  border-radius: 10px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+#extraDialog .btn-clean-submit,
+#extraDialog #submitExtraBtn {
+  background: #ffc5d2 !important;
+  border: 1px solid #ffc5d2 !important;
+  color: #9f2449 !important;
+  padding: 7px 22px !important;
+  border-radius: 10px !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
+
+/* =========================================================
+   FORZADO DE MODOS: OSCURO, AZUL Y BLACK
+   ========================================================= */
+
+/* 1. MODO OSCURO (dark-mode) */
+html.dark-mode #extraDialog .modal,
+body.dark-mode #extraDialog .modal {
+  background: #231d25 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7) !important;
+}
+html.dark-mode #extraDialog #extraModalTitle,
+body.dark-mode #extraDialog #extraModalTitle,
+html.dark-mode #extraDialog label,
+body.dark-mode #extraDialog label {
+  color: #ff9db4 !important;
+}
+html.dark-mode #extraDialog .modal-caption,
+body.dark-mode #extraDialog .modal-caption {
+  color: #d1b5c2 !important;
+}
+html.dark-mode #extraDialog input[type="text"],
+html.dark-mode #extraDialog input[type="number"],
+html.dark-mode #extraDialog input[type="date"],
+html.dark-mode #extraDialog input[type="month"],
+html.dark-mode #extraDialog select,
+body.dark-mode #extraDialog input,
+body.dark-mode #extraDialog select {
+  background: #2e2632 !important;
+  color: #ffffff !important;
+  border-color: #5a3e4c !important;
+}
+html.dark-mode #extraDialog .pink-subpanel,
+html.dark-mode #extraDialog .recurring-box,
+body.dark-mode #extraDialog .pink-subpanel,
+body.dark-mode #extraDialog .recurring-box {
+  background: #2e2430 !important;
+  border-color: #4f3342 !important;
+}
+html.dark-mode #extraDialog .subpanel-label,
+html.dark-mode #extraDialog .checkbox-custom-row,
+html.dark-mode #extraDialog .recurring-amounts-list > div,
+body.dark-mode #extraDialog .subpanel-label,
+body.dark-mode #extraDialog .checkbox-custom-row,
+body.dark-mode #extraDialog .recurring-amounts-list > div {
+  color: #ffffff !important;
+}
+html.dark-mode #extraDialog #closeExtraDialog,
+body.dark-mode #extraDialog #closeExtraDialog {
+  background: #472635 !important;
+  color: #ff9db4 !important;
+}
+html.dark-mode #extraDialog .btn-clean-cancel,
+html.dark-mode #extraDialog #closeExtraCancelBtn,
+body.dark-mode #extraDialog .btn-clean-cancel,
+body.dark-mode #extraDialog #closeExtraCancelBtn {
+  background: #2e2632 !important;
+  border-color: #5a3e4c !important;
+  color: #ffffff !important;
+}
+html.dark-mode #extraDialog .btn-clean-submit,
+html.dark-mode #extraDialog #submitExtraBtn,
+body.dark-mode #extraDialog .btn-clean-submit,
+body.dark-mode #extraDialog #submitExtraBtn {
+  background: #872847 !important;
+  border-color: #872847 !important;
+  color: #ffffff !important;
+}
+
+
+/* 2. MODO AZUL (dark-blue-mode) -> Letras blancas forzadas */
+html.dark-blue-mode #extraDialog .modal,
+body.dark-blue-mode #extraDialog .modal {
+  background: #111b2b !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8) !important;
+}
+html.dark-blue-mode #extraDialog #extraModalTitle,
+body.dark-blue-mode #extraDialog #extraModalTitle {
+  color: #ffffff !important;
+}
+html.dark-blue-mode #extraDialog label,
+body.dark-blue-mode #extraDialog label {
+  color: #90c2ff !important;
+}
+html.dark-blue-mode #extraDialog .modal-caption,
+body.dark-blue-mode #extraDialog .modal-caption {
+  color: #cbdcf7 !important;
+}
+html.dark-blue-mode #extraDialog input[type="text"],
+html.dark-blue-mode #extraDialog input[type="number"],
+html.dark-blue-mode #extraDialog input[type="date"],
+html.dark-blue-mode #extraDialog input[type="month"],
+html.dark-blue-mode #extraDialog select,
+body.dark-blue-mode #extraDialog input,
+body.dark-blue-mode #extraDialog select {
+  background: #19273c !important;
+  color: #ffffff !important;
+  border-color: #2e476d !important;
+}
+html.dark-blue-mode #extraDialog .pink-subpanel,
+html.dark-blue-mode #extraDialog .recurring-box,
+body.dark-blue-mode #extraDialog .pink-subpanel,
+body.dark-blue-mode #extraDialog .recurring-box {
+  background: #162235 !important;
+  border-color: #2a3e5c !important;
+}
+html.dark-blue-mode #extraDialog .subpanel-label,
+html.dark-blue-mode #extraDialog .checkbox-custom-row,
+html.dark-blue-mode #extraDialog .recurring-amounts-list > div,
+body.dark-blue-mode #extraDialog .subpanel-label,
+body.dark-blue-mode #extraDialog .checkbox-custom-row,
+body.dark-blue-mode #extraDialog .recurring-amounts-list > div {
+  color: #ffffff !important;
+}
+html.dark-blue-mode #extraDialog #closeExtraDialog,
+body.dark-blue-mode #extraDialog #closeExtraDialog {
+  background: #233754 !important;
+  color: #ffffff !important;
+}
+html.dark-blue-mode #extraDialog .btn-clean-cancel,
+html.dark-blue-mode #extraDialog #closeExtraCancelBtn,
+body.dark-blue-mode #extraDialog .btn-clean-cancel,
+body.dark-blue-mode #extraDialog #closeExtraCancelBtn {
+  background: #19273c !important;
+  border-color: #3b5c8d !important;
+  color: #ffffff !important;
+}
+html.dark-blue-mode #extraDialog .btn-clean-submit,
+html.dark-blue-mode #extraDialog #submitExtraBtn,
+body.dark-blue-mode #extraDialog .btn-clean-submit,
+body.dark-blue-mode #extraDialog #submitExtraBtn {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+
+/* 3. MODO BLACK (black-mode) -> Letras blancas forzadas */
+html.black-mode #extraDialog .modal,
+body.black-mode #extraDialog .modal {
+  background: #0d0d0d !important;
+  border: 1px solid #262626 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95) !important;
+}
+html.black-mode #extraDialog #extraModalTitle,
+body.black-mode #extraDialog #extraModalTitle {
+  color: #ffffff !important;
+}
+html.black-mode #extraDialog label,
+body.black-mode #extraDialog label {
+  color: #e5e5e5 !important;
+}
+html.black-mode #extraDialog .modal-caption,
+body.black-mode #extraDialog .modal-caption {
+  color: #a3a3a3 !important;
+}
+html.black-mode #extraDialog input[type="text"],
+html.black-mode #extraDialog input[type="number"],
+html.black-mode #extraDialog input[type="date"],
+html.black-mode #extraDialog input[type="month"],
+html.black-mode #extraDialog select,
+body.black-mode #extraDialog input,
+body.black-mode #extraDialog select {
+  background: #171717 !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
+}
+html.black-mode #extraDialog .pink-subpanel,
+html.black-mode #extraDialog .recurring-box,
+body.black-mode #extraDialog .pink-subpanel,
+body.black-mode #extraDialog .recurring-box {
+  background: #141414 !important;
+  border-color: #262626 !important;
+}
+html.black-mode #extraDialog .subpanel-label,
+html.black-mode #extraDialog .checkbox-custom-row,
+html.black-mode #extraDialog .recurring-amounts-list > div,
+body.black-mode #extraDialog .subpanel-label,
+body.black-mode #extraDialog .checkbox-custom-row,
+body.black-mode #extraDialog .recurring-amounts-list > div {
+  color: #ffffff !important;
+}
+html.black-mode #extraDialog #closeExtraDialog,
+body.black-mode #extraDialog #closeExtraDialog {
+  background: #262626 !important;
+  color: #ffffff !important;
+}
+html.black-mode #extraDialog .btn-clean-cancel,
+html.black-mode #extraDialog #closeExtraCancelBtn,
+body.black-mode #extraDialog .btn-clean-cancel,
+body.black-mode #extraDialog #closeExtraCancelBtn {
+  background: #1a1a1a !important;
+  border-color: #404040 !important;
+  color: #ffffff !important;
+}
+html.black-mode #extraDialog .btn-clean-submit,
+html.black-mode #extraDialog #submitExtraBtn,
+body.black-mode #extraDialog .btn-clean-submit,
+body.black-mode #extraDialog #submitExtraBtn {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
