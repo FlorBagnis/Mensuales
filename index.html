@@ -13,6 +13,191 @@
   <meta name="theme-color" content="#ff7597">
   <link rel="icon" type="image/png" href="./icono.png">
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    thead, th, .table-wrap th {
+      background-color: #fbc4d4 !important;
+      color: #5a2337 !important;
+    }
+
+    .pastel-btn {
+      background: #fbc4d4 !important;
+      color: #5a2337 !important;
+      border: 1px solid #f29cb5 !important;
+      border-radius: 12px !important;
+      padding: 11px 18px !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      font-size: 13px !important;
+      box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+      cursor: pointer !important;
+    }
+    .pastel-btn:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
+    }
+
+    .btn-outline, .btn-danger {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+    }
+    .btn-outline:hover, .btn-danger:hover {
+      background-color: #fbc4d4 !important;
+      color: #5a2337 !important;
+      border-color: #f29cb5 !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18) !important;
+    }
+
+    .annual-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .annual-mini-card {
+      background: #fff8fa;
+      border: 1px solid #fde2ec;
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .annual-mini-card span {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9e5b72;
+      letter-spacing: 0.5px;
+    }
+    .annual-mini-card strong {
+      font-size: 16px;
+      color: #5a2337;
+    }
+
+    body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
+    body.dark thead, body.dark th, body.dark .table-wrap th,
+    body.dark-mode thead, body.dark-mode th, body.dark-mode .table-wrap th {
+      background-color: #3d222b !important;
+      color: #ffb6c1 !important;
+    }
+
+    body.dark-theme .pastel-btn, body.dark .pastel-btn, body.dark-mode .pastel-btn {
+      background: #3d222b !important;
+      color: #ffb6c1 !important;
+      border: 1px solid #6b3b4a !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    }
+    body.dark-theme .pastel-btn:hover, body.dark .pastel-btn:hover, body.dark-mode .pastel-btn:hover {
+      background: #4e2b37 !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    body.dark-theme .btn-danger, body.dark .btn-danger, body.dark-mode .btn-danger {
+      background-color: #3d222b !important;
+      color: #ffb6c1 !important;
+      border: 1px solid #6b3b4a !important;
+    }
+
+    body.dark-theme .btn-outline:hover, body.dark .btn-outline:hover, body.dark-mode .btn-outline:hover,
+    body.dark-theme .btn-danger:hover, body.dark .btn-danger:hover, body.dark-mode .btn-danger:hover {
+      background-color: #3d222b !important;
+      color: #ffb6c1 !important;
+      border-color: #6b3b4a !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    body.dark-mode .summary-card,
+    body.dark-mode .panel,
+    body.dark-mode .toolbar,
+    body.dark-mode .trend-box,
+    body.dark-mode .auth-card,
+    body.dark-mode dialog {
+      background-color: #2a161d !important;
+      color: #ffb6c1 !important;
+      border-color: #4e2b37 !important;
+    }
+
+    body.dark-mode .annual-mini-card {
+      background-color: #1f1015 !important;
+      border-color: #4e2b37 !important;
+    }
+
+    body.dark-mode .annual-mini-card span {
+      color: #d195a9 !important;
+    }
+
+    body.dark-mode .annual-mini-card strong {
+      color: #ffb6c1 !important;
+    }
+
+    body.dark-mode .summary-card strong,
+    body.dark-mode .summary-card span,
+    body.dark-mode .summary-card small {
+      color: #ffb6c1 !important;
+    }
+
+    body.dark-mode input, 
+    body.dark-mode select {
+      background-color: #1f1015 !important;
+      color: #ffb6c1 !important;
+      border-color: #4e2b37 !important;
+    }
+
+    body.dark-mode input::placeholder {
+      color: #a37584 !important;
+    }
+
+    body.dark-mode .summary-card {
+      background-color: #2a161d !important;
+    }
+
+    /* OCULTAR MONTOS INCLUYENDO TOTAL EXTRA */
+    body.amounts-hidden #extraTotalSumDisplay {
+      color: transparent !important;
+      position: relative;
+      user-select: none;
+    }
+    body.amounts-hidden #extraTotalSumDisplay::after {
+      content: "••••••";
+      color: var(--pink-700) !important;
+      visibility: visible;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 5;
+      font-weight: 700;
+      background-color: white;
+      padding: 0 4px;
+    }
+    body.dark-mode.amounts-hidden #extraTotalSumDisplay::after,
+    body.amounts-hidden.dark-mode #extraTotalSumDisplay::after {
+      background-color: #211620 !important;
+      color: #ff9db4 !important;
+    }
+
+    body.dark-mode.amounts-hidden strong,
+    body.amounts-hidden.dark-mode strong {
+      background: none !important;
+      background-color: transparent !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .money-input span {
+      border-right: none !important;
+      border: none !important;
+    }
+    .money-input input {
+      border-left: none !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -33,7 +218,7 @@
           <input id="authEmail" type="email" placeholder="tu@email.com" autocomplete="email" required>
         </label>
 
-        <label>
+       <label>
           Contraseña
           <div class="password-wrap">
             <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
@@ -41,7 +226,7 @@
           </div>
         </label>
         
-        <button id="authSubmitBtn" type="submit" class="auth-submit">
+        <button id="authSubmitBtn" type="submit" class="pastel-btn auth-submit" style="width: 100%;">
           Iniciar sesión
         </button>
       </form>
@@ -63,9 +248,10 @@
         <h1>Control de Gastos</h1>
         <p class="subtitle">Presupuesto mensual y control de egresos.</p>
         
-        <div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878); white-space: nowrap;">
-          💵 Dólar Blue: cargando...
-        </div>
+       <div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878); white-space: nowrap;">
+  💵 Dólar Blue: cargando...
+</div>
+        
       </div>
 
       <div class="header-actions" style="margin-top: 12px;">
@@ -76,10 +262,10 @@
     </header>
 
     <div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
-      <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
-      <button id="toggleBlueThemeBtn" class="pastel-btn" type="button">💙 Modo Azul</button>
-      <button class="pastel-btn" id="btnBlackMode" type="button">🖤 Modo Black</button>
-      <button id="toggleLightBtn" class="btn btn-outline" type="button">☀️ Modo claro</button>
+     <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
+<button id="toggleBlueThemeBtn" class="pastel-btn" type="button">💙 Modo Azul</button>
+<button class="pastel-btn" id="btnBlackMode" type="button">🖤 Modo Black</button>
+<button id="toggleLightBtn" class="btn btn-outline" type="button">☀️ Modo claro</button>
       <button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
     </div>
 
@@ -106,10 +292,13 @@
 
           <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
           <button id="openExtraModalBtn" class="btn btn-outline" type="button" title="Sumar ingreso extra">➕ Sumar dinero extra</button>
+            
           <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
           <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
-          <button class="pastel-btn" id="importCsvBtn" type="button">📂 Importar CSV</button>
-          <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
+          <!-- Botón para importar CSV -->
+<button class="pastel-btn" id="importCsvBtn" type="button">📂 Importar CSV</button>
+<!-- Input oculto que lee el archivo -->
+<input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
           <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
           <button id="openAnnualBtn" class="pastel-btn" type="button">🌸 Resumen Anual</button>
           <button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
@@ -291,32 +480,43 @@
     </footer>
 
   </section>
+
+  <script>
+    try {
+      if (localStorage.getItem('user_logged_in') === 'true') {
+        document.getElementById('authSection')?.classList.add('hidden');
+        document.getElementById('appContent')?.classList.remove('hidden');
+      }
+    } catch(e) {}
+  </script>
 </main>
 
 <!-- MODAL: SUMAR EXTRA -->
-<dialog id="extraDialog">
-  <button id="closeExtraDialog" type="button" class="close">×</button>
+<dialog id="extraDialog" style="border-radius: 24px; border: 1px solid var(--border); padding: 30px; max-width: 420px; width: 100%; position: relative;">
+  <button id="closeExtraDialog" type="button" style="position: absolute; top: 18px; right: 18px; border: none; background: var(--pink-soft, #ffe6ed); color: var(--pink-dark, #c43878); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 16px;">×</button>
   
   <div style="margin-bottom: 16px;">
-    <h3 id="extraModalTitle" style="font-size: 18px; font-weight: 800; margin: 0;">➕ Sumar Dinero Extra</h3>
+    <h3 id="extraModalTitle" style="font-size: 18px; font-weight: 800; color: var(--text); margin: 0;">➕ Sumar Dinero Extra</h3>
     <p style="color: var(--muted); font-size: 12px; margin-top: 4px; margin-bottom: 0;">Se sumará automáticamente a tu presupuesto actual.</p>
   </div>
 
   <div style="display: grid; gap: 14px; margin-bottom: 22px;">
+    <!-- FECHA REAL E IMPUTAR AL MES -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
       <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
         FECHA REAL
-        <input type="date" id="modalExtraDate">
+        <input type="date" id="modalExtraDate" style="width: 100%; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); font-size: 12px;">
       </label>
       <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
         IMPUTAR AL MES
-        <input type="month" id="modalExtraTargetMonth">
+        <input type="month" id="modalExtraTargetMonth" style="width: 100%; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); font-size: 12px;">
       </label>
     </div>
 
+    <!-- CATEGORÍA DE INGRESO -->
     <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
       CATEGORÍA DE INGRESO
-      <select id="modalExtraCategory">
+      <select id="modalExtraCategory" style="width: 100%; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--ink); padding: 10px 12px; font: inherit; font-size: 13px;">
         <option value="Sueldo">💼 Sueldo</option>
         <option value="Aporte familiar">🏠 Aporte familiar</option>
         <option value="Regalo">🎁 Regalo</option>
@@ -326,19 +526,21 @@
       </select>
     </label>
 
+    <!-- DESCRIPCIÓN OPCIONAL -->
     <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
       DESCRIPCIÓN (Opcional)
-      <input type="text" id="modalExtraDescription" placeholder="Ej: Venta de campera, quincena...">
+      <input type="text" id="modalExtraDescription" placeholder="Ej: Venta de campera, quincena..." style="width: 100%;">
     </label>
 
+    <!-- MONTO Y MONEDA -->
     <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
       MONTO Y MONEDA
       <div style="display: flex; gap: 6px; align-items: center;">
         <div class="money-input" style="flex: 1;">
           <span>+$</span>
-          <input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0">
+          <input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0" style="width: 100%;">
         </div>
-        <select id="modalExtraCurrency">
+        <select id="modalExtraCurrency" style="padding: 10px; border-radius: 9px; border: 1px solid var(--line); font-size: 13px; font-weight: 600; background: white; color: var(--ink); cursor: pointer;">
           <option value="ARS" selected>ARS</option>
           <option value="USD">USD</option>
         </select>
@@ -346,7 +548,31 @@
     </label>
   </div>
 
-  <div class="modal-actions">
+  <!-- OPCIONES DE RECURRENCIA IDÉNTICAS A GASTOS -->
+  <div style="margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px;">
+    <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">
+      <input type="checkbox" id="extraRecurring" style="width: auto;">
+      <span>🔄 Repetir este ingreso</span>
+    </label>
+  </div>
+
+  <div id="extraRecurringOptions" class="hidden" style="background: var(--pink-bg); padding: 12px; border-radius: 12px; margin-top: 8px; font-size: 12px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+      <label>Durante: <input type="number" id="extraDuration" value="6" min="1" max="24" style="width:100%; padding:4px;"></label>
+      <label>Cada cuántos meses: <input type="number" id="extraMonths" value="1" min="1" max="12" style="width:100%; padding:4px;"></label>
+    </div>
+    <div style="margin-bottom: 8px;">
+      <label>Día del mes: <input type="number" id="extraDay" value="10" min="1" max="31" style="width:100%; padding:4px;"></label>
+    </div>
+    <div>
+      <input type="checkbox" id="extraChangingAmount" style="width: auto;">
+      <label for="extraChangingAmount">💰 Montos variables por mes</label>
+    </div>
+    <div id="extraRecurringAmounts" class="hidden" style="margin-top: 6px;"></div>
+  </div>
+
+  <!-- BOTONES DE ACCIÓN -->
+  <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
     <button type="button" class="btn btn-outline" id="closeExtraCancelBtn">Cancelar</button>
     <button type="button" class="pastel-btn" id="submitExtraBtn">Sumar dinero</button>
   </div>
@@ -361,15 +587,16 @@
       <h2 id="modalTitle">Agregar gasto</h2>
     </div>
 
+    <!-- FECHA REAL E IMPUTAR AL MES -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <label>
+      <label style="margin-bottom: 0;">
         Fecha real
         <input id="expenseDate" type="date" required>
       </label>
 
-      <label>
+      <label style="margin-bottom: 0;">
         Imputar al mes
-        <input id="expenseTargetMonth" type="month" required>
+        <input id="expenseTargetMonth" type="month" required style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card-bg); color: var(--text); font-size: 13px;">
       </label>
     </div>
 
@@ -400,18 +627,57 @@
     </label>
 
     <div style="display: grid; grid-template-columns: 1fr 140px; gap: 10px; align-items: end;">
-      <label>
+      <label style="margin-bottom: 0;">
         Monto
         <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
       </label>
 
-      <label>
+      <label style="margin-bottom: 0;">
         Moneda
         <select id="expenseCurrency" required>
           <option value="ARS" selected>ARS ($)</option>
           <option value="USD">USD (u$s)</option>
         </select>
       </label>
+    </div>
+
+    <div class="recurring-box">
+      <label class="checkbox-label">
+        <input id="expenseRecurring" type="checkbox">
+        <span>🔁 Repetir este gasto</span>
+      </label>
+
+      <div id="recurringOptions" class="recurring-options hidden">
+        <div class="recurring-grid">
+          <label>
+            Repetir cada
+            <div class="inline-input">
+              <input id="recurringMonths" type="number" min="1" max="60" value="1">
+              <span>mes(es)</span>
+            </div>
+          </label>
+
+          <label>
+            Día del mes
+            <input id="recurringDay" type="number" min="1" max="31" value="10">
+          </label>
+
+          <label>
+            Durante
+            <div class="inline-input">
+              <input id="recurringDuration" type="number" min="1" max="60" value="6">
+              <span>mes(es)</span>
+            </div>
+          </label>
+        </div>
+
+        <label class="checkbox-label recurring-changing-label">
+          <input id="recurringChangingAmount" type="checkbox">
+          <span>💰 Quiero usar un monto diferente en cada mes</span>
+        </label>
+
+        <div id="recurringAmounts" class="recurring-amounts"></div>
+      </div>
     </div>
 
     <div class="modal-actions">
@@ -422,25 +688,24 @@
 </dialog>
 
 <!-- MODAL RESUMEN ANUAL -->
-<dialog id="annualDialog">
-  <button id="closeAnnualDialog" type="button" class="close">×</button>
+<dialog id="annualDialog" style="border-radius: 28px; border: 1px solid var(--border); padding: 35px;">
+  <button id="closeAnnualDialog" type="button" style="position: absolute; top: 22px; right: 22px; border: none; background: var(--pink-soft); color: var(--pink-dark); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 18px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">×</button>
   
-  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-    <div style="background: var(--pink-100); font-size: 24px; border-radius: 12px; width: 44px; height: 44px; display: grid; place-items: center;">🌸</div>
+  <div class="modal-header" style="margin-bottom: 20px;">
+    <div class="modal-icon" style="background: var(--pink-soft); color: var(--pink); font-size: 24px; border-radius: 16px; width: 50px; height: 50px; display: grid; place-items: center;">🌸</div>
     <div>
-      <h2 style="margin: 0; font-size: 22px; font-weight: 800;">Resumen Anual</h2>
-      <p id="annualSubtitle" style="color: var(--muted); font-size: 12px; margin: 2px 0 0;">Análisis completo de tus finanzas</p>
+      <h2 style="font-size: 24px; font-weight: 800; color: var(--text);">Resumen Anual</h2>
+      <p id="annualSubtitle" style="color: var(--muted); font-size: 13px; margin-top: 2px;">Análisis completo de tus finanzas</p>
     </div>
   </div>
   
-  <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 20px;"></div>
+  <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 25px; font-size: 13px;"></div>
 
-  <div class="modal-actions">
-    <button id="annualPdfBtn" class="pastel-btn" type="button">📥 Descargar PDF</button>
-    <button id="closeAnnualCancelBtn" class="btn btn-outline" type="button">Cerrar</button>
+  <div style="display: flex; gap: 12px;">
+    <button id="annualPdfBtn" class="pastel-btn" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">📥 Descargar PDF</button>
+    <button id="closeAnnualCancelBtn" class="btn btn-outline" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">Cerrar</button>
   </div>
 </dialog>
 
-<script type="module" src="app.js?v=2.6"></script>
-</body>
+<script type="module" src="app.js?v=2.5"></script></body>
 </html>
