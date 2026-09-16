@@ -4972,3 +4972,156 @@ body.black-mode #expenseDialog #cancelDialog {
   border: 1px solid #222222 !important;
   color: #ffffff !important;
 }
+
+
+
+/* =========================================================
+   RESUMEN ANUAL: RÉPLICA EXACTA DEL MODO AZUL PARA TODOS LOS TEMAS
+========================================================= */
+
+/* Ventana modal: tamaño justo, sin estirarse hacia abajo */
+dialog#annualDialog {
+  width: min(480px, calc(100vw - 32px)) !important;
+  max-width: 480px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: 90vh !important;
+  padding: 28px 26px 26px 26px !important;
+  border-radius: 24px !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+
+/* Encabezado */
+#annualDialog .modal-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 18px !important;
+}
+
+#annualDialog .modal-icon {
+  font-size: 20px !important;
+  border-radius: 12px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+#annualDialog h2 {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+}
+
+#annualDialog #annualSubtitle {
+  font-size: 12px !important;
+  margin: 2px 0 0 0 !important;
+  opacity: 0.8;
+}
+
+/* Grilla de 4 tarjetas */
+#annualDialog .annual-card-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+#annualDialog .annual-mini-card {
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  box-sizing: border-box !important;
+}
+
+#annualDialog .annual-mini-card span {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  opacity: 0.75;
+}
+
+#annualDialog .annual-mini-card strong {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+
+/* Botones inferiores: 50% y 50%, misma altura que en modo azul */
+#annualDialog .annual-actions {
+  display: flex !important;
+  gap: 10px !important;
+  margin-top: 18px !important;
+  width: 100% !important;
+}
+
+#annualDialog .annual-actions button,
+#annualDialog #annualPdfBtn,
+#annualDialog #closeAnnualCancelBtn {
+  flex: 1 !important;
+  width: 50% !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+/* =========================================================
+   COLORES ESPECÍFICOS PARA EL RESUMEN ANUAL EN MODO BLACK
+========================================================= */
+body.black-mode dialog#annualDialog {
+  background: #000000 !important;
+  border: 1px solid #262626 !important;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95) !important;
+}
+
+body.black-mode #annualDialog .modal-icon {
+  background: #111111 !important;
+  border: 1px solid #262626 !important;
+}
+
+body.black-mode #annualDialog h2,
+body.black-mode #annualDialog .annual-mini-card strong {
+  color: #ffffff !important;
+}
+
+body.black-mode #annualDialog #annualSubtitle,
+body.black-mode #annualDialog .annual-mini-card span {
+  color: #888888 !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card {
+  background: #0a0a0c !important;
+  border: 1px solid #222222 !important;
+}
+
+body.black-mode #annualDialog #annualPdfBtn {
+  background: #141416 !important;
+  border: 1px solid #2e2e34 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode #annualDialog #annualPdfBtn:hover {
+  background: #202024 !important;
+}
+
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  background: #09090b !important;
+  border: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
+  background: #141416 !important;
+}
