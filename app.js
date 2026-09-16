@@ -1104,9 +1104,8 @@ function initCsvImport() {
   });
 }
 
-
 /* =========================================================
-   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA)
+   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA) - CORREGIDO
 ========================================================= */
 
 document.addEventListener('click', (e) => {
@@ -1153,6 +1152,12 @@ document.addEventListener('click', (e) => {
     const isBlack = document.body.classList.toggle("black-mode");
     document.body.classList.remove("dark-mode", "dark-blue-mode");
     localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
+    // Mantiene el texto del botón de Modo Black intacto o con indicador claro
+    blackThemeBtn.textContent = isBlack ? "🖤 Modo Black (Activo)" : "🖤 Modo Black";
+    const darkBtn = $("toggleThemeBtn");
+    if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
+    const blueBtn = $("toggleBlueThemeBtn");
+    if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
   }
 
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
@@ -1173,12 +1178,8 @@ if (savedTheme === "dark") {
   if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
 } else if (savedTheme === "black") {
   document.body.classList.add("black-mode");
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initApp);
-} else {
-  initApp();
+  const blackBtn = $("btnBlackMode");
+  if (blackBtn) blackBtn.textContent = "🖤 Modo Black (Activo)";
 }
 
 
