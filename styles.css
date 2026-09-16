@@ -3278,10 +3278,11 @@ body.black-mode table .delete-btn {
 
 
 /* =========================================================
-   MODO BLACK: NEGRO PURO OLED (#000000) SIN FONDOS GRISES
+   MODO BLACK PURO OLED (100% NEGRO + ZOOM + EFECTOS)
    ========================================================= */
 
-/* 1. Fondo de toda la pantalla y contenedores principales */
+/* 1. Fondo absoluto para pantalla, tarjetas y contenedores */
+html.black-mode,
 body.black-mode,
 body.black-mode main.app,
 body.black-mode header.hero,
@@ -3292,14 +3293,15 @@ body.black-mode .trend-box,
 body.black-mode .auth-card,
 body.black-mode .modal-box,
 body.black-mode dialog {
+  background: #000000 !important;
   background-color: #000000 !important;
   background-image: none !important;
   color: #ffffff !important;
-  border-color: #1a1a1a !important; /* Borde sutil para delimitar en negro puro */
+  border-color: #1c1c1c !important; /* Delimitador fino uniforme */
   box-shadow: none !important;
 }
 
-/* 2. Textos y títulos en blanco puro */
+/* 2. Textos, números y etiquetas en blanco */
 body.black-mode h1,
 body.black-mode h2,
 body.black-mode h3,
@@ -3311,24 +3313,32 @@ body.black-mode .subtitle,
 body.black-mode .user-email,
 body.black-mode label,
 body.black-mode span,
-body.black-mode small,
-body.black-mode p {
+body.black-mode p,
+body.black-mode small {
   color: #ffffff !important;
 }
 
-/* 3. Inputs, buscadores y selectores en negro puro */
+body.black-mode .subtitle,
+body.black-mode .section-heading p,
+body.black-mode .summary-card small,
+body.black-mode footer {
+  color: #888888 !important;
+}
+
+/* 3. Inputs, selects y campos de dinero en negro puro */
 body.black-mode input,
 body.black-mode select,
 body.black-mode textarea,
 body.black-mode .money-input {
+  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border: 1px solid #1a1a1a !important;
+  border: 1px solid #222222 !important;
 }
 
 body.black-mode input:focus,
 body.black-mode select:focus {
-  border-color: #333333 !important;
+  border-color: #444444 !important;
 }
 
 body.black-mode .money-input span {
@@ -3337,18 +3347,19 @@ body.black-mode .money-input span {
   border: none !important;
 }
 
-/* 4. Botones en negro puro con borde delimitador y efecto hover */
+/* 4. Botones con zoom y efecto iluminado al pasar el cursor */
 body.black-mode .pastel-btn,
 body.black-mode button.pastel-btn,
 body.black-mode .btn,
 body.black-mode .btn-outline,
 body.black-mode .custom-collapse-btn {
+  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border: 1px solid #222222 !important;
+  border: 1px solid #282828 !important;
   border-radius: 10px !important;
   box-shadow: none !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
 body.black-mode .pastel-btn:hover,
@@ -3356,70 +3367,80 @@ body.black-mode button.pastel-btn:hover,
 body.black-mode .btn:hover,
 body.black-mode .btn-outline:hover,
 body.black-mode .custom-collapse-btn:hover {
-  background-color: #000000 !important;
-  border-color: #ffffff !important; /* Resalta en blanco puro */
+  background: #000000 !important;
+  border-color: #ffffff !important;
   transform: scale(1.05) translateY(-2px) !important;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.12) !important;
 }
 
-/* 5. Pastillas y categorías en negro puro */
+/* 5. Pastillas y categorías */
 body.black-mode .category,
 body.black-mode .month-pill,
 body.black-mode #extraTotalSumDisplay {
+  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border: 1px solid #222222 !important;
+  border: 1px solid #282828 !important;
 }
 
-/* 6. Tablas limpias en negro puro (sin alternar filas grises) */
+/* 6. Tablas sin franjas grises */
 body.black-mode thead,
 body.black-mode th,
 body.black-mode .table-wrap th {
+  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border-bottom: 1px solid #1a1a1a !important;
+  border-bottom: 1px solid #1c1c1c !important;
 }
 
 body.black-mode td {
+  background: #000000 !important;
   background-color: #000000 !important;
-  border-bottom: 1px solid #141414 !important;
+  border-bottom: 1px solid #151515 !important;
   color: #ffffff !important;
 }
 
 body.black-mode tbody tr,
 body.black-mode tbody tr:nth-child(even),
 body.black-mode tbody tr:hover {
+  background: #000000 !important;
   background-color: #000000 !important;
 }
 
 body.black-mode .table-total {
+  background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border-top: 1px solid #1a1a1a !important;
+  border-top: 1px solid #1c1c1c !important;
 }
 
-/* 7. Iconos de acción limpios (lápiz y cruz) */
+/* 7. Iconos de acción (lápiz y cruz sin recuadro) */
 body.black-mode table .edit-btn,
 body.black-mode table .edit-extra-btn,
 body.black-mode table .delete-btn,
 body.black-mode table .delete-extra-btn {
   background: transparent !important;
   border: none !important;
+  box-shadow: none !important;
   color: #ffffff !important;
 }
 
-/* 8. Tarjetas del Resumen Anual en negro puro */
+/* 8. Tarjetas del Resumen Anual en negro puro con zoom */
 body.black-mode .annual-mini-card {
+  background: #000000 !important;
   background-color: #000000 !important;
-  border: 1px solid #1a1a1a !important;
+  border: 1px solid #222222 !important;
   color: #ffffff !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease !important;
 }
 
 body.black-mode .annual-mini-card:hover {
-  background-color: #000000 !important;
+  background: #000000 !important;
   border-color: #ffffff !important;
+  transform: scale(1.04) translateY(-2px) !important;
 }
 
-/* 9. Fondo detrás del modal */
+/* 9. Backdrop translúcido con desenfoque para modales */
 body.black-mode dialog::backdrop {
   background: rgba(0, 0, 0, 0.85) !important;
   backdrop-filter: blur(8px) !important;
