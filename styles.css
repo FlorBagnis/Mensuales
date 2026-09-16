@@ -2154,3 +2154,48 @@ body.black-mode input[type="checkbox"] {
   accent-color: #ffffff !important;
 }
 
+
+/* =========================================================
+   ELIMINAR CAJA ROSADA Y FORZAR TEXTOS BLANCOS EN EL MODAL
+========================================================= */
+
+/* 1. Matar el fondo rosado inline del contenedor de recurrencia */
+body.black-mode div#extraRecurringOptions,
+body.black-mode #extraRecurringOptions,
+body.black-mode [id="extraRecurringOptions"] {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #2e2e2e !important;
+  border-radius: 12px !important;
+}
+
+/* 2. Forzar a blanco puro todos los títulos rosados inline (FECHA REAL, IMPUTAR AL MES, etc.) */
+body.black-mode dialog label,
+body.black-mode dialog label[style*="color"],
+body.black-mode dialog [style*="color: var(--pink-700)"],
+body.black-mode dialog [style*="color:var(--pink-700)"] {
+  color: #ffffff !important;
+}
+
+/* 3. Textos internos de recurrencia (Durante, Cada cuántos meses, Día del mes, Montos variables) */
+body.black-mode #extraRecurringOptions label,
+body.black-mode #extraRecurringOptions span,
+body.black-mode #extraRecurringOptions div,
+body.black-mode #extraRecurringOptions p {
+  color: #ffffff !important;
+}
+
+/* 4. Inputs numéricos dentro de la caja de recurrencia */
+body.black-mode #extraRecurringOptions input[type="number"] {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+  border-radius: 8px !important;
+}
+
+/* 5. Checkbox de montos variables legible */
+body.black-mode #extraRecurringOptions input[type="checkbox"] {
+  accent-color: #ffffff !important;
+}
+
