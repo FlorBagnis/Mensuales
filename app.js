@@ -1131,7 +1131,7 @@ document.addEventListener('click', (e) => {
     }
   }
 
-  const themeBtn = e.target.closest('#toggleThemeBtn');
+ const themeBtn = e.target.closest('#toggleThemeBtn');
   if (themeBtn) {
     const isDark = document.body.classList.toggle("dark-mode");
     document.body.classList.remove("dark-blue-mode", "black-mode");
@@ -1139,6 +1139,8 @@ document.addEventListener('click', (e) => {
     themeBtn.textContent = isDark ? "☀️ Modo claro" : "🌙 Modo oscuro";
     const blueBtn = $("toggleBlueThemeBtn");
     if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
+    const blackBtn = $("btnBlackMode");
+    if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
   }
 
   const blueThemeBtn = e.target.closest('#toggleBlueThemeBtn');
@@ -1149,16 +1151,22 @@ document.addEventListener('click', (e) => {
     blueThemeBtn.textContent = isBlue ? "☀️ Modo claro" : "💙 Modo Azul";
     const darkBtn = $("toggleThemeBtn");
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
+    const blackBtn = $("btnBlackMode");
+    if (blackBtn) blackBtn.textContent = "🖤 Modo Black";
   }
 
-const blackThemeBtn = e.target.closest('#btnBlackMode');
-if (blackThemeBtn) {
-  document.body.classList.remove("dark-mode", "dark-blue-mode");
-  document.body.classList.add("black-mode");
-  localStorage.setItem("mensual_theme_mode", "black");
-}
+  const blackThemeBtn = e.target.closest('#btnBlackMode');
+  if (blackThemeBtn) {
+    const isBlack = document.body.classList.toggle("black-mode");
+    document.body.classList.remove("dark-mode", "dark-blue-mode");
+    localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
+    blackThemeBtn.textContent = isBlack ? "☀️ Modo claro" : "🖤 Modo Black";
+    const darkBtn = $("toggleThemeBtn");
+    if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
+    const blueBtn = $("toggleBlueThemeBtn");
+    if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
+  }
 
-   
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
   if (e.target.closest('#closeAnnualDialog') || e.target.closest('#closeAnnualCancelBtn')) $("annualDialog")?.close();
   if (e.target.closest('#annualPdfBtn')) {
@@ -1177,6 +1185,8 @@ if (savedTheme === "dark") {
   if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
 } else if (savedTheme === "black") {
   document.body.classList.add("black-mode");
+  const blackBtn = $("btnBlackMode");
+  if (blackBtn) blackBtn.textContent = "☀️ Modo claro";
 }
 
 if (document.readyState === "loading") {
@@ -1184,7 +1194,6 @@ if (document.readyState === "loading") {
 } else {
   initApp();
 }
-
 
 /* =========================================================
    SELECTOR DE COLORES PARA PDF
