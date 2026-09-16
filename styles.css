@@ -2075,3 +2075,114 @@ body.black-mode .annual-mini-card {
   border: 1px solid #222222 !important;
   color: #ffffff !important;
 }
+
+
+
+/* =========================================================
+   SOLUCIÓN LIMPIA Y AISLADA PARA EL RESUMEN ANUAL
+========================================================= */
+
+#annualDialog {
+  width: min(480px, calc(100vw - 32px)) !important;
+  max-width: 480px !important;
+  height: auto !important;
+  max-height: 90vh !important;
+  padding: 26px !important;
+  border-radius: 24px !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  background: var(--card) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--text) !important;
+}
+
+#annualDialog .close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  background: var(--pink-bg, #fde8ee) !important;
+  color: var(--pink-700) !important;
+  border: none !important;
+}
+
+#annualDialog .modal-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 18px !important;
+}
+
+#annualDialog .modal-icon {
+  font-size: 20px !important;
+  width: 44px !important;
+  height: 44px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 12px !important;
+  background: var(--pink-bg, #fde8ee) !important;
+}
+
+#annualDialog .annual-card-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+#annualDialog .annual-mini-card {
+  border-radius: 14px !important;
+  padding: 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+}
+
+#annualDialog .annual-mini-card span {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+
+#annualDialog .annual-mini-card strong {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+}
+
+/* Colores específicos para Modo Black en el Anual */
+body.black-mode #annualDialog {
+  background: #121212 !important;
+  border: 1px solid #262626 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode #annualDialog .close,
+body.black-mode #annualDialog .modal-icon {
+  background: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card {
+  background: #0a0a0a !important;
+  border: 1px solid #222222 !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card span {
+  color: #888888 !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card strong,
+body.black-mode #annualDialog h2 {
+  color: #ffffff !important;
+}
+
