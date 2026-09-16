@@ -2,551 +2,559 @@
 <html lang="es">
 
 <head>
-  <meta name="format-detection" content="telephone=no">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <title>MENSUALES · Control de Gastos</title>
+<meta name="format-detection" content="telephone=no">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<title>MENSUALES · Control de Gastos</title>
 
-  <!-- PWA Meta Tags -->
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#ff7597">
-  <link rel="icon" type="image/png" href="./icono.png">
-  <link rel="stylesheet" href="styles.css?v=2.6">
+<!-- PWA Meta Tags -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#ff7597">
+<link rel="icon" type="image/png" href="./icono.png">
+<link rel="stylesheet" href="styles.css">
 
-  <script>
-    (function () {
-      try {
-        const savedTheme = localStorage.getItem("mensual_theme_mode");
-        if (savedTheme === "black") {
-          document.documentElement.classList.add("black-mode");
-          document.addEventListener("DOMContentLoaded", () => document.body.classList.add("black-mode"));
-        } else if (savedTheme === "blue") {
-          document.documentElement.classList.add("dark-blue-mode");
-          document.addEventListener("DOMContentLoaded", () => document.body.classList.add("dark-blue-mode"));
-        } else if (savedTheme === "dark") {
-          document.documentElement.classList.add("dark-mode");
-          document.addEventListener("DOMContentLoaded", () => document.body.classList.add("dark-mode"));
-        }
-      } catch (e) {}
-    })();
-  </script>
+<script>
+(function () {
+try {
+const savedTheme = localStorage.getItem("mensual_theme_mode");
+if (savedTheme === "black") {
+document.documentElement.classList.add("black-mode");
+document.addEventListener("DOMContentLoaded", () => document.body.classList.add("black-mode"));
+} else if (savedTheme === "blue") {
+document.documentElement.classList.add("dark-blue-mode");
+document.addEventListener("DOMContentLoaded", () => document.body.classList.add("dark-blue-mode"));
+} else if (savedTheme === "dark") {
+document.documentElement.classList.add("dark-mode");
+document.addEventListener("DOMContentLoaded", () => document.body.classList.add("dark-mode"));
+}
+} catch (e) {}
+})();
+</script>
 </head>
 
 <body>
 
 <main class="app">
 
-  <!-- LOGIN / REGISTRO -->
-  <section id="authSection" class="auth-section">
-    <div class="auth-card">
-      <div class="auth-logo">♡</div>
-      <p class="eyebrow">MENSUALES</p>
-      <h1>Controlá tus gastos</h1>
-      <p class="auth-subtitle">Ingresá a tu cuenta para gestionar tu presupuesto mensual.</p>
+<!-- LOGIN / REGISTRO -->
+<section id="authSection" class="auth-section">
+<div class="auth-card">
+<div class="auth-logo">♡</div>
+<p class="eyebrow">MENSUALES</p>
+<h1>Controlá tus gastos</h1>
+<p class="auth-subtitle">Ingresá a tu cuenta para gestionar tu presupuesto mensual.</p>
 
-      <form id="authForm">
-        <label>
-          Email
-          <input id="authEmail" type="email" placeholder="tu@email.com" autocomplete="email" required>
-        </label>
+<form id="authForm">
+<label>
+Email
+<input id="authEmail" type="email" placeholder="tu@email.com" autocomplete="email" required>
+</label>
 
-        <label>
-          Contraseña
-          <div class="password-wrap">
-            <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
-            <button type="button" id="togglePasswordBtn" class="toggle-password" title="Mostrar/Ocultar contraseña">🔒</button>
-          </div>
-        </label>
-        
-        <button id="authSubmitBtn" type="submit" class="pastel-btn auth-submit" style="width: 100%;">
-          Iniciar sesión
-        </button>
-      </form>
+<label>
+Contraseña
+<div class="password-wrap">
+<input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
+<button type="button" id="togglePasswordBtn" class="toggle-password" title="Mostrar/Ocultar contraseña">🔒</button>
+</div>
+</label>
 
-      <p id="authMessage" class="auth-message"></p>
+<button id="authSubmitBtn" type="submit" class="pastel-btn auth-submit" style="width: 100%;">
+Iniciar sesión
+</button>
+</form>
 
-      <button id="authSwitchBtn" type="button" class="auth-switch">
-        ¿No tenés una cuenta? Registrate
-      </button>
-    </div>
-  </section>
+<p id="authMessage" class="auth-message"></p>
 
-  <!-- APLICACIÓN PRINCIPAL -->
-  <section id="appContent" class="hidden">
+<button id="authSwitchBtn" type="button" class="auth-switch">
+¿No tenés una cuenta? Registrate
+</button>
+</div>
+</section>
 
-    <header class="hero">
-      <div>
-        <p class="eyebrow">MI ORGANIZACIÓN 💗</p>
-        <h1>Control de Gastos</h1>
-        <p class="subtitle">Presupuesto mensual y control de egresos.</p>
-        
-        <div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878); white-space: nowrap;">
-          💵 Dólar Blue: cargando...
-        </div>
-      </div>
+<!-- APLICACIÓN PRINCIPAL -->
+<section id="appContent" class="hidden">
 
-      <div class="header-actions">
-        <span id="userEmail" class="user-email"></span>
-        <a href="https://gastos-proximos.vercel.app/" class="pastel-btn">🌸 Próximos & Deudas</a>
-        <button id="logoutBtn" class="btn btn-dark" type="button">Cerrar sesión</button>
-      </div>
-    </header>
+<header class="hero">
+<div>
+<p class="eyebrow">MI ORGANIZACIÓN 💗</p>
+<h1>Control de Gastos</h1>
+<p class="subtitle">Presupuesto mensual y control de egresos.</p>
 
-    <div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
-      <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
-      <button id="toggleBlueThemeBtn" class="pastel-btn" type="button">💙 Modo Azul</button>
-      <button class="pastel-btn" id="btnBlackMode" type="button">🖤 Modo Black</button>
-      <button id="toggleLightBtn" class="btn btn-outline" type="button">☀️ Modo claro</button>
-      <button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
-    </div>
+<div id="dolarBadge" class="dolar-badge" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(232, 93, 158, 0.15); color: var(--pink-700, #c43878); white-space: nowrap;">
+💵 Dólar Blue: cargando...
+</div>
 
-    <div id="viewMensuales">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
-        <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
-        <button id="toggleToolbarBtn" class="custom-collapse-btn" type="button">▲ Ocultar barra</button>
-      </div>
+</div>
 
-      <div id="toolbarContainer" class="collapsible-section">
-        <section class="toolbar">
-          <div class="field">
-            <label for="monthPicker">MES</label>
-            <input id="monthPicker" type="month">
-          </div>
+<div class="header-actions" style="margin-top: 12px;">
+<span id="userEmail" class="user-email"></span>
+<a href="https://gastos-proximos.vercel.app/" class="pastel-btn">🌸 Próximos & Deudas</a>
+<button id="logoutBtn" class="btn btn-dark" type="button">Cerrar sesión</button>
+</div>
+</header>
 
-          <div class="field">
-            <label for="budgetInput">PRESUPUESTO</label>
-            <div class="money-input">
-              <span>$</span>
-              <input id="budgetInput" type="number" min="0" step="0.01" placeholder="0">
-            </div>
-          </div>
+<div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+<button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
+<button id="toggleBlueThemeBtn" class="pastel-btn" type="button">💙 Modo Azul</button>
+<button class="pastel-btn" id="btnBlackMode" type="button">🖤 Modo Black</button>
+<button id="toggleAmountsBtn" class="btn btn-outline" type="button">👁️ Ocultar montos</button>
+</div>
 
-          <button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
-          <button id="openExtraModalBtn" class="btn btn-outline" type="button" title="Sumar ingreso extra">➕ Sumar dinero extra</button>
-          <button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
-          <button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
-          <button class="pastel-btn" id="importCsvBtn" type="button">📂 Importar CSV</button>
-          <input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
-          <button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
-          <button id="openAnnualBtn" class="pastel-btn" type="button">🌸 Resumen Anual</button>
-          <button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
-          <button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
-        </section>
-      </div>
+<div id="viewMensuales">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 8px;">
+<h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Herramientas y Presupuesto</h3>
+<button id="toggleToolbarBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar barra</button>
+</div>
 
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 0.5rem;">
-        <h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Resumen</h3>
-        <button id="toggleBudgetBtn" class="custom-collapse-btn" type="button">▲ Ocultar resumen</button>
-      </div>
+<div id="toolbarContainer" class="collapsible-section">
+<section class="toolbar" style="margin-top: 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+<div class="field">
+<label for="monthPicker">MES</label>
+<input id="monthPicker" type="month">
+</div>
 
-      <div id="budgetContainer" class="collapsible-section">
-        <section class="summary-grid">
-          <article class="summary-card">
-            <span>TOTAL GASTADO</span>
-            <strong id="totalSpent">$0,00</strong>
-            <small id="expenseCount">0 gastos registrados</small>
-          </article>
-          <article class="summary-card">
-            <span>MES ANTERIOR</span>
-            <strong id="previousSpent">$0,00</strong>
-            <small id="previousMonthLabel">—</small>
-          </article>
-          <article class="summary-card">
-            <span>DIFERENCIA</span>
-            <strong id="difference">—</strong>
-            <small id="differenceLabel">Sin datos comparables</small>
-          </article>
-          <article class="summary-card">
-            <span>PRESUPUESTO</span>
-            <strong id="budgetTotal">$0,00</strong>
-            <small id="budgetStatus">Sin presupuesto</small>
-          </article>
-        </section>
-      </div>
+<div class="field">
+<label for="budgetInput">PRESUPUESTO</label>
+<div class="money-input">
+<span>$</span>
+<input id="budgetInput" type="number" min="0" step="0.01" placeholder="0">
+</div>
+</div>
 
-      <!-- GASTOS DEL MES -->
-      <section class="panel" style="margin-top: 1.5rem;">
-        <div class="section-heading">
-          <div>
-            <h2>Gastos del mes</h2>
-            <p>Todos tus gastos registrados en este período.</p>
-          </div>
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <input type="search" id="searchMensualesInput" placeholder="🔍 Buscar gasto..." style="padding: 6px 14px; border-radius: 999px; outline: none; font-size: 0.85rem;">
-            
-            <select id="filterCategorySelect" style="padding: 6px 12px; border-radius: 999px; outline: none; font-size: 0.85rem; cursor: pointer;">
-              <option value="">Todas las categorías</option>
-              <option value="Alimentos">Alimentos</option>
-              <option value="Transporte">Transporte</option>
-              <option value="Hogar">Hogar</option>
-              <option value="Servicios">Servicios</option>
-              <option value="Salud">Salud</option>
-              <option value="Ropa">Ropa</option>
-              <option value="Entretenimiento">Entretenimiento</option>
-              <option value="Educación">Educación</option>
-              <option value="Mascotas">Mascotas</option>
-              <option value="Cuotas">Cuotas</option>
-              <option value="Personal">Personal</option>
-              <option value="Gimnasio">Gimnasio</option>
-              <option value="Agua">Agua</option>
-              <option value="Otros">Otros</option>
-            </select>
+<button id="saveBudgetBtn" class="pastel-btn" type="button">Guardar presupuesto</button>
+<button id="openExtraModalBtn" class="btn btn-outline" type="button" title="Sumar ingreso extra">➕ Sumar dinero extra</button>
 
-            <button id="toggleTableBtn" class="custom-collapse-btn" type="button">▲ Ocultar tabla</button>
-            <span id="monthPill" class="month-pill">—</span>
-          </div>
-        </div>
+<button id="addExpenseBtn" class="btn btn-dark" type="button">+ Nuevo gasto</button>
+<button id="mensualesCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
+<button class="pastel-btn" id="importCsvBtn" type="button">📂 Importar CSV</button>
+<input type="file" id="csvFileInput" accept=".csv" style="display: none;" />
+<button id="pdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
+<button id="openAnnualBtn" class="pastel-btn" type="button">🌸 Resumen Anual</button>
+<button id="clearMonthBtn" class="btn btn-danger" type="button">Borrar mes</button>
+<button id="newUserBtn" class="btn btn-outline" type="button">✨ Empezar de cero</button>
+</section>
+</div>
 
-        <div id="emptyState" class="empty-state">
-          <div>♡</div>
-          <strong>Todavía no hay gastos</strong>
-          <span>Agregá tu primer gasto del mes.</span>
-        </div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 0.5rem;">
+<h3 style="margin: 0; font-size: 1rem; color: var(--pink-700);">Resumen</h3>
+<button id="toggleBudgetBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar resumen</button>
+</div>
 
-        <div class="table-wrap table-container-collapsible">
-          <table>
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Descripción</th>
-                <th>Categoría</th>
-                <th>Monto</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="expenseTable"></tbody>
-          </table>
-        </div>
+<div id="budgetContainer" class="collapsible-section">
+<section class="summary-grid">
+<article class="summary-card">
+<span>TOTAL GASTADO</span>
+<strong id="totalSpent">$0,00</strong>
+<small id="expenseCount">0 gastos registrados</small>
+</article>
+<article class="summary-card">
+<span>MES ANTERIOR</span>
+<strong id="previousSpent">$0,00</strong>
+<small id="previousMonthLabel">—</small>
+</article>
+<article class="summary-card">
+<span>DIFERENCIA</span>
+<strong id="difference">—</strong>
+<small id="differenceLabel">Sin datos comparables</small>
+</article>
+<article class="summary-card">
+<span>PRESUPUESTO</span>
+<strong id="budgetTotal">$0,00</strong>
+<small id="budgetStatus">Sin presupuesto</small>
+</article>
+</section>
+</div>
 
-        <div class="table-total">
-          <span>TOTAL · <span id="totalMonthName">—</span></span>
-          <div style="text-align: right;">
-            <strong id="tableTotal" style="display: block;">$0,00</strong>
-            <small id="tableTotalUSD" style="display: block; font-size: 0.95rem; color: var(--pink-700); font-weight: 600;"></small>
-          </div>
-        </div>
-      </section>
+<!-- GASTOS DEL MES -->
+<section class="panel" style="margin-top: 1.5rem;">
+<div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+<div>
+<h2>Gastos del mes</h2>
+<p>Todos tus gastos registrados en este período.</p>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+<input type="search" id="searchMensualesInput" placeholder="🔍 Buscar gasto..." style="padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); outline: none; font-size: 0.85rem;">
 
-      <!-- HISTORIAL DE DINERO EXTRA -->
-      <section class="panel" style="margin-top: 1.5rem;">
-        <div class="section-heading">
-          <div>
-            <h2>🌸 Historial de Dinero Extra</h2>
-            <p>Origen, categorías y detalle de los ingresos adicionales registrados este mes.</p>
-          </div>
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <div class="month-pill" id="extraTotalSumDisplay">Total Extra: $0,00</div>
-            <button id="toggleExtraHistoryBtn" class="custom-collapse-btn" type="button">▲ Ocultar historial</button>
-          </div>
-        </div>
-        <div id="extraHistoryContainer" class="collapsible-section">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Categoría / Descripción</th>
-                  <th>Fecha</th>
-                  <th style="text-align: right;">Monto</th>
-                  <th style="text-align: right;">Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="extraIncomeTableBody">
-                <tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos extra cargados este mes.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+<select id="filterCategorySelect" style="padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); outline: none; font-size: 0.85rem; background: var(--card); color: var(--text); cursor: pointer;">
+<option value="">Todas las categorías</option>
+<option value="Alimentos">Alimentos</option>
+<option value="Transporte">Transporte</option>
+<option value="Hogar">Hogar</option>
+<option value="Servicios">Servicios</option>
+<option value="Salud">Salud</option>
+<option value="Ropa">Ropa</option>
+<option value="Entretenimiento">Entretenimiento</option>
+<option value="Educación">Educación</option>
+<option value="Mascotas">Mascotas</option>
+<option value="Cuotas">Cuotas</option>
+<option value="Personal">Personal</option>
+<option value="Gimnasio">Gimnasio</option>
+<option value="Agua">Agua</option>
+<option value="Otros">Otros</option>
+</select>
 
-      <!-- DOS COLUMNAS -->
-      <section class="two-columns" style="margin-top: 1.5rem;">
-        <section class="panel">
-          <div class="section-heading">
-            <div>
-              <h2>Historial</h2>
-              <p>Resumen de tus últimos meses.</p>
-            </div>
-            <button id="toggleHistoryBtn" class="custom-collapse-btn" type="button">▲ Ocultar historial</button>
-          </div>
-          <div id="historyContainer" class="collapsible-section">
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Mes</th>
-                    <th>Presupuesto</th>
-                    <th>Gastado</th>
-                    <th>Resultado</th>
-                  </tr>
-                </thead>
-                <tbody id="historyTable"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
+<button id="toggleTableBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar tabla</button>
+<span id="monthPill" class="month-pill">—</span>
+</div>
+</div>
 
-        <section class="panel">
-          <div class="section-heading">
-            <div>
-              <h2>Gastos por categoría</h2>
-              <p>Distribución de tus gastos.</p>
-            </div>
-          </div>
-          <div id="categoryChart" class="category-chart"></div>
-        </section>
-      </section>
+<div id="emptyState" class="empty-state">
+<div>♡</div>
+<strong>Todavía no hay gastos</strong>
+<span>Agregá tu primer gasto del mes.</span>
+</div>
 
-      <!-- TENDENCIA -->
-      <section class="trend-box">
-        <h2>📊 Análisis de tendencia</h2>
-        <p id="trendText">Agregá gastos para comenzar a analizar tus hábitos.</p>
-      </section>
-    </div>
+<div class="table-wrap table-container-collapsible">
+<table>
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Descripción</th>
+<th>Categoría</th>
+<th>Monto</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody id="expenseTable"></tbody>
+</table>
+</div>
 
-    <footer>
-      MENSUALES · Tus gastos organizados mes a mes.
-      <br>
-      <small>Creado por Flor Bagnis💗</small>
-    </footer>
+<div class="table-total" style="display: flex; justify-content: space-between; align-items: center;">
+<span>TOTAL · <span id="totalMonthName">—</span></span>
+<div style="text-align: right;">
+<strong id="tableTotal" style="display: block;">$0,00</strong>
+<small id="tableTotalUSD" style="display: block; font-size: 0.95rem; color: var(--pink-700); font-weight: 600;"></small>
+</div>
+</div>
+</section>
 
-  </section>
+<!-- HISTORIAL DE DINERO EXTRA -->
+<section class="panel" style="margin-top: 1.5rem;">
+<div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+<div>
+<h2>🌸 Historial de Dinero Extra</h2>
+<p>Origen, categorías y detalle de los ingresos adicionales registrados este mes.</p>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+<div class="month-pill" id="extraTotalSumDisplay">Total Extra: $0,00</div>
+<button id="toggleExtraHistoryBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar historial</button>
+</div>
+</div>
+<div id="extraHistoryContainer" class="collapsible-section">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Categoría / Descripción</th>
+<th>Fecha</th>
+<th style="text-align: right;">Monto</th>
+<th style="text-align: right;">Acciones</th>
+</tr>
+</thead>
+<tbody id="extraIncomeTableBody">
+<tr><td colspan="4" style="text-align: center; color: var(--muted);">No hay ingresos extra cargados este mes.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
 
-  <script>
-    try {
-      if (localStorage.getItem('user_logged_in') === 'true') {
-        document.getElementById('authSection')?.classList.add('hidden');
-        document.getElementById('appContent')?.classList.remove('hidden');
-      }
-    } catch(e) {}
-  </script>
+<section class="two-columns" style="margin-top: 1.5rem;">
+<section class="panel">
+<div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
+<div>
+<h2>Historial</h2>
+<p>Resumen de tus últimos meses.</p>
+</div>
+<button id="toggleHistoryBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar historial</button>
+</div>
+<div id="historyContainer" class="collapsible-section">
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Mes</th>
+<th>Presupuesto</th>
+<th>Gastado</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody id="historyTable"></tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section class="panel">
+<div class="section-heading">
+<div>
+<h2>Gastos por categoría</h2>
+<p>Distribución de tus gastos.</p>
+</div>
+</div>
+<div id="categoryChart" class="category-chart"></div>
+</section>
+</section>
+
+<section class="trend-box" style="margin-top: 1.5rem;">
+<h2>📊 Análisis de tendencia</h2>
+<p id="trendText">Agregá gastos para comenzar a analizar tus hábitos.</p>
+</section>
+</div>
+
+<footer style="margin-top: 2rem;">
+MENSUALES · Tus gastos organizados mes a mes.
+<br>
+<small>Creado por Flor Bagnis💗</small>
+</footer>
+
+</section>
+
+<script>
+try {
+if (localStorage.getItem('user_logged_in') === 'true') {
+document.getElementById('authSection')?.classList.add('hidden');
+document.getElementById('appContent')?.classList.remove('hidden');
+}
+} catch(e) {}
+</script>
 </main>
 
-<!-- MODAL: AGREGAR GASTO -->
-<dialog id="expenseDialog" class="clean-dialog">
-  <form id="expenseForm" class="modal-box">
-    
-    <div class="modal-header-classic">
-      <button id="closeDialog" type="button" class="btn-close-box" aria-label="Cerrar">×</button>
-      <span class="badge-eyebrow">NUEVO REGISTRO</span>
-      <h2 id="modalTitle">Agregar gasto</h2>
-    </div>
+<!-- MODAL: SUMAR EXTRA -->
+<dialog id="extraDialog">
+<form method="dialog" class="modal">
+<button id="closeExtraDialog" type="button" class="close" aria-label="Cerrar">×</button>
 
-    <!-- Fila 1: Fechas -->
-    <div class="form-row-duo">
-      <div class="form-item">
-        <label for="expenseDate">FECHA REAL</label>
-        <input id="expenseDate" type="date" required>
-      </div>
-      <div class="form-item">
-        <label for="expenseTargetMonth">IMPUTAR AL MES</label>
-        <input id="expenseTargetMonth" type="month" required>
-      </div>
-    </div>
+<div>
+<p class="eyebrow">DINERO EXTRA</p>
+<h2 id="extraModalTitle">Sumar dinero extra</h2>
+<p class="subtitle" style="margin-top: 4px;">Se sumará automáticamente a tu presupuesto actual.</p>
+</div>
 
-    <!-- Fila 2: Descripción y Categoría -->
-    <div class="form-row-duo">
-      <div class="form-item">
-        <label for="expenseDescription">DESCRIPCIÓN</label>
-        <input id="expenseDescription" type="text" placeholder="Ej. Supermercado" maxlength="100" required>
-      </div>
-      <div class="form-item">
-        <label for="expenseCategory">CATEGORÍA</label>
-        <select id="expenseCategory" required>
-          <option value="">Seleccioná una categoría</option>
-          <option value="Alimentos">Alimentos</option>
-          <option value="Transporte">Transporte</option>
-          <option value="Hogar">Hogar</option>
-          <option value="Servicios">Servicios</option>
-          <option value="Salud">Salud</option>
-          <option value="Ropa">Ropa</option>
-          <option value="Entretenimiento">Entretenimiento</option>
-          <option value="Educación">Educación</option>
-          <option value="Mascotas">Mascotas</option>
-          <option value="Cuotas">Cuotas</option>
-          <option value="Personal">Personal</option>
-          <option value="Gimnasio">Gimnasio</option>
-          <option value="Agua">Agua</option>
-          <option value="Otros">Otros</option>
-        </select>
-      </div>
-    </div>
+<!-- FECHA REAL E IMPUTAR AL MES -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+<label>
+Fecha real
+<input type="date" id="modalExtraDate">
+</label>
+<label>
+Imputar al mes
+<input type="month" id="modalExtraTargetMonth">
+</label>
+</div>
 
-    <!-- Fila 3: Monto y Moneda -->
-    <div class="form-row-duo">
-      <div class="form-item">
-        <label for="expenseAmount">MONTO</label>
-        <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
-      </div>
-      <div class="form-item">
-        <label for="expenseCurrency">MONEDA</label>
-        <select id="expenseCurrency" required>
-          <option value="ARS" selected>ARS ($)</option>
-          <option value="USD">USD (u$s)</option>
-        </select>
-      </div>
-    </div>
+<!-- CATEGORÍA DE INGRESO -->
+<label>
+Categoría de ingreso
+<select id="modalExtraCategory">
+<option value="Sueldo">💼 Sueldo</option>
+<option value="Aporte familiar">🏠 Aporte familiar</option>
+<option value="Regalo">🎁 Regalo</option>
+<option value="Venta">🛍️ Venta</option>
+<option value="Reintegro">🔄 Reintegro</option>
+<option value="Otro">✨ Otro</option>
+</select>
+</label>
 
-    <!-- Checkbox y Recurrencia -->
-    <div class="recur-wrap">
-      <label class="check-line">
-        <input id="expenseRecurring" type="checkbox">
-        <span>🔄 <strong>REPETIR ESTE GASTO</strong></span>
-      </label>
+<!-- DESCRIPCIÓN OPCIONAL -->
+<label>
+Descripción (opcional)
+<input type="text" id="modalExtraDescription" placeholder="Ej: Venta de campera, quincena...">
+</label>
 
-      <div id="recurringOptions" class="hidden recur-box-fields">
-        <div class="form-row-duo">
-          <div class="form-item">
-            <label for="recurringMonths">Repetir cada (meses)</label>
-            <input id="recurringMonths" type="number" min="1" max="60" value="1">
-          </div>
-          <div class="form-item">
-            <label for="recurringDay">Día del mes</label>
-            <input id="recurringDay" type="number" min="1" max="31" value="10">
-          </div>
-        </div>
+<!-- MONTO Y MONEDA -->
+<label>
+Monto y moneda
+<div style="display: flex; gap: 6px; align-items: center;">
+<div class="money-input" style="flex: 1;">
+<span>+$</span>
+<input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0">
+</div>
+<select id="modalExtraCurrency" style="width: auto;">
+<option value="ARS" selected>ARS</option>
+<option value="USD">USD</option>
+</select>
+</div>
+</label>
 
-        <div class="form-item" style="margin-top: 8px;">
-          <label for="recurringDuration">Durante (meses)</label>
-          <input id="recurringDuration" type="number" min="1" max="60" value="6">
-        </div>
+<!-- OPCIONES DE RECURRENCIA -->
+<div class="recurring-box">
+<label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+<input type="checkbox" id="extraRecurring" style="width: auto;">
+<span>🔄 Repetir este ingreso</span>
+</label>
 
-        <label class="check-line" style="margin-top: 10px;">
-          <input id="recurringChangingAmount" type="checkbox">
-          <span>💰 Quiero usar un monto diferente en cada mes</span>
-        </label>
+<div id="extraRecurringOptions" class="recurring-options hidden" style="margin-top: 10px;">
+<div class="recurring-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+<label>
+Durante
+<div class="inline-input">
+<input type="number" id="extraDuration" value="6" min="1" max="24">
+<span>mes(es)</span>
+</div>
+</label>
+<label>
+Repetir cada
+<div class="inline-input">
+<input type="number" id="extraMonths" value="1" min="1" max="12">
+<span>mes(es)</span>
+</div>
+</label>
+</div>
 
-        <div id="recurringAmounts" class="hidden amounts-list"></div>
-      </div>
-    </div>
+<label style="margin-bottom: 10px;">
+Día del mes
+<input type="number" id="extraDay" value="10" min="1" max="31">
+</label>
 
-    <div class="actions-left">
-      <button id="cancelDialog" type="button" class="btn-box-cancel">Cancelar</button>
-      <button id="submitExpenseBtn" type="submit" class="btn-box-pink">Guardar gasto</button>
-    </div>
+<label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 6px;">
+<input type="checkbox" id="extraChangingAmount" style="width: auto;">
+<span>💰 Montos variables por mes</span>
+</label>
 
-  </form>
+<div id="extraRecurringAmounts" class="recurring-amounts hidden" style="margin-top: 8px;"></div>
+</div>
+</div>
+
+<!-- BOTONES DE ACCIÓN -->
+<div class="modal-actions">
+<button type="button" class="btn btn-outline" id="closeExtraCancelBtn">Cancelar</button>
+<button type="button" class="pastel-btn" id="submitExtraBtn">Sumar dinero</button>
+</div>
+</form>
 </dialog>
 
-<!-- MODAL: SUMAR EXTRA -->
-<dialog id="extraDialog" class="clean-dialog">
-  <form method="dialog" class="modal-box">
-    
-    <div class="modal-header-classic">
-      <button id="closeExtraDialog" type="button" class="btn-close-box" aria-label="Cerrar">×</button>
-      <span class="badge-eyebrow">DINERO EXTRA</span>
-      <h2 id="extraModalTitle">Sumar dinero extra</h2>
-    </div>
+<!-- MODAL GASTOS -->
+<dialog id="expenseDialog">
+<form id="expenseForm" class="modal">
+<button id="closeDialog" type="button" class="close" aria-label="Cerrar">×</button>
+<div>
+<p id="modalEyebrow" class="eyebrow">NUEVO REGISTRO</p>
+<h2 id="modalTitle">Agregar gasto</h2>
+</div>
 
-    <!-- Fila 1: Fechas -->
-    <div class="form-row-duo">
-      <div class="form-item">
-        <label for="modalExtraDate">FECHA REAL</label>
-        <input type="date" id="modalExtraDate">
-      </div>
-      <div class="form-item">
-        <label for="modalExtraTargetMonth">IMPUTAR AL MES</label>
-        <input type="month" id="modalExtraTargetMonth">
-      </div>
-    </div>
+<!-- FECHA REAL E IMPUTAR AL MES -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+<label>
+Fecha real
+<input id="expenseDate" type="date" required>
+</label>
 
-    <!-- Fila 2: Descripción y Categoría -->
-    <div class="form-row-duo">
-      <div class="form-item">
-        <label for="modalExtraDescription">DESCRIPCIÓN (OPCIONAL)</label>
-        <input type="text" id="modalExtraDescription" placeholder="Ej: Venta de campera, quincena...">
-      </div>
-      <div class="form-item">
-        <label for="modalExtraCategory">CATEGORÍA DE INGRESO</label>
-        <select id="modalExtraCategory">
-          <option value="Sueldo">💼 Sueldo</option>
-          <option value="Aporte familiar">🏠 Aporte familiar</option>
-          <option value="Regalo">🎁 Regalo</option>
-          <option value="Venta">🛍️ Venta</option>
-          <option value="Reintegro">🔄 Reintegro</option>
-          <option value="Otro">✨ Otro</option>
-        </select>
-      </div>
-    </div>
+<label>
+Imputar al mes
+<input id="expenseTargetMonth" type="month" required>
+</label>
+</div>
 
-    <!-- Fila 3: Monto y Moneda -->
-    <div class="form-row-duo">
-      <div class="form-item">
-        <label for="modalExtraInput">MONTO</label>
-        <input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0">
-      </div>
-      <div class="form-item">
-        <label for="modalExtraCurrency">MONEDA</label>
-        <select id="modalExtraCurrency">
-          <option value="ARS" selected>ARS ($)</option>
-          <option value="USD">USD (u$s)</option>
-        </select>
-      </div>
-    </div>
+<label>
+Descripción
+<input id="expenseDescription" type="text" placeholder="Ej. Supermercado" maxlength="100" required>
+</label>
 
-    <!-- Checkbox y Recurrencia -->
-    <div class="recur-wrap">
-      <label class="check-line">
-        <input type="checkbox" id="extraRecurring">
-        <span>🔄 <strong>REPETIR ESTE INGRESO</strong></span>
-      </label>
+<label>
+Categoría
+<select id="expenseCategory" required>
+<option value="">Seleccioná una categoría</option>
+<option value="Alimentos">Alimentos</option>
+<option value="Transporte">Transporte</option>
+<option value="Hogar">Hogar</option>
+<option value="Servicios">Servicios</option>
+<option value="Salud">Salud</option>
+<option value="Ropa">Ropa</option>
+<option value="Entretenimiento">Entretenimiento</option>
+<option value="Educación">Educación</option>
+<option value="Mascotas">Mascotas</option>
+<option value="Otros">Otros</option>
+<option value="Cuotas">Cuotas</option>
+<option value="Personal">Personal</option>
+<option value="Gimnasio">Gimnasio</option>
+<option value="Agua">Agua</option>
+</select>
+</label>
 
-      <div id="extraRecurringOptions" class="hidden recur-box-fields">
-        <div class="form-row-duo">
-          <div class="form-item">
-            <label for="extraMonths">Repetir cada (meses)</label>
-            <input type="number" id="extraMonths" value="1" min="1" max="12">
-          </div>
-          <div class="form-item">
-            <label for="extraDay">Día del mes</label>
-            <input type="number" id="extraDay" value="10" min="1" max="31">
-          </div>
-        </div>
+<div style="display: grid; grid-template-columns: 1fr 140px; gap: 10px; align-items: end;">
+<label>
+Monto
+<input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
+</label>
 
-        <div class="form-item" style="margin-top: 8px;">
-          <label for="extraDuration">Durante (meses)</label>
-          <input type="number" id="extraDuration" value="6" min="1" max="24">
-        </div>
+<label>
+Moneda
+<select id="expenseCurrency" required>
+<option value="ARS" selected>ARS ($)</option>
+<option value="USD">USD (u$s)</option>
+</select>
+</label>
+</div>
 
-        <label class="check-line" style="margin-top: 10px;">
-          <input type="checkbox" id="extraChangingAmount">
-          <span>💰 Montos variables por mes</span>
-        </label>
+<!-- RECURRENCIA -->
+<div class="recurring-box">
+<label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; margin-bottom: 0;">
+<input id="expenseRecurring" type="checkbox" style="width: 16px; height: 16px; margin: 0;">
+<span>🔁 Repetir este gasto</span>
+</label>
 
-        <div id="extraRecurringAmounts" class="hidden amounts-list"></div>
-      </div>
-    </div>
+<div id="recurringOptions" class="hidden" style="margin-top: 10px;">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+<label>
+Repetir cada
+<div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+<input id="recurringMonths" type="number" min="1" max="60" value="1" style="width: 70px;">
+<span>mes(es)</span>
+</div>
+</label>
 
-    <div class="actions-left">
-      <button type="button" class="btn-box-cancel" id="closeExtraCancelBtn">Cancelar</button>
-      <button type="button" class="btn-box-pink" id="submitExtraBtn">Guardar dinero</button>
-    </div>
+<label>
+Día del mes
+<input id="recurringDay" type="number" min="1" max="31" value="10" style="margin-top: 4px;">
+</label>
+</div>
 
-  </form>
+<label style="margin-bottom: 10px;">
+Durante
+<div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+<input id="recurringDuration" type="number" min="1" max="60" value="6" style="width: 70px;">
+<span>mes(es)</span>
+</div>
+</label>
+
+<label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; margin-top: 6px;">
+<input id="recurringChangingAmount" type="checkbox" style="width: 16px; height: 16px; margin: 0;">
+<span>💰 Quiero usar un monto diferente en cada mes</span>
+</label>
+
+<div id="recurringAmounts" class="hidden" style="margin-top: 8px;"></div>
+</div>
+</div>
+
+<div class="modal-actions">
+<button id="cancelDialog" type="button" class="btn btn-outline">Cancelar</button>
+<button id="submitExpenseBtn" class="pastel-btn" type="submit">Guardar gasto</button>
+</div>
+</form>
 </dialog>
 
 <!-- MODAL RESUMEN ANUAL -->
-<dialog id="annualDialog" class="clean-dialog modal-dialog">
-  <div class="modal-box modal" style="width: 440px;">
-    <button id="closeAnnualDialog" type="button" class="btn-close-box close" aria-label="Cerrar">×</button>
-    
-    <div class="modal-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-      <div class="modal-icon" style="font-size: 30px;">🌸</div>
-      <div>
-        <h2 style="font-size: 22px; font-weight: 800; margin: 0; color: var(--ink);">Resumen Anual</h2>
-        <p id="annualSubtitle" style="color: var(--muted); font-size: 12px; margin: 2px 0 0;">Análisis completo de tus finanzas</p>
-      </div>
-    </div>
-    
-    <div id="annualContent" style="margin-bottom: 20px;"></div>
+<dialog id="annualDialog">
+<button id="closeAnnualDialog" type="button" class="close" aria-label="Cerrar">×</button>
 
-    <div class="modal-actions" style="display: flex; gap: 10px; justify-content: flex-end;">
-      <button id="annualPdfBtn" class="pastel-btn" type="button">📥 Descargar PDF</button>
-      <button id="closeAnnualCancelBtn" class="btn btn-outline" type="button">Cerrar</button>
-    </div>
-  </div>
+<div class="modal-header">
+<div class="modal-icon">🌸</div>
+<div>
+<h2>Resumen Anual</h2>
+<p id="annualSubtitle">Análisis completo de tus finanzas</p>
+</div>
+</div>
+
+<div id="annualContent"></div>
+
+<div class="annual-actions">
+<button id="annualPdfBtn" class="pastel-btn" type="button">📥 Descargar PDF</button>
+<button id="closeAnnualCancelBtn" class="btn btn-outline" type="button">Cerrar</button>
+</div>
 </dialog>
 
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=2.5"></script>
 </body>
 </html>
