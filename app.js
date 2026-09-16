@@ -1104,9 +1104,8 @@ function initCsvImport() {
   });
 }
 
-
 /* =========================================================
-   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA)
+   DELEGACIÓN GLOBAL (TEMAS Y CONTRASEÑA) - CORREGIDA
 ========================================================= */
 
 document.addEventListener('click', (e) => {
@@ -1148,13 +1147,17 @@ document.addEventListener('click', (e) => {
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
   }
 
-const blackThemeBtn = e.target.closest('#btnBlackMode');
-if (blackThemeBtn) {
-  document.body.classList.remove("dark-mode", "dark-blue-mode");
-  document.body.classList.add("black-mode");
-  localStorage.setItem("mensual_theme_mode", "black");
-}
-
+  const blackThemeBtn = e.target.closest('#btnBlackMode');
+  if (blackThemeBtn) {
+    const isBlack = document.body.classList.toggle("black-mode");
+    document.body.classList.remove("dark-mode", "dark-blue-mode");
+    localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
+    blackThemeBtn.textContent = isBlack ? "☀️ Modo claro" : "🖤 Modo Black";
+    const darkBtn = $("toggleThemeBtn");
+    if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
+    const blueBtn = $("toggleBlueThemeBtn");
+    if (blueBtn) blueBtn.textContent = "💙 Modo Azul";
+  }
    
   if (e.target.closest('#openAnnualBtn')) openAnnualModal();
   if (e.target.closest('#closeAnnualDialog') || e.target.closest('#closeAnnualCancelBtn')) $("annualDialog")?.close();
@@ -1174,12 +1177,8 @@ if (savedTheme === "dark") {
   if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
 } else if (savedTheme === "black") {
   document.body.classList.add("black-mode");
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initApp);
-} else {
-  initApp();
+  const blackBtn = $("btnBlackMode");
+  if (blackBtn) blackBtn.textContent = "☀️ Modo claro";
 }
 
 
