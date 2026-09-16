@@ -218,15 +218,18 @@ document.addEventListener("submit", (e) => {
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   
-  const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
-  document.body.classList.remove("dark-mode", "dark-blue-mode", "black-mode");
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark-mode");
-  } else if (savedTheme === "blue") {
-    document.body.classList.add("dark-blue-mode");
-  } else if (savedTheme === "black") {
-    document.body.classList.add("black-mode");
-  }
+const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
+if (savedTheme === "dark") {
+  document.body.classList.add("dark-mode");
+  const darkBtn = $("toggleThemeBtn");
+  if (darkBtn) darkBtn.textContent = "☀️ Modo claro";
+} else if (savedTheme === "blue") {
+  document.body.classList.add("dark-blue-mode");
+  const blueBtn = $("toggleBlueThemeBtn");
+  if (blueBtn) blueBtn.textContent = "☀️ Modo claro";
+} else if (savedTheme === "black") {
+  document.body.classList.add("black-mode");
+}
 
   if (!user) {
     localStorage.removeItem('user_logged_in');
