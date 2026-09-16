@@ -4121,3 +4121,128 @@ body.black-mode .modal-actions .pastel-btn {
   height: auto !important;
   min-height: 42px !important;
 }
+
+/* =========================================================
+   1. ARREGLO BOTÓN LOGIN (CERO GRIS)
+========================================================= */
+.auth-card input[type="submit"],
+.auth-card button[type="submit"],
+.auth-card button,
+#authSubmitBtn,
+.auth-submit {
+  width: 100% !important;
+  background-color: var(--pink-500) !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  padding: 13px 18px !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(245, 107, 139, 0.35) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+  margin-top: 6px !important;
+  display: block !important;
+  text-align: center !important;
+}
+
+.auth-card input[type="submit"]:hover,
+.auth-card button[type="submit"]:hover,
+.auth-card button:hover,
+#authSubmitBtn:hover,
+.auth-submit:hover {
+  background-color: #e85577 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(245, 107, 139, 0.45) !important;
+}
+
+/* =========================================================
+   2. UNIFORMIDAD EN MODO AZUL (FOTO 3)
+========================================================= */
+/* Arreglo para el botón/link de Próximos & Deudas y el email */
+body.dark-blue-mode header.hero a,
+body.dark-blue-mode header.hero button,
+body.dark-blue-mode .hero a,
+body.dark-blue-mode .hero button {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e3a8a !important;
+  border-radius: 9px !important;
+  text-decoration: none !important;
+  padding: 8px 14px !important;
+}
+
+body.dark-blue-mode header.hero .user-email,
+body.dark-blue-mode .hero .user-email {
+  color: #94a3b8 !important; /* Gris claro legible */
+}
+
+/* Todos los botones de herramientas parejos en azul */
+body.dark-blue-mode .toolbar button,
+body.dark-blue-mode .toolbar .btn,
+body.dark-blue-mode .toolbar .pastel-btn,
+body.dark-blue-mode .toolbar label.btn {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e3a8a !important;
+  border-radius: 9px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+body.dark-blue-mode .toolbar button:hover,
+body.dark-blue-mode .toolbar .btn:hover,
+body.dark-blue-mode .toolbar .pastel-btn:hover {
+  background-color: #1e3a8a !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   3. UNIFORMIDAD EN MODO OSCURO (FOTO 2)
+========================================================= */
+/* Quitar los botones blancos sueltos en Modo Oscuro */
+body.dark-mode .toolbar button,
+body.dark-mode .toolbar .btn,
+body.dark-mode .toolbar .pastel-btn,
+body.dark-mode .toolbar .btn-outline,
+body.dark-mode .toolbar label.btn {
+  background-color: #2a161d !important;
+  color: #ffb6c1 !important;
+  border: 1px solid #4e2b37 !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode .toolbar button:hover,
+body.dark-mode .toolbar .btn:hover,
+body.dark-mode .toolbar .pastel-btn:hover {
+  background-color: #3d222b !important;
+  color: #ffdbe4 !important;
+}
+
+body.dark-mode header.hero a,
+body.dark-mode header.hero button,
+body.dark-mode .hero a,
+body.dark-mode .hero button {
+  background-color: #3d222b !important;
+  color: #ffb6c1 !important;
+  border: 1px solid #6b3b4a !important;
+  border-radius: 9px !important;
+  text-decoration: none !important;
+  padding: 8px 14px !important;
+}
+
+body.dark-mode header.hero .user-email,
+body.dark-mode .hero .user-email {
+  color: #e5a7be !important;
+}
+
+/* Botón de acción principal destacado */
+body.dark-mode .btn-pink,
+body.dark-mode button.btn-pink {
+  background-color: var(--pink-500) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
