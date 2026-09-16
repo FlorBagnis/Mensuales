@@ -1856,36 +1856,37 @@ body.dark-blue-mode .budget-alert-banner span {
 
 
 /* =========================================================
-   MODO BLACK TOTAL Y UNIFICADO (100% NEGRO ABSOLUTO / OLED)
+   MODO BLACK PURISTA (100% NEGRO ABSOLUTO / OLED PURE BLACK)
 ========================================================= */
 
-/* Fondo general de página, contenedores y diálogos */
+/* 1. Fondo de pantalla, aplicación y HTML */
+html.black-mode,
 body.black-mode,
-body.black-mode html,
-body.black-mode main.app,
-body.black-mode dialog {
+body.black-mode main.app {
   background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-/* 1. Header / Banner superior completo en negro puro (sin cajas cortadas) */
+/* 2. Banner superior Hero (elimina el parche cortado del título) */
 body.black-mode header.hero,
 body.black-mode .hero,
-body.black-mode .hero * {
+body.black-mode .hero div,
+body.black-mode header.hero div {
   background: #000000 !important;
   background-color: #000000 !important;
+  background-image: none !important;
   box-shadow: none !important;
 }
 
 body.black-mode header.hero {
   border: 1px solid #222222 !important;
-  border-radius: 18px !important;
+  border-radius: 16px !important;
   padding: 24px 28px !important;
 }
 
 body.black-mode header.hero .eyebrow {
-  color: #a3a3a3 !important;
+  color: #888888 !important;
 }
 
 body.black-mode header.hero h1 {
@@ -1894,16 +1895,17 @@ body.black-mode header.hero h1 {
 
 body.black-mode header.hero .subtitle,
 body.black-mode header.hero .user-email {
-  color: #737373 !important;
+  color: #666666 !important;
 }
 
 body.black-mode #dolarBadge {
-  background: #111111 !important;
-  color: #e5e5e5 !important;
+  background: #000000 !important;
+  background-color: #000000 !important;
   border: 1px solid #262626 !important;
+  color: #cccccc !important;
 }
 
-/* 2. Todas las solapas, paneles, barras y tarjetas de resumen */
+/* 3. Tarjetas de resumen, paneles, toolbar y cajas */
 body.black-mode .summary-card,
 body.black-mode .panel,
 body.black-mode .toolbar,
@@ -1912,12 +1914,11 @@ body.black-mode .auth-card {
   background: #000000 !important;
   background-color: #000000 !important;
   border: 1px solid #222222 !important;
-  border-radius: 16px !important;
+  border-radius: 14px !important;
   box-shadow: none !important;
   color: #ffffff !important;
 }
 
-/* Tipografía y textos secundarios limpios */
 body.black-mode h1,
 body.black-mode h2,
 body.black-mode h3,
@@ -1930,98 +1931,110 @@ body.black-mode .summary-card small,
 body.black-mode .section-heading p,
 body.black-mode footer,
 body.black-mode #differenceLabel {
-  color: #737373 !important;
+  color: #666666 !important;
 }
 
-/* 3. Solapas flotantes / Modales (<dialog>) en negro puro */
-body.black-mode dialog {
+/* 4. Solapas y Modales (<dialog>) - Elimina doble caja y fondos raros */
+body.black-mode dialog,
+body.black-mode dialog[id*="Dialog"],
+body.black-mode .modal,
+body.black-mode form.modal,
+body.black-mode dialog form {
   background: #000000 !important;
   background-color: #000000 !important;
-  border: 1px solid #2e2e2e !important;
-  border-radius: 20px !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+body.black-mode dialog {
+  border: 1px solid #262626 !important;
+  border-radius: 18px !important;
   padding: 24px !important;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.95) !important;
 }
 
 body.black-mode dialog::backdrop {
-  background: rgba(0, 0, 0, 0.88) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-body.black-mode .modal,
-body.black-mode form.modal {
-  background: #000000 !important;
-  background-color: #000000 !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
 }
 
 body.black-mode dialog .close,
-body.black-mode dialog button[id*="close"] {
-  background: #111111 !important;
-  border: 1px solid #2e2e2e !important;
+body.black-mode dialog button[id*="close"],
+body.black-mode dialog button[id*="Close"] {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #262626 !important;
   color: #ffffff !important;
   border-radius: 50% !important;
 }
 
-/* 4. Inputs, selects y campos de texto (negro profundo con borde nítido) */
+body.black-mode #extraRecurringOptions {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #222222 !important;
+}
+
+/* 5. Inputs, selects y campos de formulario */
 body.black-mode input,
 body.black-mode select,
 body.black-mode textarea,
-body.black-mode .money-input {
+body.black-mode .money-input,
+body.black-mode .money-input input {
   background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border: 1px solid #2e2e2e !important;
-  border-radius: 10px !important;
+  border: 1px solid #262626 !important;
+  border-radius: 9px !important;
 }
 
 body.black-mode input:focus,
 body.black-mode select:focus,
 body.black-mode textarea:focus {
-  border-color: #555555 !important;
+  border-color: #444444 !important;
   outline: none !important;
 }
 
 body.black-mode input::placeholder,
 body.black-mode textarea::placeholder {
-  color: #525252 !important;
+  color: #555555 !important;
 }
 
 body.black-mode .money-input span {
   background: transparent !important;
-  color: #a3a3a3 !important;
+  color: #888888 !important;
+  border: none !important;
 }
 
-/* 5. Todos los botones en negro puro con contorno */
+/* 6. Botones (Negro absoluto con borde limpio) */
 body.black-mode .pastel-btn,
 body.black-mode .btn,
-body.black-mode .custom-collapse-btn {
+body.black-mode .custom-collapse-btn,
+body.black-mode button {
   background: #000000 !important;
   background-color: #000000 !important;
   color: #ffffff !important;
-  border: 1px solid #2e2e2e !important;
-  border-radius: 10px !important;
+  border: 1px solid #262626 !important;
+  border-radius: 9px !important;
   box-shadow: none !important;
 }
 
 body.black-mode .pastel-btn:hover,
 body.black-mode .btn:hover,
-body.black-mode .custom-collapse-btn:hover {
-  background: #151515 !important;
-  background-color: #151515 !important;
-  border-color: #4a4a4a !important;
+body.black-mode .custom-collapse-btn:hover,
+body.black-mode button:hover {
+  background: #111111 !important;
+  background-color: #111111 !important;
+  border-color: #444444 !important;
+  color: #ffffff !important;
 }
 
-/* 6. Tablas y celdas en negro total */
+/* 7. Tablas y celdas */
 body.black-mode thead,
 body.black-mode th,
 body.black-mode .table-wrap th {
-  background: #0a0a0a !important;
-  background-color: #0a0a0a !important;
-  color: #a3a3a3 !important;
+  background: #000000 !important;
+  background-color: #000000 !important;
+  color: #888888 !important;
   border-bottom: 1px solid #222222 !important;
 }
 
@@ -2033,6 +2046,7 @@ body.black-mode td {
   color: #ffffff !important;
 }
 
+body.black-mode tbody tr:nth-child(even),
 body.black-mode tbody tr:nth-child(even) td {
   background: #050505 !important;
   background-color: #050505 !important;
@@ -2045,20 +2059,31 @@ body.black-mode tbody tr:hover td {
 
 body.black-mode .category,
 body.black-mode .month-pill {
-  background: #0a0a0a !important;
-  background-color: #0a0a0a !important;
+  background: #000000 !important;
+  background-color: #000000 !important;
   color: #ffffff !important;
   border: 1px solid #262626 !important;
 }
 
 body.black-mode .table-total {
   background: #000000 !important;
+  background-color: #000000 !important;
   border-top: 1px solid #222222 !important;
   color: #ffffff !important;
 }
 
-/* Mini tarjetas anuales */
+/* Mini tarjetas de Resumen Anual */
 body.black-mode .annual-mini-card {
   background: #000000 !important;
+  background-color: #000000 !important;
   border: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode .annual-mini-card span {
+  color: #888888 !important;
+}
+
+body.black-mode .annual-mini-card strong {
+  color: #ffffff !important;
 }
