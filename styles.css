@@ -1855,1030 +1855,11 @@ body.dark-blue-mode .budget-alert-banner span {
 }
 
 
-
 /* =========================================================
-   MODO BLACK TOTAL Y DEFINITIVO (PANTALLAS OLED)
+   1. MODO BLACK CONSOLIDADO (LIMPIO Y SIN REPETICIONES)
 ========================================================= */
-body.black-mode {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-/* Forzar fondo negro/gris oscuro en cualquier contenedor, header, tarjeta o sección */
-body.black-mode header,
-body.black-mode .hero,
-body.black-mode .card,
-body.black-mode .pastel-card,
-body.black-mode section,
-body.black-mode tr,
-body.black-mode td,
-body.black-mode th {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border-color: #222222 !important;
-}
-
-/* Forzar que CUALQUIER texto, título o etiqueta sea blanco */
-body.black-mode h1,
-body.black-mode h2,
-body.black-mode h3,
-body.black-mode h4,
-body.black-mode p,
-body.black-mode span,
-body.black-mode label,
-body.black-mode strong,
-body.black-mode div,
-body.black-mode a {
-  color: #ffffff !important;
-}
-
-/* Excepción para los botones de acción para que no se pierdan */
-body.black-mode button {
-  color: #ffffff !important;
-}
-
-/* Campos de entrada, selects y buscadores */
-body.black-mode input, 
-body.black-mode select,
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-color: #333333 !important;
-}
-
-/* Efecto hover en las tablas */
-body.black-mode tr:hover {
-  background-color: #1a1a1a !important;
-}
-
-/* Arreglar las barritas del gráfico de categorías para que resalten en OLED */
-body.black-mode #categoryChart div[style*="background: var(--pink-bg)"] {
-  background-color: #222222 !important;
-}
-
-body.black-mode #categoryChart div[style*="background: var(--pink-500)"] {
-  background-color: #38bdf8 !important; /* Cambia a un celeste brillante o dejalo en #ff78a0 si preferís rosa fuerte */
-}
-
-
-
-
-
-/* =========================================================
-   MODO BLACK SUPREMO - FUERZA BRUTA (PANTALLAS OLED)
-========================================================= */
-body.black-mode,
-body.black-mode * {
-  border-color: #222222 !important;
-}
-
-body.black-mode {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-/* Forzar todo contenedor, tarjeta, header y sección a negro/gris oscuro */
-body.black-mode header,
-body.black-mode .hero,
-body.black-mode .card,
-body.black-mode .pastel-card,
-body.black-mode section,
-body.black-mode div,
-body.black-mode table,
-body.black-mode tr,
-body.black-mode td,
-body.black-mode th {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-}
-
-/* El banner principal superior de la app */
-body.black-mode header.hero {
-  background-color: #121212 !important;
-  border: 1px solid #222222 !important;
-}
-
-/* Forzar que CUALQUIER texto, título o etiqueta sea blanco puro */
-body.black-mode h1,
-body.black-mode h2,
-body.black-mode h3,
-body.black-mode h4,
-body.black-mode p,
-body.black-mode span,
-body.black-mode label,
-body.black-mode strong,
-body.black-mode a,
-body.black-mode th,
-body.black-mode td {
-  color: #ffffff !important;
-}
-
-/* Botones en Modo Black (Fondo oscuro, texto blanco) */
-body.black-mode button,
-body.black-mode .pastel-btn,
-body.black-mode .btn {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode button:hover,
-body.black-mode .pastel-btn:hover {
-  background-color: #2a2a2a !important;
-}
-
-/* Inputs, selects y campos de texto */
-body.black-mode input, 
-body.black-mode select,
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-/* Etiquetas de categoría en las tablas */
-body.black-mode .category {
-  background-color: #262626 !important;
-  color: #ffffff !important;
-}
-
-
-/* =========================================================
-   FORZAR HEADER SUPERIOR ROSADO A NEGRO ABSOLUTO
-========================================================= */
-body.black-mode header.hero,
-body.black-mode .hero,
-body.black-mode header {
-  background-color: #121212 !important;
-  background-image: none !important;
-  color: #ffffff !important;
-  border: 1px solid #222222 !important;
-}
-
-/* Forzar absolutamente todo texto dentro del header superior a blanco */
-body.black-mode header.hero *,
-body.black-mode .hero * {
-  color: #ffffff !important;
-}
-
-
-/* =========================================================
-   FORZAR TARJETAS DE RESUMEN A MODO BLACK
-========================================================= */
-body.black-mode .card,
-body.black-mode .pastel-card,
-body.black-mode .summary-card,
-body.black-mode div[class*="card"] {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #222222 !important;
-}
-
-/* Forzar que todos los textos, números y subtítulos de esas tarjetas sean blancos */
-body.black-mode .card *,
-body.black-mode .pastel-card *,
-body.black-mode .summary-card *,
-body.black-mode div[class*="card"] * {
-  color: #ffffff !important;
-}
-
-
-/* =========================================================
-   FORZAR PÍLDORA/BOTÓN DE MES A MODO BLACK
-========================================================= */
-body.black-mode #monthPill,
-body.black-mode .month-pill,
-body.black-mode span[id*="Month"],
-body.black-mode button.pastel-btn,
-body.black-mode span.pastel-btn {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode #monthPill *,
-body.black-mode .month-pill * {
-  color: #ffffff !important;
-}
-
-
-
-/* =========================================================
-   MODO BLACK ABSOLUTO - CORRECCIÓN DE MODALES Y FONDO GENERAL
-========================================================= */
-
-/* 1. Forzar que el fondo de toda la aplicación sea negro puro OLED */
-body.black-mode {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-/* 2. Forzar que los modales / popups y sus contenedores internos sean oscuros */
-body.black-mode .modal,
-body.black-mode .modal-content,
-body.black-mode .popup,
-body.black-mode .dialog,
-body.black-mode div[class*="modal"],
-body.black-mode div[class*="popup"] {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #222222 !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9) !important;
-}
-
-/* 3. Forzar todos los textos dentro de los modales a blanco */
-body.black-mode .modal *,
-body.black-mode .modal-content *,
-body.black-mode .popup *,
-body.black-mode div[class*="modal"] * {
-  color: #ffffff !important;
-}
-
-/* 4. Asegurar que las "X" de cerrar o botones de los modales se vean bien */
-body.black-mode .modal .close-btn,
-body.black-mode .modal button {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-
-/* =========================================================
-   SOLUCIÓN DEFINITIVA: MODO BLACK EN FONDO Y MODALES
-========================================================= */
-
-/* 1. Forzar que el fondo general y el fondo detrás de los modales sea negro puro */
-body.black-mode,
-body.black-mode .modal-overlay,
-body.black-mode .backdrop,
-body.black-mode .modal-backdrop {
-  background-color: #000000 !important;
-}
-
-/* 2. Forzar la caja contenedora principal del modal (la tarjeta blanca gigante) a gris muy oscuro OLED */
-body.black-mode .modal,
-body.black-mode .modal-content,
-body.black-mode .popup,
-body.black-mode .dialog,
-body.black-mode div[class*="modal"],
-body.black-mode div[class*="popup"],
-body.black-mode div[class*="content"] {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #222222 !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95) !important;
-}
-
-/* 3. Forzar que TODO texto e ícono dentro de los modales sea blanco */
-body.black-mode .modal *,
-body.black-mode .modal-content *,
-body.black-mode .popup *,
-body.black-mode div[class*="modal"] * {
-  color: #ffffff !important;
-}
-
-/* 4. Botones dentro de los modales */
-body.black-mode .modal button,
-body.black-mode .modal .btn,
-body.black-mode .modal .pastel-btn {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-
-/* =========================================================
-   FORZAR NEGRO OLED EN FONDO Y MODALES (MÁXIMA PRIORIDAD)
-========================================================= */
-
-/* 1. Fondo general de la página y capas oscuras detrás de todo */
-body.black-mode,
-body.black-mode #app,
-body.black-mode .main-container {
-  background-color: #000000 !important;
-}
-
-/* 2. Matar el fondo blanco de cualquier caja o ventana modal */
-body.black-mode .modal,
-body.black-mode .modal-content,
-body.black-mode .modal-box,
-body.black-mode .popup-container,
-body.black-mode div[class*="modal"] {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #222222 !important;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.95) !important;
-}
-
-/* 3. Asegurar que todo texto dentro de los modales sea blanco */
-body.black-mode .modal *,
-body.black-mode .modal-content *,
-body.black-mode .modal-box *,
-body.black-mode div[class*="modal"] * {
-  color: #ffffff !important;
-}
-
-
-
-/* =========================================================
-   MODO BLACK: ANIQUILACIÓN TOTAL DE BLANCOS Y FONDOS CLAROS
-========================================================= */
-
-/* Fondo general de la app en negro OLED */
-body.black-mode {
-  background-color: #000000 !important;
-}
-
-/* Forzar que CUALQUIER elemento con fondo blanco o claro pase a ser oscuro en Modo Black */
-body.black-mode [style*="background-color: rgb(255"],
-body.black-mode [style*="background: white"],
-body.black-mode [style*="background: #fff"],
-body.black-mode [style*="background:#fff"],
-body.black-mode .modal-overlay,
-body.black-mode .swal2-container {
-  background-color: #000000 !important;
-}
-
-/* Forzar las cajas contenedoras de los modales (la tarjeta blanca gigante) a negro/gris oscuro */
-body.black-mode div[class*="modal"],
-body.black-mode section[class*="modal"],
-body.black-mode div[class*="popup"],
-body.black-mode div[class*="dialog"],
-body.black-mode .modal,
-body.black-mode .modal-content,
-body.black-mode .modal-box {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-  box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.85), 0 10px 40px rgba(0, 0, 0, 1) !important;
-}
-
-/* Forzar todo texto dentro de los modales a blanco puro */
-body.black-mode div[class*="modal"] *,
-body.black-mode .modal *,
-body.black-mode .modal-content * {
-  color: #ffffff !important;
-}
-
-
-
-/* =========================================================
-   CORRECCIÓN DEFINITIVA DE MODALES Y FONDO EN MODO BLACK
-========================================================= */
-
-/* 1. Forzar que el fondo detrás de los diálogos/modales sea negro puro OLED */
-body.black-mode dialog::backdrop,
-body.black-mode .modal-backdrop,
-body.black-mode .backdrop {
-  background-color: rgba(0, 0, 0, 0.9) !important;
-}
-
-/* 2. Forzar que la ventana modal (<dialog>) sea completamente negra/gris oscura */
-body.black-mode dialog,
-body.black-mode .modal,
-body.black-mode .modal-content,
-body.black-mode .modal-box {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #222222 !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95) !important;
-}
-
-/* 3. Forzar que absolutamente todo texto dentro del diálogo sea blanco */
-body.black-mode dialog *,
-body.black-mode .modal *,
-body.black-mode .modal-content * {
-  color: #ffffff !important;
-}
-
-/* 4. Asegurar que los botones internos del modal combinen perfectamente */
-body.black-mode dialog button,
-body.black-mode .modal button {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-
-/* =========================================================
-   MODO BLACK: UNIFICACIÓN TOTAL Y LIMPIEZA DE CONTRASTES
-========================================================= */
-
-/* 1. Fondo translúcido con blur detrás del modal */
-body.black-mode dialog::backdrop,
-body.black-mode .modal-backdrop,
-body.black-mode .backdrop {
-  background-color: rgba(0, 0, 0, 0.7) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-/* 2. Tarjeta principal del modal con un gris oscuro uniforme */
-body.black-mode dialog,
-body.black-mode .modal,
-body.black-mode .modal-content,
-body.black-mode .modal-box,
-body.black-mode div[class*="modal"],
-body.black-mode div[class*="popup"] {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #262626 !important;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9) !important;
-}
-
-/* 3. Eliminar cajitas interiores oscuras/negras para que el fondo sea fluido */
-body.black-mode dialog .annual-header,
-body.black-mode dialog [class*="header"],
-body.black-mode .modal header,
-body.black-mode .modal-content > div:first-child {
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* 4. Forzar que todo texto dentro de los modales sea blanco */
-body.black-mode dialog *,
-body.black-mode .modal *,
-body.black-mode .modal-content * {
-  color: #ffffff !important;
-}
-
-/* 5. Botones limpios y bien integrados */
-body.black-mode dialog button,
-body.black-mode .modal button {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-
-/* =========================================================
-   ELIMINAR LÍNEAS RECTAS Y BORDES INTERNOS EN MODO BLACK
-========================================================= */
-body.black-mode dialog hr,
-body.black-mode dialog .annual-header + div,
-body.black-mode .modal hr,
-body.black-mode .modal [style*="border-top"],
-body.black-mode .modal [style*="border-bottom"],
-body.black-mode .modal-content hr {
-  display: none !important;
-  border: none !important;
-}
-
-/* Forzar que cualquier separador interno desaparezca o sea sutil */
-body.black-mode .modal div[style*="border"] {
-  border-color: transparent !important;
-
-}
-
-
-
-/* =========================================================
-   FORZADO OLED ABSOLUTO Y BLUR ELEGANTE - MODO BLACK
-========================================================= */
-
-/* 1. Fondo absoluto de la pantalla entera en negro OLED */
-html.black-mode,
-body.black-mode,
-body.black-mode main,
-body.black-mode #appContent,
-body.black-mode .app-container {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-/* 2. Todas las tarjetas, cabeceras y bloques en gris OLED profundo */
-body.black-mode header,
-body.black-mode .expense,
-body.black-mode article,
-body.black-mode div[class*="card"],
-body.black-mode section,
-body.black-mode .summary-card,
-body.black-mode #emptyState {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #262626 !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9) !important;
-}
-
-/* 3. Textos, números y etiquetas totalmente blancos */
-body.black-mode h1,
-body.black-mode h2,
-body.black-mode h3,
-body.black-mode p,
-body.black-mode span,
-body.black-mode strong,
-body.black-mode label,
-body.black-mode small {
-  color: #ffffff !important;
-}
-
-/* 4. Efecto BLUR translúcido elegante en el fondo al abrir solapas */
-body.black-mode dialog::backdrop,
-body.black-mode .modal-backdrop,
-body.black-mode .backdrop,
-body.black-mode .modal.show {
-  background-color: rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-}
-
-/* 5. Ventana flotante del modal en negro OLED */
-body.black-mode .modal,
-body.black-mode .modal-content,
-body.black-mode .modal-box,
-body.black-mode dialog {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border: 1px solid #262626 !important;
-  box-shadow: c 0 25px 60px rgba(0, 0, 0, 0.95) !important;
-}
-
-/* 6. Matar recuadros blancos en selectores internos (Gasto / Deuda) */
-body.black-mode .modal label,
-body.black-mode .modal div[style*="background"],
-body.black-mode .modal input[type="radio"] + label,
-body.black-mode .type-selector,
-body.black-mode .modal fieldset,
-body.black-mode .modal label[style*="background"],
-body.black-mode label[style*="background-color"] {
-  background-color: #1a1a1a !important;
-  border-color: #333333 !important;
-  color: #ffffff !important;
-}
-
-/* 7. Inputs, selects y campos de texto oscuros */
-body.black-mode input,
-body.black-mode select,
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-
-/* =========================================================
-   3. MODO BLACK (NEGRO OLED PROFESIONAL Y LIMPIO)
-========================================================= */
-body.black-mode {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode .hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .auth-card,
-body.black-mode dialog {
-  background-color: #121212 !important;
-  border: 1px solid #262626 !important;
-  border-radius: 16px !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
-}
-
-body.black-mode h1, body.black-mode h2, body.black-mode h3, 
-body.black-mode p, body.black-mode span, body.black-mode label, 
-body.black-mode strong, body.black-mode td, body.black-mode th {
-  color: #ffffff !important;
-}
-
-body.black-mode .pastel-btn,
-body.black-mode .btn,
-body.black-mode .custom-collapse-btn {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode .btn:hover,
-body.black-mode .custom-collapse-btn:hover {
-  background-color: #262626 !important;
-  border-color: #ffffff !important;
-}
-
-body.black-mode input,
-body.black-mode select,
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode thead,
-body.black-mode th {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #333333 !important;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #1f1f1f !important;
-}
-
-body.black-mode tbody tr:hover {
-  background-color: #181818 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #161616 !important;
-  border-top: 1px solid #262626 !important;
-}
-
-body.black-mode dialog::backdrop {
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(8px) !important;
-}
-
-
-
-
-/* =========================================================
-   MODO BLACK (FORZADO ABAJO PARA PANTALLAS OLED)
-========================================================= */
-body.black-mode,
-body.black-mode main.app,
-body.black-mode dialog {
-  background-color: #000000 !important;
-  color: #f1f5f9 !important;
-}
-
-body.black-mode header.hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card,
-body.black-mode dialog {
-  background-color: #121212 !important;
-  border: 1px solid #222222 !important;
-  border-radius: 20px !important;
-  color: #f1f5f9 !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.black-mode header.hero {
-  padding: 28px !important;
-  margin-bottom: 24px !important;
-}
-
-body.black-mode header.hero .eyebrow,
-body.black-mode header.hero h1,
-body.black-mode header.hero .subtitle {
-  color: #f1f5f9 !important;
-}
-
-body.black-mode .pastel-btn,
-body.black-mode button.pastel-btn,
-body.black-mode .btn,
-body.black-mode button,
-body.black-mode select,
-body.black-mode input[type="search"],
-body.black-mode input[type="month"],
-body.black-mode input[type="date"],
-body.black-mode input[type="number"],
-body.black-mode input[type="text"],
-body.black-mode input[type="email"],
-body.black-mode input[type="password"] {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode button.pastel-btn:hover,
-body.black-mode .btn:hover {
-  background-color: #2a2a2a !important;
-  color: #ffffff !important;
-}
-
-body.black-mode thead, 
-body.black-mode th, 
-body.black-mode .table-wrap th {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #333333 !important;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #1f1f1f !important;
-  color: #f1f5f9 !important;
-}
-
-body.black-mode tbody tr:hover {
-  background-color: #181818 !important;
-}
-
-body.black-mode input::placeholder {
-  color: #888888 !important;
-}
-
-body.black-mode .money-input span,
-body.black-mode .money-input,
-body.black-mode span.category,
-body.black-mode .category,
-body.black-mode .month-pill {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #121212 !important;
-  color: #f1f5f9 !important;
-  border-top: 1px solid #222222 !important;
-}
-
-body.black-mode .annual-mini-card {
-  background-color: #121212 !important;
-  border-color: #222222 !important;
-  color: #f1f5f9 !important;
-}
-
-body.black-mode .annual-mini-card span {
-  color: #888888 !important;
-}
-
-body.black-mode .annual-mini-card strong {
-  color: #ffffff !important;
-}
-
-body.black-mode dialog::backdrop {
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-
-/* =========================================================
-   MODO BLACK PERFECTO (COPIA EXACTA DE LA ESTRUCTURA DEL MODO AZUL)
-========================================================= */
-body.black-mode,
-body.black-mode main.app,
-body.black-mode dialog {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode header.hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card,
-body.black-mode dialog,
-body.black-mode .modal {
-  background-color: #121212 !important;
-  border: 1px solid #262626 !important;
-  border-radius: 20px !important;
-  color: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
-}
-
-body.black-mode header.hero {
-  padding: 28px !important;
-  margin-bottom: 24px !important;
-}
-
-body.black-mode header.hero .eyebrow,
-body.black-mode header.hero h1,
-body.black-mode header.hero .subtitle {
-  color: #ffffff !important;
-}
-
-/* Forzar todos los botones e inputs a la estética OLED prolija */
-body.black-mode .pastel-btn,
-body.black-mode button.pastel-btn,
-body.black-mode .btn,
-body.black-mode button,
-body.black-mode select,
-body.black-mode input[type="search"],
-body.black-mode input[type="month"],
-body.black-mode input[type="date"],
-body.black-mode input[type="number"],
-body.black-mode input[type="text"],
-body.black-mode input[type="email"],
-body.black-mode input[type="password"],
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode button.pastel-btn:hover,
-body.black-mode .btn:hover {
-  background-color: #262626 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode thead, 
-body.black-mode th, 
-body.black-mode .table-wrap th {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #333333 !important;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #1f1f1f !important;
-  color: #ffffff !important;
-}
-
-body.black-mode tbody tr:hover {
-  background-color: #181818 !important;
-}
-
-body.black-mode input::placeholder,
-body.black-mode textarea::placeholder {
-  color: #888888 !important;
-}
-
-body.black-mode .money-input span,
-body.black-mode .money-input,
-body.black-mode span.category,
-body.black-mode .category,
-body.black-mode .month-pill {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border-top: 1px solid #262626 !important;
-}
-
-body.black-mode .annual-mini-card {
-  background-color: #121212 !important;
-  border-color: #262626 !important;
-  color: #ffffff !important;
-}
-
-/* Fondo oscuro translúcido con blur exacto al del modo azul para los modales */
-body.black-mode dialog::backdrop,
-body.black-mode .modal-backdrop {
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-
-/* =========================================================
-   MODO BLACK (COPIA EXACTA DE LA ESTÉTICA DEL MODO AZUL)
-========================================================= */
-body.black-mode,
-body.black-mode main.app,
-body.black-mode dialog {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode header.hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card,
-body.black-mode dialog,
-body.black-mode .modal {
-  background-color: #121212 !important;
-  border: 1px solid #262626 !important;
-  border-radius: 20px !important;
-  color: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.black-mode header.hero {
-  padding: 28px !important;
-  margin-bottom: 24px !important;
-}
-
-body.black-mode .pastel-btn,
-body.black-mode button.pastel-btn,
-body.black-mode .btn,
-body.black-mode button,
-body.black-mode select,
-body.black-mode input[type="search"],
-body.black-mode input[type="month"],
-body.black-mode input[type="date"],
-body.black-mode input[type="number"],
-body.black-mode input[type="text"],
-body.black-mode input[type="email"],
-body.black-mode input[type="password"],
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .pastel-btn:hover,
-body.black-mode button.pastel-btn:hover,
-body.black-mode .btn:hover {
-  background-color: #262626 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode thead, 
-body.black-mode th, 
-body.black-mode .table-wrap th {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid #333333 !important;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #1f1f1f !important;
-  color: #ffffff !important;
-}
-
-body.black-mode tbody tr:hover {
-  background-color: #181818 !important;
-}
-
-body.black-mode .money-input span,
-body.black-mode .money-input,
-body.black-mode span.category,
-body.black-mode .category,
-body.black-mode .month-pill {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border-top: 1px solid #262626 !important;
-}
-
-body.black-mode dialog::backdrop,
-body.black-mode .modal-backdrop {
-  background: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-}
-
-
-/* =========================================================
-   FORZADO ABSOLUTO MODO BLACK (MÁXIMA PRIORIDAD)
-========================================================= */
-body.black-mode {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode .hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card,
-body.black-mode dialog,
-body.black-mode .modal {
-  background-color: #121212 !important;
-  border: 1px solid #262626 !important;
-  border-radius: 20px !important;
-  color: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
-}
-
-body.black-mode input,
-body.black-mode select,
-body.black-mode textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode .pastel-btn,
-body.black-mode .btn,
-body.black-mode button {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
-}
-
-body.black-mode th,
-body.black-mode td {
-  border-color: #262626 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode tr:nth-child(even) {
-  background-color: #161616 !important;
-}
-
-
-/* =========================================================
-   MODO BLACK CON LA INTERFAZ EXACTA DEL MODO AZUL
-========================================================= */
-body.black-mode,
-body.black-mode main.app,
-body.black-mode dialog {
+body.black-mode, 
+body.black-mode main.app {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
@@ -2890,8 +1871,10 @@ body.black-mode .toolbar,
 body.black-mode .trend-box,
 body.black-mode .auth-card {
   background-color: #121212 !important;
-  border-color: #262626 !important;
+  border: 1px solid #262626 !important;
+  border-radius: 16px !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
 }
 
 body.black-mode header.hero .eyebrow,
@@ -2900,29 +1883,20 @@ body.black-mode header.hero .subtitle {
   color: #ffffff !important;
 }
 
-/* Replicar la misma estructura de botones e inputs del modo azul */
-body.black-mode .pastel-btn,
-body.black-mode button.pastel-btn,
-body.black-mode .btn,
-body.black-mode button,
+body.black-mode input,
 body.black-mode select,
-body.black-mode input[type="search"],
-body.black-mode input[type="month"],
-body.black-mode input[type="date"],
-body.black-mode input[type="number"],
-body.black-mode input[type="text"],
-body.black-mode input[type="email"],
-body.black-mode input[type="password"] {
+body.black-mode textarea,
+body.black-mode .pastel-btn,
+body.black-mode .btn,
+body.black-mode .custom-collapse-btn {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
   border: 1px solid #333333 !important;
 }
 
 body.black-mode .pastel-btn:hover,
-body.black-mode button.pastel-btn:hover,
 body.black-mode .btn:hover {
   background-color: #262626 !important;
-  color: #ffffff !important;
 }
 
 body.black-mode thead, 
@@ -2930,151 +1904,154 @@ body.black-mode th,
 body.black-mode .table-wrap th {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
+  border-bottom: 1px solid #333333 !important;
 }
-
-body.black-mode input::placeholder {
-  color: #888888 !important;
-}
-
-body.black-mode .money-input span,
-body.black-mode .money-input,
-body.black-mode span.category,
-body.black-mode .category,
-body.black-mode .month-pill {
-  background-color: #1a1a1a !important;
+body.black-mode td {
+  border-bottom: 1px solid #1f1f1f !important;
   color: #ffffff !important;
-  border-color: #333333 !important;
 }
-
-body.black-mode input,
-body.black-mode select,
-body.black-mode textarea {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border-color: #262626 !important;
+body.black-mode tbody tr:hover {
+  background-color: #181818 !important;
 }
-
 body.black-mode .table-total {
   background-color: #121212 !important;
   color: #ffffff !important;
   border-top: 1px solid #262626 !important;
 }
-
-body.black-mode .annual-mini-card {
-  background-color: #121212 !important;
-  border-color: #262626 !important;
-  color: #ffffff !important;
-}
-
-body.black-mode .annual-mini-card span {
-  color: #888888 !important;
-}
-
-body.black-mode .annual-mini-card strong {
-  color: #ffffff !important;
-}
-
-
-
 
 /* =========================================================
-   MODO BLACK: CLON EXACTO DE LA INTERFAZ DEL MODO AZUL
+   2. ESTRUCTURA PERFECTA DE MODALES (PARA TODOS LOS TEMAS)
 ========================================================= */
-body.black-mode,
-body.black-mode main.app,
-body.black-mode dialog {
-  background-color: #000000 !important;
-  color: #f1f5f9 !important;
+dialog {
+  width: min(480px, calc(100vw - 32px)) !important;
+  max-width: 480px !important;
+  height: fit-content !important; /* Evita que el modal se estire como tubo */
+  max-height: 90vh !important;
+  padding: 26px !important;
+  border-radius: 24px !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  background: var(--card) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--text) !important;
 }
 
-body.black-mode header.hero,
-body.black-mode .summary-card,
-body.black-mode .panel,
-body.black-mode .toolbar,
-body.black-mode .trend-box,
-body.black-mode .auth-card,
-body.black-mode dialog {
-  background-color: #121212 !important;
-  border-color: #262626 !important;
-  color: #f1f5f9 !important;
+dialog .close,
+dialog button[id*="close"] {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  background: var(--pink-bg, #fde8ee) !important;
+  color: var(--pink-700) !important;
+  border: none !important;
 }
 
-body.black-mode header.hero .eyebrow,
-body.black-mode header.hero h1,
-body.black-mode header.hero .subtitle {
+/* Resumen Anual */
+#annualDialog .modal-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 18px !important;
+}
+#annualDialog .modal-icon {
+  font-size: 20px !important;
+  border-radius: 12px !important;
+  width: 44px !important;
+  height: 44px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: var(--pink-bg, #fde8ee) !important;
+}
+#annualDialog .annual-card-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+#annualDialog .annual-mini-card {
+  border-radius: 14px !important;
+  padding: 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+}
+#annualDialog .annual-mini-card span {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+}
+#annualDialog .annual-mini-card strong {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+}
+
+/* Botones inferiores (50% y 50%) para que no queden chiquitos */
+.annual-actions,
+#annualDialog > div[style*="display: flex"],
+.modal-actions {
+  display: flex !important;
+  gap: 10px !important;
+  margin-top: 18px !important;
+  width: 100% !important;
+}
+.annual-actions button,
+#annualDialog button.pastel-btn,
+#annualDialog button.btn-outline,
+.modal-actions button {
+  flex: 1 !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+/* =========================================================
+   3. COLORES ESPECÍFICOS DE MODALES SOLO EN MODO BLACK
+========================================================= */
+body.black-mode dialog {
+  background: #121212 !important;
+  border: 1px solid #262626 !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.9) !important;
   color: #ffffff !important;
 }
-
-/* Replicar la misma distribución de botones e inputs del modo azul */
-body.black-mode .pastel-btn,
-body.black-mode button.pastel-btn,
-body.black-mode .btn,
-body.black-mode button,
-body.black-mode select,
-body.black-mode input[type="search"],
-body.black-mode input[type="month"],
-body.black-mode input[type="date"],
-body.black-mode input[type="number"],
-body.black-mode input[type="text"],
-body.black-mode input[type="email"],
-body.black-mode input[type="password"] {
-  background-color: #1a1a1a !important;
+body.black-mode dialog .close,
+body.black-mode dialog button[id*="close"] {
+  background: #1a1a1a !important;
   color: #ffffff !important;
   border: 1px solid #333333 !important;
 }
-
-body.black-mode .pastel-btn:hover,
-body.black-mode button.pastel-btn:hover,
-body.black-mode .btn:hover {
-  background-color: #262626 !important;
-  color: #ffffff !important;
+body.black-mode #annualDialog .modal-icon {
+  background: #1a1a1a !important;
+  border: 1px solid #333333 !important;
 }
-
-body.black-mode thead, 
-body.black-mode th, 
-body.black-mode .table-wrap th {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
+body.black-mode #annualDialog .annual-mini-card {
+  background: #0a0a0a !important;
+  border: 1px solid #222222 !important;
 }
-
-body.black-mode input,
-body.black-mode select,
-body.black-mode textarea {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border-color: #262626 !important;
-}
-
-body.black-mode input::placeholder {
+body.black-mode #annualDialog .annual-mini-card span {
   color: #888888 !important;
 }
-
-body.black-mode .money-input span,
-body.black-mode .money-input,
-body.black-mode span.category,
-body.black-mode .category,
-body.black-mode .month-pill {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-color: #333333 !important;
-}
-
-body.black-mode .table-total {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-  border-top: 1px solid #262626 !important;
-}
-
-body.black-mode .annual-mini-card {
-  background-color: #121212 !important;
-  border-color: #262626 !important;
+body.black-mode #annualDialog .annual-mini-card strong,
+body.black-mode #annualDialog h2 {
   color: #ffffff !important;
 }
-
-body.black-mode .annual-mini-card span {
-  color: #888888 !important;
+body.black-mode dialog::backdrop {
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(8px) !important;
 }
 
-body.black-mode .annual-mini-card strong {
-  color: #ffffff !important;
-}
