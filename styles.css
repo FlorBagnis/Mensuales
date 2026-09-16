@@ -38,7 +38,7 @@ body {
 }
 
 /* =========================================================
-   AUTH (LOGIN Y REGISTRO ESTÉTICO ORIGINAL)
+   AUTH (LOGIN Y REGISTRO)
 ========================================================= */
 .auth-section {
   min-height: 90vh;
@@ -50,30 +50,34 @@ body {
   width: min(420px, 100%);
   background: white;
   border: 1px solid var(--pink-200);
-  border-radius: 18px;
-  padding: 35px;
+  border-radius: 24px;
+  padding: 38px 32px;
   box-shadow: 0 20px 60px rgba(132, 38, 67, .10);
+  text-align: left;
 }
 
 .auth-logo {
-  width: 54px;
-  height: 54px;
-  display: grid;
-  place-items: center;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--pink-100);
   color: var(--pink-500);
   border-radius: 50%;
-  font-size: 28px;
+  font-size: 24px;
   margin-bottom: 20px;
 }
 
 .auth-card h1 {
   margin: 0 0 8px;
-  font-size: 27px;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ink);
 }
 
 .auth-subtitle {
-  margin: 0 0 25px;
+  margin: 0 0 24px;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
@@ -81,44 +85,49 @@ body {
 
 .auth-card form {
   display: grid;
-  gap: 15px;
+  gap: 16px;
 }
 
 .auth-card label {
   display: grid;
   gap: 7px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--pink-700);
 }
 
-/* Botón de login hermoso, rosa y con relieve */
-.auth-submit,
-#authSubmitBtn,
+/* Botón Iniciar sesión rosa pastel original */
+.auth-card button,
 .auth-card input[type="submit"],
-.auth-card button[type="submit"] {
+.auth-card input[type="button"],
+.auth-card .btn,
+.auth-card .auth-submit,
+#authSubmitBtn,
+.auth-submit {
   width: 100% !important;
-  margin-top: 5px !important;
-  background: var(--pink-500) !important;
-  color: white !important;
-  border: 0 !important;
-  border-radius: 9px !important;
-  padding: 12px 16px !important;
-  font: inherit !important;
-  font-size: 12px !important;
-  font-weight: 800 !important;
+  background: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+  border-radius: 12px !important;
+  padding: 13px 18px !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
   cursor: pointer !important;
-  box-shadow: 0 4px 14px rgba(245, 107, 139, 0.35) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+  margin-top: 6px !important;
+  display: block !important;
+  text-align: center !important;
 }
 
-.auth-submit:hover,
-#authSubmitBtn:hover,
+.auth-card button:hover,
 .auth-card input[type="submit"]:hover,
-.auth-card button[type="submit"]:hover {
-  background: #e85577 !important;
+.auth-card .auth-submit:hover,
+#authSubmitBtn:hover {
+  background: #f9b2c6 !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 18px rgba(245, 107, 139, 0.45) !important;
+  box-shadow: 0 6px 16px rgba(90, 35, 55, 0.16) !important;
 }
 
 .auth-message {
@@ -139,11 +148,16 @@ body {
   background: transparent;
   color: var(--pink-700);
   font: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   cursor: pointer;
   display: block;
-  margin: 5px auto 0;
+  margin: 12px auto 0;
+  transition: color 0.2s ease;
+}
+
+.auth-switch:hover {
+  color: var(--pink-500);
 }
 
 /* =========================================================
@@ -151,7 +165,7 @@ body {
 ========================================================= */
 .hero {
   background: linear-gradient(110deg, #ffb0c2, #ffa5bb);
-  border-radius: 15px;
+  border-radius: 16px;
   padding: 24px 28px;
   display: flex;
   justify-content: space-between;
@@ -166,12 +180,18 @@ body {
   font-weight: 800;
   letter-spacing: 1.3px;
   color: var(--pink-700);
+  text-transform: uppercase;
 }
 
 h1 {
   margin: 0 0 4px;
   font-size: clamp(20px, 3vw, 30px);
   letter-spacing: -.5px;
+  font-weight: 800;
+}
+
+h3 {
+  color: var(--pink-700);
 }
 
 .subtitle {
@@ -189,9 +209,33 @@ h1 {
 }
 
 .user-email {
-  font-size: 10px;
+  font-size: 11px;
   color: #7d2c46;
   font-weight: 700;
+}
+
+/* Pastilla "🌸 Próximos & Deudas" */
+.hero a,
+header.hero a {
+  background: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+  border-radius: 12px !important;
+  padding: 9px 16px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  box-shadow: 0 2px 6px rgba(90, 35, 55, 0.08) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.hero a:hover,
+header.hero a:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 14px rgba(90, 35, 55, 0.16) !important;
 }
 
 /* =========================================================
@@ -199,79 +243,103 @@ h1 {
 ========================================================= */
 .btn {
   border: 0;
-  border-radius: 9px;
-  padding: 11px 15px;
+  border-radius: 10px;
+  padding: 10px 16px;
   font: inherit;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) !important;
 }
 
 .btn:disabled {
   opacity: .6;
   cursor: wait;
-  transform: none;
+  transform: none !important;
 }
 
-.btn-pink {
-  background: var(--pink-500);
-  color: white;
+/* Botones rosas pastel */
+.pastel-btn,
+.btn-pink,
+button.btn-pink,
+.toolbar button:not(.btn-dark):not(.btn-outline):not(.btn-danger):not(.custom-collapse-btn) {
+  background: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+  border-radius: 12px !important;
+  padding: 10px 16px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  font-size: 12px !important;
+  box-shadow: 0 2px 6px rgba(90, 35, 55, 0.08) !important;
 }
 
+.pastel-btn:hover,
+.btn-pink:hover,
+button.btn-pink:hover,
+.toolbar button:not(.btn-dark):not(.btn-outline):not(.btn-danger):not(.custom-collapse-btn):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 14px rgba(90, 35, 55, 0.16) !important;
+}
+
+/* Botón principal "+ Nuevo gasto" */
 .btn-dark {
-  background: #6e203b;
-  color: white;
+  background: #6e203b !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 10px 16px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 12px rgba(110, 32, 59, 0.25) !important;
 }
 
-.btn-outline {
-  background: white;
-  color: var(--pink-700);
-  border: 1px solid var(--pink-300);
+.btn-dark:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(110, 32, 59, 0.35) !important;
 }
 
-.btn-danger {
-  background: white;
-  color: #b8324b;
-  border: 1px solid #ef9cac;
+/* Botones secundarios con contorno */
+.btn-outline,
+.btn-danger,
+.toolbar .btn-outline,
+.toolbar .btn-danger,
+.toolbar label.btn {
+  background: #ffffff !important;
+  color: var(--pink-700) !important;
+  border: 1px solid var(--pink-300) !important;
+  border-radius: 10px !important;
+  padding: 10px 16px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 6px rgba(132, 38, 67, 0.04) !important;
 }
 
-.btn-danger:hover {
-  background: #fff2f4;
-}
-
-.pastel-btn {
-  background: #fbc4d4;
-  color: #5a2337;
-  border: 1px solid #f29cb5;
-  border-radius: 12px;
-  padding: 11px 18px;
-  font-weight: 700;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 13px;
-  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-  cursor: pointer;
-}
-
-.pastel-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(90, 35, 55, 0.18);
+.btn-outline:hover,
+.btn-danger:hover,
+.toolbar .btn-outline:hover,
+.toolbar .btn-danger:hover {
+  background: var(--pink-50) !important;
+  border-color: var(--pink-500) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 10px rgba(132, 38, 67, 0.12) !important;
 }
 
 .custom-collapse-btn {
   background-color: #ffffff !important;
   color: var(--pink-700) !important;
   border: 1px solid var(--pink-300) !important;
-  padding: 0.25rem 0.6rem !important;
+  padding: 0.35rem 0.75rem !important;
   font-size: 0.85rem !important;
   border-radius: 8px !important;
   cursor: pointer;
@@ -287,12 +355,12 @@ h1 {
 }
 
 /* =========================================================
-   TOOLBAR
+   TOOLBAR E INPUTS
 ========================================================= */
 .toolbar {
   margin: 18px 0;
-  padding: 15px;
-  background: rgba(255, 255, 255, .72);
+  padding: 16px;
+  background: rgba(255, 255, 255, .75);
   border: 1px solid var(--line);
   border-radius: 14px;
   display: flex;
@@ -316,19 +384,20 @@ h1 {
 input,
 select {
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: 10px;
   background: white;
   color: var(--ink);
-  padding: 10px 12px;
+  padding: 10px 14px;
   outline: none;
   font: inherit;
   font-size: 13px;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 input:focus,
 select:focus {
   border-color: var(--pink-500);
-  box-shadow: 0 0 0 3px rgba(245, 107, 139, .12);
+  box-shadow: 0 0 0 3px rgba(245, 107, 139, .15);
 }
 
 .money-input {
@@ -336,7 +405,7 @@ select:focus {
   align-items: center;
   border: 1px solid var(--line);
   background: white;
-  border-radius: 9px;
+  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -353,54 +422,56 @@ select:focus {
 }
 
 /* =========================================================
-   RESUMEN
+   RESUMEN Y PANELES
 ========================================================= */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
 .summary-card {
   background: white;
   border: 1px solid var(--pink-200);
-  border-radius: 12px;
-  padding: 15px;
-  min-height: 100px;
+  border-radius: 14px;
+  padding: 18px 16px;
+  min-height: 105px;
+  box-shadow: 0 4px 12px rgba(132, 38, 67, 0.03);
 }
 
 .summary-card span {
   display: block;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 800;
   color: var(--pink-700);
-  margin-bottom: 5px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .summary-card strong {
   display: block;
   font-size: 22px;
+  font-weight: 800;
 }
 
 .summary-card small {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
 }
 
-/* =========================================================
-   PANELES Y TABLAS
-========================================================= */
 .panel {
   background: white;
   border: 1px solid var(--pink-200);
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(132, 38, 67, 0.03);
 }
 
 .section-heading {
-  padding: 17px 18px 12px;
+  padding: 18px 20px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -408,25 +479,29 @@ select:focus {
 }
 
 .section-heading h2 {
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 800;
   margin: 0 0 3px;
 }
 
 .section-heading p {
   margin: 0;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
 }
 
 .month-pill {
   background: var(--pink-100);
   color: var(--pink-700);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
-  padding: 7px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
 }
 
+/* =========================================================
+   TABLAS
+========================================================= */
 .table-wrap {
   overflow-x: auto;
 }
@@ -434,19 +509,21 @@ select:focus {
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 th {
   background: #fbc4d4;
   color: #5a2337;
   text-align: left;
-  padding: 8px 10px;
-  font-size: 9px;
+  padding: 10px 14px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 td {
-  padding: 9px 10px;
+  padding: 11px 14px;
   border-bottom: 1px solid #f7dce3;
 }
 
@@ -460,7 +537,7 @@ th:last-child {
 }
 
 .amount {
-  font-weight: 700;
+  font-weight: 800;
   white-space: nowrap;
 }
 
@@ -468,9 +545,9 @@ th:last-child {
   display: inline-block;
   background: var(--pink-100);
   color: var(--pink-700);
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 999px;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
 }
 
@@ -485,8 +562,8 @@ th:last-child {
   background: transparent;
   cursor: pointer;
   font-size: 15px;
-  padding: 3px 5px;
-  transition: .18s ease;
+  padding: 3px 6px;
+  transition: transform .18s ease;
 }
 
 .edit-btn {
@@ -494,7 +571,7 @@ th:last-child {
 }
 
 .edit-btn:hover {
-  transform: scale(1.15);
+  transform: scale(1.2);
 }
 
 .delete-btn {
@@ -503,19 +580,20 @@ th:last-child {
 
 .delete-btn:hover {
   color: var(--red);
-  transform: scale(1.15);
+  transform: scale(1.2);
 }
 
 .table-total {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: #ffe7ec;
-  padding: 9px 10px;
-  font-size: 10px;
+  padding: 12px 14px;
+  font-size: 11px;
 }
 
 .table-total strong {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .empty-state {
@@ -618,14 +696,15 @@ footer {
 }
 
 /* =========================================================
-   MODALES
+   MODAL RESUMEN ANUAL
 ========================================================= */
 dialog {
   border: 0;
-  border-radius: 16px;
+  border-radius: 24px;
   padding: 0;
-  width: min(440px, calc(100% - 30px));
+  width: min(480px, calc(100% - 30px));
   box-shadow: 0 25px 80px rgba(75, 19, 39, .25);
+  background: white;
 }
 
 dialog::backdrop {
@@ -634,42 +713,82 @@ dialog::backdrop {
 }
 
 .modal {
-  padding: 24px;
+  padding: 28px 26px;
   display: grid;
-  gap: 13px;
+  gap: 16px;
   position: relative;
 }
 
 .modal h2 {
   margin: 0;
-  font-size: 20px;
-}
-
-.modal label {
-  display: grid;
-  gap: 6px;
+  font-size: 22px;
+  font-weight: 800;
 }
 
 .close {
   position: absolute;
-  right: 15px;
-  top: 10px;
+  right: 18px;
+  top: 14px;
   border: 0;
   background: transparent;
-  font-size: 25px;
+  font-size: 24px;
   color: var(--muted);
   cursor: pointer;
+}
+
+.annual-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.annual-mini-card {
+  background: #fff8fa;
+  border: 1px solid #fde2ec;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+  cursor: default;
+}
+
+.annual-mini-card:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 8px 20px rgba(180, 80, 110, 0.15) !important;
+}
+
+.annual-mini-card span {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9e5b72;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.annual-mini-card strong {
+  font-size: 16px;
+  font-weight: 800;
+  color: #5a2337;
 }
 
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 5px;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.modal-actions button.btn-pink,
+.modal-actions button.pastel-btn {
+  background: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
 }
 
 /* =========================================================
-   CONTRASEÑA Y OCULTAR MONTOS
+   UTILIDADES (CONTRASEÑA, OCULTAR MONTOS, ACORDEONES)
 ========================================================= */
 .password-wrap {
   position: relative;
@@ -684,20 +803,13 @@ dialog::backdrop {
 
 .toggle-password {
   position: absolute;
-  right: 10px;
+  right: 12px;
   background: transparent;
   border: none;
   cursor: pointer;
   font-size: 16px;
   padding: 4px;
-  display: grid;
-  place-items: center;
   color: var(--muted);
-  transition: transform 0.15s ease;
-}
-
-.toggle-password:hover {
-  transform: scale(1.1);
 }
 
 body.amounts-hidden .money,
@@ -709,11 +821,7 @@ body.amounts-hidden #tableTotal,
 body.amounts-hidden .amount,
 body.amounts-hidden #budgetStatus,
 body.amounts-hidden #budgetInput,
-body.amounts-hidden #gpTotalPending,
-body.amounts-hidden #gpNextSevenDays,
-body.amounts-hidden #gpThisMonth,
-body.amounts-hidden #gpTotalDebts,
-body.amounts-hidden .gp-card-amount {
+body.amounts-hidden #extraTotalSumDisplay {
   color: transparent !important;
   position: relative;
   user-select: none;
@@ -728,11 +836,7 @@ body.amounts-hidden #tableTotal::after,
 body.amounts-hidden .amount::after,
 body.amounts-hidden #budgetStatus::after,
 body.amounts-hidden #budgetInput::after,
-body.amounts-hidden #gpTotalPending::after,
-body.amounts-hidden #gpNextSevenDays::after,
-body.amounts-hidden #gpThisMonth::after,
-body.amounts-hidden #gpTotalDebts::after,
-body.amounts-hidden .gp-card-amount::after {
+body.amounts-hidden #extraTotalSumDisplay::after {
   content: "••••••";
   color: var(--pink-700) !important;
   visibility: visible;
@@ -742,8 +846,6 @@ body.amounts-hidden .gp-card-amount::after {
   transform: translateY(-50%);
   z-index: 5;
   font-weight: 700;
-  background-color: transparent !important;
-  padding: 0 4px;
 }
 
 body.amounts-hidden .summary-card strong::after,
@@ -754,7 +856,7 @@ body.amounts-hidden .summary-card small::after {
 .collapsible-section,
 .table-container-collapsible {
   overflow: hidden;
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, margin 0.3s ease;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
   max-height: 2000px;
   opacity: 1;
 }
@@ -763,31 +865,41 @@ body.amounts-hidden .summary-card small::after {
 .table-container-collapsible.collapsed {
   max-height: 0 !important;
   opacity: 0;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
   pointer-events: none;
 }
 
-.annual-mini-card {
-  border: 1px solid var(--pink-200);
-  border-radius: 18px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
-  cursor: default;
-}
-
-.annual-mini-card:hover {
-  transform: translateY(-3px) scale(1.02) !important;
-  box-shadow: 0 8px 20px rgba(180, 80, 110, 0.15) !important;
+.table-responsive,
+.table-container,
+div:has(> table) {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 /* =========================================================
-   MODO OSCURO (DARK AESTHETIC PINK)
+   BANNER DE ALERTA
+========================================================= */
+.budget-alert-banner {
+  margin: 16px 0 8px 0;
+  padding: 12px 18px;
+  background: rgba(234, 91, 142, 0.1);
+  border: 1px solid #ea5b8e;
+  border-radius: 12px;
+  color: #52162a;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.budget-alert-banner.hidden {
+  display: none !important;
+}
+
+/* =========================================================
+   MODO 2: OSCURO (DARK AESTHETIC PINK)
 ========================================================= */
 body.dark-mode {
   background: #140e13;
@@ -816,28 +928,30 @@ body.dark-mode .hero {
 }
 
 body.dark-mode .hero h1 { color: #ffdbe4 !important; }
-body.dark-mode .hero .subtitle { color: #e5a7be !important; }
+body.dark-mode .hero .subtitle,
 body.dark-mode .hero .user-email { color: #e5a7be !important; }
-body.dark-mode .eyebrow { color: #ff9db4 !important; }
+body.dark-mode .eyebrow,
 body.dark-mode h3 { color: #ff9db4 !important; }
 
-/* Enlace a Próximos & Deudas en Modo Oscuro */
 body.dark-mode .hero a {
   background: #3d222b !important;
   color: #ffb6c1 !important;
   border: 1px solid #592e47 !important;
-  border-radius: 8px !important;
-  padding: 6px 12px !important;
-  text-decoration: none !important;
+  border-radius: 12px !important;
 }
 
-/* Botones de toolbar en Modo Oscuro (se acabó el blanco feo) */
 body.dark-mode .toolbar .btn,
 body.dark-mode .toolbar .btn-outline,
-body.dark-mode .toolbar button {
+body.dark-mode .toolbar button,
+body.dark-mode .custom-collapse-btn {
   background: #281b26 !important;
   color: #ff9db4 !important;
   border: 1px solid #592e47 !important;
+}
+
+body.dark-mode .toolbar .btn:hover,
+body.dark-mode .custom-collapse-btn:hover {
+  background: #331d2b !important;
 }
 
 body.dark-mode .toolbar .btn-pink {
@@ -868,8 +982,33 @@ body.dark-mode table th {
   color: #ffb6c1 !important;
 }
 
+body.dark-mode .table-total {
+  background: #2d1825 !important;
+  color: #ffdbe4 !important;
+}
+
+body.dark-mode .month-pill,
+body.dark-mode .category {
+  background: #3d1b2e !important;
+  color: #ffb0c2 !important;
+}
+
+body.dark-mode .budget-alert-banner {
+  background: rgba(255, 120, 160, 0.12) !important;
+  border-color: #ff78a0 !important;
+  color: #fdf2f6 !important;
+}
+
+body.dark-mode.amounts-hidden .amount::after,
+body.dark-mode.amounts-hidden strong::after,
+body.dark-mode.amounts-hidden small::after,
+body.dark-mode.amounts-hidden #extraTotalSumDisplay::after {
+  background-color: transparent !important;
+  color: #ff78a0 !important;
+}
+
 /* =========================================================
-   MODO AZUL (UNIFORME Y PROLIJO)
+   MODO 3: AZUL (TODO AZUL MARINO Y CELESTE)
 ========================================================= */
 body.dark-blue-mode,
 body.dark-blue-mode main.app {
@@ -881,6 +1020,7 @@ body.dark-blue-mode header.hero,
 body.dark-blue-mode .hero {
   background: #0f1c3f !important;
   background-color: #0f1c3f !important;
+  background-image: none !important;
   border: 1px solid #14244b !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
 }
@@ -895,14 +1035,11 @@ body.dark-blue-mode header.hero .user-email {
   color: #94a3b8 !important;
 }
 
-/* Enlace a Próximos & Deudas en Modo Azul */
 body.dark-blue-mode .hero a {
   background: #14244b !important;
   color: #38bdf8 !important;
   border: 1px solid #1e3a8a !important;
-  border-radius: 8px !important;
-  padding: 6px 12px !important;
-  text-decoration: none !important;
+  border-radius: 12px !important;
 }
 
 body.dark-blue-mode h3 {
@@ -931,9 +1068,11 @@ body.dark-blue-mode button {
   background-color: #14244b !important;
   color: #38bdf8 !important;
   border: 1px solid #1e3a8a !important;
+  box-shadow: none !important;
 }
 
 body.dark-blue-mode .btn:hover,
+body.dark-blue-mode .custom-collapse-btn:hover,
 body.dark-blue-mode button:hover {
   background-color: #1e3a8a !important;
   color: #ffffff !important;
@@ -944,6 +1083,11 @@ body.dark-blue-mode select {
   background-color: #070d1e !important;
   color: #f1f5f9 !important;
   border-color: #14244b !important;
+}
+
+body.dark-blue-mode .money-input span {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
 }
 
 body.dark-blue-mode thead,
@@ -957,12 +1101,50 @@ body.dark-blue-mode table td {
   color: #f1f5f9 !important;
 }
 
+body.dark-blue-mode table td * {
+  color: #f1f5f9 !important;
+  text-decoration: none !important;
+}
+
 body.dark-blue-mode table tbody tr:nth-child(even) {
   background-color: #0b1736 !important;
 }
 
+body.dark-blue-mode .table-total {
+  background-color: #0f1c3f !important;
+  color: #f1f5f9 !important;
+  border-top: 1px solid #14244b !important;
+}
+
+body.dark-blue-mode .month-pill,
+body.dark-blue-mode .category {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e3a8a !important;
+}
+
+body.dark-blue-mode .annual-mini-card {
+  background-color: #070d1e !important;
+  border-color: #14244b !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-blue-mode .budget-alert-banner {
+  background: rgba(56, 189, 248, 0.25) !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+}
+
+body.dark-blue-mode.amounts-hidden .amount::after,
+body.dark-blue-mode.amounts-hidden strong::after,
+body.dark-blue-mode.amounts-hidden small::after,
+body.dark-blue-mode.amounts-hidden #extraTotalSumDisplay::after {
+  background-color: transparent !important;
+  color: #38bdf8 !important;
+}
+
 /* =========================================================
-   MODO BLACK (100% OLED NEGRO Y BLANCO)
+   MODO 4: BLACK (100% OLED NEGRO Y BLANCO)
 ========================================================= */
 body.black-mode,
 body.black-mode main.app {
@@ -974,6 +1156,7 @@ body.black-mode header.hero,
 body.black-mode .hero {
   background: #000000 !important;
   background-color: #000000 !important;
+  background-image: none !important;
   border: 1px solid #262626 !important;
   box-shadow: none !important;
 }
@@ -989,9 +1172,7 @@ body.black-mode .hero a {
   background: #121212 !important;
   color: #ffffff !important;
   border: 1px solid #2e2e2e !important;
-  border-radius: 8px !important;
-  padding: 6px 12px !important;
-  text-decoration: none !important;
+  border-radius: 12px !important;
 }
 
 body.black-mode h3 {
@@ -1009,6 +1190,11 @@ body.black-mode dialog {
   box-shadow: none !important;
 }
 
+body.black-mode .summary-card span,
+body.black-mode .field label {
+  color: #ffffff !important;
+}
+
 body.black-mode .btn,
 body.black-mode .pastel-btn,
 body.black-mode .custom-collapse-btn,
@@ -1020,8 +1206,10 @@ body.black-mode button {
 }
 
 body.black-mode .btn:hover,
+body.black-mode .custom-collapse-btn:hover,
 body.black-mode button:hover {
   background-color: #222222 !important;
+  border-color: #444444 !important;
 }
 
 body.black-mode input,
@@ -1029,6 +1217,11 @@ body.black-mode select {
   background-color: #0a0a0a !important;
   color: #ffffff !important;
   border: 1px solid #262626 !important;
+}
+
+body.black-mode .money-input span {
+  background-color: transparent !important;
+  color: #ffffff !important;
 }
 
 body.black-mode thead,
@@ -1043,8 +1236,36 @@ body.black-mode table td {
   color: #ffffff !important;
 }
 
+body.black-mode table td * {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
 body.black-mode table tbody tr:nth-child(even) {
   background-color: #080808 !important;
+}
+
+body.black-mode table tbody tr:hover {
+  background-color: #121212 !important;
+}
+
+body.black-mode .table-total {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-top: 1px solid #222222 !important;
+}
+
+body.black-mode .month-pill,
+body.black-mode .category {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+}
+
+body.black-mode .annual-mini-card {
+  background-color: #000000 !important;
+  border-color: #222222 !important;
+  color: #ffffff !important;
 }
 
 /* =========================================================
@@ -1063,94 +1284,10 @@ body.black-mode table tbody tr:nth-child(even) {
   .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .toolbar { align-items: stretch; }
   .toolbar .field, .toolbar .field input, .toolbar .money-input { width: 100%; }
-}
-
-
-/* =========================================================
-   ARREGLO ESTÉTICO: BOTONES DE HERRAMIENTAS Y HEADER
-========================================================= */
-/* 1. Botón "Próximos & Deudas" estético en el banner */
-.hero a,
-header.hero a {
-  background: rgba(255, 255, 255, 0.4) !important;
-  color: var(--pink-700) !important;
-  border: 1px solid rgba(255, 255, 255, 0.6) !important;
-  border-radius: 9px !important;
-  padding: 8px 14px !important;
-  text-decoration: none !important;
-  font-size: 11px !important;
-  font-weight: 800 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  transition: transform 0.2s ease, background 0.2s ease !important;
-}
-
-.hero a:hover,
-header.hero a:hover {
-  background: rgba(255, 255, 255, 0.7) !important;
-  transform: translateY(-1px) !important;
-}
-
-/* 2. Unificar todos los botones de la barra (Cero cajas grises por defecto) */
-.toolbar button,
-.toolbar .btn,
-.toolbar .pastel-btn,
-.toolbar label.btn,
-.toolbar input[type="button"],
-.toolbar input[type="submit"] {
-  border-radius: 9px !important;
-  padding: 10px 14px !important;
-  font-family: inherit !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
-}
-
-/* Los botones secundarios ("Guardar presupuesto", "Resumen Anual", "Importar CSV") */
-.toolbar button:not(.btn-dark):not(.btn-pink),
-.toolbar label.btn,
-.toolbar .btn-outline {
-  background: #ffffff !important;
-  color: var(--pink-700) !important;
-  border: 1px solid var(--pink-300) !important;
-  box-shadow: 0 2px 6px rgba(132, 38, 67, 0.05) !important;
-}
-
-.toolbar button:not(.btn-dark):not(.btn-pink):hover,
-.toolbar label.btn:hover,
-.toolbar .btn-outline:hover {
-  background: var(--pink-50) !important;
-  border-color: var(--pink-500) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 10px rgba(132, 38, 67, 0.12) !important;
-}
-
-/* Botón principal "+ Nuevo gasto" destacado */
-.toolbar .btn-dark {
-  background: #6e203b !important;
-  color: #ffffff !important;
-  border: none !important;
-  box-shadow: 0 4px 12px rgba(110, 32, 59, 0.2) !important;
-}
-
-.toolbar .btn-dark:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 6px 16px rgba(110, 32, 59, 0.3) !important;
-}
-
-/* Botón "Sumar dinero extra" y "Empezar de cero" alineados con borde fino */
-.toolbar .btn-pink,
-.toolbar .btn-danger {
-  box-shadow: 0 2px 6px rgba(132, 38, 67, 0.05) !important;
-}
-
-.toolbar .btn-pink:hover,
-.toolbar .btn-danger:hover {
-  transform: translateY(-1px) !important;
+  .toolbar .money-input input { width: 100%; }
+  .toolbar .btn { flex: 1; }
+  .header-actions { width: 100%; flex-direction: column; align-items: stretch; }
+  .user-email { text-align: left; }
+  .hero { padding: 20px; }
+  th, td { white-space: nowrap; }
 }
