@@ -1,5 +1,5 @@
 /* =========================================================
-   VARIABLES GLOBALES & RESET
+   1. RESET Y VARIABLES GLOBALES
    ========================================================= */
 * {
   box-sizing: border-box;
@@ -51,7 +51,7 @@ body {
 }
 
 /* =========================================================
-   LOGIN Y REGISTRO (AUTH)
+   2. LOGIN Y REGISTRO (AUTH)
    ========================================================= */
 .auth-section {
   min-height: 90vh;
@@ -143,16 +143,13 @@ body {
   font-size: 13px;
 }
 
-.auth-card .password-wrap button#togglePasswordBtn {
+.toggle-password {
   position: absolute;
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
-  box-shadow: none;
-  padding: 0;
-  margin: 0;
   cursor: pointer;
   font-size: 16px;
 }
@@ -168,12 +165,10 @@ body {
   font-weight: 700;
   cursor: pointer;
   margin-top: 8px;
-  box-shadow: 0 3px 10px rgba(90, 35, 55, 0.08);
-  transition: transform 0.18s ease, background-color 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .auth-card button#authSubmitBtn:hover {
-  background: var(--btn-pastel-hover);
   transform: translateY(-1px);
 }
 
@@ -199,11 +194,10 @@ body {
   cursor: pointer;
   display: block;
   margin: 14px auto 0;
-  transition: opacity 0.2s ease;
 }
 
 /* =========================================================
-   HEADER / HERO
+   3. HEADER / HERO
    ========================================================= */
 .hero {
   background: linear-gradient(110deg, #f5a7bb 0%, #f098af 100%);
@@ -254,7 +248,7 @@ h1 {
 }
 
 /* =========================================================
-   BOTONES
+   4. BOTONES DEL SISTEMA
    ========================================================= */
 .btn {
   border-radius: 11px;
@@ -268,7 +262,7 @@ h1 {
   justify-content: center;
   gap: 6px;
   text-decoration: none;
-  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .btn:hover {
@@ -290,15 +284,6 @@ h1 {
   align-items: center !important;
   justify-content: center !important;
   gap: 6px !important;
-  box-shadow: 0 2px 6px rgba(90, 35, 55, 0.06);
-  transition: transform 0.18s ease, background 0.18s ease !important;
-}
-
-.pastel-btn:hover,
-.header-actions a.pastel-btn:hover {
-  background: var(--btn-pastel-hover) !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 10px rgba(90, 35, 55, 0.12);
 }
 
 .btn-dark {
@@ -308,12 +293,6 @@ h1 {
   border-radius: 11px !important;
   font-weight: 800 !important;
   padding: 9px 16px !important;
-  box-shadow: 0 3px 10px rgba(110, 32, 59, 0.25);
-}
-
-.btn-dark:hover {
-  background: var(--btn-dark-hover) !important;
-  transform: translateY(-1px);
 }
 
 .btn-outline,
@@ -323,13 +302,6 @@ h1 {
   border: 1px solid var(--pink-300) !important;
   border-radius: 11px !important;
   font-weight: 700 !important;
-  box-shadow: 0 2px 5px rgba(132, 38, 67, 0.03);
-}
-
-.btn-outline:hover,
-.btn-danger:hover {
-  background: var(--pink-50) !important;
-  border-color: var(--pink-500) !important;
 }
 
 .custom-collapse-btn {
@@ -346,12 +318,8 @@ h1 {
   gap: 5px !important;
 }
 
-.custom-collapse-btn:hover {
-  background-color: var(--pink-50) !important;
-}
-
 /* =========================================================
-   TOOLBAR
+   5. TOOLBAR, ENTRADAS Y RESUMEN
    ========================================================= */
 .toolbar {
   margin: 18px 0;
@@ -388,12 +356,6 @@ select {
   outline: none;
   font: inherit;
   font-size: 13px;
-  transition: border 0.18s ease;
-}
-
-input:focus,
-select:focus {
-  border-color: var(--pink-500);
 }
 
 .money-input {
@@ -417,9 +379,6 @@ select:focus {
   width: 125px;
 }
 
-/* =========================================================
-   RESUMEN (4 CARDS)
-   ========================================================= */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -439,7 +398,6 @@ select:focus {
   border-radius: 14px;
   padding: 16px 18px;
   min-height: 100px;
-  box-shadow: 0 4px 15px rgba(132, 38, 67, 0.02);
 }
 
 .summary-card span {
@@ -449,7 +407,6 @@ select:focus {
   color: var(--pink-700);
   margin-bottom: 5px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .summary-card strong {
@@ -465,16 +422,16 @@ select:focus {
 }
 
 /* =========================================================
-   PANELES, DOS COLUMNAS Y TABLAS
+   6. PANELES, DOS COLUMNAS Y TABLAS
    ========================================================= */
 .two-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.15fr 0.85fr;
   gap: 18px;
   align-items: start;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .two-columns {
     grid-template-columns: 1fr;
   }
@@ -486,7 +443,6 @@ select:focus {
   border-radius: 14px;
   overflow: hidden;
   margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(132, 38, 67, 0.02);
 }
 
 .section-heading {
@@ -521,6 +477,7 @@ select:focus {
 
 .table-wrap {
   overflow-x: auto;
+  width: 100%;
 }
 
 table {
@@ -537,7 +494,6 @@ th {
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 td {
@@ -553,16 +509,6 @@ tbody tr:nth-child(even) {
 td:last-child,
 th:last-child {
   text-align: right;
-}
-
-.category {
-  display: inline-block;
-  background: var(--pink-100);
-  color: var(--pink-700);
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
 }
 
 .table-total {
@@ -581,22 +527,24 @@ th:last-child {
 }
 
 /* =========================================================
-   CATEGORÍAS (BARRAS DE PROGRESO) Y TENDENCIA
+   7. BARRAS DE CATEGORÍA Y TENDENCIA (CORREGIDAS)
    ========================================================= */
 .category-chart {
-  padding: 14px 20px 18px;
+  padding: 14px 20px 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
-.category-row {
+.category-chart > div,
+.bar-row {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.category-row-header {
+.bar-label,
+.category-chart > div > div:first-child {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -605,7 +553,7 @@ th:last-child {
   color: var(--ink);
 }
 
-.category-bar-bg {
+.bar-bg {
   width: 100%;
   height: 8px;
   background: var(--pink-100);
@@ -613,11 +561,10 @@ th:last-child {
   overflow: hidden;
 }
 
-.category-bar-fill {
+.bar-fill {
   height: 100%;
   background: var(--pink-500);
   border-radius: 999px;
-  transition: width 0.4s ease;
 }
 
 .trend-box {
@@ -626,7 +573,6 @@ th:last-child {
   border-radius: 14px;
   padding: 18px 20px;
   margin-top: 1.5rem;
-  box-shadow: 0 4px 15px rgba(132, 38, 67, 0.02);
 }
 
 .trend-box h2 {
@@ -644,8 +590,9 @@ th:last-child {
 }
 
 /* =========================================================
-   MODALES LIMPIOS Y COMPACTOS (FOTO CLÁSICA)
+   8. MODALES COMPACTOS (SOLAPAS CORREGIDAS COMO EN LA FOTO)
    ========================================================= */
+dialog.clean-dialog,
 dialog {
   border: none !important;
   background: transparent !important;
@@ -660,11 +607,11 @@ dialog::backdrop {
 }
 
 .modal-box {
-  width: 480px !important;
+  width: 500px !important;
   max-width: 92vw !important;
   background: #ffffff !important;
   border-radius: 26px !important;
-  padding: 24px 26px !important;
+  padding: 26px 28px !important;
   box-shadow: 0 16px 40px rgba(85, 21, 45, 0.15) !important;
   max-height: 90vh !important;
   overflow-y: auto !important;
@@ -673,7 +620,8 @@ dialog::backdrop {
 }
 
 .modal-header-classic {
-  margin-bottom: 12px !important;
+  margin-bottom: 14px !important;
+  text-align: left !important;
 }
 
 .btn-close-box {
@@ -700,29 +648,38 @@ dialog::backdrop {
   letter-spacing: 0.08em !important;
   color: #7a1532 !important;
   margin-bottom: 4px !important;
+  text-transform: uppercase !important;
 }
 
 .modal-header-classic h2 {
   margin: 0 !important;
-  font-size: 1.55rem !important;
+  font-size: 1.6rem !important;
   font-weight: 800 !important;
   color: #4a0d1e !important;
 }
 
-.field-row-2 {
+/* Grilla en 2 Columnas Estricta */
+.form-row-duo {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 12px !important;
-  margin-bottom: 10px !important;
+  margin-bottom: 12px !important;
+  width: 100% !important;
 }
 
-.modal-box label {
+.form-item {
   display: flex !important;
   flex-direction: column !important;
+  gap: 5px !important;
+  width: 100% !important;
+}
+
+.form-item label {
   font-size: 0.68rem !important;
   font-weight: 800 !important;
   letter-spacing: 0.04em !important;
   color: #7a1532 !important;
+  text-transform: uppercase !important;
 }
 
 .modal-box input[type="text"],
@@ -732,27 +689,28 @@ dialog::backdrop {
 .modal-box select {
   width: 100% !important;
   box-sizing: border-box !important;
-  margin-top: 5px !important;
-  padding: 8px 12px !important;
+  padding: 9px 14px !important;
   border: 1px solid #f3c2ce !important;
   border-radius: 12px !important;
   background: #ffffff !important;
   color: #4a0d1e !important;
   font-size: 0.88rem !important;
+  font-weight: 500 !important;
   outline: none !important;
 }
 
 .recur-wrap {
-  margin: 10px 0 14px 0 !important;
+  margin: 12px 0 16px 0 !important;
 }
 
 .check-line {
-  flex-direction: row !important;
+  display: inline-flex !important;
   align-items: center !important;
   gap: 8px !important;
   cursor: pointer !important;
   font-size: 0.75rem !important;
   color: #7a1532 !important;
+  user-select: none !important;
 }
 
 .check-line input[type="checkbox"] {
@@ -788,7 +746,7 @@ dialog::backdrop {
   display: flex !important;
   justify-content: flex-start !important;
   gap: 10px !important;
-  margin-top: 16px !important;
+  margin-top: 18px !important;
 }
 
 .btn-box-cancel {
@@ -813,89 +771,23 @@ dialog::backdrop {
   cursor: pointer !important;
 }
 
-/* Modal Resumen Anual */
-#annualDialog .modal-box {
-  width: 440px !important;
-}
-#annualDialog .modal-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-#annualDialog .modal-icon {
-  font-size: 32px;
-}
-#annualDialog h2 {
-  font-size: 22px;
-  font-weight: 800;
-  margin: 0;
-  color: #4a1325;
-}
-.annual-card-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.annual-mini-card {
-  background: #ffffff;
-  border: 1px solid #f6d1db;
-  border-radius: 14px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.annual-mini-card span {
-  font-size: 9px;
-  font-weight: 800;
-  color: #7d203e;
-  text-transform: uppercase;
-}
-.annual-mini-card strong {
-  font-size: 14px;
-  font-weight: 800;
-  color: #4a1325;
-}
-
 /* =========================================================
-   ANIMACIONES Y ACORDEONES
+   9. FORZADO DE MODOS: OSCURO, AZUL Y BLACK
    ========================================================= */
-.collapsible-section,
-.table-container-collapsible {
-  overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-  max-height: 2000px;
-  opacity: 1;
-}
 
-.collapsible-section.collapsed,
-.table-container-collapsible.collapsed {
-  max-height: 0 !important;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* =========================================================
-   MODO 2: OSCURO
-   ========================================================= */
+/* --- MODO OSCURO --- */
 body.dark-mode {
-  background-color: #140e13 !important;
+  background: #140e13 !important;
   color: #fceef3 !important;
 }
 
 body.dark-mode .hero {
   background: linear-gradient(110deg, #42182b, #2e111e) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
 }
-body.dark-mode .hero h1 { color: #ffdbe4 !important; }
-body.dark-mode .hero .subtitle,
-body.dark-mode .hero .user-email { color: #e5a7be !important; }
-body.dark-mode .eyebrow { color: #ff9db4 !important; }
 
+body.dark-mode .auth-card,
 body.dark-mode .summary-card,
 body.dark-mode .panel,
-body.dark-mode .toolbar,
 body.dark-mode .trend-box,
 body.dark-mode .modal-box {
   background: #211620 !important;
@@ -903,10 +795,14 @@ body.dark-mode .modal-box {
   color: #fceef3 !important;
 }
 
-body.dark-mode .summary-card strong,
-body.dark-mode .section-heading h2,
-body.dark-mode .trend-box h2,
-body.dark-mode .category-row-header,
+body.dark-mode .toolbar {
+  background: rgba(33, 22, 32, 0.85) !important;
+  border-color: #3b2334 !important;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode strong,
 body.dark-mode td {
   color: #fceef3 !important;
 }
@@ -920,7 +816,8 @@ body.dark-mode select {
 
 body.dark-mode .modal-header-classic h2,
 body.dark-mode .badge-eyebrow,
-body.dark-mode .modal-box label {
+body.dark-mode .form-item label,
+body.dark-mode .check-line {
   color: #ff9db4 !important;
 }
 
@@ -928,11 +825,6 @@ body.dark-mode .btn-close-box {
   background: #2e2632 !important;
   border-color: #ff9db4 !important;
   color: #ff9db4 !important;
-}
-
-body.dark-mode .recur-box-fields {
-  background: #2a222e !important;
-  border-color: #45323e !important;
 }
 
 body.dark-mode .btn-box-cancel {
@@ -952,10 +844,6 @@ body.dark-mode th {
   color: #ffb6c1 !important;
 }
 
-body.dark-mode td {
-  border-color: #331f2c !important;
-}
-
 body.dark-mode tbody tr:nth-child(even) {
   background: #281b26 !important;
 }
@@ -965,15 +853,14 @@ body.dark-mode .table-total {
   color: #ffdbe4 !important;
 }
 
-/* =========================================================
-   MODO 3: AZUL COMPLETO (LETRAS BLANCAS FORZADAS)
-   ========================================================= */
+/* --- MODO AZUL (LETRAS BLANCAS FORZADAS) --- */
 body.dark-blue-mode {
   background-color: #070d1e !important;
   color: #ffffff !important;
 }
 
-body.dark-blue-mode header.hero,
+body.dark-blue-mode .hero,
+body.dark-blue-mode .auth-card,
 body.dark-blue-mode .summary-card,
 body.dark-blue-mode .panel,
 body.dark-blue-mode .toolbar,
@@ -984,20 +871,21 @@ body.dark-blue-mode .modal-box {
   color: #ffffff !important;
 }
 
-body.dark-blue-mode header.hero h1,
-body.dark-blue-mode header.hero .eyebrow,
-body.dark-blue-mode header.hero .subtitle,
-body.dark-blue-mode .summary-card strong,
-body.dark-blue-mode .section-heading h2,
-body.dark-blue-mode .trend-box h2,
-body.dark-blue-mode .trend-box p,
-body.dark-blue-mode .category-row-header,
+body.dark-blue-mode h1,
+body.dark-blue-mode h2,
+body.dark-blue-mode h3,
+body.dark-blue-mode p,
+body.dark-blue-mode span,
+body.dark-blue-mode strong,
+body.dark-blue-mode td,
+body.dark-blue-mode .eyebrow,
+body.dark-blue-mode .subtitle,
+body.dark-blue-mode .user-email,
 body.dark-blue-mode .modal-header-classic h2,
-body.dark-blue-mode .modal-box label,
 body.dark-blue-mode .badge-eyebrow,
+body.dark-blue-mode .form-item label,
 body.dark-blue-mode .check-line,
-body.dark-blue-mode .amounts-list > div,
-body.dark-blue-mode td {
+body.dark-blue-mode .amounts-list > div {
   color: #ffffff !important;
 }
 
@@ -1028,8 +916,8 @@ body.dark-blue-mode .recur-box-fields {
 }
 
 body.dark-blue-mode .btn-box-cancel {
-  background: #19273c !important;
-  border-color: #3b5c8d !important;
+  background: #14244b !important;
+  border-color: #1e3a8a !important;
   color: #ffffff !important;
 }
 
@@ -1044,10 +932,6 @@ body.dark-blue-mode th {
   color: #ffffff !important;
 }
 
-body.dark-blue-mode td {
-  border-color: #14244b !important;
-}
-
 body.dark-blue-mode tbody tr:nth-child(even) {
   background: #0b1736 !important;
 }
@@ -1057,15 +941,14 @@ body.dark-blue-mode .table-total {
   color: #ffffff !important;
 }
 
-/* =========================================================
-   MODO 4: BLACK OLED (LETRAS BLANCAS FORZADAS)
-   ========================================================= */
+/* --- MODO BLACK (OLED TOTAL CON LETRAS BLANCAS) --- */
 body.black-mode {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-body.black-mode header.hero,
+body.black-mode .hero,
+body.black-mode .auth-card,
 body.black-mode .summary-card,
 body.black-mode .panel,
 body.black-mode .toolbar,
@@ -1077,25 +960,27 @@ body.black-mode .modal-box {
   color: #ffffff !important;
 }
 
-body.black-mode header.hero h1,
-body.black-mode header.hero .eyebrow,
-body.black-mode header.hero .subtitle,
-body.black-mode header.hero .user-email,
-body.black-mode .summary-card strong,
-body.black-mode .section-heading h2,
-body.black-mode .trend-box h2,
-body.black-mode .trend-box p,
-body.black-mode .category-row-header,
+body.black-mode h1,
+body.black-mode h2,
+body.black-mode h3,
+body.black-mode p,
+body.black-mode span,
+body.black-mode label,
+body.black-mode strong,
+body.black-mode td,
+body.black-mode .eyebrow,
+body.black-mode .subtitle,
+body.black-mode .user-email,
 body.black-mode .modal-header-classic h2,
-body.black-mode .modal-box label,
 body.black-mode .badge-eyebrow,
+body.black-mode .form-item label,
 body.black-mode .check-line,
-body.black-mode .amounts-list > div,
-body.black-mode td {
+body.black-mode .amounts-list > div {
   color: #ffffff !important;
 }
 
 body.black-mode .pastel-btn,
+body.black-mode .btn,
 body.black-mode .btn-outline,
 body.black-mode .custom-collapse-btn {
   background: #121212 !important;
@@ -1122,8 +1007,8 @@ body.black-mode .recur-box-fields {
 }
 
 body.black-mode .btn-box-cancel {
-  background: #1a1a1a !important;
-  border-color: #404040 !important;
+  background: #121212 !important;
+  border-color: #2e2e2e !important;
   color: #ffffff !important;
 }
 
@@ -1138,11 +1023,6 @@ body.black-mode th {
   background: #0a0a0a !important;
   color: #ffffff !important;
   border-bottom: 1px solid #222222 !important;
-}
-
-body.black-mode td {
-  border-bottom: 1px solid #141414 !important;
-  color: #ffffff !important;
 }
 
 body.black-mode tbody tr:nth-child(even) {
