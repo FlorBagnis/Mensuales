@@ -1592,3 +1592,337 @@ body.black-mode #extraDialog #submitExtraBtn {
   color: #000000 !important;
   font-weight: 800 !important;
 }
+
+
+
+
+
+/* =========================================================
+   DISEÑO BASE MODALES COMPACTOS (FOTO 1)
+   ========================================================= */
+
+dialog.clean-dialog {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  max-width: 95vw !important;
+  overflow: visible !important;
+}
+
+dialog.clean-dialog::backdrop {
+  background: rgba(85, 21, 45, 0.2) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.modal-box {
+  width: 480px !important;
+  max-width: 92vw !important;
+  background: #ffffff !important;
+  border-radius: 26px !important;
+  padding: 26px 28px !important;
+  box-shadow: 0 16px 40px rgba(85, 21, 45, 0.15) !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Cabecera Clásica */
+.modal-header-classic {
+  margin-bottom: 14px !important;
+}
+
+.btn-close-box {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 22px !important;
+  height: 22px !important;
+  background: #ffffff !important;
+  border: 1px solid #7a1532 !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  color: #7a1532 !important;
+  cursor: pointer !important;
+  margin-bottom: 8px !important;
+  padding: 0 !important;
+}
+
+.badge-eyebrow {
+  display: block !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  color: #7a1532 !important;
+  margin-bottom: 4px !important;
+}
+
+.modal-header-classic h2 {
+  margin: 0 !important;
+  font-size: 1.6rem !important;
+  font-weight: 800 !important;
+  color: #4a0d1e !important;
+}
+
+/* Grilla en 2 Columnas */
+.field-row-2 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+.modal-box label {
+  display: flex !important;
+  flex-direction: column !important;
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  color: #7a1532 !important;
+}
+
+.modal-box input[type="text"],
+.modal-box input[type="number"],
+.modal-box input[type="date"],
+.modal-box input[type="month"],
+.modal-box select {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-top: 6px !important;
+  padding: 9px 14px !important;
+  border: 1px solid #f3c2ce !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  color: #4a0d1e !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  outline: none !important;
+}
+
+/* Checkbox y Recurrencia */
+.recur-wrap {
+  margin: 12px 0 16px 0 !important;
+}
+
+.check-line {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  font-size: 0.75rem !important;
+  color: #7a1532 !important;
+}
+
+.check-line input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+  accent-color: #f56b8b !important;
+}
+
+.recur-box-fields {
+  margin-top: 10px !important;
+  padding: 12px !important;
+  background: #fff4f7 !important;
+  border-radius: 12px !important;
+  border: 1px solid #ffe1e8 !important;
+}
+
+.amounts-list > div {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 4px 0 !important;
+  font-size: 0.8rem !important;
+  color: #4a0d1e !important;
+}
+
+.amounts-list input {
+  width: 90px !important;
+  text-align: right !important;
+}
+
+/* Botones Izquierda */
+.actions-left {
+  display: flex !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  margin-top: 18px !important;
+}
+
+.btn-box-cancel {
+  background: #ffffff !important;
+  border: 1px solid #f3c2ce !important;
+  color: #4a0d1e !important;
+  padding: 8px 18px !important;
+  border-radius: 10px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+.btn-box-pink {
+  background: #ffc2d1 !important;
+  border: 1px solid #ffc2d1 !important;
+  color: #4a0d1e !important;
+  padding: 8px 18px !important;
+  border-radius: 10px !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
+
+/* =========================================================
+   FORZADO DE MODOS: OSCURO, AZUL Y BLACK
+   ========================================================= */
+
+/* 1. MODO OSCURO */
+html.dark-mode .modal-box,
+body.dark-mode .modal-box {
+  background: #231d25 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7) !important;
+}
+html.dark-mode .modal-header-classic h2,
+body.dark-mode .modal-header-classic h2,
+html.dark-mode .modal-box label,
+body.dark-mode .modal-box label,
+html.dark-mode .badge-eyebrow,
+body.dark-mode .badge-eyebrow {
+  color: #ff9db4 !important;
+}
+html.dark-mode .btn-close-box,
+body.dark-mode .btn-close-box {
+  background: #2e2632 !important;
+  border-color: #ff9db4 !important;
+  color: #ff9db4 !important;
+}
+html.dark-mode .modal-box input,
+html.dark-mode .modal-box select,
+body.dark-mode .modal-box input,
+body.dark-mode .modal-box select {
+  background: #2e2632 !important;
+  color: #ffffff !important;
+  border-color: #5a3e4c !important;
+}
+html.dark-mode .recur-box-fields,
+body.dark-mode .recur-box-fields {
+  background: #2a222e !important;
+  border-color: #45323e !important;
+}
+html.dark-mode .btn-box-cancel,
+body.dark-mode .btn-box-cancel {
+  background: #2e2632 !important;
+  border-color: #5a3e4c !important;
+  color: #ffffff !important;
+}
+html.dark-mode .btn-box-pink,
+body.dark-mode .btn-box-pink {
+  background: #872847 !important;
+  border-color: #872847 !important;
+  color: #ffffff !important;
+}
+
+
+/* 2. MODO AZUL (Letras Blancas Forzadas) */
+html.dark-blue-mode .modal-box,
+body.dark-blue-mode .modal-box {
+  background: #111b2b !important;
+  border: 1px solid #1e2f47 !important;
+}
+html.dark-blue-mode .modal-header-classic h2,
+body.dark-blue-mode .modal-header-classic h2,
+html.dark-blue-mode .modal-box label,
+body.dark-blue-mode .modal-box label,
+html.dark-blue-mode .badge-eyebrow,
+body.dark-blue-mode .badge-eyebrow,
+html.dark-blue-mode .check-line,
+body.dark-blue-mode .check-line,
+html.dark-blue-mode .amounts-list > div,
+body.dark-blue-mode .amounts-list > div {
+  color: #ffffff !important;
+}
+html.dark-blue-mode .btn-close-box,
+body.dark-blue-mode .btn-close-box {
+  background: #19273c !important;
+  border-color: #5c8ed1 !important;
+  color: #ffffff !important;
+}
+html.dark-blue-mode .modal-box input,
+html.dark-blue-mode .modal-box select,
+body.dark-blue-mode .modal-box input,
+body.dark-blue-mode .modal-box select {
+  background: #19273c !important;
+  color: #ffffff !important;
+  border-color: #2e476d !important;
+}
+html.dark-blue-mode .recur-box-fields,
+body.dark-blue-mode .recur-box-fields {
+  background: #162335 !important;
+  border-color: #263852 !important;
+}
+html.dark-blue-mode .btn-box-cancel,
+body.dark-blue-mode .btn-box-cancel {
+  background: #19273c !important;
+  border-color: #3b5c8d !important;
+  color: #ffffff !important;
+}
+html.dark-blue-mode .btn-box-pink,
+body.dark-blue-mode .btn-box-pink {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+
+/* 3. MODO BLACK (Letras Blancas Forzadas) */
+html.black-mode .modal-box,
+body.black-mode .modal-box {
+  background: #0d0d0d !important;
+  border: 1px solid #262626 !important;
+}
+html.black-mode .modal-header-classic h2,
+body.black-mode .modal-header-classic h2,
+html.black-mode .modal-box label,
+body.black-mode .modal-box label,
+html.black-mode .badge-eyebrow,
+body.black-mode .badge-eyebrow,
+html.black-mode .check-line,
+body.black-mode .check-line,
+html.black-mode .amounts-list > div,
+body.black-mode .amounts-list > div {
+  color: #ffffff !important;
+}
+html.black-mode .btn-close-box,
+body.black-mode .btn-close-box {
+  background: #1a1a1a !important;
+  border-color: #444444 !important;
+  color: #ffffff !important;
+}
+html.black-mode .modal-box input,
+html.black-mode .modal-box select,
+body.black-mode .modal-box input,
+body.black-mode .modal-box select {
+  background: #171717 !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
+}
+html.black-mode .recur-box-fields,
+body.black-mode .recur-box-fields {
+  background: #141414 !important;
+  border-color: #262626 !important;
+}
+html.black-mode .btn-box-cancel,
+body.black-mode .btn-box-cancel {
+  background: #1a1a1a !important;
+  border-color: #404040 !important;
+  color: #ffffff !important;
+}
+html.black-mode .btn-box-pink,
+body.black-mode .btn-box-pink {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
