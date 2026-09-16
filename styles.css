@@ -1498,3 +1498,102 @@ body.black-mode dialog .modal-actions button {
   background-color: #f9b2c6 !important;
   transform: translateY(-1px) !important;
 }
+
+
+
+
+/* =========================================================
+   1. AISLAR Y CORREGIR EL LOGIN (MODO CLARO Y GENERAL)
+   Evita que el botón de login se deforme o se estire mal
+========================================================= */
+.auth-card .auth-submit,
+.auth-card #authSubmitBtn,
+.auth-card button[type="submit"],
+.auth-card input[type="submit"] {
+  width: 100% !important;
+  display: block !important;
+  background-color: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+  border-radius: 12px !important;
+  padding: 12px 20px !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
+  margin-top: 10px !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.2s ease, transform 0.2s ease !important;
+}
+
+.auth-card .auth-submit:hover,
+.auth-card #authSubmitBtn:hover,
+.auth-card button[type="submit"]:hover,
+.auth-card input[type="submit"]:hover {
+  background-color: #f9b2c6 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* =========================================================
+   2. MATAR EL ROSA EN MODO OSCURO, AZUL Y BLACK
+   Forzar que los botones adopten el color exacto de su tema
+========================================================= */
+
+/* --- MODO OSCURO --- */
+body.dark-mode .auth-card button[type="submit"],
+body.dark-mode .auth-card input[type="submit"],
+body.dark-mode #authSubmitBtn,
+body.dark-mode .auth-submit,
+body.dark-mode .pastel-btn,
+body.dark-mode button:not(.btn-dark):not(.btn-pink) {
+  background-color: #3d222b !important;
+  color: #ffb6c1 !important;
+  border: 1px solid #6b3b4a !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode .pastel-btn:hover,
+body.dark-mode button:not(.btn-dark):not(.btn-pink):hover {
+  background-color: #4e2b37 !important;
+}
+
+/* --- MODO AZUL --- */
+body.dark-blue-mode .auth-card button[type="submit"],
+body.dark-blue-mode .auth-card input[type="submit"],
+body.dark-blue-mode #authSubmitBtn,
+body.dark-blue-mode .auth-submit,
+body.dark-blue-mode .pastel-btn,
+body.dark-blue-mode button:not(.btn-dark) {
+  background-color: #14244b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e3a8a !important;
+  box-shadow: none !important;
+}
+
+body.dark-blue-mode .pastel-btn:hover,
+body.dark-blue-mode button:hover {
+  background-color: #1e3a8a !important;
+  color: #ffffff !important;
+}
+
+/* --- MODO BLACK --- */
+body.black-mode .auth-card button[type="submit"],
+body.black-mode .auth-card input[type="submit"],
+body.black-mode #authSubmitBtn,
+body.black-mode .auth-submit,
+body.black-mode .pastel-btn,
+body.black-mode button {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #2e2e2e !important;
+  box-shadow: none !important;
+}
+
+body.black-mode .pastel-btn:hover,
+body.black-mode button:hover {
+  background-color: #222222 !important;
+  border-color: #444444 !important;
+}
+
