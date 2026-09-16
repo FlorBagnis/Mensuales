@@ -198,6 +198,27 @@
       border-left: none !important;
     }
   </style>
+
+
+<script>
+  (function () {
+    try {
+      const savedTheme = localStorage.getItem("mensual_theme_mode");
+      if (savedTheme === "black") {
+        document.documentElement.classList.add("black-mode");
+        document.body ? document.body.classList.add("black-mode") : document.addEventListener("DOMContentLoaded", () => document.body.classList.add("black-mode"));
+      } else if (savedTheme === "blue") {
+        document.documentElement.classList.add("dark-blue-mode");
+        document.body ? document.body.classList.add("dark-blue-mode") : document.addEventListener("DOMContentLoaded", () => document.body.classList.add("dark-blue-mode"));
+      } else if (savedTheme === "dark") {
+        document.documentElement.classList.add("dark-mode");
+        document.body ? document.body.classList.add("dark-mode") : document.addEventListener("DOMContentLoaded", () => document.body.classList.add("dark-mode"));
+      }
+    } catch (e) {}
+  })();
+</script>
+
+
 </head>
 
 <body>
