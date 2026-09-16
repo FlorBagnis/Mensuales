@@ -1186,6 +1186,13 @@ if (savedTheme === "dark") {
 }
 
 
+// ACTIVAR LA APLICACIÓN Y BOTONES
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}
+
 /* =========================================================
    SELECTOR DE COLORES PARA PDF
 ========================================================= */
