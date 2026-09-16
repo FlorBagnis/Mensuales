@@ -1,5 +1,5 @@
 /* ==========================================
-   MENSUALES · ESTILOS GENERALES
+   MENSUALES · CORRECCIÓN ESTÉTICA LOGIN Y FORMULARIOS
 ========================================== */
 * {
   box-sizing: border-box;
@@ -40,7 +40,7 @@ body {
   margin: 30px auto 50px;
 }
 
-/* AUTH & HERO */
+/* AUTH & LOGIN CARD (ESTRUCTURA VERTICAL CORREGIDA) */
 .auth-section {
   min-height: 90vh;
   display: grid;
@@ -68,6 +68,67 @@ body {
   margin-bottom: 20px;
 }
 
+.auth-card h1 {
+  margin: 0 0 8px;
+  font-size: 27px;
+}
+
+.auth-subtitle {
+  margin: 0 0 25px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.auth-card form {
+  display: grid;
+  gap: 15px;
+}
+
+/* Forzar que los labels y campos del login vayan en columna prolija */
+.auth-card label,
+.modal label,
+.field {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--pink-700);
+  width: 100% !important;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.auth-message {
+  min-height: 18px;
+  margin: 12px 0 4px;
+  text-align: center;
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.auth-message.success {
+  color: var(--green);
+}
+
+.auth-switch {
+  border: 0;
+  background: transparent;
+  color: var(--pink-700);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  display: block;
+  margin: 5px auto 0;
+}
+
+/* HERO */
 .hero {
   background: linear-gradient(110deg, #ffb0c2, #ffa5bb);
   border-radius: 15px;
@@ -128,22 +189,6 @@ h1 {
   transform: translateY(-1px);
 }
 
-.btn:disabled {
-  opacity: .6;
-  cursor: wait;
-  transform: none;
-}
-
-.btn-pink {
-  background: var(--pink-500);
-  color: white;
-}
-
-.btn-dark {
-  background: #6e203b;
-  color: white;
-}
-
 .btn-outline {
   background: white;
   color: var(--pink-700);
@@ -154,10 +199,6 @@ h1 {
   background: white;
   color: #b8324b;
   border: 1px solid #ef9cac;
-}
-
-.btn-danger:hover {
-  background: #fff2f4;
 }
 
 .pastel-btn {
@@ -179,7 +220,7 @@ h1 {
   transform: translateY(-1px);
 }
 
-/* TOOLBAR Y CAMPOS */
+/* TOOLBAR Y INPUTS */
 .toolbar {
   margin: 18px 0;
   padding: 15px;
@@ -192,17 +233,6 @@ h1 {
   flex-wrap: wrap;
 }
 
-.field {
-  display: grid;
-  gap: 6px;
-}
-
-.field label, .modal label {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--pink-700);
-}
-
 input, select, textarea {
   border: 1px solid var(--line);
   border-radius: 9px;
@@ -212,11 +242,7 @@ input, select, textarea {
   outline: none;
   font: inherit;
   font-size: 13px;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: var(--pink-500);
-  box-shadow: 0 0 0 3px rgba(245, 107, 139, .12);
+  width: 100%;
 }
 
 .money-input {
@@ -333,16 +359,6 @@ dialog::backdrop {
   backdrop-filter: blur(3px);
 }
 
-.annual-mini-card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 
 /* =========================================================
    1. MODO OSCURO ORIGINAL (BORRAVINO / BORDÓ)
@@ -390,7 +406,7 @@ body.dark-mode .pastel-btn {
 
 
 /* =========================================================
-   2. MODO AZUL (TOTALMENTE INTEGRADO)
+   2. MODO AZUL
 ========================================================= */
 body.dark-blue-mode,
 body.dark-blue-mode main.app,
@@ -431,7 +447,7 @@ body.dark-blue-mode thead, body.dark-blue-mode th {
 
 
 /* =========================================================
-   3. MODO BLACK (NEGRO OLED PURO Y ELEGANTE)
+   3. MODO BLACK (NEGRO OLED PURO)
 ========================================================= */
 body.black-mode {
   background-color: #000000 !important;
