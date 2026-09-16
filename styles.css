@@ -2067,3 +2067,20 @@ body.black-mode .annual-mini-card {
   border: 1px solid #222222 !important;
   color: #ffffff !important;
 }
+
+
+
+html.black-mode,
+body.black-mode {
+  background-color: #000000 !important;
+}
+
+html.dark-blue-mode,
+body.dark-blue-mode {
+  background-color: #070d1e !important;
+}
+
+html.dark-mode,
+body.dark-mode {
+  background-color: #140e13 !important;
+}
