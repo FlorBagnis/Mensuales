@@ -2106,3 +2106,51 @@ body.black-mode #recurringOptions input {
   border: 1px solid #333333 !important;
 }
 
+
+/* =========================================================
+   FORZADO DEFINITIVO DE RECURRENCIA Y TEXTOS (MODO BLACK)
+========================================================= */
+
+/* Forzar caja de recurrencia en negro absoluto y eliminar el fondo rosado */
+body.black-mode #extraRecurringOptions,
+body.black-mode #recurringOptions,
+body.black-mode .recurring-box,
+body.black-mode #extraRecurringAmounts,
+body.black-mode #recurringAmounts,
+body.black-mode div[id*="Recurring"],
+body.black-mode [id*="ecurringOptions"] {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #262626 !important;
+  color: #ffffff !important;
+}
+
+/* Forzar todas las etiquetas, títulos, textos y spans internos a blanco nítido */
+body.black-mode #extraRecurringOptions *,
+body.black-mode #recurringOptions *,
+body.black-mode .recurring-box *,
+body.black-mode dialog label,
+body.black-mode dialog label span,
+body.black-mode dialog p,
+body.black-mode dialog div,
+body.black-mode dialog span {
+  color: #ffffff !important;
+}
+
+/* Inputs numéricos de días, cuotas y montos dentro de la recurrencia */
+body.black-mode #extraRecurringOptions input,
+body.black-mode #recurringOptions input,
+body.black-mode .rec-amount-input,
+body.black-mode .extra-rec-amount-input {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+  border-radius: 8px !important;
+}
+
+/* Checkboxes visibles en negro puro con tilde nítida */
+body.black-mode input[type="checkbox"] {
+  accent-color: #ffffff !important;
+}
+
