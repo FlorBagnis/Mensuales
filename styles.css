@@ -892,3 +892,28 @@ body.dark-mode .summary-card small {
     gap: 8px;
   }
 }
+
+
+
+#authSubmitBtn,
+.auth-submit {
+  width: 100% !important;
+  background: var(--pink-500) !important;
+  color: white !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  padding: 11px 15px !important;
+  font: inherit !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(245, 107, 139, 0.3) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+}
+
+#authSubmitBtn:hover,
+.auth-submit:hover {
+  transform: translateY(-2px) !important;
+  background: var(--pink-700) !important;
+  box-shadow: 0 6px 16px rgba(159, 36, 73, 0.35) !important;
+}
