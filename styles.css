@@ -3457,4 +3457,235 @@ body.black-mode dialog::backdrop {
 
 
 
+/* =========================================================
+   MODO BLACK: NEGRO PURO ABSOLUTO (#000000) SIN GRISES
+   ========================================================= */
 
+/* 1. Sobrescribir variables de tema para forzar negro y blanco */
+body.black-mode {
+  --bg: #000000 !important;
+  --card: #000000 !important;
+  --bg-main: #000000 !important;
+  --bg-card: #000000 !important;
+  --text: #ffffff !important;
+  --ink: #ffffff !important;
+  --line: #222222 !important;
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* 2. Todos los contenedores, secciones, tarjetas y paneles a negro puro */
+html.black-mode,
+body.black-mode main,
+body.black-mode .app,
+body.black-mode header,
+body.black-mode header.hero,
+body.black-mode .hero,
+body.black-mode .summary-card,
+body.black-mode .panel,
+body.black-mode .toolbar,
+body.black-mode .trend-box,
+body.black-mode .auth-card,
+body.black-mode .table-wrap,
+body.black-mode article,
+body.black-mode section,
+body.black-mode dialog,
+body.black-mode .modal,
+body.black-mode .modal-box,
+body.black-mode .modal-card,
+body.black-mode form.modal,
+body.black-mode .pink-subpanel,
+body.black-mode .recurring-box,
+body.black-mode .recur-box-fields,
+body.black-mode div[class*="card"],
+body.black-mode div[class*="panel"],
+body.black-mode div[class*="toolbar"] {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  background-image: none !important;
+  border-color: #222222 !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+/* 3. Inputs, selects, textareas y buscadores a negro puro */
+body.black-mode input,
+body.black-mode select,
+body.black-mode textarea,
+body.black-mode .money-input,
+body.black-mode input[type="text"],
+body.black-mode input[type="number"],
+body.black-mode input[type="date"],
+body.black-mode input[type="month"],
+body.black-mode input[type="search"],
+body.black-mode input[type="email"],
+body.black-mode input[type="password"],
+body.black-mode .custom-input,
+body.black-mode .subpanel-input {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #282828 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode input:focus,
+body.black-mode select:focus,
+body.black-mode textarea:focus {
+  border-color: #444444 !important;
+}
+
+body.black-mode .money-input span {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+/* 4. Botones con zoom y borde reactivo al hover */
+body.black-mode .pastel-btn,
+body.black-mode button.pastel-btn,
+body.black-mode .btn,
+body.black-mode .btn-outline,
+body.black-mode .btn-danger,
+body.black-mode .custom-collapse-btn,
+body.black-mode .btn-clean-cancel,
+body.black-mode .btn-clean-submit,
+body.black-mode .btn-box-cancel,
+body.black-mode .btn-box-pink,
+body.black-mode .auth-card button,
+body.black-mode #submitExtraBtn,
+body.black-mode #closeExtraCancelBtn,
+body.black-mode #submitExpenseBtn,
+body.black-mode #cancelDialog,
+body.black-mode #annualPdfBtn,
+body.black-mode #closeAnnualCancelBtn {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #282828 !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+body.black-mode .pastel-btn:hover,
+body.black-mode button.pastel-btn:hover,
+body.black-mode .btn:hover,
+body.black-mode .btn-outline:hover,
+body.black-mode .btn-danger:hover,
+body.black-mode .custom-collapse-btn:hover,
+body.black-mode .btn-clean-cancel:hover,
+body.black-mode .btn-clean-submit:hover,
+body.black-mode .btn-box-cancel:hover,
+body.black-mode .btn-box-pink:hover,
+body.black-mode .auth-card button:hover,
+body.black-mode #submitExtraBtn:hover,
+body.black-mode #closeExtraCancelBtn:hover,
+body.black-mode #submitExpenseBtn:hover,
+body.black-mode #cancelDialog:hover,
+body.black-mode #annualPdfBtn:hover,
+body.black-mode #closeAnnualCancelBtn:hover {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border-color: #ffffff !important;
+  transform: scale(1.05) translateY(-2px) !important;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 5. Pastillas, badges y categorías */
+body.black-mode .category,
+body.black-mode .month-pill,
+body.black-mode #extraTotalSumDisplay,
+body.black-mode #dolarBadge {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #282828 !important;
+  color: #ffffff !important;
+}
+
+/* 6. Tablas: filas uniformes en negro sin alternancia gris */
+body.black-mode thead,
+body.black-mode th,
+body.black-mode .table-wrap th {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border-bottom: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode table,
+body.black-mode tbody,
+body.black-mode tr,
+body.black-mode td {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border-bottom: 1px solid #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+body.black-mode tbody tr:hover,
+body.black-mode tbody tr:nth-child(even) {
+  background: #000000 !important;
+  background-color: #000000 !important;
+}
+
+body.black-mode .table-total {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border-top: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+/* 7. Iconos de acción limpios (lápiz y cruz sin marcos) */
+body.black-mode table .edit-btn,
+body.black-mode table .edit-extra-btn,
+body.black-mode table .delete-btn,
+body.black-mode table .delete-extra-btn {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+/* 8. Tarjetas del Resumen Anual */
+body.black-mode .annual-mini-card {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #222222 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode .annual-mini-card:hover {
+  background: #000000 !important;
+  border-color: #ffffff !important;
+  transform: scale(1.04) translateY(-2px) !important;
+}
+
+/* 9. Botones circulares o de caja de cierre (X) */
+body.black-mode .btn-close-box,
+body.black-mode .btn-close-circle,
+body.black-mode button.close,
+body.black-mode #closeDialog,
+body.black-mode #closeExtraDialog,
+body.black-mode #closeAnnualDialog {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border: 1px solid #333333 !important;
+  color: #ffffff !important;
+}
+
+body.black-mode .btn-close-box:hover,
+body.black-mode .btn-close-circle:hover,
+body.black-mode button.close:hover,
+body.black-mode #closeDialog:hover,
+body.black-mode #closeExtraDialog:hover,
+body.black-mode #closeAnnualDialog:hover {
+  border-color: #ffffff !important;
+  transform: scale(1.1) !important;
+}
+
+/* 10. Fondo translúcido detrás del modal */
+body.black-mode dialog::backdrop {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+}
