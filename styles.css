@@ -2166,3 +2166,25 @@ body.black-mode .modal-header .modal-icon {
   border: none !important;
   filter: none !important;
 }
+
+
+
+/* Neutralizar la variable a nivel raíz para que el style="" en línea tome transparencia */
+:root,
+html,
+body,
+body.black-mode,
+dialog {
+  --pink-soft: transparent !important;
+}
+
+/* Selector por atributo exacto para forzar transparencia sobre el inline style */
+.modal-icon,
+div.modal-icon,
+div[style*="var(--pink-soft)"],
+dialog .modal-icon {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
