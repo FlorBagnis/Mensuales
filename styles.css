@@ -2039,3 +2039,72 @@ body.black-mode .annual-mini-card:hover {
   border-color: #3f3f4a !important;
   transform: translateY(-2px) !important;
 }
+
+
+
+
+
+
+
+
+/* =========================================================
+   FORZAR BANNER SUPERIOR A NEGRO Y TODOS LOS TEXTOS A BLANCO
+   ========================================================= */
+
+/* 1. Anular color rosa/degradado del banner principal */
+body.black-mode header,
+body.black-mode .hero,
+body.black-mode .header-card,
+body.black-mode .top-banner,
+body.black-mode [class*="hero"],
+body.black-mode [class*="header"],
+body.black-mode div[style*="background"] {
+  background: #0f0f11 !important;
+  background-color: #0f0f11 !important;
+  background-image: none !important;
+  border: 1px solid #1f1f23 !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* 2. Insignia del Dólar Blue dentro del header */
+body.black-mode .dolar-box,
+body.black-mode [class*="dolar"],
+body.black-mode header span[style*="background"] {
+  background: #17171a !important;
+  background-color: #17171a !important;
+  color: #ffffff !important;
+  border: 1px solid #2a2a2f !important;
+}
+
+/* 3. Textos 100% blancos en toda la app (títulos, etiquetas, mails y badges) */
+body.black-mode,
+body.black-mode * {
+  --pink-500: #ffffff !important;
+  --pink-bg: #17171a !important;
+}
+
+body.black-mode h1,
+body.black-mode h2,
+body.black-mode h3,
+body.black-mode h4,
+body.black-mode p,
+body.black-mode span,
+body.black-mode label,
+body.black-mode strong,
+body.black-mode small,
+body.black-mode .user-email,
+body.black-mode .eyebrow,
+body.black-mode .subtitle,
+body.black-mode .field-label,
+body.black-mode [class*="label"],
+body.black-mode [class*="title"] {
+  color: #ffffff !important;
+}
+
+/* 4. Etiquetas secundarias (MES, PRESUPUESTO, DIFERENCIA, etc.) en blanco nítido */
+body.black-mode small,
+body.black-mode label,
+body.black-mode .summary-card small,
+body.black-mode .section-heading p {
+  color: #d1d5db !important;
+}
