@@ -2417,9 +2417,8 @@ body.black-mode textarea {
 }
 
 
-
 /* =========================================================
-   MODO BLACK (CORRECCIÓN ESTÉTICA: RELIEVE Y TARJETAS OLED)
+   MODO BLACK (ESTÉTICA DEFINITIVA: BORDES Y SEPARACIONES)
 ========================================================= */
 body.black-mode {
   background-color: #000000 !important;
@@ -2434,18 +2433,9 @@ body.black-mode .auth-card,
 body.black-mode dialog {
   background-color: #121212 !important;
   border: 1px solid #262626 !important;
-  border-radius: 20px !important;
+  border-radius: 16px !important;
   color: #ffffff !important;
-}
-
-body.black-mode .hero {
-  padding: 28px !important;
-  margin-bottom: 24px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.black-mode .toolbar {
-  padding: 15px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
 }
 
 body.black-mode h1, body.black-mode h2, body.black-mode h3, 
@@ -2460,7 +2450,6 @@ body.black-mode .custom-collapse-btn {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
   border: 1px solid #333333 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
 body.black-mode .pastel-btn:hover,
@@ -2468,7 +2457,6 @@ body.black-mode .btn:hover,
 body.black-mode .custom-collapse-btn:hover {
   background-color: #262626 !important;
   border-color: #ffffff !important;
-  color: #ffffff !important;
 }
 
 body.black-mode input,
@@ -2479,26 +2467,28 @@ body.black-mode textarea {
   border: 1px solid #333333 !important;
 }
 
-body.black-mode input::placeholder,
-body.black-mode textarea::placeholder {
-  color: #888888 !important;
-}
-
 body.black-mode thead,
 body.black-mode th {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
+  border-bottom: 1px solid #333333 !important;
+}
+
+body.black-mode td {
+  border-bottom: 1px solid #1f1f1f !important;
+}
+
+body.black-mode tbody tr:hover {
+  background-color: #181818 !important;
 }
 
 body.black-mode .table-total {
-  background-color: #121212 !important;
+  background-color: #161616 !important;
   border-top: 1px solid #262626 !important;
 }
 
 body.black-mode dialog::backdrop {
-  background: rgba(0, 0, 0, 0.65) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  background: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(8px) !important;
 }
-
 
