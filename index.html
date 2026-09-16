@@ -725,23 +725,24 @@
   </form>
 </dialog>
 
+
 <!-- MODAL RESUMEN ANUAL -->
-<dialog id="annualDialog" style="border-radius: 28px; border: 1px solid var(--border); padding: 35px;">
-  <button id="closeAnnualDialog" type="button" style="position: absolute; top: 22px; right: 22px; border: none; background: var(--pink-soft); color: var(--pink-dark); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 18px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">×</button>
+<dialog id="annualDialog">
+  <button id="closeAnnualDialog" type="button" class="close" aria-label="Cerrar">×</button>
   
-  <div class="modal-header" style="margin-bottom: 20px;">
-    <div class="modal-icon" style="background: var(--pink-soft); color: var(--pink); font-size: 24px; border-radius: 16px; width: 50px; height: 50px; display: grid; place-items: center;">🌸</div>
+  <div class="modal-header">
+    <div class="modal-icon">🌸</div>
     <div>
-      <h2 style="font-size: 24px; font-weight: 800; color: var(--text);">Resumen Anual</h2>
-      <p id="annualSubtitle" style="color: var(--muted); font-size: 13px; margin-top: 2px;">Análisis completo de tus finanzas</p>
+      <h2>Resumen Anual</h2>
+      <p id="annualSubtitle">Análisis completo de tus finanzas</p>
     </div>
   </div>
   
-  <div id="annualContent" style="display: grid; gap: 14px; margin-bottom: 25px; font-size: 13px;"></div>
+  <div id="annualContent"></div>
 
-  <div style="display: flex; gap: 12px;">
-    <button id="annualPdfBtn" class="pastel-btn" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">📥 Descargar PDF</button>
-    <button id="closeAnnualCancelBtn" class="btn btn-outline" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">Cerrar</button>
+  <div class="annual-actions">
+    <button id="annualPdfBtn" type="button">📥 Descargar PDF</button>
+    <button id="closeAnnualCancelBtn" type="button">Cerrar</button>
   </div>
 </dialog>
 
