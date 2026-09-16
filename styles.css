@@ -1464,3 +1464,37 @@ body.black-mode dialog .modal-actions button {
   color: #ffffff !important;
   border: 1px solid #2e2e2e !important;
 }
+
+
+/* =========================================================
+   BOTÓN DE LOGIN EXACTO A TU REFERENCIA
+========================================================= */
+.auth-card button[type="submit"],
+.auth-card input[type="submit"],
+#authSubmitBtn,
+.auth-submit {
+  width: 100% !important;
+  display: block !important;
+  background-color: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+  border-radius: 12px !important;
+  padding: 12px 20px !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(90, 35, 55, 0.08) !important;
+  margin-top: 10px !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.2s ease, transform 0.2s ease !important;
+}
+
+.auth-card button[type="submit"]:hover,
+.auth-card input[type="submit"]:hover,
+#authSubmitBtn:hover,
+.auth-submit:hover {
+  background-color: #f9b2c6 !important;
+  transform: translateY(-1px) !important;
+}
