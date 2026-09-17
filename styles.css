@@ -2502,3 +2502,111 @@ body.black-mode #annualDialog .modal-header * {
   box-shadow: none !important;
   background: transparent !important;
 }
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   CLON EXACTO DE LA ESTÉTICA AZUL PARA MODO BLACK
+   ========================================================= */
+
+/* 1. Limpieza absoluta de la cabecera (sin líneas ni marcos) */
+body.black-mode #annualDialog .modal-header,
+body.black-mode #annualDialog .annual-header,
+body.black-mode #annualDialog [class*="modal-header"],
+body.black-mode #annualDialog div:has(> #annualSubtitle) {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin-bottom: 24px !important;
+}
+
+/* 2. Cruz (x) idéntica a la del modo azul: limpia, sin caja ni bordes */
+body.black-mode #annualDialog #closeAnnualDialog,
+body.black-mode #annualDialog .btn-close-annual {
+  position: absolute !important;
+  top: 20px !important;
+  right: 22px !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  color: #71717a !important; /* Mismo contraste sutil que en azul */
+  cursor: pointer !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease !important;
+}
+
+body.black-mode #annualDialog #closeAnnualDialog:hover,
+body.black-mode #annualDialog .btn-close-annual:hover {
+  transform: scale(1.25) !important;
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+/* 3. Las 4 pastillas: curvas amplias, elevación e idénticas al azul */
+body.black-mode #annualDialog .annual-mini-card,
+body.black-mode #annualDialog #annualContent > div > div {
+  background-color: #0d0d10 !important;
+  border: 1px solid #1c1c22 !important;
+  border-radius: 22px !important;
+  padding: 18px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card:hover,
+body.black-mode #annualDialog #annualContent > div > div:hover {
+  transform: translateY(-2px) !important;
+  border-color: #2e2e38 !important;
+}
+
+/* Tipografía de las pastillas */
+body.black-mode #annualDialog .annual-mini-card span {
+  font-size: 11px !important;
+  letter-spacing: 0.6px !important;
+  font-weight: 700 !important;
+  color: #71717a !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card strong {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+}
+
+/* 4. Botones inferiores redondeados con la misma curva */
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  background-color: #121216 !important;
+  border: 1px solid #22222a !important;
+  border-radius: 16px !important;
+  color: #f4f4f5 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease !important;
+}
+
+body.black-mode #annualDialog #annualPdfBtn:hover,
+body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
+  background-color: #1a1a20 !important;
+  border-color: #3f3f4e !important;
+  transform: translateY(-1px) !important;
+}
