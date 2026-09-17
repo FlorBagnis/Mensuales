@@ -2538,3 +2538,19 @@ body.black-mode #annualDialog .annual-mini-card strong {
   font-size: 17px !important;
   font-weight: 800 !important;
 }
+
+
+
+
+/* BORDE LIMPIO Y SUAVE IDÉNTICO A LA FOTO */
+body.black-mode #annualDialog #annualContent > div,
+body.black-mode #annualDialog .annual-mini-card,
+body.black-mode #annualDialog > div:last-child button,
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  background-color: #0d0d10 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
