@@ -2930,6 +2930,70 @@ body.dark-mode tbody tr:hover {
 
 
 
+/* =========================================================
+   RÉPLICA EXACTA DEL MODO OSCURO ADAPTADO A MODO BLACK
+   ========================================================= */
 
+/* 1. Modal contenedor en negro puro base */
+body.black-mode #annualDialog {
+  background-color: #0c0c0e !important;
+  border: 1px solid #1c1c22 !important;
+  border-radius: 28px !important;
+}
+
+/* 2. Las 4 pastillas: tono ligeramente más claro + borde tenue idéntico a var(--card) y var(--line) */
+body.black-mode #annualDialog .annual-mini-card {
+  background-color: #17171d !important;
+  border: 1px solid #282832 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              background-color 0.2s ease, 
+              border-color 0.2s ease, 
+              box-shadow 0.2s ease !important;
+}
+
+/* 3. Hover en las pastillas: zoom elástico y resplandor sutil */
+body.black-mode #annualDialog .annual-mini-card:hover {
+  background-color: #1f1f27 !important;
+  border-color: #3e3e4f !important;
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75) !important;
+}
+
+/* 4. Textos internos a juego con la jerarquía */
+body.black-mode #annualDialog .annual-mini-card span {
+  color: #8b8f9a !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card strong {
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+
+/* 5. Botones inferiores ('Descargar PDF' y 'Cerrar') con la misma estética */
+body.black-mode #annualDialog div[style*="gap: 12px"] button,
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  background-color: #17171d !important;
+  border: 1px solid #282832 !important;
+  border-radius: 14px !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              background-color 0.2s ease, 
+              border-color 0.2s ease !important;
+}
+
+body.black-mode #annualDialog div[style*="gap: 12px"] button:hover,
+body.black-mode #annualDialog #annualPdfBtn:hover,
+body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
+  background-color: #1f1f27 !important;
+  border-color: #3e3e4f !important;
+  transform: translateY(-2px) scale(1.03) !important;
+}
 
 
