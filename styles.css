@@ -2495,3 +2495,46 @@ body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
 
 
 
+
+
+/* AJUSTE RESUMEN ANUAL (CALCO MODO AZUL) */
+body.black-mode #annualDialog {
+  border-radius: 28px !important;
+}
+
+body.black-mode #annualDialog #closeAnnualDialog {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #71717a !important;
+  font-size: 19px !important;
+  transform: none !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+body.black-mode #annualDialog #closeAnnualDialog:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+  transform: scale(1.2) !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card {
+  background-color: #121216 !important;
+  border: 1px solid #22222a !important;
+  border-radius: 20px !important;
+  padding: 16px 20px !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card span {
+  color: #71717a !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card strong {
+  color: #ffffff !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+}
