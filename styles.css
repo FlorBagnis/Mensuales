@@ -2315,3 +2315,67 @@ body.black-mode #closeAnnualDialog {
 body.black-mode #closeAnnualDialog:hover {
   color: #ffffff !important;
 }
+
+
+
+
+
+
+
+/* =========================================================
+   SOLUCIÓN DEFINITIVA: SOLAPA RESUMEN ANUAL (MODO BLACK)
+   ========================================================= */
+
+/* 1. Mapeo exacto de variables del modal para Modo Black */
+body.black-mode #annualDialog,
+body.black-mode {
+  --border: #232328 !important;
+  --pink-soft: #16161a !important;       /* Fondo oscuro sutil para la flor y la cruz */
+  --pink-dark: #ffffff !important;       /* Color blanco puro para la cruz (x) */
+  --pink: #ffffff !important;
+  --muted: #8b8f97 !important;
+  --text: #ffffff !important;
+}
+
+/* 2. Tarjeta del modal en negro elevado */
+body.black-mode #annualDialog {
+  background-color: #0f0f11 !important;
+  border: 1px solid #232328 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85) !important;
+  color: #ffffff !important;
+}
+
+/* 3. Ícono de la flor: cápsula oscura con borde grafito limpio */
+body.black-mode #annualDialog .modal-icon {
+  background: #16161a !important;
+  border: 1px solid #27272f !important;
+  box-shadow: none !important;
+}
+
+/* 4. Botón de cierre (x): círculo estilizado a tono con la flor */
+body.black-mode #annualDialog #closeAnnualDialog {
+  background: #16161a !important;
+  color: #ffffff !important;
+  border: 1px solid #27272f !important;
+}
+
+body.black-mode #annualDialog #closeAnnualDialog:hover {
+  background: #202026 !important;
+  border-color: #ffffff !important;
+}
+
+/* 5. Mini tarjetas interiores del resumen anual */
+body.black-mode #annualDialog .annual-mini-card,
+body.black-mode #annualDialog #annualContent > div {
+  background-color: #141418 !important;
+  border: 1px solid #232328 !important;
+  border-radius: 16px !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card strong {
+  color: #ffffff !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card span {
+  color: #8b8f97 !important;
+}
