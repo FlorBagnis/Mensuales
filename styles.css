@@ -3032,5 +3032,35 @@ body.black-mode .table-wrap::-webkit-scrollbar-thumb {
 
 
 
+/* =========================================================
+   ELIMINAR CAJAS OSCURAS AL OCULTAR MONTOS
+========================================================= */
+
+/* Anula fondos en cualquier elemento que oculte montos */
+.amounts-hidden,
+.amounts-hidden *,
+.amounts-hidden strong,
+.amounts-hidden span,
+.amounts-hidden small,
+.amounts-hidden strong::after,
+.amounts-hidden span::after,
+.amount-hidden,
+.amount-hidden * {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+}
+
+/* Evita que el pseudo-elemento ::after genere su propio bloque */
+.summary-card strong::after,
+.summary-card span::after,
+.summary-card small::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
 
 
