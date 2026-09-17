@@ -2714,3 +2714,31 @@ body.black-mode #annualDialog #closeAnnualCancelBtn:active {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
 }
 
+
+
+
+/* =========================================================
+   FORZADO DEFINITIVO HOVER 4 PASTILLAS SUPERIORES (MODO BLACK)
+   ========================================================= */
+
+/* 1. Estado reposo: forzar cursor y transición elástica */
+body.black-mode #annualDialog .annual-card-grid > div,
+body.black-mode #annualDialog #annualContent .annual-card-grid > div {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              border-color 0.2s ease, 
+              background-color 0.2s ease, 
+              box-shadow 0.22s ease !important;
+}
+
+/* 2. Estado Hover: salto, zoom, borde iluminado y sombra profunda */
+body.black-mode #annualDialog .annual-card-grid > div:hover,
+body.black-mode #annualDialog #annualContent .annual-card-grid > div:hover {
+  background-color: #17171e !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  transform: translateY(-4px) scale(1.025) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.85) !important;
+  z-index: 5 !important;
+  position: relative !important;
+}
