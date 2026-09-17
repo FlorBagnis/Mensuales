@@ -2802,3 +2802,107 @@ body.black-mode #annualDialog #closeAnnualCancelBtn:active {
   transform: translateY(0) scale(0.98) !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
 }
+
+
+
+
+
+/* ==========================================================================
+   RESET TOTAL: CRUCES SUELTAS SIN CAJA EN TODOS LOS TEMAS (CLARO, OSCURO, AZUL, BLACK)
+   ========================================================================== */
+
+/* 1. Desarmar completamente la caja/pastilla en CUALQUIER botón de eliminar */
+body table button[class*="delete"],
+body table .delete-btn,
+body table .delete-extra-btn,
+body table .btn-danger,
+body .table-wrap button[class*="delete"],
+body #extraTable button,
+body table td:last-child button:last-child,
+body table td.actions button:last-child {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  border-width: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 4px 6px !important;
+  min-width: unset !important;
+  width: auto !important;
+  height: auto !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  font-size: 16px !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s ease !important;
+}
+
+/* 2. Color en reposo según cada modo */
+/* Modo Claro (Rosa por defecto) */
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) table td button[class*="delete"],
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) table td .delete-btn,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) table td .delete-extra-btn,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) table td:last-child button:last-child {
+  color: #c98295 !important;
+}
+
+/* Modo Oscuro (Rosa oscuro) */
+body.dark-mode table td button[class*="delete"],
+body.dark-mode table td .delete-btn,
+body.dark-mode table td .delete-extra-btn,
+body.dark-mode table td:last-child button:last-child {
+  color: #ff78a0 !important;
+}
+
+/* Modo Azul */
+body.dark-blue-mode table td button[class*="delete"],
+body.dark-blue-mode table td .delete-btn,
+body.dark-blue-mode table td .delete-extra-btn,
+body.dark-blue-mode table td:last-child button:last-child {
+  color: #38bdf8 !important;
+}
+
+/* Modo Black */
+body.black-mode table td button[class*="delete"],
+body.black-mode table td .delete-btn,
+body.black-mode table td .delete-extra-btn,
+body.black-mode table td:last-child button:last-child {
+  color: #ffffff !important;
+}
+
+/* 3. Efecto ZOOM elástico idéntico al lápiz (sin caja al posar el mouse) */
+body table td button[class*="delete"]:hover,
+body table td .delete-btn:hover,
+body table td .delete-extra-btn:hover,
+body table td:last-child button:last-child:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: scale(1.3) !important;
+}
+
+/* Color al hacer hover por modo */
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) table td button[class*="delete"]:hover,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) table td:last-child button:last-child:hover {
+  color: #c63b55 !important;
+}
+
+body.dark-mode table td button[class*="delete"]:hover,
+body.dark-mode table td:last-child button:last-child:hover {
+  color: #ffffff !important;
+}
+
+body.dark-blue-mode table td button[class*="delete"]:hover,
+body.dark-blue-mode table td:last-child button:last-child:hover {
+  color: #ffffff !important;
+}
+
+body.black-mode table td button[class*="delete"]:hover,
+body.black-mode table td:last-child button:last-child:hover {
+  color: #ff5c77 !important;
+}
