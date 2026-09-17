@@ -2742,3 +2742,51 @@ body.black-mode #annualDialog #annualContent .annual-card-grid > div:hover {
   z-index: 5 !important;
   position: relative !important;
 }
+
+
+/* =========================================================
+   REPARACIÓN GLOBAL: EFECTO ZOOM EN TODAS LAS CRUCES
+   ========================================================= */
+
+/* 1. Estado base: aseguramos la transición fluida en cualquier botón de cierre */
+#closeAnnualDialog,
+.btn-close-annual,
+dialog .close,
+.modal .close,
+button[id*="close"],
+button[class*="close"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              opacity 0.2s ease, 
+              background-color 0.2s ease, 
+              color 0.2s ease !important;
+}
+
+/* 2. Efecto Zoom al posar el mouse (Hover) con máxima prioridad */
+#closeAnnualDialog:hover,
+.btn-close-annual:hover,
+dialog .close:hover,
+.modal .close:hover,
+button[id*="close"]:hover,
+button[class*="close"]:hover,
+body.black-mode #closeAnnualDialog:hover,
+body.dark-mode #closeAnnualDialog:hover,
+body.dark-blue-mode #closeAnnualDialog:hover {
+  transform: scale(1.22) !important;
+  opacity: 1 !important;
+}
+
+/* 3. Efecto al hacer clic (Active) */
+#closeAnnualDialog:active,
+.btn-close-annual:active,
+dialog .close:active,
+.modal .close:active,
+button[id*="close"]:active,
+button[class*="close"]:active {
+  transform: scale(0.95) !important;
+}
+
+
