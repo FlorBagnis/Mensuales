@@ -2051,14 +2051,8 @@ body.black-mode .annual-mini-card:hover {
    FORZAR BANNER SUPERIOR A NEGRO Y TODOS LOS TEXTOS A BLANCO
    ========================================================= */
 
-/* 1. Anular color rosa/degradado del banner principal */
-body.black-mode header,
-body.black-mode .hero,
-body.black-mode .header-card,
-body.black-mode .top-banner,
-body.black-mode [class*="hero"],
-body.black-mode [class*="header"],
-body.black-mode div[style*="background"] {
+/* 1. Banner principal de la app únicamente */
+body.black-mode header.hero {
   background: #0f0f11 !important;
   background-color: #0f0f11 !important;
   background-image: none !important;
@@ -2498,3 +2492,13 @@ body.black-mode #annualDialog .modal-header p {
 
 
 
+/* Limpieza absoluta de bordes en mail, acciones y modal */
+body.black-mode .header-actions,
+body.black-mode .user-email,
+body.black-mode #annualDialog .modal-header,
+body.black-mode #annualDialog .modal-header * {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
