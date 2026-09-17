@@ -2312,139 +2312,6 @@ body.black-mode #closeAnnualDialog:hover {
 
 
 
-
-
-
-
-/* =========================================================
-   SOLUCIÓN DEFINITIVA: SOLAPA RESUMEN ANUAL (MODO BLACK)
-   ========================================================= */
-
-/* 1. Mapeo exacto de variables del modal para Modo Black */
-body.black-mode #annualDialog,
-body.black-mode {
-  --border: #232328 !important;
-  --pink-soft: #16161a !important;       /* Fondo oscuro sutil para la flor y la cruz */
-  --pink-dark: #ffffff !important;       /* Color blanco puro para la cruz (x) */
-  --pink: #ffffff !important;
-  --muted: #8b8f97 !important;
-  --text: #ffffff !important;
-}
-
-/* 2. Tarjeta del modal en negro elevado */
-body.black-mode #annualDialog {
-  background-color: #0f0f11 !important;
-  border: 1px solid #232328 !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85) !important;
-  color: #ffffff !important;
-}
-
-/* 3. Ícono de la flor: cápsula oscura con borde grafito limpio */
-body.black-mode #annualDialog .modal-icon {
-  background: #16161a !important;
-  border: 1px solid #27272f !important;
-  box-shadow: none !important;
-}
-
-/* 4. Botón de cierre (x): círculo estilizado a tono con la flor */
-body.black-mode #annualDialog #closeAnnualDialog {
-  background: #16161a !important;
-  color: #ffffff !important;
-  border: 1px solid #27272f !important;
-}
-
-body.black-mode #annualDialog #closeAnnualDialog:hover {
-  background: #202026 !important;
-  border-color: #ffffff !important;
-}
-
-/* 5. Anular borde y fondo a los contenedores que agrupan las tarjetas */
-body.black-mode #annualDialog .annual-card-grid,
-body.black-mode #annualDialog #annualContent > div {
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* 6. Pastillas superiores en reposo con transición elástica */
-body.black-mode #annualDialog .annual-card-grid > div,
-body.black-mode #annualDialog .annual-mini-card {
-  background-color: #0e0e11 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 18px !important;
-  box-shadow: none !important;
-  outline: none !important;
-  cursor: default !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), 
-              border-color 0.2s ease, 
-              background-color 0.2s ease, 
-              box-shadow 0.2s ease !important;
-}
-
-/* Efecto hover: zoom sutil, elevación, borde grafito claro y sombra oscura profunda */
-body.black-mode #annualDialog .annual-card-grid > div:hover,
-body.black-mode #annualDialog .annual-mini-card:hover {
-  background-color: #141419 !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  transform: translateY(-3px) scale(1.02) !important;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.75) !important;
-}
-
-/* 7. Botones inferiores con efectos idénticos al modo azul */
-body.black-mode #annualDialog div[style*="flex"] button,
-body.black-mode #annualDialog > div:last-child button,
-body.black-mode #annualDialog #annualPdfBtn,
-body.black-mode #annualDialog #closeAnnualCancelBtn {
-  background-color: #121216 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 14px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
-  outline: none !important;
-  color: #f3f4f6 !important;
-  cursor: pointer !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), 
-              background-color 0.2s ease, 
-              border-color 0.2s ease, 
-              box-shadow 0.2s ease !important;
-}
-
-/* Efecto hover: zoom suave hacia arriba, borde iluminado y sombra */
-body.black-mode #annualDialog div[style*="flex"] button:hover,
-body.black-mode #annualDialog > div:last-child button:hover,
-body.black-mode #annualDialog #annualPdfBtn:hover,
-body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
-  background-color: #1d1d24 !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  transform: translateY(-2px) scale(1.03) !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7) !important;
-}
-
-/* Efecto al hacer clic (press) */
-body.black-mode #annualDialog div[style*="flex"] button:active,
-body.black-mode #annualDialog > div:last-child button:active,
-body.black-mode #annualDialog #annualPdfBtn:active,
-body.black-mode #annualDialog #closeAnnualCancelBtn:active {
-  transform: translateY(0) scale(0.98) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
-}
-
-
-body.black-mode #annualDialog .annual-mini-card strong {
-  color: #ffffff !important;
-}
-
-body.black-mode #annualDialog .annual-mini-card span {
-  color: #8b8f97 !important;
-}
-
-
-
-
-
-
-
-
 /* =========================================================
    SOLO FLOR: RESUMEN ANUAL MODO BLACK (SIN TOCAR LA CRUZ)
    ========================================================= */
@@ -2704,3 +2571,146 @@ body.black-mode #annualDialog #annualContent .annual-card-grid {
   border: none !important;
   background: transparent !important;
 }
+
+
+
+
+/* =========================================================
+   SOLUCIÓN DEFINITIVA: RESUMEN ANUAL (MODO BLACK COMPLETO)
+   ========================================================= */
+
+/* 1. Variables y contenedor del Modal */
+body.black-mode #annualDialog {
+  background-color: #0d0d11 !important;
+  border: 1px solid #1f1f24 !important;
+  border-radius: 28px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85) !important;
+  position: relative !important;
+}
+
+/* 2. Botón de cierre (X): flotante, limpio y minimalista */
+body.black-mode #annualDialog #closeAnnualDialog {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #71717a !important;
+  font-size: 19px !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  top: 22px !important;
+  right: 24px !important;
+  cursor: pointer !important;
+  transition: transform 0.2s ease, color 0.2s ease !important;
+}
+
+body.black-mode #annualDialog #closeAnnualDialog:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+  transform: scale(1.2) !important;
+}
+
+/* 3. Ícono flor limpio */
+body.black-mode #annualDialog .modal-icon {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 4. Limpiar contenedores que envuelven las filas (mata líneas residuales) */
+body.black-mode #annualDialog .annual-card-grid,
+body.black-mode #annualDialog #annualContent > div {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+/* 5. Las 4 pastillas superiores: reposo con animación elástica */
+body.black-mode #annualDialog .annual-card-grid > div,
+body.black-mode #annualDialog .annual-mini-card {
+  background-color: #121216 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  padding: 16px 20px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  cursor: default !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              border-color 0.2s ease, 
+              background-color 0.2s ease, 
+              box-shadow 0.2s ease !important;
+}
+
+/* 6. Efecto Hover idéntico en las 4 pastillas (elevación, brillo grafito y sombra) */
+body.black-mode #annualDialog .annual-card-grid > div:hover,
+body.black-mode #annualDialog .annual-mini-card:hover {
+  background-color: #16161c !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 7. Textos internos de las pastillas */
+body.black-mode #annualDialog .annual-card-grid > div span,
+body.black-mode #annualDialog .annual-mini-card span {
+  color: #8b8f97 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+}
+
+body.black-mode #annualDialog .annual-card-grid > div strong,
+body.black-mode #annualDialog .annual-mini-card strong {
+  color: #ffffff !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+}
+
+/* 8. Botones inferiores ('Descargar PDF' y 'Cerrar') */
+body.black-mode #annualDialog div[style*="gap: 12px"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+body.black-mode #annualDialog div[style*="gap: 12px"] button,
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  background-color: #121216 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  color: #f3f4f6 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  height: 44px !important;
+  cursor: pointer !important;
+  outline: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              background-color 0.2s ease, 
+              border-color 0.2s ease, 
+              box-shadow 0.2s ease !important;
+}
+
+body.black-mode #annualDialog div[style*="gap: 12px"] button:hover,
+body.black-mode #annualDialog #annualPdfBtn:hover,
+body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
+  background-color: #1c1c24 !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7) !important;
+}
+
+body.black-mode #annualDialog div[style*="gap: 12px"] button:active,
+body.black-mode #annualDialog #annualPdfBtn:active,
+body.black-mode #annualDialog #closeAnnualCancelBtn:active {
+  transform: translateY(0) scale(0.98) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
