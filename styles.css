@@ -2793,67 +2793,78 @@ button[class*="close"]:active {
 
 
 /* =========================================================
-   BOTÓN ELIMINAR (CRUZ) SUELTO Y LIMPIO PARA TODOS LOS MODOS
+   RESTAURAR CRUZ TOTALMENTE SUELTA (COMO EL LÁPIZ) EN TODOS LOS MODOS
    ========================================================= */
 
-/* 1. Estructura transparente universal */
-table .delete-btn,
-table .delete-extra-btn,
+/* 1. Eliminar la caja, borde, fondo y sombra en cualquier botón de eliminar */
+table button.delete-btn.pastel-btn,
+table button.delete-extra-btn.pastel-btn,
 table button.delete-btn,
 table button.delete-extra-btn,
-body table .delete-btn,
-body table .delete-extra-btn {
+table .delete-btn,
+table .delete-extra-btn,
+.actions button.delete-btn,
+.actions button.delete-extra-btn {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   outline: none !important;
-  padding: 4px 6px !important;
+  padding: 3px 5px !important;
   font-size: 16px !important;
   line-height: 1 !important;
   cursor: pointer !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease !important;
+  display: inline-block !important;
+  width: auto !important;
+  height: auto !important;
+  transition: transform 0.18s ease, opacity 0.18s ease !important;
 }
 
-/* 2. Color de la cruz según el tema */
-body table .delete-btn,
-body table .delete-extra-btn {
-  color: var(--red, #c63b55) !important; /* Modo Claro */
+/* 2. Colores de la cruz suelta según el modo */
+table .delete-btn,
+table .delete-extra-btn {
+  color: #c98295 !important; /* Modo Claro (color original) */
 }
 
 body.dark-mode table .delete-btn,
 body.dark-mode table .delete-extra-btn {
-  color: #ff78a0 !important;             /* Modo Oscuro Rosa */
+  color: #ff78a0 !important; /* Modo Oscuro Rosa */
 }
 
 body.dark-blue-mode table .delete-btn,
 body.dark-blue-mode table .delete-extra-btn {
-  color: #38bdf8 !important;             /* Modo Azul */
+  color: #38bdf8 !important; /* Modo Azul */
 }
 
 body.black-mode table .delete-btn,
 body.black-mode table .delete-extra-btn {
-  color: #ffffff !important;             /* Modo Black */
+  color: #ffffff !important; /* Modo Black */
 }
 
-/* 3. Hover universal: zoom elástico sin ninguna caja de fondo */
-table .delete-btn:hover,
-table .delete-extra-btn:hover,
+/* 3. Efecto ZOOM al posar el mouse (Hover) idéntico al lápiz */
+table button.delete-btn.pastel-btn:hover,
+table button.delete-extra-btn.pastel-btn:hover,
 table button.delete-btn:hover,
 table button.delete-extra-btn:hover,
-body table .delete-btn:hover,
-body table .delete-extra-btn:hover,
-body.dark-mode table .delete-btn:hover,
-body.dark-blue-mode table .delete-btn:hover,
-body.black-mode table .delete-btn:hover {
+table .delete-btn:hover,
+table .delete-extra-btn:hover,
+.actions button.delete-btn:hover,
+.actions button.delete-extra-btn:hover {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
   transform: scale(1.25) !important;
-  opacity: 1 !important;
+  color: var(--red) !important;
+}
+
+body.dark-blue-mode table .delete-btn:hover,
+body.dark-blue-mode table .delete-extra-btn:hover {
+  color: #ffffff !important;
+}
+
+body.black-mode table .delete-btn:hover,
+body.black-mode table .delete-extra-btn:hover {
+  color: #ff5c77 !important;
 }
