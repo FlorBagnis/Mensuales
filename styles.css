@@ -2358,13 +2358,47 @@ body.black-mode #annualDialog #closeAnnualDialog:hover {
   border-color: #ffffff !important;
 }
 
-/* 5. Mini tarjetas interiores del resumen anual */
-body.black-mode #annualDialog .annual-mini-card,
+/* 5. Anular borde y fondo a los contenedores que agrupan las tarjetas */
+body.black-mode #annualDialog .annual-card-grid,
 body.black-mode #annualDialog #annualContent > div {
-  background-color: #141418 !important;
-  border: 1px solid #232328 !important;
-  border-radius: 16px !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
+
+/* 6. Aplicar el borde sutil y limpio ÚNICAMENTE a las pastillas internas */
+body.black-mode #annualDialog .annual-card-grid > div,
+body.black-mode #annualDialog .annual-mini-card {
+  background-color: #0e0e11 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* 7. Botones inferiores ('Descargar PDF' y 'Cerrar') prolijos a juego */
+body.black-mode #annualDialog div[style*="flex"] button,
+body.black-mode #annualDialog > div:last-child button,
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  background-color: #0e0e11 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: #f3f4f6 !important;
+}
+
+body.black-mode #annualDialog div[style*="flex"] button:hover,
+body.black-mode #annualDialog > div:last-child button:hover {
+  background-color: #17171d !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+
 
 body.black-mode #annualDialog .annual-mini-card strong {
   color: #ffffff !important;
