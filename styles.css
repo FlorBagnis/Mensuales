@@ -2148,24 +2148,90 @@ body.black-mode div[style*="width:"][style*="border-radius"] {
 
 
 /* =========================================================
-   BOTÓN DE CIERRE ANUAL ESTÉTICO (LOS 4 TEMAS)
+   VARIABLES OFICIALES PARA MODO BLACK (OLED)
    ========================================================= */
-
-/* 1. Estructura base, posición y efecto zoom universal */
-#annualDialog {
-  position: relative !important;
+body.black-mode {
+  --bg: #000000 !important;
+  --card: #0f0f11 !important;
+  --text: #ffffff !important;
+  --muted: #8b8f97 !important;
+  --line: #1f1f23 !important;       /* Elimina definitivamente las líneas rosas */
+  --border: #1f1f23 !important;
+  --pink-500: #ffffff !important;
+  --pink-700: #e2e8f0 !important;
+  --pink-bg: #17171a !important;
+  --pink-soft: transparent !important;
 }
 
+/* =========================================================
+   ESTILIZACIÓN DEL MODAL ANUAL (TODOS LOS TEMAS)
+   ========================================================= */
+#annualDialog {
+  position: relative !important;
+  border-radius: 28px !important;
+  border: 1px solid var(--line, var(--border)) !important;
+  padding: 35px !important;
+  background-color: var(--card) !important;
+  color: var(--text) !important;
+}
+
+/* Aniquilación total de recuadros y bordes en la cabecera */
+#annualDialog .modal-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin-bottom: 24px !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+#annualDialog .modal-header * {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+#annualDialog .modal-icon {
+  background: transparent !important;
+  font-size: 26px !important;
+  line-height: 1 !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#annualDialog h2 {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+  margin: 0 !important;
+}
+
+#annualDialog #annualSubtitle {
+  color: var(--muted) !important;
+  font-size: 13px !important;
+  margin: 4px 0 0 0 !important;
+}
+
+/* =========================================================
+   BOTÓN DE CIERRE (X) UNIVERSAL Y ESTÉTICO (4 TEMAS)
+   ========================================================= */
 #closeAnnualDialog,
 .btn-close-annual {
   position: absolute !important;
   top: 22px !important;
   right: 22px !important;
   left: auto !important;
-  width: 34px !important;
-  height: 34px !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 50% !important;
   padding: 0 !important;
+  margin: 0 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2175,71 +2241,71 @@ body.black-mode div[style*="width:"][style*="border-radius"] {
   line-height: 1 !important;
   cursor: pointer !important;
   outline: none !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  z-index: 50 !important;
   transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), 
               background-color 0.2s ease, 
               border-color 0.2s ease, 
               box-shadow 0.2s ease !important;
-  z-index: 20 !important;
 }
 
-/* Efecto hover interactivo común */
+/* Efecto hover elástico con zoom */
 #closeAnnualDialog:hover,
 .btn-close-annual:hover {
-  transform: scale(1.15) !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25) !important;
+  transform: scale(1.18) !important;
 }
 
-/* 2. TEMA 1: MODO CLARO / ROSA (Por defecto) */
-#closeAnnualDialog,
-.btn-close-annual {
-  background-color: #fee2e8 !important;
-  color: #db2777 !important;
-  border: 1px solid #fbcfe8 !important;
+/* 1. MODO CLARO / ROSA (Por defecto) */
+body #closeAnnualDialog,
+body .btn-close-annual {
+  background-color: var(--pink-100, #fee2e8) !important;
+  color: var(--pink-700, #db2777) !important;
+  border: 1px solid var(--pink-200, #fbcfe8) !important;
+  box-shadow: 0 4px 10px rgba(219, 39, 119, 0.12) !important;
 }
-#closeAnnualDialog:hover,
-.btn-close-annual:hover {
-  background-color: #fce7f3 !important;
-  border-color: #f472b6 !important;
+body #closeAnnualDialog:hover,
+body .btn-close-annual:hover {
+  background-color: var(--pink-200, #fce7f3) !important;
+  border-color: var(--pink-500, #f472b6) !important;
 }
 
-/* 3. TEMA 2: MODO OSCURO (Rosa oscuro / Dark Mode clásico) */
+/* 2. MODO OSCURO (Dark Pink) */
 body.dark-mode #closeAnnualDialog,
 body.dark-mode .btn-close-annual {
   background-color: #2e1022 !important;
-  color: #f472b6 !important;
-  border: 1px solid #4a153b !important;
+  color: #ff78a0 !important;
+  border: 1px solid #4a2138 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 body.dark-mode #closeAnnualDialog:hover,
 body.dark-mode .btn-close-annual:hover {
-  background-color: #3b142d !important;
-  border-color: #f472b6 !important;
+  background-color: #3f152e !important;
+  border-color: #ff78a0 !important;
 }
 
-/* 4. TEMA 3: MODO AZUL (Dark Blue) */
+/* 3. MODO AZUL (Dark Blue) */
 body.dark-blue-mode #closeAnnualDialog,
-body.blue-mode #closeAnnualDialog,
-body[class*="blue"] #closeAnnualDialog {
-  background-color: #172554 !important;
+body.dark-blue-mode .btn-close-annual {
+  background-color: #14244b !important;
   color: #38bdf8 !important;
   border: 1px solid #1e3a8a !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
 }
 body.dark-blue-mode #closeAnnualDialog:hover,
-body.blue-mode #closeAnnualDialog:hover,
-body[class*="blue"] #closeAnnualDialog:hover {
+body.dark-blue-mode .btn-close-annual:hover {
   background-color: #1e3a8a !important;
   border-color: #38bdf8 !important;
 }
 
-/* 5. TEMA 4: MODO BLACK (OLED) */
+/* 4. MODO BLACK (OLED) */
 body.black-mode #closeAnnualDialog,
 body.black-mode .btn-close-annual {
-  background-color: #18181c !important;
+  background-color: #17171a !important;
   color: #ffffff !important;
   border: 1px solid #2a2a32 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7) !important;
 }
 body.black-mode #closeAnnualDialog:hover,
 body.black-mode .btn-close-annual:hover {
   background-color: #24242c !important;
-  border-color: #52525e !important;
+  border-color: #ffffff !important;
 }
