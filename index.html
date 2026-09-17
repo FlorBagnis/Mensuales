@@ -687,14 +687,14 @@
 </dialog>
 
 <!-- MODAL RESUMEN ANUAL -->
-<dialog id="annualDialog" class="modal-card" style="border-radius: 28px; border: 1px solid var(--border); padding: 35px; position: relative;">
-  <button id="closeAnnualDialog" class="btn-close-annual" type="button" aria-label="Cerrar">×</button>
+<dialog id="annualDialog" style="border-radius: 28px; border: 1px solid var(--border); padding: 35px; position: relative;">
+  <button id="closeAnnualDialog" type="button" style="position: absolute; top: 22px; right: 22px; border: none; background: var(--pink-soft); color: var(--pink-dark); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; font-size: 18px; transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">×</button>
   
-  <div class="modal-header" style="margin-bottom: 20px; display: flex; align-items: center; gap: 14px;">
-    <div class="modal-icon" style="font-size: 26px; line-height: 1; display: grid; place-items: center;">🌸</div>
+  <div class="modal-header" style="margin-bottom: 20px;">
+    <div class="modal-icon" style="background: var(--pink-soft); color: var(--pink); font-size: 24px; border-radius: 16px; width: 50px; height: 50px; display: grid; place-items: center;">🌸</div>
     <div>
-      <h2 style="font-size: 24px; font-weight: 800; color: var(--text); margin: 0;">Resumen Anual</h2>
-      <p id="annualSubtitle" style="color: var(--muted); font-size: 13px; margin: 2px 0 0 0;">Análisis completo de tus finanzas</p>
+      <h2 style="font-size: 24px; font-weight: 800; color: var(--text);">Resumen Anual</h2>
+      <p id="annualSubtitle" style="color: var(--muted); font-size: 13px; margin-top: 2px;">Año 2026 · Basado en 4 meses registrados</p>
     </div>
   </div>
   
@@ -704,6 +704,7 @@
     <button id="annualPdfBtn" class="pastel-btn" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">📥 Descargar PDF</button>
     <button id="closeAnnualCancelBtn" class="btn btn-outline" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">Cerrar</button>
   </div>
+</dialog>
 
 <script type="module" src="app.js?v=2.5"></script></body>
 </html>
