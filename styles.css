@@ -2417,3 +2417,67 @@ body.black-mode #annualDialog .modal-icon {
   width: auto !important;
   height: auto !important;
 }
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   SOLUCIÓN DEFINITIVA: RESUMEN ANUAL MODO BLACK ESTÉTICO
+   ========================================================= */
+
+/* 1. Eliminar de raíz el recuadro rectangular alrededor del título */
+body.black-mode #annualDialog .modal-header,
+body.black-mode #annualDialog div.modal-header,
+body.black-mode dialog .modal-header {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* 2. Modal contenedor idéntico al bordó pero en negro OLED */
+body.black-mode #annualDialog {
+  background-color: #0b0b0d !important;
+  border: 1px solid #1a1a1f !important;
+  border-radius: 28px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 3. Las 4 tarjetas de datos (curvas, sin líneas duras cuadradas) */
+body.black-mode #annualDialog .annual-mini-card {
+  background-color: #111114 !important;
+  border: 1px solid #1c1c22 !important;
+  border-radius: 16px !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card span {
+  color: #71717a !important;
+  font-size: 10.5px !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card strong {
+  color: #ffffff !important;
+  font-size: 16px !important;
+}
+
+/* 4. Botones inferiores con la misma curva que la versión bordó */
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  border-radius: 14px !important;
+  background-color: #141418 !important;
+  border: 1px solid #22222a !important;
+  color: #f4f4f5 !important;
+}
+
+body.black-mode #annualDialog #annualPdfBtn:hover,
+body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
+  background-color: #1f1f26 !important;
+  border-color: #3f3f4e !important;
+}
