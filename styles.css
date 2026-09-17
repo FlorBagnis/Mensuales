@@ -2931,3 +2931,34 @@ body.dark-mode tbody tr:hover {
 
 
 
+
+/* APLICAR VARIABLES A LAS PASTILLAS Y BOTONES EN MODO BLACK */
+body.black-mode #annualDialog {
+  background-color: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card {
+  background-color: var(--card) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              box-shadow 0.2s ease, 
+              border-color 0.2s ease !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  border-color: #434354 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75) !important;
+}
+
+body.black-mode #annualDialog div[style*="gap: 12px"] button,
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  background-color: var(--card) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  color: var(--text) !important;
+}
