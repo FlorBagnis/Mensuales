@@ -2481,3 +2481,20 @@ body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
   background-color: #1f1f26 !important;
   border-color: #3f3f4e !important;
 }
+
+
+body.black-mode #annualDialog .modal-header,
+body.black-mode #annualDialog .annual-header,
+body.black-mode #annualDialog .modal-header > div,
+body.black-mode #annualDialog .modal-header h2,
+body.black-mode #annualDialog .modal-header p {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+
+
+
