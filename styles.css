@@ -2243,3 +2243,75 @@ body.black-mode .btn-close-annual:hover {
   background-color: #24242c !important;
   border-color: #52525e !important;
 }
+
+
+
+
+/* =========================================================
+   BOTÓN DE CIERRE (X) MINIMALISTA Y ELEGANTE (COMO LA FOTO 2)
+   ========================================================= */
+
+#annualDialog {
+  position: relative !important;
+}
+
+#closeAnnualDialog,
+.btn-close-annual,
+#annualDialog button#closeAnnualDialog {
+  position: absolute !important;
+  top: 18px !important;
+  right: 20px !important;
+  left: auto !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+  
+  /* Tipografía limpia de cruz como en la foto */
+  font-family: Arial, sans-serif !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  font-weight: 400 !important;
+  
+  /* Color integrado al texto secundario según el tema */
+  color: var(--muted, #ff9db4) !important;
+  opacity: 0.8 !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease, color 0.2s ease !important;
+  z-index: 50 !important;
+}
+
+/* Efecto hover interactivo: zoom elástico y brillo nítido */
+#closeAnnualDialog:hover,
+.btn-close-annual:hover,
+#annualDialog button#closeAnnualDialog:hover {
+  transform: scale(1.35) !important;
+  opacity: 1 !important;
+  color: var(--text, #ffffff) !important;
+  background: transparent !important;
+}
+
+/* Colores sutiles de la cruz por tema */
+body.dark-mode #closeAnnualDialog {
+  color: #e5a7be !important;
+}
+
+body.dark-blue-mode #closeAnnualDialog {
+  color: #8fa5ca !important;
+}
+body.dark-blue-mode #closeAnnualDialog:hover {
+  color: #38bdf8 !important;
+}
+
+body.black-mode #closeAnnualDialog {
+  color: #8b8f97 !important;
+}
+body.black-mode #closeAnnualDialog:hover {
+  color: #ffffff !important;
+}
