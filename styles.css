@@ -2538,22 +2538,3 @@ body.black-mode #annualDialog .annual-mini-card strong {
   font-size: 17px !important;
   font-weight: 800 !important;
 }
-
-
-
-
-
-
-
-
-
-/* ELIMINAR EL MARCO/LÍNEA DETRÁS DE LAS PASTILLAS */
-body.black-mode #annualDialog .annual-card-grid,
-body.black-mode #annualDialog #annualContent,
-body.black-mode #annualDialog #annualContent > div {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
-}
