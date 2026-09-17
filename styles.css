@@ -2962,3 +2962,69 @@ body.black-mode #annualDialog #closeAnnualCancelBtn {
   border-radius: 14px !important;
   color: var(--text) !important;
 }
+
+
+
+
+
+/* =========================================================
+   SCROLL RESPONSIVE: PC Y MÓVILES
+========================================================= */
+
+/* Vista en Computadora (pantallas de más de 768px): ~15 filas */
+.panel .table-wrap,
+#extraHistoryContainer .table-wrap,
+.table-container-collapsible {
+  max-height: 620px !important;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain !important;
+  scroll-behavior: smooth !important;
+  border-radius: 12px;
+  display: block !important;
+}
+
+/* Vista en Celular (pantallas de menos de 768px): más compacta para que no tape la pantalla */
+@media (max-width: 768px) {
+  .panel .table-wrap,
+  #extraHistoryContainer .table-wrap,
+  .table-container-collapsible {
+    max-height: 380px !important; /* Muestra unas 7-8 filas cómodas en vertical */
+  }
+}
+
+/* Títulos fijos arriba al scrollear hacia abajo */
+.table-wrap table thead,
+.table-wrap table thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 5 !important;
+}
+
+/* Scrollbar estética */
+.table-wrap::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background: #f29cb5;
+  border-radius: 10px;
+}
+
+/* Temas oscuro, azul y black */
+body.dark-mode .table-wrap::-webkit-scrollbar-thumb {
+  background: #6b3b4a;
+}
+body.dark-blue-mode .table-wrap::-webkit-scrollbar-thumb {
+  background: #1e3a8a;
+}
+body.black-mode .table-wrap::-webkit-scrollbar-thumb {
+  background: #333333;
+}
+
