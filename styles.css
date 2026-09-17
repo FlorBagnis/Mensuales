@@ -3028,3 +3028,33 @@ body.black-mode .table-wrap::-webkit-scrollbar-thumb {
   background: #333333;
 }
 
+
+
+/* =========================================================
+   QUITAR RECUADRO Y FONDOS AL OCULTAR MONTOS
+========================================================= */
+
+/* Elimina cualquier fondo, sombra o borde en los textos ocultos */
+body.amounts-hidden strong,
+body.amounts-hidden span,
+body.amounts-hidden small,
+body.amounts-hidden td,
+body.amounts-hidden div,
+body.amounts-hidden strong::after,
+body.amounts-hidden span::after,
+body.amounts-hidden td::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Asegura que los puntitos hereden únicamente el color del texto sin caja */
+body.amounts-hidden #extraTotalSumDisplay::after,
+body.amounts-hidden .summary-card strong::after {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+
