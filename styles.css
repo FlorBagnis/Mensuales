@@ -2417,196 +2417,81 @@ body.black-mode #annualDialog .modal-icon {
 
 
 
-
-
-
-
 /* =========================================================
-   SOLUCIÓN DEFINITIVA: RESUMEN ANUAL MODO BLACK ESTÉTICO
+   CALCO EXACTO MODO AZUL -> MODO BLACK (RESUMEN ANUAL)
    ========================================================= */
 
-/* 1. Eliminar de raíz el recuadro rectangular alrededor del título */
-body.black-mode #annualDialog .modal-header,
-body.black-mode #annualDialog div.modal-header,
-body.black-mode dialog .modal-header {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  padding: 0 !important;
-}
-
-/* 2. Modal contenedor idéntico al bordó pero en negro OLED */
+/* 1. Modal: fondo negro azabache idéntico a la profundidad del azul */
 body.black-mode #annualDialog {
-  background-color: #0b0b0d !important;
-  border: 1px solid #1a1a1f !important;
+  background-color: #0d0d11 !important;
+  border: 1px solid #1f1f24 !important;
   border-radius: 28px !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
 }
 
-/* 3. Las 4 tarjetas de datos (curvas, sin líneas duras cuadradas) */
-body.black-mode #annualDialog .annual-mini-card {
-  background-color: #111114 !important;
-  border: 1px solid #1c1c22 !important;
-  border-radius: 16px !important;
-}
-
-body.black-mode #annualDialog .annual-mini-card span {
-  color: #71717a !important;
-  font-size: 10.5px !important;
-}
-
-body.black-mode #annualDialog .annual-mini-card strong {
-  color: #ffffff !important;
-  font-size: 16px !important;
-}
-
-/* 4. Botones inferiores con la misma curva que la versión bordó */
-body.black-mode #annualDialog #annualPdfBtn,
-body.black-mode #annualDialog #closeAnnualCancelBtn {
-  border-radius: 14px !important;
-  background-color: #141418 !important;
-  border: 1px solid #22222a !important;
-  color: #f4f4f5 !important;
-}
-
-body.black-mode #annualDialog #annualPdfBtn:hover,
-body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
-  background-color: #1f1f26 !important;
-  border-color: #3f3f4e !important;
-}
-
-
-body.black-mode #annualDialog .modal-header,
-body.black-mode #annualDialog .annual-header,
-body.black-mode #annualDialog .modal-header > div,
-body.black-mode #annualDialog .modal-header h2,
-body.black-mode #annualDialog .modal-header p {
+/* 2. Cruz (x): limpia, flotante y sin círculo */
+body.black-mode #annualDialog #closeAnnualDialog {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  outline: none !important;
-}
-
-
-
-
-/* Limpieza absoluta de bordes en mail, acciones y modal */
-body.black-mode .header-actions,
-body.black-mode .user-email,
-body.black-mode #annualDialog .modal-header,
-body.black-mode #annualDialog .modal-header * {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-
-
-
-
-
-
-
-
-
-/* =========================================================
-   CLON EXACTO DE LA ESTÉTICA AZUL PARA MODO BLACK
-   ========================================================= */
-
-/* 1. Limpieza absoluta de la cabecera (sin líneas ni marcos) */
-body.black-mode #annualDialog .modal-header,
-body.black-mode #annualDialog .annual-header,
-body.black-mode #annualDialog [class*="modal-header"],
-body.black-mode #annualDialog div:has(> #annualSubtitle) {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  padding: 0 !important;
-  margin-bottom: 24px !important;
-}
-
-/* 2. Cruz (x) idéntica a la del modo azul: limpia, sin caja ni bordes */
-body.black-mode #annualDialog #closeAnnualDialog,
-body.black-mode #annualDialog .btn-close-annual {
-  position: absolute !important;
-  top: 20px !important;
-  right: 22px !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  border-radius: 0 !important;
   width: auto !important;
   height: auto !important;
-  padding: 0 !important;
-  font-family: system-ui, -apple-system, sans-serif !important;
   font-size: 19px !important;
   line-height: 1 !important;
-  color: #71717a !important; /* Mismo contraste sutil que en azul */
-  cursor: pointer !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease !important;
+  color: #71717a !important;
+  top: 22px !important;
+  right: 24px !important;
 }
 
-body.black-mode #annualDialog #closeAnnualDialog:hover,
-body.black-mode #annualDialog .btn-close-annual:hover {
-  transform: scale(1.25) !important;
+body.black-mode #annualDialog #closeAnnualDialog:hover {
   color: #ffffff !important;
-  background: transparent !important;
+  transform: scale(1.15) !important;
 }
 
-/* 3. Las 4 pastillas: curvas amplias, elevación e idénticas al azul */
-body.black-mode #annualDialog .annual-mini-card,
-body.black-mode #annualDialog #annualContent > div > div {
-  background-color: #0d0d10 !important;
-  border: 1px solid #1c1c22 !important;
-  border-radius: 22px !important;
-  padding: 18px 20px !important;
+/* 3. Las 4 tarjetas: fondo redondeado con borde sutil */
+body.black-mode #annualDialog .annual-mini-card {
+  background-color: #141419 !important;
+  border: 1px solid #23232a !important;
+  border-radius: 18px !important;
+  padding: 16px 18px !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 6px !important;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease !important;
 }
 
-body.black-mode #annualDialog .annual-mini-card:hover,
-body.black-mode #annualDialog #annualContent > div > div:hover {
-  transform: translateY(-2px) !important;
-  border-color: #2e2e38 !important;
-}
-
-/* Tipografía de las pastillas */
+/* Títulos pequeños de las tarjetas */
 body.black-mode #annualDialog .annual-mini-card span {
-  font-size: 11px !important;
-  letter-spacing: 0.6px !important;
-  font-weight: 700 !important;
   color: #71717a !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
 }
 
+/* Montos / Textos destacados */
 body.black-mode #annualDialog .annual-mini-card strong {
+  color: #ffffff !important;
   font-size: 17px !important;
   font-weight: 800 !important;
-  color: #ffffff !important;
 }
 
-/* 4. Botones inferiores redondeados con la misma curva */
+/* 4. Botones inferiores */
 body.black-mode #annualDialog #annualPdfBtn,
 body.black-mode #annualDialog #closeAnnualCancelBtn {
-  background-color: #121216 !important;
-  border: 1px solid #22222a !important;
-  border-radius: 16px !important;
-  color: #f4f4f5 !important;
+  background-color: #141419 !important;
+  border: 1px solid #23232a !important;
+  border-radius: 14px !important;
+  color: #e4e4e7 !important;
   font-size: 13px !important;
   font-weight: 700 !important;
-  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease !important;
+  height: 44px !important;
 }
 
 body.black-mode #annualDialog #annualPdfBtn:hover,
 body.black-mode #annualDialog #closeAnnualCancelBtn:hover {
-  background-color: #1a1a20 !important;
+  background-color: #1c1c24 !important;
   border-color: #3f3f4e !important;
-  transform: translateY(-1px) !important;
 }
+
+
+
+
