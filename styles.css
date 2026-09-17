@@ -2906,3 +2906,24 @@ body.black-mode table td button[class*="delete"]:hover,
 body.black-mode table td:last-child button:last-child:hover {
   color: #ff5c77 !important;
 }
+
+
+
+
+/* =========================================================
+   QUITAR FILAS RAYADAS (FONDO UNIFORME EN MODO OSCURO)
+   ========================================================= */
+
+/* Elimina el color intercalado en todas las tablas del modo oscuro */
+body.dark-mode tbody tr,
+body.dark-mode tbody tr:nth-child(even),
+body.dark-mode tbody tr:nth-child(odd) {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Color sutil y uniforme al pasar el mouse por encima (hover limpio) */
+body.dark-mode tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
