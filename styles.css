@@ -2542,7 +2542,60 @@ body.black-mode #annualDialog .annual-mini-card strong {
 
 
 
+/* =========================================================
+   SOLUCIÓN EXACTA PARA LA ESTRUCTURA REAL DEL DOM
+   ========================================================= */
 
+/* 1. Desactivar bordes, sombras y fondos en las filas contenedoras */
+body.black-mode #annualDialog .annual-card-grid,
+body.black-mode #annualDialog #annualContent > div.annual-card-grid {
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+}
+
+/* 2. Estilo limpio para las 4 pastillas individuales dentro de las grillas */
+body.black-mode #annualDialog .annual-card-grid > div,
+body.black-mode #annualDialog .annual-card-grid > article,
+body.black-mode #annualDialog .annual-mini-card {
+  background-color: #0e0e11 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* 3. Desactivar contenedor de los botones inferiores */
+body.black-mode #annualDialog div[style*="display: flex"],
+body.black-mode #annualDialog div[style*="gap: 12px"] {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* 4. Estilo limpio para los botones inferiores (Descargar PDF y Cerrar) */
+body.black-mode #annualDialog div[style*="gap: 12px"] button,
+body.black-mode #annualDialog #annualPdfBtn,
+body.black-mode #annualDialog #closeAnnualCancelBtn {
+  background-color: #0e0e11 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: #f3f4f6 !important;
+}
+
+/* 5. Hover limpio en botones inferiores */
+body.black-mode #annualDialog div[style*="gap: 12px"] button:hover {
+  background-color: #17171d !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
 
 
 
