@@ -2379,3 +2379,28 @@ body.black-mode #annualDialog .annual-mini-card strong {
 body.black-mode #annualDialog .annual-mini-card span {
   color: #8b8f97 !important;
 }
+
+
+
+
+
+
+
+
+/* =========================================================
+   SOLO FLOR: RESUMEN ANUAL MODO BLACK (SIN TOCAR LA CRUZ)
+   ========================================================= */
+
+body.black-mode #annualDialog .modal-icon,
+body.black-mode #annualDialog div.modal-icon,
+body.black-mode #annualDialog .modal-header > div:first-child {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  display: inline-block !important;
+}
