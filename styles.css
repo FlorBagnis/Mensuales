@@ -2790,3 +2790,70 @@ button[class*="close"]:active {
 }
 
 
+
+
+/* =========================================================
+   BOTÓN ELIMINAR (CRUZ) SUELTO Y LIMPIO PARA TODOS LOS MODOS
+   ========================================================= */
+
+/* 1. Estructura transparente universal */
+table .delete-btn,
+table .delete-extra-btn,
+table button.delete-btn,
+table button.delete-extra-btn,
+body table .delete-btn,
+body table .delete-extra-btn {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 4px 6px !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease !important;
+}
+
+/* 2. Color de la cruz según el tema */
+body table .delete-btn,
+body table .delete-extra-btn {
+  color: var(--red, #c63b55) !important; /* Modo Claro */
+}
+
+body.dark-mode table .delete-btn,
+body.dark-mode table .delete-extra-btn {
+  color: #ff78a0 !important;             /* Modo Oscuro Rosa */
+}
+
+body.dark-blue-mode table .delete-btn,
+body.dark-blue-mode table .delete-extra-btn {
+  color: #38bdf8 !important;             /* Modo Azul */
+}
+
+body.black-mode table .delete-btn,
+body.black-mode table .delete-extra-btn {
+  color: #ffffff !important;             /* Modo Black */
+}
+
+/* 3. Hover universal: zoom elástico sin ninguna caja de fondo */
+table .delete-btn:hover,
+table .delete-extra-btn:hover,
+table button.delete-btn:hover,
+table button.delete-extra-btn:hover,
+body table .delete-btn:hover,
+body table .delete-extra-btn:hover,
+body.dark-mode table .delete-btn:hover,
+body.dark-blue-mode table .delete-btn:hover,
+body.black-mode table .delete-btn:hover {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: scale(1.25) !important;
+  opacity: 1 !important;
+}
