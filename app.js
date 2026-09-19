@@ -56,6 +56,26 @@ const $ = id => document.getElementById(id);
    UTILIDADES Y FORMATOS
 ========================================================= */
 
+function formatCurrencyInput(val) {
+  let clean = String(val ?? "").replace(/[^\d,]/g, "");
+  const parts = clean.split(",");
+  if (parts.length > 2) {
+    clean = parts[0] + "," + parts.slice(1).join("");
+  }
+  const [integerPart, decimalPart] = clean.split(",");
+  const formattedInt = (integerPart || "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  if (decimalPart !== undefined) {
+    return `${formattedInt},${decimalPart.slice(0, 2)}`;
+  }
+  return formattedInt;
+}
+
+function parseCurrency(val) {
+  if (val === null || val === undefined || val === "") return 0;
+  const cleanNumber = String(val).replace(/\./g, "").replace(",", ".");
+  return parseFloat(cleanNumber) || 0;
+}
+
 function money(value, currency = "ARS") {
   const isUSD = currency === "USD";
   return new Intl.NumberFormat("es-AR", {
@@ -194,7 +214,7 @@ async function handleAuthSubmit(e) {
     button.textContent = authMode === "login" ? "Ingresando..." : "Creando cuenta...";
   }
 
-try {
+  try {
     if (authMode === "register") {
       await createUserWithEmailAndPassword(auth, email, password);
     } else {
@@ -249,6 +269,7 @@ document.addEventListener("click", async (e) => {
     }
   }
 });
+
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   
@@ -332,7 +353,7 @@ async function saveMonthToFirestore(month) {
     const m = ensureMonth(month);
     await setDoc(docRef, { 
       budget: Number(m.budget || 0), 
-      expenses: m.expenses,
+      expenses: m.expenses, 
       extraIncomes: m.extraIncomes || []
     }, { merge: true });
   } catch (e) {
@@ -374,7 +395,7 @@ function renderMensuales() {
   const diffARS = totalARS - prevARS;
   const percentageARS = prevARS ? Math.abs((diffARS / prevARS) * 100) : 0;
 
-  if ($("budgetInput")) $("budgetInput").value = current.budget || "";
+  if ($("budgetInput")) $("budgetInput").value = current.budget ? formatCurrencyInput(String(current.budget).replace(".", ",")) : "";
   if ($("totalSpent")) $("totalSpent").textContent = money(totalARS);
   if ($("previousSpent")) $("previousSpent").textContent = money(prevARS);
   if ($("budgetTotal")) $("budgetTotal").textContent = money(current.budget);
@@ -415,7 +436,7 @@ function renderMensuales() {
   renderTrend(month, totalARS, prevARS, totalUSD);
 
   const totalGastadoActual = Number(document.getElementById("totalSpent")?.textContent.replace(/[^0-9,-]+/g,"").replace(",", ".")) || 0;
-  const presupuestoActual = Number(document.getElementById("budgetInput")?.value) || 0;
+  const presupuestoActual = parseCurrency(document.getElementById("budgetInput")?.value);
   checkFinancialAlerts(totalGastadoActual, presupuestoActual, current.expenses || []);
 }
 
@@ -461,7 +482,10 @@ function renderExtraIncomesTable(extraIncomes) {
       if ($("modalExtraTargetMonth")) $("modalExtraTargetMonth").value = activeMonth;
       if ($("modalExtraCategory")) $("modalExtraCategory").value = item.category || "Sueldo";
       if ($("modalExtraDescription")) $("modalExtraDescription").value = item.description || "";
-      if ($("modalExtraInput")) $("modalExtraInput").value = item.rawAmount !== undefined ? item.rawAmount : item.amount;
+      
+      const extraVal = item.rawAmount !== undefined ? item.rawAmount : item.amount;
+      if ($("modalExtraInput")) $("modalExtraInput").value = formatCurrencyInput(String(extraVal).replace(".", ","));
+      
       if ($("modalExtraCurrency")) $("modalExtraCurrency").value = item.currency || "ARS";
 
       const extraRecurring = $("extraRecurring");
@@ -490,7 +514,7 @@ function renderExtraIncomesTable(extraIncomes) {
       if (!confirm(`¿Eliminar el registro "${item.category}"?`)) return;
       current.extraIncomes = current.extraIncomes.filter(x => x.id !== btn.dataset.id);
       current.budget = current.extraIncomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
-      if ($("budgetInput")) $("budgetInput").value = current.budget;
+      if ($("budgetInput")) $("budgetInput").value = formatCurrencyInput(String(current.budget).replace(".", ","));
       renderMensuales();
       await saveMonthToFirestore(month);
     };
@@ -555,7 +579,7 @@ function renderMensualesExpensesTable(expenses) {
       if ($("expenseTargetMonth")) $("expenseTargetMonth").value = activeMonth;
       $("expenseDescription").value = expense.description;
       $("expenseCategory").value = expense.category;
-      $("expenseAmount").value = expense.amount;
+      $("expenseAmount").value = formatCurrencyInput(String(expense.amount).replace(".", ","));
       $("expenseCurrency").value = expense.currency || "ARS";
       $("expenseForm").dataset.editingId = expense.id;
       if ($("modalTitle")) $("modalTitle").textContent = "Editar gasto";
@@ -657,6 +681,20 @@ function renderTrend(month, totalARS, prevARS, totalUSD) {
 function initApp() {
   if ($("monthPicker")) $("monthPicker").value = currentMonthValue();
 
+  // Autoformato de miles y decimales en vivo en los 3 campos clave
+  ["budgetInput", "expenseAmount", "modalExtraInput"].forEach(id => {
+    const input = $(id);
+    if (!input) return;
+    input.addEventListener("input", (e) => {
+      const start = e.target.selectionStart;
+      const prevLen = e.target.value.length;
+      e.target.value = formatCurrencyInput(e.target.value);
+      const newLen = e.target.value.length;
+      const pos = Math.max(0, start + (newLen - prevLen));
+      e.target.setSelectionRange(pos, pos);
+    });
+  });
+
   $("logoutBtn")?.addEventListener("click", async () => {
     if (!confirm("¿Querés cerrar sesión?")) return;
     try {
@@ -696,7 +734,7 @@ function initApp() {
     if (!expenseRecurring?.checked || !recurringChangingAmount?.checked) return;
 
     const count = Number(recurringDuration?.value) || 6;
-    const baseAmount = Number($("expenseAmount")?.value || 0);
+    const baseAmount = parseCurrency($("expenseAmount")?.value);
     const interval = Number(recurringMonthsInput?.value) || 1;
     let baseDate = new Date(($("expenseDate")?.value || currentMonthValue() + "-01") + "T00:00:00");
 
@@ -719,7 +757,7 @@ function initApp() {
   recurringDay?.addEventListener("input", updateRecurringInputs);
   $("expenseAmount")?.addEventListener("input", () => {
     if (!recurringChangingAmount?.checked) return;
-    const baseAmount = Number($("expenseAmount")?.value || 0);
+    const baseAmount = parseCurrency($("expenseAmount")?.value);
     recurringAmounts?.querySelectorAll(".rec-amount-input").forEach(inp => {
       if (!inp.dataset.userEdited) inp.value = baseAmount;
     });
@@ -750,7 +788,7 @@ function initApp() {
     if (!extraRecurring?.checked || !extraChangingAmount?.checked) return;
 
     const count = Number(extraDuration?.value) || 6;
-    const baseAmount = Number($("modalExtraInput")?.value || 0);
+    const baseAmount = parseCurrency($("modalExtraInput")?.value);
     const interval = Number(extraMonthsInput?.value) || 1;
     let baseDate = new Date(($("modalExtraDate")?.value || currentMonthValue() + "-01") + "T00:00:00");
 
@@ -773,7 +811,7 @@ function initApp() {
   extraDay?.addEventListener("input", updateExtraRecurringInputs);
   $("modalExtraInput")?.addEventListener("input", () => {
     if (!extraChangingAmount?.checked) return;
-    const baseAmount = Number($("modalExtraInput")?.value || 0);
+    const baseAmount = parseCurrency($("modalExtraInput")?.value);
     extraRecurringAmounts?.querySelectorAll(".extra-rec-amount-input").forEach(inp => {
       if (!inp.dataset.userEdited) inp.value = baseAmount;
     });
@@ -803,7 +841,7 @@ function initApp() {
   $("closeExtraCancelBtn")?.addEventListener("click", () => $("extraDialog")?.close());
 
   $("submitExtraBtn")?.addEventListener("click", async () => {
-    const rawVal = Number($("modalExtraInput")?.value || 0);
+    const rawVal = parseCurrency($("modalExtraInput")?.value);
     if (rawVal <= 0) { alert("Ingresá un monto válido."); return; }
     const category = $("modalExtraCategory")?.value || "Otro";
     const description = $("modalExtraDescription")?.value.trim() || "";
@@ -888,7 +926,7 @@ function initApp() {
     const month = $("monthPicker")?.value;
     if (!month) return;
     const current = ensureMonth(month);
-    const baseVal = Number($("budgetInput")?.value || 0);
+    const baseVal = parseCurrency($("budgetInput")?.value);
 
     let baseEntry = current.extraIncomes.find(x => x.isBase === true);
     if (baseEntry) {
@@ -927,7 +965,7 @@ function initApp() {
     const targetMonth = $("expenseTargetMonth")?.value || baseDateStr.slice(0, 7);
     const description = $("expenseDescription").value.trim();
     const category = $("expenseCategory").value;
-    const baseAmount = Number($("expenseAmount").value);
+    const baseAmount = parseCurrency($("expenseAmount").value);
     const currency = $("expenseCurrency")?.value || "ARS";
 
     if (editingId) {
@@ -1237,7 +1275,7 @@ function getPdfThemeColors() {
 
   if (isBlackMode) {
     return {
-      pink: [255, 255, 255],      // Blanco puro para Modo Black
+      pink: [255, 255, 255],
       dark: [241, 245, 249],      
       light: [18, 18, 18],        
       headerBg: [10, 10, 10],     
@@ -1365,9 +1403,8 @@ function generateMensualesPDF() {
     pdf.text(card[1], x + 3, 65);
   });
 
-   let y = 84;
+  let y = 84;
    
-// 🖤 Forzar barra oscura en Modo Black, sino usa el color del tema
   const isBlackMode = document.body.classList.contains("black-mode");
   if (isBlackMode) {
     pdf.setFillColor(30, 30, 30); 
