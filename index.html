@@ -291,7 +291,7 @@
             <label for="budgetInput">PRESUPUESTO</label>
             <div class="money-input">
               <span>$</span>
-              <input id="budgetInput" type="number" min="0" step="0.01" placeholder="0">
+              <input id="budgetInput" type="text" inputmode="decimal" placeholder="0,00">
             </div>
           </div>
 
@@ -543,7 +543,7 @@
       <div style="display: flex; gap: 6px; align-items: center;">
         <div class="money-input" style="flex: 1;">
           <span>+$</span>
-          <input id="modalExtraInput" type="number" min="0" step="0.01" placeholder="0" style="width: 100%;">
+          <input id="modalExtraInput" type="text" inputmode="decimal" placeholder="0,00" style="width: 100%;">
         </div>
         <select id="modalExtraCurrency" style="padding: 10px; border-radius: 9px; border: 1px solid var(--line); font-size: 13px; font-weight: 600; background: white; color: var(--ink); cursor: pointer;">
           <option value="ARS" selected>ARS</option>
@@ -634,7 +634,7 @@
     <div style="display: grid; grid-template-columns: 1fr 140px; gap: 10px; align-items: end;">
       <label style="margin-bottom: 0;">
         Monto
-        <input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0" required>
+        <input id="expenseAmount" type="text" inputmode="decimal" placeholder="0,00" required>
       </label>
 
       <label style="margin-bottom: 0;">
