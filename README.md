@@ -107,4 +107,3 @@ users/
 * 💼 [LinkedIn](https://www.linkedin.com/in/florencia-bagnis-5043aa152/)
 * 💻 [Portfolio](https://florbagnis.github.io/Portfolio-FlorBagnis/)
 * 📧 [florenciasoledadbagnis@gmail.com](mailto:florenciasoledadbagnis@gmail.com)
-
