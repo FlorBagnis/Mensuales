@@ -3089,3 +3089,57 @@ body.dark-blue-mode #annualDialog .annual-mini-card {
   background: #0f1c3f !important;
   border: 1px solid #1e356d !important;
 }
+
+
+/* =========================================================
+   MODO BLACK: FORZAR MODAL COMPLETO EN NEGRO
+========================================================= */
+
+/* Fondo del modal / tarjeta contenedora */
+body.black-mode .modal,
+body.black-mode .modal-content,
+body.black-mode .modal-card,
+body.black-mode #annualSummaryModal .modal,
+body.black-mode #annualSummaryModal .modal-content,
+body.black-mode dialog {
+  background-color: #121212 !important;
+  background: #121212 !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Título y subtítulo */
+body.black-mode .modal h2,
+body.black-mode .modal h3,
+body.black-mode .modal p,
+body.black-mode .modal-subtitle {
+  color: #ffffff !important;
+}
+
+body.black-mode .modal p.modal-subtitle,
+body.black-mode .modal .modal-header p {
+  color: #a0a0a0 !important; /* Gris claro para el subtítulo */
+}
+
+/* Botón cerrar (la 'X' de arriba) */
+body.black-mode .close-modal,
+body.black-mode .modal-close {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+/* Botones de acción inferiores (Descargar PDF / Cerrar) */
+body.black-mode .modal button:not(.close-modal),
+body.black-mode .modal .primary-button,
+body.black-mode .modal .secondary-button,
+body.black-mode .modal-actions button {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
+body.black-mode .modal button:hover {
+  background-color: #262626 !important;
+  border-color: #ffffff !important;
+}
