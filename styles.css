@@ -3143,3 +3143,21 @@ body.black-mode .modal button:hover {
   background-color: #262626 !important;
   border-color: #ffffff !important;
 }
+
+
+/* Color del cartel en Modo Claro (tono bordó/oscuro por defecto) */
+#alertaPresupuesto,
+#alertaPresupuesto * {
+  color: inherit;
+}
+
+/* Blanco uniforme en Modo Oscuro (Dark Pink), Modo Azul y Modo Black */
+body.dark-mode #alertaPresupuesto,
+body.dark-mode #alertaPresupuesto *,
+body.dark-blue-mode #alertaPresupuesto,
+body.dark-blue-mode #alertaPresupuesto *,
+body.black-mode #alertaPresupuesto,
+body.black-mode #alertaPresupuesto * {
+  color: #ffffff !important;
+}
+
