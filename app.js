@@ -1372,8 +1372,30 @@ function generateMensualesPDF() {
   
   const presupuestoActual = Number(current.budget || 0);
   const presupuestoText = money(presupuestoActual);
-  const hayExceso = presupuestoActual > 0 && totalARS > presupuestoActual;
-  const exceso = hayExceso ? totalARS - presupuestoActual : 0;
+
+  // --- LÓGICA DE ALERTA MULTIMONEDA PARA PDF ---
+  const usdEnARS = totalUSD > 0 && currentDolarBlue > 0 ? totalUSD * currentDolarBlue : 0;
+  const totalGeneralARS = totalARS + usdEnARS;
+
+  const excedidoSoloPesos = presupuestoActual > 0 && totalARS > presupuestoActual;
+  const excedidoConDolares = presupuestoActual > 0 && totalGeneralARS > presupuestoActual;
+  const hayExceso = presupuestoActual > 0 && (excedidoSoloPesos || excedidoConDolares || totalUSD > 0);
+
+  let mensajeAlertaPDF = "";
+  if (hayExceso) {
+    if (excedidoSoloPesos && totalUSD > 0) {
+      const exceso = totalARS - presupuestoActual;
+      mensajeAlertaPDF = `Atencion: Exceso de ${money(exceso)} en pesos y gastos por ${money(totalUSD, "USD")}.`;
+    } else if (excedidoSoloPesos) {
+      const exceso = totalARS - presupuestoActual;
+      mensajeAlertaPDF = `Atencion: Exceso de gastos de ${money(exceso)} sobre el presupuesto.`;
+    } else if (excedidoConDolares && currentDolarBlue > 0) {
+      const exceso = totalGeneralARS - presupuestoActual;
+      mensajeAlertaPDF = `Atencion (Dolar Blue): Exceso equivalente a ${money(exceso)} (USD: ${money(totalUSD, "USD")}).`;
+    } else if (totalUSD > 0) {
+      mensajeAlertaPDF = `Atencion: Gastos por ${money(totalUSD, "USD")} no cubiertos en el presupuesto en pesos.`;
+    }
+  }
 
   const diffText = `${diffARS <= 0 ? "- " : "+ "}${money(Math.abs(diffARS))}`;
 
@@ -1397,11 +1419,21 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
   pdf.text(`Reporte - ${monthName(month)}`, 21, 31);
 
-  if (hayExceso) {
+  // Cartel de alerta visible en el encabezado del PDF
+  if (hayExceso && mensajeAlertaPDF) {
     pdf.setFontSize(7.5);
     pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(185, 28, 28);
-    pdf.text("Atencion: Exceso de gastos de " + money(exceso) + " sobre el presupuesto.", 21, 38);
+
+    const isDark = document.body.classList.contains("dark-mode") || 
+                   document.body.classList.contains("dark-blue-mode") || 
+                   document.body.classList.contains("black-mode");
+    if (isDark) {
+      pdf.setTextColor(255, 255, 255);
+    } else {
+      pdf.setTextColor(185, 28, 28);
+    }
+
+    pdf.text(mensajeAlertaPDF, 21, 38);
   }
 
   const cards = [
