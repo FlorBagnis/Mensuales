@@ -456,7 +456,7 @@ Actualización integral para la suite de finanzas personales (**MENSUALES** y **
 
 <img width="1750" height="729" alt="image" src="https://github.com/user-attachments/assets/60910be6-84f6-4658-b9d9-744e2d940a3f" />
 
-# 💸 Mensuales & Gastos Próximos (Actualización) 
+# 💸 Mensuales & Gastos Próximos (Actualización) 07/09/2026
 
 Aplicación web progresiva (PWA) de finanzas personales desarrollada con sincronización en la nube y soporte multimoneda.
 
@@ -472,7 +472,7 @@ Aplicación web progresiva (PWA) de finanzas personales desarrollada con sincron
 * **Backend:** Firebase (Authentication & Cloud Firestore).
 * **APIs / Librerías:** DolarAPI, jsPDF.
 
-## 🚀 Novedades y Actualizaciones Recientes
+## 🚀 Novedades y Actualizaciones Recientes 10/09/2026
 
 * **Sistema de Tres Modos Visuales**: Incorporación completa del **Modo Azul Oscuro** personalizado junto al Modo Claro y el Modo Oscuro, con persistencia automática en `localStorage` y soporte completo en toda la interfaz (incluyendo modales y pantalla de inicio de sesión).
 * **Consistencia Global de Temas**: Sincronización avanzada de colores en inputs, botones, tablas, barras de totales y tarjetas de resumen para cada modo visual.
@@ -499,6 +499,31 @@ Aplicación web progresiva (PWA) de finanzas personales desarrollada con sincron
     <img width="1091" height="153" alt="image" src="https://github.com/user-attachments/assets/44218f62-0260-4991-9f2a-a34b888cecbb" />
 
 - **Interactividad Reactiva:** El cartel aparece y desaparece automáticamente al agregar, modificar o eliminar gastos y presupuestos.
+
+
+## 🛠️ Actualizaciones Recientes y Mejoras (Changelog)  19/09/2026
+
+### 🏷️ Reorganización Integral de Categorías
+- **Agrupación semántica (`<optgroup>`):** Clasificación jerárquica del selector en tres áreas funcionales para agilizar la carga:
+  - **Hogar y Servicios:** Incorporación de *Suscripciones*, *Alquiler*, *Hogar*, *Agua* y *Servicios*.
+  - **Diario y Personal:** Gestión de *Alimentos*, *Transporte*, *Salud*, *Ropa*, *Gimnasio*, *Personal*, *Mascotas*, *Educación* y *Entretenimiento*.
+  - **Negocio y Finanzas:** Soporte para gastos comerciales y financieros con *Local*, *Mercadería*, *Cuotas*, *Deudas* y *Otros*.
+- **Mapeo e Iconografía unificada:** Sincronización automática de nombres, claves e íconos entre *Gastos Próximos* y *Mensuales*.
+
+### 🔐 Autenticación y Recuperación Unificada
+- **Recuperación de contraseña vía Firebase Auth:** Integración de `sendPasswordResetEmail` con manejo de errores específicos y mensajes contextuales.
+- **Credenciales compartidas:** Acceso unificado bidireccional entre *Gastos Próximos* y *Mensuales* bajo el mismo entorno (`projectId`).
+- **Control de visibilidad:** Alternador visual e interactivo para mostrar u ocultar la contraseña durante el inicio de sesión.
+
+### 🎨 Corrección de Modos Visuales y UI (Modo Black / Modo Azul)
+- **Corrección de diálogos nativos (`<dialog>`):** Ajuste de fondos y contrastes en modales para evitar textos invisibles en Modo Black (`#121212`) y Modo Azul.
+- **Consistencia en inputs y selectores:** Estandarización de fondos oscuros, bordes y tipografías en menús desplegables y campos de formulario en temas oscuros.
+- **Jerarquía y renderizado DOM:** Solución a contenedores ocultos (`.hidden`) para asegurar la correcta transición entre la pantalla de login y el panel principal.
+
+### 📊 Reportes y Resumen Financiero
+- **Resumen Anual Inteligente:** Generación de métricas anuales con cálculo de gasto acumulado, promedio mensual, mes pico y detección automática de la categoría principal.
+- **Exportación adaptativa:** Descarga de reportes en PDF y CSV sincronizados con los colores del tema activo.
+
 
 
 ## 👩‍💻 Proyecto
