@@ -396,7 +396,22 @@ function renderMensuales() {
   const percentageARS = prevARS ? Math.abs((diffARS / prevARS) * 100) : 0;
 
   if ($("budgetInput")) $("budgetInput").value = current.budget ? formatCurrencyInput(String(current.budget).replace(".", ",")) : "";
-  if ($("totalSpent")) $("totalSpent").textContent = money(totalARS);
+  
+  // 1. Desglose bimonetario en la tarjeta TOTAL GASTADO
+  const totalSpentEl = $("totalSpent");
+  if (totalSpentEl) {
+    if (totalUSD > 0) {
+      totalSpentEl.innerHTML = `
+        ${money(totalARS)}
+        <div style="font-size: 0.72em; color: var(--accent-color, #e05283); font-weight: 700; margin-top: 2px;">
+          + ${money(totalUSD, "USD")}
+        </div>
+      `;
+    } else {
+      totalSpentEl.textContent = money(totalARS);
+    }
+  }
+
   if ($("previousSpent")) $("previousSpent").textContent = money(prevARS);
   if ($("budgetTotal")) $("budgetTotal").textContent = money(current.budget);
   if ($("previousMonthLabel")) $("previousMonthLabel").textContent = monthName(prevMonth);
@@ -422,11 +437,22 @@ function renderMensuales() {
     }
   }
 
+  // 2. Estado de presupuesto contemplando ARS y USD convertidos
+  const usdEquivalenteARS = totalUSD > 0 && currentDolarBlue > 0 ? totalUSD * currentDolarBlue : 0;
+  const gastoTotalGlobalARS = totalARS + usdEquivalenteARS;
+
   if ($("budgetStatus")) {
-    $("budgetStatus").textContent = current.budget
-      ? totalARS <= current.budget ? `${money(current.budget - totalARS)} disponibles` : `${money(totalARS - current.budget)} excedido`
-      : "Sin presupuesto";
-    $("budgetStatus").className = totalARS <= current.budget || !current.budget ? "" : "result-bad";
+    if (!current.budget) {
+      $("budgetStatus").textContent = "Sin presupuesto";
+      $("budgetStatus").className = "";
+    } else if (gastoTotalGlobalARS <= current.budget) {
+      $("budgetStatus").textContent = `${money(current.budget - gastoTotalGlobalARS)} disponibles`;
+      $("budgetStatus").className = "";
+    } else {
+      const exceso = gastoTotalGlobalARS - current.budget;
+      $("budgetStatus").textContent = `${money(exceso)} excedido`;
+      $("budgetStatus").className = "result-bad";
+    }
   }
 
   renderMensualesExpensesTable(current.expenses);
@@ -435,11 +461,9 @@ function renderMensuales() {
   renderCategories(current.expenses);
   renderTrend(month, totalARS, prevARS, totalUSD);
 
-  const totalGastadoActual = Number(document.getElementById("totalSpent")?.textContent.replace(/[^0-9,-]+/g,"").replace(",", ".")) || 0;
-  const presupuestoActual = parseCurrency(document.getElementById("budgetInput")?.value);
-  checkFinancialAlerts(totalGastadoActual, presupuestoActual, current.expenses || []);
+  // 3. Verificador de alertas pasando valores numéricos directos
+  checkFinancialAlerts(totalARS, totalUSD, current.budget, currentDolarBlue);
 }
-
 function renderExtraIncomesTable(extraIncomes) {
   const tbody = $("extraIncomeTableBody");
   const totalBadge = $("extraTotalSumDisplay");
@@ -1685,7 +1709,7 @@ function generateAnnualPDF() {
 /* =========================================================
    SISTEMA DE ALERTAS DE PRESUPUESTO
 ========================================================= */
-function checkFinancialAlerts(totalGastado, presupuesto, gastosDelMes) {
+function checkFinancialAlerts(totalARS, totalUSD, presupuesto, cotizacionBlue) {
   let alertaPresupuestoContainer = document.getElementById("alertaPresupuesto");
   if (!alertaPresupuestoContainer) {
     alertaPresupuestoContainer = document.createElement("div");
@@ -1694,18 +1718,38 @@ function checkFinancialAlerts(totalGastado, presupuesto, gastosDelMes) {
     const hero = document.querySelector("header.hero") || document.querySelector("main");
     if (hero) hero.insertAdjacentElement("afterend", alertaPresupuestoContainer);
   }
-  
-  if (presupuesto > 0 && totalGastado > presupuesto) {
-    const exceso = totalGastado - presupuesto;
-    alertaPresupuestoContainer.innerHTML = `
-      <span style="font-size: 1.2rem;">⚠️</span>
-      <div>
-        <strong>¡Atención! Te excediste del presupuesto mensual</strong> por 
-        <span style="font-weight: 700;">$ ${exceso.toLocaleString('es-AR', {minimumFractionDigits: 2})}</span>.
-      </div>
-    `;
-    alertaPresupuestoContainer.classList.remove("hidden");
-  } else {
-    alertaPresupuestoContainer.classList.add("hidden");
+
+  const usdEnARS = totalUSD > 0 && cotizacionBlue > 0 ? totalUSD * cotizacionBlue : 0;
+  const totalGeneralARS = totalARS + usdEnARS;
+
+  const excedidoSoloPesos = presupuesto > 0 && totalARS > presupuesto;
+  const excedidoConDolares = presupuesto > 0 && totalGeneralARS > presupuesto;
+
+  if (presupuesto > 0 && (excedidoSoloPesos || excedidoConDolares || totalUSD > 0)) {
+    let mensaje = "";
+
+    if (excedidoSoloPesos && totalUSD > 0) {
+      const excesoARS = totalARS - presupuesto;
+      mensaje = `<strong>¡Atención! Te excediste del presupuesto en pesos</strong> por ${money(excesoARS)} y además tenés gastos por <strong>${money(totalUSD, "USD")}</strong>.`;
+    } else if (excedidoSoloPesos) {
+      const excesoARS = totalARS - presupuesto;
+      mensaje = `<strong>¡Atención! Te excediste del presupuesto mensual</strong> por <strong>${money(excesoARS)}</strong>.`;
+    } else if (excedidoConDolares && cotizacionBlue > 0) {
+      const excesoConvertido = totalGeneralARS - presupuesto;
+      mensaje = `<strong>¡Atención! Considerando la cotización Blue, superaste el presupuesto</strong> por un equivalente a <strong>${money(excesoConvertido)}</strong> (gastos en USD: ${money(totalUSD, "USD")}).`;
+    } else if (totalUSD > 0 && totalARS <= presupuesto) {
+      mensaje = `<strong>Atención:</strong> Tenés gastos por <strong>${money(totalUSD, "USD")}</strong> no cubiertos en el presupuesto en pesos.`;
+    }
+
+    if (mensaje) {
+      alertaPresupuestoContainer.innerHTML = `
+        <span style="font-size: 1.2rem;">⚠️</span>
+        <div>${mensaje}</div>
+      `;
+      alertaPresupuestoContainer.classList.remove("hidden");
+      return;
+    }
   }
+
+  alertaPresupuestoContainer.classList.add("hidden");
 }
