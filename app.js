@@ -1719,6 +1719,9 @@ function checkFinancialAlerts(totalARS, totalUSD, presupuesto, cotizacionBlue) {
     if (hero) hero.insertAdjacentElement("afterend", alertaPresupuestoContainer);
   }
 
+  // Se remueve cualquier color en línea para que mande el CSS según el tema
+  alertaPresupuestoContainer.style.color = "";
+
   const usdEnARS = totalUSD > 0 && cotizacionBlue > 0 ? totalUSD * cotizacionBlue : 0;
   const totalGeneralARS = totalARS + usdEnARS;
 
@@ -1730,21 +1733,21 @@ function checkFinancialAlerts(totalARS, totalUSD, presupuesto, cotizacionBlue) {
 
     if (excedidoSoloPesos && totalUSD > 0) {
       const excesoARS = totalARS - presupuesto;
-      mensaje = `<strong>¡Atención! Te excediste del presupuesto en pesos</strong> por ${money(excesoARS)} y además tenés gastos por <strong>${money(totalUSD, "USD")}</strong>.`;
+      mensaje = `<strong>¡Atención! Te excediste del presupuesto en pesos</strong> por <strong>${money(excesoARS)}</strong> y además tenés gastos por <strong>${money(totalUSD, "USD")}</strong>.`;
     } else if (excedidoSoloPesos) {
       const excesoARS = totalARS - presupuesto;
       mensaje = `<strong>¡Atención! Te excediste del presupuesto mensual</strong> por <strong>${money(excesoARS)}</strong>.`;
     } else if (excedidoConDolares && cotizacionBlue > 0) {
       const excesoConvertido = totalGeneralARS - presupuesto;
-      mensaje = `<strong>¡Atención! Considerando la cotización Blue, superaste el presupuesto</strong> por un equivalente a <strong>${money(excesoConvertido)}</strong> (gastos en USD: ${money(totalUSD, "USD")}).`;
+      mensaje = `<strong>¡Atención! Considerando la cotización Blue, superaste el presupuesto</strong> por un equivalente a <strong>${money(excesoConvertido)}</strong> (gastos en USD: <strong>${money(totalUSD, "USD")}</strong>).`;
     } else if (totalUSD > 0 && totalARS <= presupuesto) {
       mensaje = `<strong>Atención:</strong> Tenés gastos por <strong>${money(totalUSD, "USD")}</strong> no cubiertos en el presupuesto en pesos.`;
     }
 
     if (mensaje) {
       alertaPresupuestoContainer.innerHTML = `
-        <span style="font-size: 1.2rem;">⚠️</span>
-        <div>${mensaje}</div>
+        <span style="font-size: 1.2rem; margin-right: 6px;">⚠️</span>
+        <div style="display: inline;">${mensaje}</div>
       `;
       alertaPresupuestoContainer.classList.remove("hidden");
       return;
