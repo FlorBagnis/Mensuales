@@ -68,3 +68,43 @@ users/
             ├── currency: "ARS" | "USD"
             ├── category: string
             └── paid: boolean
+
+
+
+
+---
+
+## 📝 Historial de Actualizaciones (Changelog)
+
+<details>
+<summary><b>Ver detalles de las últimas actualizaciones</b></summary>
+
+### 🏷️ Categorías y Usabilidad (19/09/2026)
+- Reorganización semántica del selector de categorías agrupado en 3 áreas clave:
+  - *Hogar y Servicios:* Alquiler, Hogar, Agua, Servicios y Suscripciones.
+  - *Diario y Personal:* Alimentos, Transporte, Salud, Ropa, Gimnasio, Personal, Mascotas, Educación y Entretenimiento.
+  - *Negocio y Finanzas:* Local, Mercadería, Cuotas, Deudas y Otros.
+- Recuperación de contraseña integrada con `sendPasswordResetEmail` y credenciales compartidas entre ambas apps.
+- Corrección de contraste en modales `<dialog>` nativos para el Modo Black (`#121212`) y Modo Azul.
+
+### 📊 Alertas y Resumen Anual (10/09/2026)
+- **Banner de Alerta de Presupuesto:** Detección automática en tiempo real de excedentes presupuestarios con diseño adaptado a cada tema.
+- **Resumen Anual:** Modal y reporte PDF con cálculo de acumulados, promedio mensual y categoría más demandada.
+- **Modo Azul y Modo Black:** Soporte completo de 4 modos visuales con persistencia en `localStorage`.
+
+### 💱 Bimonetario y Sincronización (07/09/2026)
+- Desglose independiente de totales en ARS y USD.
+- Sincronización automática de estados de pago entre Gastos Próximos y Mensuales.
+
+</details>
+
+---
+
+## 👩‍💻 Autora
+
+**Florencia Bagnis**
+
+* 💼 [LinkedIn](https://www.linkedin.com/in/florencia-bagnis-5043aa152/)
+* 💻 [Portfolio](https://florbagnis.github.io/Portfolio-FlorBagnis/)
+* 📧 [florenciasoledadbagnis@gmail.com](mailto:florenciasoledadbagnis@gmail.com)
+
