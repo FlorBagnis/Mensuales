@@ -3027,3 +3027,65 @@ body.dark-blue-mode .table-wrap::-webkit-scrollbar-thumb {
 body.black-mode .table-wrap::-webkit-scrollbar-thumb {
   background: #333333;
 }
+
+
+
+/* =========================================================
+   MODAL RESUMEN ANUAL OSCURO / BLACK
+========================================================= */
+
+/* Modo Oscuro (Dark Pink) */
+body.dark-mode #annualDialog {
+  background: #1e0f17 !important;
+  color: #fdf2f6 !important;
+  border: 1px solid #4a2138 !important;
+}
+
+body.dark-mode #annualDialog .annual-mini-card {
+  background: #2d1422 !important;
+  border: 1px solid #4a2138 !important;
+}
+
+body.dark-mode #annualDialog h2,
+body.dark-mode #annualDialog .annual-mini-card strong {
+  color: #ffffff !important;
+}
+
+body.dark-mode #annualDialog p,
+body.dark-mode #annualDialog .annual-mini-card span {
+  color: #e5a3bc !important;
+}
+
+/* Modo Black */
+body.black-mode #annualDialog {
+  background: #0a0a0a !important;
+  color: #ffffff !important;
+  border: 1px solid #262626 !important;
+}
+
+body.black-mode #annualDialog .annual-mini-card {
+  background: #141414 !important;
+  border: 1px solid #2a2a2a !important;
+}
+
+body.black-mode #annualDialog h2,
+body.black-mode #annualDialog .annual-mini-card strong {
+  color: #ffffff !important;
+}
+
+body.black-mode #annualDialog p,
+body.black-mode #annualDialog .annual-mini-card span {
+  color: #999999 !important;
+}
+
+/* Modo Azul */
+body.dark-blue-mode #annualDialog {
+  background: #070d1e !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #1e356d !important;
+}
+
+body.dark-blue-mode #annualDialog .annual-mini-card {
+  background: #0f1c3f !important;
+  border: 1px solid #1e356d !important;
+}
