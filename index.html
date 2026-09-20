@@ -341,7 +341,7 @@
         </section>
       </div>
 
-      <!-- GASTOS DEL MES -->
+    <!-- GASTOS DEL MES -->
       <section class="panel" style="margin-top: 1.5rem;">
         <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <div>
@@ -351,68 +351,70 @@
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <input type="search" id="searchMensualesInput" placeholder="🔍 Buscar gasto..." style="padding: 6px 14px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem;">
             
-  <select id="filterCategorySelect" style="padding: 6px 12px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem; background: #fff; color: #555; cursor: pointer;">
-  <option value="">Todas las categorías</option>
+            <select id="filterCategorySelect" style="padding: 6px 12px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem; background: #fff; color: #555; cursor: pointer;">
+              <option value="">Todas las categorías</option>
 
-  <optgroup label="— Hogar y Servicios —">
-    <option value="Alquiler">Alquiler</option>
-    <option value="Hogar">Hogar</option>
-    <option value="Agua">Agua</option>
-    <option value="Servicios">Servicios</option>
-    <option value="Suscripciones">Suscripciones</option>
-  </optgroup>
+              <optgroup label="— Hogar y Servicios —">
+                <option value="Alquiler">Alquiler</option>
+                <option value="Hogar">Hogar</option>
+                <option value="Agua">Agua</option>
+                <option value="Servicios">Servicios</option>
+                <option value="Suscripciones">Suscripciones</option>
+              </optgroup>
 
-  <optgroup label="— Diario y Personal —">
-    <option value="Alimentos">Alimentos</option>
-    <option value="Transporte">Transporte</option>
-    <option value="Salud">Salud</option>
-    <option value="Ropa">Ropa</option>
-    <option value="Gimnasio">Gimnasio</option>
-    <option value="Personal">Personal</option>
-    <option value="Mascotas">Mascotas</option>
-    <option value="Educación">Educación</option>
-    <option value="Entretenimiento">Entretenimiento</option>
-  </optgroup>
+              <optgroup label="— Diario y Personal —">
+                <option value="Alimentos">Alimentos</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Salud">Salud</option>
+                <option value="Ropa">Ropa</option>
+                <option value="Gimnasio">Gimnasio</option>
+                <option value="Personal">Personal</option>
+                <option value="Mascotas">Mascotas</option>
+                <option value="Educación">Educación</option>
+                <option value="Entretenimiento">Entretenimiento</option>
+              </optgroup>
 
-  <optgroup label="— Negocio y Finanzas —">
-    <option value="Local">Local</option>
-    <option value="Mercadería">Mercadería</option>
-    <option value="Cuotas">Cuotas</option>
-    <option value="Otros">Otros</option>
-  </optgroup>
-</select>
+              <optgroup label="— Negocio y Finanzas —">
+                <option value="Local">Local</option>
+                <option value="Mercadería">Mercadería</option>
+                <option value="Cuotas">Cuotas</option>
+                <option value="Otros">Otros</option>
+              </optgroup>
+            </select>
 
             <button id="toggleTableBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar tabla</button>
             <span id="monthPill" class="month-pill">—</span>
           </div>
         </div>
 
-        <div id="emptyState" class="empty-state">
-          <div>♡</div>
-          <strong>Todavía no hay gastos</strong>
-          <span>Agregá tu primer gasto del mes.</span>
-        </div>
+        <div id="tableContentWrapper" class="collapsible-section">
+          <div id="emptyState" class="empty-state">
+            <div>♡</div>
+            <strong>Todavía no hay gastos</strong>
+            <span>Agregá tu primer gasto del mes.</span>
+          </div>
 
-        <div class="table-wrap table-container-collapsible">
-          <table>
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Descripción</th>
-                <th>Categoría</th>
-                <th>Monto</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="expenseTable"></tbody>
-          </table>
-        </div>
+          <div class="table-wrap table-container-collapsible">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Descripción</th>
+                  <th>Categoría</th>
+                  <th>Monto</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="expenseTable"></tbody>
+            </table>
+          </div>
 
-        <div class="table-total" style="display: flex; justify-content: space-between; align-items: center;">
-          <span>TOTAL · <span id="totalMonthName">—</span></span>
-          <div style="text-align: right;">
-            <strong id="tableTotal" style="display: block;">$0,00</strong>
-            <small id="tableTotalUSD" style="display: block; font-size: 0.95rem; color: var(--pink-700); font-weight: 600;"></small>
+          <div class="table-total" style="display: flex; justify-content: space-between; align-items: center;">
+            <span>TOTAL · <span id="totalMonthName">—</span></span>
+            <div style="text-align: right;">
+              <strong id="tableTotal" style="display: block;">$0,00</strong>
+              <small id="tableTotalUSD" style="display: block; font-size: 0.95rem; color: var(--pink-700); font-weight: 600;"></small>
+            </div>
           </div>
         </div>
       </section>
@@ -448,6 +450,7 @@
         </div>
       </section>
 
+      <!-- DOS COLUMNAS: HISTORIAL Y CATEGORÍAS -->
       <section class="two-columns" style="margin-top: 1.5rem;">
         <section class="panel">
           <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
@@ -475,15 +478,17 @@
         </section>
 
         <section class="panel">
-          <div class="section-heading">
+          <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center;">
             <div>
               <h2>Gastos por categoría</h2>
               <p>Distribución de tus gastos.</p>
             </div>
+            <button id="toggleCategoryBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar gráfico</button>
           </div>
-          <div id="categoryChart" class="category-chart"></div>
+          <div id="categoryContainer" class="collapsible-section">
+            <div id="categoryChart" class="category-chart"></div>
+          </div>
         </section>
-      </section>
 
       <section class="trend-box" style="margin-top: 1.5rem;">
         <h2>📊 Análisis de tendencia</h2>
