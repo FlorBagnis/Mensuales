@@ -1092,11 +1092,12 @@ function initApp() {
     };
   }
 
-  setupCollapsible("toggleToolbarBtn", "#toolbarContainer", "mensuales_toolbar_collapsed", "barra");
+setupCollapsible("toggleToolbarBtn", "#toolbarContainer", "mensuales_toolbar_collapsed", "barra");
   setupCollapsible("toggleBudgetBtn", "#budgetContainer", "mensuales_budget_collapsed", "resumen");
-  setupCollapsible("toggleTableBtn", ".table-wrap", "mensuales_table_collapsed", "tabla");
+  setupCollapsible("toggleTableBtn", "#tableContentWrapper", "mensuales_table_collapsed", "tabla");
   setupCollapsible("toggleHistoryBtn", "#historyContainer", "mensuales_history_collapsed", "historial");
   setupCollapsible("toggleExtraHistoryBtn", "#extraHistoryContainer", "mensuales_extra_collapsed", "historial extra");
+  setupCollapsible("toggleCategoryBtn", "#categoryContainer", "mensuales_cat_collapsed", "gráfico");
 
   // EXPORTAR CSV
   $("mensualesCsvBtn")?.addEventListener("click", () => {
