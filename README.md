@@ -97,10 +97,16 @@ Desglose independiente de totales en ARS y USD.
 
 Sincronización automática de estados de pago entre Gastos Próximos y Mensuales.
 
+---
+
 👩‍💻 Autora
 
 **Florencia Bagnis**
 
-* 💼 [LinkedIn](https://www.linkedin.com/in/florencia-bagnis-5043aa152/)
+* 💼 [LinkedIn](https://www.linkedin.com/in/florencia-bagnis)
 * 💻 [Portfolio](https://florbagnis.github.io/Portfolio-FlorBagnis/)
 * 📧 [florenciasoledadbagnis@gmail.com](mailto:florenciasoledadbagnis@gmail.com)
+
+<br>
+
+  > 🌸 Proyecto personal desarrollado para el control de presupuestos y previsión de **gastos mensuales**, enfocado en **JavaScript moderno**, persistencia de datos en tiempo real con **Firebase**, diseño de interfaces limpias con **HTML5/CSS3** y una experiencia de usuario totalmente **responsive**.
