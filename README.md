@@ -6,6 +6,12 @@
 
 > **MENSUALES** es una Progressive Web App (PWA) bimonetaria diseñada para registrar, organizar y proyectar finanzas personales mes a mes con sincronización en la nube en tiempo real e integración directa con **[Gastos Próximos](https://gastos-proximos.vercel.app/)**.
 
+<p align="center">
+  <a href="https://gastosmensuales-two.vercel.app/">
+    <img src="https://img.shields.io/badge/Ver_Demo-Abrir_Herramienta-ff69b4?style=for-the-badge&logo=vercel&logoColor=white" alt="Ver Demo" />
+  </a>
+</p>
+
 ---
 
 ## ✨ Características Principales
