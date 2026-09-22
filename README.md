@@ -1,7 +1,7 @@
 # 💗 MENSUALES & Gastos Próximos · Control de Gastos
 
 <p align="center">
-  <img width="100%" alt="Preview Mensuales" src="https://github.com/user-attachments/assets/52879245-6b81-48ec-9fbd-2569a2c0e07d" />
+  <img width="1528" height="877" alt="image" src="https://github.com/user-attachments/assets/2a8f7688-da56-4acf-ab05-3417c841c709" />
 </p>
 
 > **MENSUALES** es una Progressive Web App (PWA) bimonetaria diseñada para registrar, organizar y proyectar finanzas personales mes a mes con sincronización en la nube en tiempo real e integración directa con **[Gastos Próximos](https://gastos-proximos.vercel.app/)**.
@@ -45,6 +45,19 @@ Ambas plataformas operan bajo el mismo proyecto de **Firebase (Auth & Firestore)
 * **Backend as a Service (BaaS):** Firebase v12 (Authentication & Cloud Firestore en tiempo real).
 * **Librerías & APIs:** jsPDF (v2.5.1), DolarAPI (Cotización Blue en tiempo real).
 * **Entorno & Deploy:** Git, GitHub Pages, Vercel.
+
+---
+
+### 🎯 Objetivo del proyecto
+
+El objetivo principal es consolidar conceptos fundamentales de **desarrollo frontend**, **lógica de negocio** y **persistencia de datos en la nube**, aplicando habilidades técnicas que resultan clave en roles como:
+
+* **Technical Support Specialist**
+* **Technical Support Analyst**
+* **Customer Support / Customer Experience**
+* **Product Operations / Operations Support**
+
+El proyecto busca profundizar en cómo interactúan una interfaz intuitiva, el manejo reactivo del estado en el cliente con **JavaScript**, y la sincronización/almacenamiento en tiempo real mediante **Firebase**, garantizando una experiencia de usuario fluida, privada y libre de fricciones operativas.
 
 ---
 
