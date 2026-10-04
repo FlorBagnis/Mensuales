@@ -118,6 +118,16 @@ Sincronización automática de estados de pago entre Gastos Próximos y Mensuale
 
 ---
 
+
+¿Te sirvió? Dejale una ⭐ al repo.
+
+---
+
+## 📄 Licencia
+
+Distribuido bajo licencia MIT. Ver el archivo `LICENSE`.
+
+
 👩‍💻 Autora
 
 **Florencia Bagnis**
