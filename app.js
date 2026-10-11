@@ -1992,7 +1992,6 @@ async function recEliminar(id) {
   }
 }
 
-
 /* ---------- Interfaz ---------- */
 
 function recAbrirDialog(rec = null) {
@@ -2069,7 +2068,6 @@ function recRender() {
   const hoy = hoyAR();
   const activos = recItems.filter(r => r.activo !== false);
 
-  // Cartel de aviso
   const pendientes = activos.filter(r => !recEstado(r, hoy).pagado);
   let vencidos = 0, porVencer = 0;
   pendientes.forEach(r => {
@@ -2087,7 +2085,6 @@ function recRender() {
     banner.className = "rec-banner" + (vencidos ? " late" : " soon");
   }
 
-  // Resumen
   let faltaARS = 0, faltaUSD = 0;
   pendientes.forEach(r => {
     if (!r.monto) return;
@@ -2104,7 +2101,6 @@ function recRender() {
     }
   }
 
-  // Lista agrupada
   if (!activos.length) {
     lista.innerHTML = `<div class="rec-empty">Todavía no cargaste recurrentes.<br>Agregá Netflix, Fibertel, el alquiler, el monotributo… y te aviso antes de que venzan.</div>`;
     return;
@@ -2130,50 +2126,51 @@ function recMontarUI() {
   const style = document.createElement("style");
   style.id = "recStyles";
   style.textContent = `
-    .rec-panel{margin:1.5rem 0;padding:20px;border-radius:20px;border:1px solid rgba(128,128,128,.25);background:rgba(128,128,128,.06);color:inherit;box-sizing:border-box}
-    .rec-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-    .rec-head h2{margin:0;font-size:1.15rem}
-    .rec-head p{margin:2px 0 0;font-size:.8rem;opacity:.75}
+    .rec-panel{margin:1.5rem 0;padding:22px;border-radius:24px;border:1px solid #f2cfdf;background:var(--card-bg, #fff);box-shadow:0 4px 20px rgba(90,35,55,0.06);color:inherit;box-sizing:border-box}
+    .rec-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    .rec-head h2{margin:0;font-size:1.15rem;color:var(--pink-700, #c43878);font-weight:800}
+    .rec-head p{margin:2px 0 0;font-size:.8rem;color:var(--muted, #888)}
     .rec-head-btns{display:flex;gap:8px;flex-wrap:wrap}
-    .rec-btn{background:#fbc4d4;color:#5a2337;border:1px solid #f29cb5;border-radius:12px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer}
-    .rec-btn.ghost{background:transparent;color:inherit;border:1px solid rgba(128,128,128,.4)}
-    .rec-banner{display:none;margin:8px 0;padding:10px 14px;border-radius:12px;font-weight:700;font-size:.9rem}
-    .rec-banner.late{background:rgba(220,50,60,.15);color:#d32f2f}
-    .rec-banner.soon{background:rgba(240,140,30,.18);color:#c26a00}
-    .rec-resumen{font-size:.85rem;margin:6px 0 10px;opacity:.9}
-    .rec-group h4{margin:14px 0 6px;font-size:.85rem;letter-spacing:.3px;opacity:.85}
-    .rec-item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 12px;margin-bottom:6px;border-radius:14px;border:1px solid rgba(128,128,128,.2);background:rgba(128,128,128,.07)}
+    .rec-btn{background:#fbc4d4;color:#5a2337;border:1px solid #f29cb5;border-radius:12px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 8px rgba(90,35,55,0.08)}
+    .rec-btn.ghost{background:transparent;color:var(--pink-700, #c43878);border:1px solid #f29cb5}
+    .rec-banner{display:none;margin:10px 0;padding:10px 14px;border-radius:12px;font-weight:700;font-size:.9rem}
+    .rec-banner.late{background:rgba(211,47,47,0.1);color:#d32f2f;border:1px solid rgba(211,47,47,0.2)}
+    .rec-banner.soon{background:#fff0f5;color:#9e5b72;border:1px solid #fad2e1}
+    .rec-resumen{font-size:.85rem;margin:6px 0 12px;color:var(--muted, #777)}
+    .rec-group h4{margin:16px 0 6px;font-size:.85rem;letter-spacing:.3px;color:var(--pink-700, #c43878);font-weight:700}
+    .rec-item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:12px 14px;margin-bottom:8px;border-radius:16px;border:1px solid #fde2ec;background:#fff8fa}
     .rec-info{display:flex;flex-direction:column;min-width:0}
-    .rec-name{font-weight:700;overflow:hidden;text-overflow:ellipsis}
-    .rec-meta{font-size:.78rem;opacity:.75}
-    .rec-badge{font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+    .rec-name{font-weight:700;color:var(--text, #333);overflow:hidden;text-overflow:ellipsis}
+    .rec-meta{font-size:.78rem;color:var(--muted, #777)}
+    .rec-badge{font-size:.75rem;font-weight:700;padding:5px 12px;border-radius:999px;white-space:nowrap}
     .rec-badge.paid{background:rgba(34,160,90,.15);color:#1f8a4c}
-    .rec-badge.soon{background:rgba(240,140,30,.18);color:#c26a00}
-    .rec-badge.late{background:rgba(220,50,60,.15);color:#d32f2f}
-    .rec-badge.wait{background:rgba(128,128,128,.15)}
-    body:is(.dark-mode,.dark-blue-mode,.black-mode) .rec-badge.paid{color:#6fdc9a}
-    body:is(.dark-mode,.dark-blue-mode,.black-mode) .rec-badge.soon,body:is(.dark-mode,.dark-blue-mode,.black-mode) .rec-banner.soon{color:#ffb454}
-    body:is(.dark-mode,.dark-blue-mode,.black-mode) .rec-badge.late,body:is(.dark-mode,.dark-blue-mode,.black-mode) .rec-banner.late{color:#ff8a8f}
-    .rec-actions{display:flex;gap:4px}
-    .rec-icon{width:32px;height:32px;border-radius:50%;border:1px solid rgba(128,128,128,.3);background:transparent;color:inherit;cursor:pointer;font-size:14px;display:grid;place-items:center;padding:0}
-    .rec-icon.pay{background:rgba(34,160,90,.18);border-color:rgba(34,160,90,.5)}
-    .rec-empty{text-align:center;padding:20px 10px;opacity:.75;font-size:.9rem}
+    .rec-badge.soon{background:#fff0f5;color:#c26a00;border:1px solid #fad2e1}
+    .rec-badge.late{background:rgba(211,47,47,0.12);color:#d32f2f}
+    .rec-badge.wait{background:rgba(128,128,128,.1);color:var(--muted, #666)}
+    
+    body.dark-mode .rec-panel, body.dark-blue-mode .rec-panel, body.black-mode .rec-panel{background:var(--card-bg, #2a161d)!important;border-color:var(--border, #4e2b37)!important}
+    body.dark-mode .rec-item, body.dark-blue-mode .rec-item, body.black-mode .rec-item{background:#1f1015!important;border-color:#4e2b37!important}
+    body.dark-mode .rec-name, body.dark-blue-mode .rec-name, body.black-mode .rec-name{color:#ffb6c1!important}
+
+    .rec-actions{display:flex;gap:6px}
+    .rec-icon{width:32px;height:32px;border-radius:50%;border:1px solid #f29cb5;background:transparent;color:var(--pink-700, #c43878);cursor:pointer;font-size:14px;display:grid;place-items:center;padding:0;transition:transform 0.2s}
+    .rec-icon:hover{transform:scale(1.08)}
+    .rec-icon.pay{background:#fbc4d4;color:#5a2337}
+    .rec-empty{text-align:center;padding:25px 10px;color:var(--muted, #888);font-size:.9rem}
     .rec-collapsed .rec-body{display:none}
     body.amounts-hidden .rec-amount{filter:blur(6px);user-select:none}
     @media (max-width:600px){.rec-item{grid-template-columns:1fr auto}.rec-badge{grid-column:1;justify-self:start}.rec-actions{grid-row:1;grid-column:2}}
-    .rec-dialog{--rec-bg:#fff;--rec-fg:#333;--rec-line:#e5d3da;border:1px solid var(--rec-line);border-radius:22px;padding:24px;max-width:420px;width:92%;background:var(--rec-bg);color:var(--rec-fg)}
-    body.dark-mode .rec-dialog{--rec-bg:#2a161d;--rec-fg:#ffb6c1;--rec-line:#4e2b37}
-    body.dark-blue-mode .rec-dialog{--rec-bg:#0f1c3f;--rec-fg:#f1f5f9;--rec-line:#1e3a8a}
-    body.black-mode .rec-dialog{--rec-bg:#121212;--rec-fg:#fff;--rec-line:#333}
+    
+    .rec-dialog{border:1px solid #f2cfdf;border-radius:24px;padding:28px;max-width:420px;width:92%;background:var(--card-bg, #fff);color:var(--text, #333);box-shadow:0 10px 30px rgba(0,0,0,0.15)}
+    body.dark-mode .rec-dialog, body.dark-blue-mode .rec-dialog, body.black-mode .rec-dialog{background:#2a161d;color:#ffb6c1;border-color:#4e2b37}
     .rec-dialog::backdrop{background:rgba(0,0,0,.45);backdrop-filter:blur(6px)}
-    .rec-dialog h3{margin:0 0 14px}
-    .rec-dialog label{display:grid;gap:5px;font-size:.78rem;font-weight:700;margin-bottom:12px}
-    .rec-dialog input[type=text],.rec-dialog input[type=number],.rec-dialog select{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--rec-line);background:transparent;color:var(--rec-fg);font:inherit;font-size:.9rem}
-    .rec-dialog select option{color:#333}
-    .rec-row{display:grid;grid-template-columns:1fr 110px;gap:10px}
+    .rec-dialog h3{margin:0 0 16px;color:var(--pink-700, #c43878);font-weight:800}
+    .rec-dialog label{display:grid;gap:6px;font-size:.78rem;font-weight:800;color:var(--pink-700, #c43878);margin-bottom:14px}
+    .rec-dialog input[type=text],.rec-dialog input[type=number],.rec-dialog select{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--line, #f2cfdf);background:transparent;color:inherit;font:inherit;font-size:.9rem}
+    .rec-row{display:grid;grid-template-columns:1fr 120px;gap:10px}
     .rec-check{display:flex!important;grid-template-columns:none!important;align-items:center;gap:8px!important;font-weight:600!important}
     .rec-check input{width:auto}
-    .rec-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+    .rec-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
   `;
   document.head.appendChild(style);
 
@@ -2204,7 +2201,7 @@ function recMontarUI() {
           <input type="text" id="recFDesc" placeholder="Ej: Netflix, Fibertel, Monotributo" maxlength="80" required>
         </label>
         <label>Grupo
-          <select id="recFGrupo">${REC_GRUPOS.map(g => `<option value="${g}">${REC_ICONOS[g]} ${g}</option>`).join("")}</select>
+          <select id="recFGrupo">${REC_GRUPOS.map(g => `<option value="${g}">${REC_ICONOS[g]}${g}</option>`).join("")}</select>
         </label>
         <div class="rec-row">
           <label>Monto (opcional)
@@ -2225,6 +2222,70 @@ function recMontarUI() {
       </form>
     </dialog>
   `;
+
+  const tabla = document.getElementById("tableContentWrapper");
+  const panelGastos = tabla ? tabla.closest(".panel") : null;
+  const resumenGrid = document.querySelector(".summary-grid");
+  if (panelGastos && panelGastos.parentNode) {
+    panelGastos.parentNode.insertBefore(section, panelGastos);
+  } else if (resumenGrid) {
+    resumenGrid.insertAdjacentElement("afterend", section);
+  } else {
+    (document.getElementById("appContent") || document.body).appendChild(section);
+  }
+
+  document.getElementById("recAddBtn").addEventListener("click", () => recAbrirDialog());
+  document.getElementById("recCancelBtn").addEventListener("click", () => document.getElementById("recDialog").close());
+  document.getElementById("recForm").addEventListener("submit", recSubmitForm);
+  document.getElementById("recFMonto").addEventListener("input", e => {
+    const start = e.target.selectionStart;
+    const prevLen = e.target.value.length;
+    e.target.value = formatCurrencyInput(e.target.value);
+    const pos = Math.max(0, start + (e.target.value.length - prevLen));
+    e.target.setSelectionRange(pos, pos);
+  });
+  document.getElementById("recList").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.act === "pay") recPagar(id);
+    if (btn.dataset.act === "unpay") recDeshacerPago(id);
+    if (btn.dataset.act === "edit") recAbrirDialog(recItems.find(r => r.id === id));
+    if (btn.dataset.act === "delete") recEliminar(id);
+  });
+
+  const toggleBtn = document.getElementById("recToggleBtn");
+  let colapsado = false;
+  try { colapsado = localStorage.getItem("recurrentes_collapsed") === "true"; } catch (e) {}
+  const aplicarColapso = () => {
+    section.classList.toggle("rec-collapsed", colapsado);
+    toggleBtn.textContent = colapsado ? "▼ Mostrar" : "▲ Ocultar";
+  };
+  aplicarColapso();
+  toggleBtn.addEventListener("click", () => {
+    colapsado = !colapsado;
+    try { localStorage.setItem("recurrentes_collapsed", colapsado); } catch (e) {}
+    aplicarColapso();
+  });
+
+  if (!recTimer) recTimer = setInterval(recRender, 60000);
+}
+
+function startRecurrentes() {
+  stopRecurrentes();
+  if (!currentUser) return;
+  recMontarUI();
+  recUnsub = onSnapshot(
+    collection(db, "users", currentUser.uid, "recurrentes"),
+    snapshot => {
+      recItems = [];
+      snapshot.forEach(d => recItems.push({ id: d.id, ...d.data() }));
+      recRender();
+    },
+    err => console.error("Error al sincronizar recurrentes:", err)
+  );
+}
+
 
   // Ubicación: en Mensuales antes de "Gastos del mes"; en Próximos después del resumen
   const tabla = document.getElementById("tableContentWrapper");
