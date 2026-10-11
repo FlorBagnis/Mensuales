@@ -24,6 +24,14 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
+/* Hoy en Argentina. El día cambia a las 00:00 hora argentina. */
+function hoyAR(now = new Date()) {
+  const [y, m, d] = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Argentina/Buenos_Aires" })
+    .format(now).split("-").map(Number);
+  const pad = n => String(n).padStart(2, "0");
+  return { y, m, d, date: new Date(y, m - 1, d), iso: `${y}-${pad(m)}-${pad(d)}`, mes: `${y}-${pad(m)}` };
+}
+
 const firebaseConfig = {
   apiKey: "AIzaSyBGGfMzmGfRH614IT5wwG2kZOtUDBd16ok",
   authDomain: "mensuales-8de3d.firebaseapp.com",
@@ -85,9 +93,9 @@ function money(value, currency = "ARS") {
   }).format(Number(value || 0));
 }
 
+// Mes actual en hora de Argentina (cambia a las 00:00 AR)
 function currentMonthValue() {
-  const today = new Date();
-  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+  return hoyAR().mes;
 }
 
 function monthName(month) {
@@ -252,11 +260,11 @@ document.addEventListener("click", async (e) => {
 
     try {
       await sendPasswordResetEmail(auth, email);
-      setAuthMessage(`¡Listo! Te enviamos un correo a ${email} para restablecer tu contraseña.`);
+      setAuthMessage(`¡Listo! Te enviamos un correo a ${email} para restablecer tu contraseña.`, true);
     } catch (error) {
       console.error("Error al enviar email de recuperación:", error);
       let errorMsg = "No se pudo enviar el correo de recuperación.";
-      
+
       if (error.code === 'auth/user-not-found') {
         errorMsg = "No existe ninguna cuenta registrada con ese correo.";
       } else if (error.code === 'auth/invalid-email') {
@@ -272,7 +280,7 @@ document.addEventListener("click", async (e) => {
 
 onAuthStateChanged(auth, async user => {
   currentUser = user;
-  
+
   const savedTheme = localStorage.getItem("mensual_theme_mode") || "light";
   document.body.classList.remove("dark-mode", "dark-blue-mode", "black-mode");
   if (savedTheme === "dark") {
@@ -351,9 +359,9 @@ async function saveMonthToFirestore(month) {
   try {
     const docRef = doc(db, "users", currentUser.uid, "months", month);
     const m = ensureMonth(month);
-    await setDoc(docRef, { 
-      budget: Number(m.budget || 0), 
-      expenses: m.expenses, 
+    await setDoc(docRef, {
+      budget: Number(m.budget || 0),
+      expenses: m.expenses,
       extraIncomes: m.extraIncomes || []
     }, { merge: true });
   } catch (e) {
@@ -396,7 +404,7 @@ function renderMensuales() {
   const percentageARS = prevARS ? Math.abs((diffARS / prevARS) * 100) : 0;
 
   if ($("budgetInput")) $("budgetInput").value = current.budget ? formatCurrencyInput(String(current.budget).replace(".", ",")) : "";
-  
+
   // 1. Desglose bimonetario en la tarjeta TOTAL GASTADO
   const totalSpentEl = $("totalSpent");
   if (totalSpentEl) {
@@ -464,6 +472,7 @@ function renderMensuales() {
   // 3. Verificador de alertas pasando valores numéricos directos
   checkFinancialAlerts(totalARS, totalUSD, current.budget, currentDolarBlue);
 }
+
 function renderExtraIncomesTable(extraIncomes) {
   const tbody = $("extraIncomeTableBody");
   const totalBadge = $("extraTotalSumDisplay");
@@ -506,10 +515,10 @@ function renderExtraIncomesTable(extraIncomes) {
       if ($("modalExtraTargetMonth")) $("modalExtraTargetMonth").value = activeMonth;
       if ($("modalExtraCategory")) $("modalExtraCategory").value = item.category || "Sueldo";
       if ($("modalExtraDescription")) $("modalExtraDescription").value = item.description || "";
-      
+
       const extraVal = item.rawAmount !== undefined ? item.rawAmount : item.amount;
       if ($("modalExtraInput")) $("modalExtraInput").value = formatCurrencyInput(String(extraVal).replace(".", ","));
-      
+
       if ($("modalExtraCurrency")) $("modalExtraCurrency").value = item.currency || "ARS";
 
       const extraRecurring = $("extraRecurring");
@@ -846,8 +855,7 @@ function initApp() {
     if ($("modalExtraInput")) $("modalExtraInput").value = "";
     if ($("modalExtraDescription")) $("modalExtraDescription").value = "";
     if ($("modalExtraCategory")) $("modalExtraCategory").value = "Sueldo";
-    const today = new Date();
-    if ($("modalExtraDate")) $("modalExtraDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if ($("modalExtraDate")) $("modalExtraDate").value = hoyAR().iso;
     if ($("modalExtraTargetMonth")) $("modalExtraTargetMonth").value = $("monthPicker")?.value || currentMonthValue();
 
     extraRecurringOptions?.classList.add("hidden");
@@ -870,7 +878,7 @@ function initApp() {
     const category = $("modalExtraCategory")?.value || "Otro";
     const description = $("modalExtraDescription")?.value.trim() || "";
     const currency = $("modalExtraCurrency")?.value || "ARS";
-    const baseDateStr = $("modalExtraDate")?.value || new Date().toISOString().slice(0, 10);
+    const baseDateStr = $("modalExtraDate")?.value || hoyAR().iso;
     const targetMonth = $("modalExtraTargetMonth")?.value || baseDateStr.slice(0, 7);
 
     let finalVal = rawVal;
@@ -944,7 +952,7 @@ function initApp() {
     }
     $("extraDialog")?.close();
   });
-   
+
   // GUARDAR PRESUPUESTO BASE
   $("saveBudgetBtn")?.addEventListener("click", async () => {
     const month = $("monthPicker")?.value;
@@ -972,8 +980,7 @@ function initApp() {
   $("addExpenseBtn")?.addEventListener("click", () => {
     $("expenseForm")?.reset();
     delete $("expenseForm").dataset.editingId;
-    const today = new Date();
-    if ($("expenseDate")) $("expenseDate").value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if ($("expenseDate")) $("expenseDate").value = hoyAR().iso;
     if ($("expenseTargetMonth")) $("expenseTargetMonth").value = $("monthPicker")?.value || currentMonthValue();
     if ($("modalTitle")) $("modalTitle").textContent = "Agregar gasto";
     $("expenseDialog")?.showModal();
@@ -1034,10 +1041,10 @@ function initApp() {
         }
       }
     }
-     
+
     if ($("monthPicker")) $("monthPicker").value = targetMonth;
     renderMensuales();
-    
+
     const dialog = $("expenseDialog");
     if (dialog && typeof dialog.close === "function") {
       dialog.close();
@@ -1092,7 +1099,7 @@ function initApp() {
     };
   }
 
-setupCollapsible("toggleToolbarBtn", "#toolbarContainer", "mensuales_toolbar_collapsed", "barra");
+  setupCollapsible("toggleToolbarBtn", "#toolbarContainer", "mensuales_toolbar_collapsed", "barra");
   setupCollapsible("toggleBudgetBtn", "#budgetContainer", "mensuales_budget_collapsed", "resumen");
   setupCollapsible("toggleTableBtn", "#tableContentWrapper", "mensuales_table_collapsed", "tabla");
   setupCollapsible("toggleHistoryBtn", "#historyContainer", "mensuales_history_collapsed", "historial");
@@ -1141,7 +1148,7 @@ function initCsvImport() {
       try {
         const text = event.target.result;
         const lines = text.split(/\r\n|\n/);
-        
+
         if (lines.length <= 1) {
           alert("El archivo CSV está vacío o no tiene formato válido.");
           return;
@@ -1163,7 +1170,7 @@ function initCsvImport() {
             const date = cols[0]?.trim() || `${activeMonth}-01`;
             const description = (cols[1] || "").replace(/^["']|["']$/g, "").trim();
             const category = (cols[2] || "").replace(/^["']|["']$/g, "").trim() || "Otros";
-            
+
             const rawAmount = cols[3]?.trim().replace(/[^0-9,.-]/g, "").replace(",", ".") || "0";
             const amount = Number(rawAmount);
             const currency = cols[4]?.trim().toUpperCase() || "ARS";
@@ -1253,7 +1260,7 @@ document.addEventListener('click', (e) => {
     const isBlack = document.body.classList.toggle("black-mode");
     document.body.classList.remove("dark-mode", "dark-blue-mode");
     localStorage.setItem("mensual_theme_mode", isBlack ? "black" : "light");
-    blackThemeBtn.textContent = isBlack ? "🖤 Modo Black" : "🖤 Modo Black";
+    blackThemeBtn.textContent = "🖤 Modo Black";
     const darkBtn = $("toggleThemeBtn");
     if (darkBtn) darkBtn.textContent = "🌙 Modo oscuro";
     const blueBtn = $("toggleBlueThemeBtn");
@@ -1301,12 +1308,12 @@ function getPdfThemeColors() {
   if (isBlackMode) {
     return {
       pink: [255, 255, 255],
-      dark: [241, 245, 249],      
-      light: [18, 18, 18],        
-      headerBg: [10, 10, 10],     
-      cardBorder: [40, 40, 40],   
-      lineDivider: [30, 30, 30],  
-      pageBg: [0, 0, 0],          
+      dark: [241, 245, 249],
+      light: [18, 18, 18],
+      headerBg: [10, 10, 10],
+      cardBorder: [40, 40, 40],
+      lineDivider: [30, 30, 30],
+      pageBg: [0, 0, 0],
       footerColor: [150, 150, 150]
     };
   } else if (isBlueMode) {
@@ -1370,7 +1377,7 @@ function generateMensualesPDF() {
 
   const diffARS = totalARS - previousTotalARS;
   const cardSpentText = totalUSD > 0 ? `${money(totalARS)} + ${money(totalUSD, "USD")}` : money(totalARS);
-  
+
   const presupuestoActual = Number(current.budget || 0);
   const presupuestoText = money(presupuestoActual);
 
@@ -1425,8 +1432,8 @@ function generateMensualesPDF() {
     pdf.setFontSize(7.5);
     pdf.setFont("helvetica", "bold");
 
-    const isDark = document.body.classList.contains("dark-mode") || 
-                   document.body.classList.contains("dark-blue-mode") || 
+    const isDark = document.body.classList.contains("dark-mode") ||
+                   document.body.classList.contains("dark-blue-mode") ||
                    document.body.classList.contains("black-mode");
     if (isDark) {
       pdf.setTextColor(255, 255, 255);
@@ -1461,14 +1468,14 @@ function generateMensualesPDF() {
   });
 
   let y = 84;
-   
+
   const isBlackMode = document.body.classList.contains("black-mode");
   if (isBlackMode) {
-    pdf.setFillColor(30, 30, 30); 
+    pdf.setFillColor(30, 30, 30);
   } else {
     pdf.setFillColor(...theme.pink);
   }
-  
+
   pdf.rect(15, y, 180, 8, "F");
 
   pdf.setTextColor(255, 255, 255);
@@ -1524,7 +1531,7 @@ function generateMensualesPDF() {
     categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
   });
   const topCat = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0] || ["—", 0];
-  
+
   let highestExpenseText = "";
   const highestExpense = [...current.expenses].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
   if (highestExpense) {
@@ -1536,7 +1543,7 @@ function generateMensualesPDF() {
   pdf.setFontSize(10);
   pdf.setFont("helvetica", "bold");
   pdf.text("RESUMEN Y TENDENCIA DEL PERÍODO", 15, y);
-  
+
   y += 6;
 
   pdf.setFillColor(...theme.light);
@@ -1551,9 +1558,9 @@ function generateMensualesPDF() {
   pdf.setTextColor(...theme.dark);
   pdf.setFontSize(7.5);
   pdf.setFont("helvetica", "normal");
-  
+
   let trendSummary = `Durante ${monthName(month)}, registraste un total de ${current.expenses.length} movimientos. La categoría que mayor presupuesto demandó fue "${topCat[0]}" con un acumulado de ${money(topCat[1])}.${highestExpenseText}`;
-  
+
   const splitTrend = pdf.splitTextToSize(trendSummary, 165);
   pdf.text(splitTrend, 21, y + 14);
 
@@ -1565,7 +1572,7 @@ function generateMensualesPDF() {
 }
 
 function calculateAnnualData() {
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = String(hoyAR().y);
   let totalARS = 0;
   let totalUSD = 0;
   let monthsCount = 0;
@@ -1579,12 +1586,16 @@ function calculateAnnualData() {
   Object.entries(data.months).forEach(([monthKey, monthData]) => {
     if (!monthKey.startsWith(currentYear)) return;
     monthsCount++;
-    
+
     let monthARS = 0;
     (monthData.expenses || []).forEach(e => {
       const amt = Number(e.amount || 0);
-      if (e.currency === "USD") totalUSD += amt;
-      else monthARS += amt, totalARS += amt;
+      if (e.currency === "USD") {
+        totalUSD += amt;
+      } else {
+        monthARS += amt;
+        totalARS += amt;
+      }
 
       const cat = e.category || "Otros";
       categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
