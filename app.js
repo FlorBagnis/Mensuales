@@ -980,11 +980,19 @@ function initApp() {
 
   // MODAL GASTOS
   $("addExpenseBtn")?.addEventListener("click", () => {
-    $("expenseForm")?.reset();
-    delete $("expenseForm").dataset.editingId;
+    const form = $("expenseForm");
+    form?.reset();
+    if (form) delete form.dataset.editingId;
     if ($("expenseDate")) $("expenseDate").value = hoyAR().iso;
     if ($("expenseTargetMonth")) $("expenseTargetMonth").value = $("monthPicker")?.value || currentMonthValue();
     if ($("modalTitle")) $("modalTitle").textContent = "Agregar gasto";
+
+    // Ocultar opciones de recurrencia al abrir
+    recurringOptions?.classList.add("hidden");
+    recurringAmounts?.classList.add("hidden");
+    if (expenseRecurring) expenseRecurring.checked = false;
+    if (recurringChangingAmount) recurringChangingAmount.checked = false;
+
     $("expenseDialog")?.showModal();
   });
 
@@ -1025,6 +1033,11 @@ function initApp() {
         const customInputs = recurringAmounts?.querySelectorAll(".rec-amount-input");
         let baseDate = new Date(baseDateStr + "T00:00:00");
 
+        // Id del recurrente: los gastos usan "rec-{recId}-{mes}", igual que recPagar(),
+        // así que si después se marca pagado en la solapa, reemplaza la cuota en vez de duplicarla.
+        const recId = createId("rec");
+        let primerPago = null;
+
         for (let i = 0; i < count; i++) {
           const targetDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), dayNum);
           const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}`;
@@ -1035,11 +1048,41 @@ function initApp() {
             amount = Number(customInputs[i].value) || baseAmount;
           }
           const finalDescription = `🔄 ${description} (Cuota ${i + 1}/${count})`;
+          const mensualId = `rec-${recId}-${monthKey}`;
 
           ensureMonth(monthKey).expenses.push({
-            id: createId("expense"), date: dateStr, description: finalDescription, category, amount, currency
+            id: mensualId, date: dateStr, description: finalDescription, category, amount, currency
           });
           await saveMonthToFirestore(monthKey);
+
+          if (i === 0) primerPago = { monthKey, fecha: dateStr, monto: amount, mensualId };
+        }
+
+        // Registro en la colección de recurrentes (solo con sesión iniciada)
+        if (currentUser && primerPago) {
+          try {
+            await setDoc(doc(db, "users", currentUser.uid, "recurrentes", recId), {
+              id: recId,
+              descripcion: description,
+              categoria: category,
+              diaVence: dayNum,
+              monto: baseAmount,
+              currency: currency,
+              avisar: true,
+              activo: true,
+              pagos: {
+                [primerPago.monthKey]: {
+                  fecha: primerPago.fecha,
+                  monto: primerPago.monto,
+                  mensualId: primerPago.mensualId
+                }
+              },
+              createdAt: new Date().toISOString()
+            });
+          } catch (err) {
+            console.error("Error guardando recurrente:", err);
+            alert("El gasto se guardó, pero no se pudo crear el recurrente para los avisos.");
+          }
         }
       }
     }
