@@ -4,6 +4,7 @@
    Revisa a TODOS los usuarios de Firebase y manda un solo mail
    a cada usuario (a SU email, con SUS recurrentes) con lo que está vencido o vence en 3 días o menos.
 ========================================================= */
+
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
 
