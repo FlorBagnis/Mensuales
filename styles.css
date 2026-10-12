@@ -3291,14 +3291,23 @@ body dialog button:not(.close):not(.edit-btn):hover {
 
 
 /* =========================================================
-   MODAL CON ROSA MÁS OSCURO Y ARMONIOSO (MENSUALES)
+   MODAL ROSA MEDIO Y TARJETAS EN ROSA SUAVE (MENSUALES)
 ========================================================= */
 
+/* 1. Fondo del modal con un rosa intermedio y cálido */
 dialog,
 .modal {
-  background-color: #ffe0e9 !important; /* Un rosa cálido, más profundo y visible */
+  background-color: #ffd4e2 !important; /* Un rosa medio muy armónico */
   border: 1px solid var(--pink-300, #ff9db4) !important;
   box-shadow: 0 25px 80px rgba(132, 38, 67, 0.25) !important;
+}
+
+/* 2. Las 4 minitarjetas con un rosa más suave (pastél) para que destaquen */
+body dialog .annual-mini-card,
+body dialog div[class*="annual-mini-card"],
+dialog .annual-mini-card {
+  background-color: #fff0f4 !important; /* Un rosa pastel más claro que el fondo del modal */
+  border: 1px solid var(--pink-200, #ffc5d2) !important;
 }
 
 /* Modo oscuro se mantiene con su tono borravino prolijo */
@@ -3308,4 +3317,8 @@ body.dark-mode .modal {
   border-color: #4a2138 !important;
 }
 
+body.dark-mode dialog .annual-mini-card {
+  background-color: #3c1a2f !important;
+  border-color: #592e47 !important;
+}
 
