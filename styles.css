@@ -3292,27 +3292,42 @@ body dialog button:not(.close):not(.edit-btn):hover {
 
 
 /* =========================================================
-   RESUMEN ANUAL SINCRONIZADO CON LA PALETA OFICIAL (MENSUALES)
+   RESUMEN ANUAL IDÉNTICO AL PDF: TÍTULO OSCURO Y TARJETAS SUAVES
 ========================================================= */
 
-/* 1. Fondo del modal con el rosa suave exacto de tus botones (ej: #ffe3ea) */
+/* 1. Fondo del modal limpio y elegante (blanco/marfil) */
 dialog,
 .modal {
-  background-color: var(--pink-100, #ffe3ea) !important;
-  border: 1px solid var(--pink-300, #ff9db4) !important;
+  background-color: var(--white, #ffffff) !important;
+  border: 1px solid var(--pink-200, #ffc5d2) !important;
   box-shadow: 0 25px 80px rgba(132, 38, 67, 0.22) !important;
 }
 
-/* 2. Las 4 minitarjetas en blanco puro con borde rosado delicado (idéntico a tus tarjetas y botones outline) */
+/* 2. El encabezado principal o bloque superior del modal con el rosa oscuro del PDF (#f56b8b) */
+body dialog .modal-header,
+body dialog h2,
+body dialog .hero-modal-box {
+  background-color: var(--pink-500, #f56b8b) !important;
+  color: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+}
+
+body dialog .modal-header h2,
+body dialog .modal-header p {
+  color: #ffffff !important;
+}
+
+/* 3. Las 4 minitarjetas con el fondo rosado suave exacto del PDF (#ffe3ea) */
 body dialog .annual-mini-card,
 body dialog div[class*="annual-mini-card"],
 dialog .annual-mini-card {
-  background-color: var(--white, #ffffff) !important;
+  background-color: var(--pink-100, #ffe3ea) !important;
   border: 1px solid var(--pink-200, #ffc5d2) !important;
   border-radius: 14px !important;
 }
 
-/* 3. Hover sutil, elegante y con buen movimiento en las minitarjetas */
+/* 4. Hover sutil y elegante en las minitarjetas */
 body dialog .annual-mini-card:hover,
 body dialog div[class*="annual-mini-card"]:hover,
 dialog .annual-mini-card:hover {
@@ -3320,14 +3335,14 @@ dialog .annual-mini-card:hover {
   box-shadow: 0 8px 20px rgba(132, 38, 67, 0.12) !important;
 }
 
-/* 4. Hover elegante en los botones del modal */
+/* 5. Hover elegante en los botones del modal */
 body dialog .btn:hover,
 body dialog button:not(.close):not(.edit-btn):hover {
   transform: translateY(-2px) scale(1.02) !important;
   box-shadow: 0 4px 12px rgba(132, 38, 67, 0.15) !important;
 }
 
-/* 5. Modo oscuro intacto y prolijo */
+/* 6. Modo oscuro intacto y prolijo */
 body.dark-mode dialog,
 body.dark-mode .modal {
   background-color: #211620 !important;
@@ -3337,4 +3352,51 @@ body.dark-mode .modal {
 body.dark-mode dialog .annual-mini-card {
   background-color: #3c1a2f !important;
   border-color: #592e47 !important;
+}
+
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA DE MONTOS OCULTOS (PUNTOS SIN BLUR)
+========================================================= */
+
+/* Eliminar cualquier efecto de blur previo */
+body.amounts-hidden .rec-amount {
+  filter: none !important;
+}
+
+body.amounts-hidden .rec-amount,
+body.amounts-hidden .expense-amount strong,
+body.amounts-hidden #totalPending,
+body.amounts-hidden #nextSevenDays,
+body.amounts-hidden #thisMonth,
+body.amounts-hidden #totalDebts,
+body.amounts-hidden #amount {
+  color: transparent !important;
+  position: relative;
+  user-select: none;
+}
+
+body.amounts-hidden .rec-amount::after,
+body.amounts-hidden .expense-amount strong::after,
+body.amounts-hidden #totalPending::after,
+body.amounts-hidden #nextSevenDays::after,
+body.amounts-hidden #thisMonth::after,
+body.amounts-hidden #totalDebts::after,
+body.amounts-hidden #amount::after {
+  content: "••••••";
+  color: var(--app-accent) !important;
+  visibility: visible;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 5;
+}
+
+body.amounts-hidden .expense-amount strong::after,
+body.amounts-hidden .rec-amount::after {
+  justify-content: flex-end;
 }
