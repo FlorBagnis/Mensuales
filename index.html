@@ -26,11 +26,11 @@
   <link rel="icon" type="image/png" href="./icono.png">
   <link rel="stylesheet" href="styles.css">
 
- <style>
-    
+
+<style>
 
   /* =========================================================
-      ESTILOS BASE Y CONTENEDORES RESPONSIVOS (EVITA ZOOM ROTO)
+      BASE
   ========================================================= */
   .table-wrap {
     width: 100%;
@@ -80,29 +80,9 @@
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
   }
-  .annual-mini-card {
-    background: var(--card, #fff8fa);
-    border: 1px solid var(--line, #fde2ec);
-    border-radius: 18px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    color: var(--text, #5a2337);
-  }
-  .annual-mini-card span {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--muted, #9e5b72);
-    letter-spacing: 0.5px;
-  }
-  .annual-mini-card strong {
-    font-size: 16px;
-    color: var(--text, #5a2337);
-  }
 
   /* =========================================================
-      ESTILOS GASTOS RECURRENTES Y PANeles
+      GASTOS RECURRENTES Y PANELES
   ========================================================= */
   .rec-panel {
     margin: 1.5rem 0 !important;
@@ -146,39 +126,24 @@
   }
 
   /* =========================================================
-      CORRECCIÓN MODO OSCURO (DARK-MODE)
+      MODOS OSCUROS: botones .pastel-btn (incluye los links <a>)
+      y paneles de recurrentes. El resto lo resuelve styles.css.
   ========================================================= */
-  body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
-  body.dark thead, body.dark th, body.dark .table-wrap th,
-  body.dark-mode thead, body.dark-mode th, body.dark-mode .table-wrap th {
-    background-color: #3d222b !important;
-    color: #ffb6c1 !important;
+  body:is(.dark-mode, .dark-blue-mode, .black-mode) .pastel-btn {
+    background: var(--btn-bg) !important;
+    color: var(--btn-text) !important;
+    border: 1px solid var(--btn-line) !important;
+    box-shadow: var(--btn-shadow) !important;
   }
-  body.dark-theme .pastel-btn, body.dark .pastel-btn, body.dark-mode .pastel-btn {
-    background: #3d222b !important;
-    color: #ffb6c1 !important;
-    border: 1px solid #6b3b4a !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-  }
-  body.dark-theme .pastel-btn:hover, body.dark .pastel-btn:hover, body.dark-mode .pastel-btn:hover {
-    background: #4e2b37 !important;
+  body:is(.dark-mode, .dark-blue-mode, .black-mode) .pastel-btn:hover {
+    background: var(--btn-hover) !important;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
   }
-  body.dark-theme .btn-danger, body.dark .btn-danger, body.dark-mode .btn-danger {
-    background-color: #3d222b !important;
-    color: #ffb6c1 !important;
-    border: 1px solid #6b3b4a !important;
-  }
-  body.dark-mode .summary-card,
-  body.dark-mode .panel,
-  body.dark-mode .toolbar,
-  body.dark-mode .trend-box,
-  body.dark-mode .auth-card,
-  body.dark-mode dialog,
+
   body.dark-mode .rec-panel {
     background-color: #2a161d !important;
-    color: #ffb6c1 !important;
     border-color: #4e2b37 !important;
+    color: #ffb6c1 !important;
   }
   body.dark-mode .rec-item {
     background-color: #1f1015 !important;
@@ -186,31 +151,7 @@
     color: #ffb6c1 !important;
   }
   body.dark-mode .rec-name { color: #ffb6c1 !important; }
-  body.dark-mode .annual-mini-card {
-    background-color: #1f1015 !important;
-    border-color: #4e2b37 !important;
-    color: #ffb6c1 !important;
-  }
-  body.dark-mode .annual-mini-card span { color: #d195a9 !important; }
-  body.dark-mode .annual-mini-card strong { color: #ffb6c1 !important; }
-  body.dark-mode input, body.dark-mode select {
-    background-color: #1f1015 !important;
-    color: #ffb6c1 !important;
-    border-color: #4e2b37 !important;
-  }
 
-  /* =========================================================
-      CORRECCIÓN MODO AZUL (DARK-BLUE-MODE)
-  ========================================================= */
-  body.dark-blue-mode thead, body.dark-blue-mode th, body.dark-blue-mode .table-wrap th {
-    background-color: #14244b !important;
-    color: #38bdf8 !important;
-  }
-  body.dark-blue-mode .pastel-btn {
-    background: #14244b !important;
-    color: #38bdf8 !important;
-    border: 1px solid #1e356d !important;
-  }
   body.dark-blue-mode .rec-panel {
     background-color: #0f1c3f !important;
     border-color: #14244b !important;
@@ -223,18 +164,6 @@
   }
   body.dark-blue-mode .rec-name { color: #38bdf8 !important; }
 
-  /* =========================================================
-      CORRECCIÓN MODO BLACK (BLACK-MODE)
-  ========================================================= */
-  body.black-mode thead, body.black-mode th, body.black-mode .table-wrap th {
-    background-color: #262626 !important;
-    color: #ffffff !important;
-  }
-  body.black-mode .pastel-btn {
-    background: #262626 !important;
-    color: #ffffff !important;
-    border: 1px solid #333333 !important;
-  }
   body.black-mode .rec-panel {
     background-color: #121212 !important;
     border-color: #262626 !important;
@@ -344,65 +273,71 @@
     border-left: none !important;
   }
 
+  /* =========================================================
+      ZOOM DEL RESUMEN (que no se corte)
+  ========================================================= */
+  .summary-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 15px !important;
+    width: 100%;
+  }
 
-.summary-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
-  gap: 15px !important;
-  width: 100%;
-}
+  #budgetContainer {
+    padding: 32px;
+    margin: -32px;
+    pointer-events: none;
+  }
 
-#budgetContainer {
-  padding: 32px;
-  margin: -32px;
-  pointer-events: none;
-}
+  .summary-card {
+    position: relative;
+    pointer-events: auto;
+  }
+  .summary-card:hover {
+    z-index: 2;
+  }
 
-.summary-card {
-  position: relative;
-  pointer-events: auto;
-}
-.summary-card:hover {
-  z-index: 2;
-}
+  /* =========================================================
+      RESUMEN ANUAL
+  ========================================================= */
+  #annualDialog { width: min(640px, 92vw); max-width: none; }
+  #annualDialog .modal-header { display: flex; align-items: center; gap: 14px; }
+  #annualContent .annual-mini-card strong { line-height: 1.25; }
 
+  /* en modo claro el modal queda blanco */
+  body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) #annualDialog {
+    background: var(--card);
+  }
 
-/* ===== RESUMEN ANUAL: COLORES ===== */
-/* Modo claro */
-#annualDialog {
-  background: var(--card, #ffffff) !important;
-  color: var(--text, #5a2337) !important;
-  border: 1px solid var(--line, #f2cfdf) !important;
-  box-shadow: 0 20px 60px rgba(90, 35, 55, 0.18);
-}
-#annualDialog h2 { color: var(--text, #5a2337) !important; }
-#annualDialog .annual-mini-card {
-  background: #fff0f5 !important;
-  border: 1px solid #fad2e1 !important;
-}
+  /* =========================================================
+      MODAL DE GASTO: orden de los campos (los 4 modos)
+  ========================================================= */
+  #expenseDialog .modal > label,
+  #expenseDialog .modal > div > label,
+  #expenseDialog .recurring-grid > label { display: grid; gap: 6px; }
 
-/* Modo oscuro (rosa) */
-body.dark-mode #annualDialog { background: #2a161d !important; border-color: #4e2b37 !important; }
-body.dark-mode #annualDialog h2 { color: #ffb6c1 !important; }
+  #expenseDialog .modal input:not([type="checkbox"]),
+  #expenseDialog .modal select { width: 100%; }
 
-/* Modo azul */
-body.dark-blue-mode #annualDialog { background: #0f1c3f !important; border-color: #14244b !important; color: #f1f5f9 !important; }
-body.dark-blue-mode #annualDialog h2 { color: #38bdf8 !important; }
-body.dark-blue-mode #annualDialog .annual-mini-card { background: #070d1e !important; border-color: #14244b !important; }
-body.dark-blue-mode #annualDialog .annual-mini-card span { color: #7dd3fc !important; }
-body.dark-blue-mode #annualDialog .annual-mini-card strong { color: #38bdf8 !important; }
+  #expenseDialog .recurring-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+  }
+  #expenseDialog .modal .inline-input { display: flex; align-items: center; gap: 8px; }
+  #expenseDialog .modal .inline-input input { width: 80px; }
+  #expenseDialog .modal label.checkbox-label { display: flex; align-items: center; gap: 8px; }
 
-/* Modo black */
-body.black-mode #annualDialog { background: #121212 !important; border-color: #262626 !important; color: #ffffff !important; }
-body.black-mode #annualDialog h2 { color: #ffffff !important; }
-body.black-mode #annualDialog .annual-mini-card { background: #1a1a1a !important; border-color: #333333 !important; }
-body.black-mode #annualDialog .annual-mini-card span { color: #a3a3a3 !important; }
-body.black-mode #annualDialog .annual-mini-card strong { color: #ffffff !important; }
+  #expenseDialog input[type="checkbox"] { accent-color: var(--pink-500); width: auto; }
+  #expenseDialog .recurring-options > div:first-child {
+    background: var(--pill-bg) !important;
+    color: var(--accent-text) !important;
+  }
 
+</style>
 
 
-   
-  </style>
+
   
 </head>
 
