@@ -1422,6 +1422,82 @@ function getPdfThemeColors() {
   }
 }
 
+/* Dibuja la sección "GASTOS RECURRENTES" en el PDF. Devuelve la nueva posición Y. */
+function recDibujarEnPDF(pdf, theme, y) {
+  const hoy = hoyAR();
+  const activos = (typeof recItems !== "undefined" ? recItems : []).filter(r => r.activo !== false);
+  if (!activos.length) return y;
+
+  const nuevaPagina = () => {
+    pdf.addPage();
+    if (theme.pageBg) {
+      pdf.setFillColor(...theme.pageBg);
+      pdf.rect(0, 0, 210, 297, "F");
+    }
+    return 20;
+  };
+  // jsPDF (helvetica) no soporta emojis: se quitan del texto
+  const limpiar = s => String(s || "").replace(/[^\x20-\x7E\u00C0-\u00FF]/g, "").trim();
+
+  if (y > 235) y = nuevaPagina();
+
+  pdf.setTextColor(...theme.dark);
+  pdf.setFontSize(10);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("GASTOS RECURRENTES", 15, y);
+  y += 4;
+
+  const isBlack = document.body.classList.contains("black-mode");
+  const dibujarHeader = () => {
+    if (isBlack) pdf.setFillColor(30, 30, 30);
+    else pdf.setFillColor(...theme.pink);
+    pdf.rect(15, y, 180, 8, "F");
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("NOMBRE", 18, y + 5);
+    pdf.text("GRUPO", 75, y + 5);
+    pdf.text("DIA", 105, y + 5);
+    pdf.text("MONTO", 118, y + 5);
+    pdf.text("ESTADO", 158, y + 5);
+    y += 8;
+  };
+  dibujarHeader();
+  pdf.setFont("helvetica", "normal");
+
+  const orden = [...activos].sort((a, b) => {
+    const ea = recEstado(a, hoy), eb = recEstado(b, hoy);
+    if (ea.pagado !== eb.pagado) return ea.pagado ? 1 : -1;
+    return (ea.dias ?? 0) - (eb.dias ?? 0);
+  });
+
+  orden.forEach(rec => {
+    if (y > 270) {
+      y = nuevaPagina();
+      dibujarHeader();
+      pdf.setFont("helvetica", "normal");
+    }
+    const est = recEstado(rec, hoy);
+    const pago = rec.pagos && rec.pagos[hoy.mes];
+    const monto = pago && pago.monto ? pago.monto : rec.monto;
+    const montoTxt = monto ? recMoney(monto, rec.currency) : "A definir";
+
+    pdf.setTextColor(...theme.dark);
+    pdf.setFontSize(7);
+    pdf.text(limpiar(rec.descripcion).slice(0, 30), 18, y + 5);
+    pdf.text(recGrupoDe(rec), 75, y + 5);
+    pdf.text(String(recDiaEfectivo(rec.diaVence, hoy)), 105, y + 5);
+    pdf.text(montoTxt, 118, y + 5);
+    pdf.text(limpiar(est.texto).slice(0, 24), 158, y + 5);
+
+    pdf.setDrawColor(...theme.lineDivider);
+    pdf.line(15, y + 8, 195, y + 8);
+    y += 10;
+  });
+
+  return y;
+}
+
 function generateMensualesPDF() {
   if (!window.jspdf) {
     alert("No se pudo cargar el generador de PDF.");
@@ -1583,6 +1659,9 @@ function generateMensualesPDF() {
     pdf.line(15, y + 8, 195, y + 8);
     y += 10;
   });
+
+  // Sección de gastos recurrentes en el PDF
+  y = recDibujarEnPDF(pdf, theme, y + 8);
 
   y += 12;
   if (y > 220) {
@@ -2225,6 +2304,14 @@ function recMontarUI() {
     .rec-actions{display:flex;gap:4px}
     .rec-icon{width:32px;height:32px;border-radius:50%;border:1px solid rgba(128,128,128,.3);background:transparent;color:inherit;cursor:pointer;font-size:14px;display:grid;place-items:center;padding:0}
     .rec-icon.pay{background:rgba(34,160,90,.18);border-color:rgba(34,160,90,.5)}
+    .rec-btn,.rec-icon{transition:background .2s,color .2s,border-color .2s,transform .15s,box-shadow .2s}
+    .rec-btn:hover{background:#f29cb5;border-color:#ea5b8e;transform:translateY(-2px);box-shadow:0 6px 14px rgba(234,91,142,.3)}
+    .rec-btn.ghost:hover{background:#fbc4d4;color:#5a2337;border-color:#f29cb5}
+    .rec-btn:active,.rec-icon:active{transform:translateY(0) scale(.97)}
+    .rec-icon:hover{background:#fbc4d4;border-color:#f29cb5;transform:scale(1.12);box-shadow:0 3px 8px rgba(234,91,142,.3)}
+    .rec-icon.pay:hover{background:rgba(34,160,90,.35);border-color:rgba(34,160,90,.8)}
+    .rec-item{transition:border-color .2s,background .2s}
+    .rec-item:hover{border-color:#f29cb5;background:rgba(251,196,212,.18)}
     .rec-empty{text-align:center;padding:20px 10px;opacity:.75;font-size:.9rem}
     .rec-collapsed .rec-body{display:none}
     body.amounts-hidden .rec-amount{filter:blur(6px);user-select:none}
