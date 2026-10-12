@@ -3290,23 +3290,22 @@ body dialog button:not(.close):not(.edit-btn):hover {
 }
 
 
-
-
 /* =========================================================
-   CAMBIAR FONDO DEL MODAL A ROSADO SUAVE (MENSUALES)
+   MODAL CON ROSA MÁS OSCURO Y ARMONIOSO (MENSUALES)
 ========================================================= */
 
-/* Fondo general del modal dialog */
 dialog,
 .modal {
-  background-color: var(--pink-50, #fff3f6) !important;
-  border: 1px solid var(--pink-200, #ffc5d2) !important;
+  background-color: #ffe0e9 !important; /* Un rosa cálido, más profundo y visible */
+  border: 1px solid var(--pink-300, #ff9db4) !important;
+  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.25) !important;
 }
 
-/* Modo oscuro para el fondo del modal */
+/* Modo oscuro se mantiene con su tono borravino prolijo */
 body.dark-mode dialog,
 body.dark-mode .modal {
   background-color: #211620 !important;
   border-color: #4a2138 !important;
 }
+
 
