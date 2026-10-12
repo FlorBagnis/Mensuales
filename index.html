@@ -264,88 +264,74 @@
       border-left: none !important;
     }
 
-   /* =========================================================
-     CORRECCIÓN DEFINITIVA PARA LA BARRA DE AVISO DE RECURRENTES
-  ========================================================= */
-  #recBanner.rec-banner,
-  .rec-banner {
-    background-color: #fff0f5 !important;
-    color: #c43878 !important;
-    border: 1px solid #fad2e1 !important;
-    border-radius: 12px !important;
-    font-weight: 700 !important;
-  }
+  /* =========================================================
+   CARTELES DE AVISO: "1 por vencer" (#recBanner) y
+   "Te excediste del presupuesto" (#alertaPresupuesto).
 
-  /* Modo Oscuro */
-  body.dark-mode #recBanner.rec-banner,
-  body.dark-mode .rec-banner {
-    background-color: #2a161d !important;
-    color: #ffb6c1 !important;
-    border-color: #4e2b37 !important;
-  }
+   - Los DOS se adaptan a cada modo: claro, oscuro, azul y black.
+   - El color de FONDO y LETRAS lo da el modo.
+   - La franja de la izquierda muestra el tipo de aviso:
+       por vencer = amarillo, vencido / presupuesto excedido = rojo, pagado = verde.
 
-  /* Modo Azul */
-  body.dark-blue-mode #recBanner.rec-banner,
-  body.dark-blue-mode .rec-banner {
-    background-color: #0f1c3f !important;
-    color: #38bdf8 !important;
-    border-color: #14244b !important;
-  }
-
-  /* Modo Black */
-  body.black-mode #recBanner.rec-banner,
-  body.black-mode .rec-banner {
-    background-color: #1a1a1a !important;
-    color: #ffffff !important;
-    border-color: #333333 !important;
-  }
-
-/* =========================================================
-   Cartel "¡Atención! Te excediste del presupuesto..."
-   (.budget-alert-banner) respetando los modos de la app.
-   Modo claro: no se toca, queda como está hoy.
-
-   Pegalo al FINAL de tu <style> en index.html (o al final de styles.css).
-   Va al final para que gane sobre las reglas anteriores.
+   CÓMO USARLO (en tu index.html):
+   1) BORRÁ el bloque "CORRECCIÓN DEFINITIVA PARA LA BARRA DE AVISO DE RECURRENTES"
+      (todo lo de #recBanner.rec-banner, con sus 3 modos).
+   2) BORRÁ lo que pegaste antes de alerta-presupuesto-temas.css.
+   3) Pegá TODO este archivo al FINAL del <style>, justo antes de </style>.
 ========================================================= */
 
-/* ---------- MODO OSCURO ---------- */
+/* ---- Colores de cada modo (variables) ---- */
+.rec-banner,
+.budget-alert-banner {
+  --b-bg: #fff0f5;      /* modo claro */
+  --b-fg: #c43878;
+  --b-bd: #fad2e1;
+}
+body.dark-mode .rec-banner,
 body.dark-mode .budget-alert-banner {
-  background: #3a1a24 !important;
-  border: 1px solid #7a3348 !important;
-  border-left: 4px solid #ff6b81 !important;
-  color: #ffd6df !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  --b-bg: #2a161d;
+  --b-fg: #ffb6c1;
+  --b-bd: #4e2b37;
 }
-
-/* ---------- MODO AZUL ---------- */
+body.dark-blue-mode .rec-banner,
 body.dark-blue-mode .budget-alert-banner {
-  background: #0f1c3f !important;
-  border: 1px solid #1e356d !important;
-  border-left: 4px solid #38bdf8 !important;
-  color: #e2e8f0 !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  --b-bg: #0f1c3f;
+  --b-fg: #38bdf8;
+  --b-bd: #14244b;
+}
+body.black-mode .rec-banner,
+body.black-mode .budget-alert-banner {
+  --b-bg: #1a1a1a;
+  --b-fg: #ffffff;
+  --b-bd: #333333;
 }
 
-/* ---------- MODO BLACK ---------- */
-body.black-mode .budget-alert-banner {
-  background: #121212 !important;
-  border: 1px solid #262626 !important;
-  border-left: 4px solid #ffffff !important;
-  color: #f1f5f9 !important;
+/* ---- Color de la franja según el tipo de aviso ---- */
+.rec-banner.soon  { --b-ac: #f59e0b; }
+.rec-banner.late,
+.budget-alert-banner { --b-ac: #ef4444; }
+.rec-banner.paid  { --b-ac: #22a05a; }
+
+/* ---- Aplicación (selectores repetidos a propósito para ganar
+        sobre cualquier regla anterior, incluida la de styles.css) ---- */
+html body #recBanner.rec-banner.rec-banner.rec-banner,
+html body #alertaPresupuesto.budget-alert-banner.budget-alert-banner.budget-alert-banner {
+  background-color: var(--b-bg) !important;
+  color: var(--b-fg) !important;
+  border: 1px solid var(--b-bd) !important;
+  border-left: 4px solid var(--b-ac, var(--b-fg)) !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
   box-shadow: none !important;
 }
 
-/* El texto interno (strong, div, span) hereda el color del cartel.
-   Esto es lo que arregla el texto blanco sobre fondo rosa. */
-body.dark-mode .budget-alert-banner *,
-body.dark-blue-mode .budget-alert-banner *,
-body.black-mode .budget-alert-banner * {
+/* El texto de adentro (strong, div, span) hereda el color del cartel */
+html body #recBanner.rec-banner *,
+html body #alertaPresupuesto.budget-alert-banner * {
   color: inherit !important;
   background: transparent !important;
   text-shadow: none !important;
 }
-
    
   </style>
   
