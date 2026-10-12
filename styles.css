@@ -3292,23 +3292,24 @@ body dialog button:not(.close):not(.edit-btn):hover {
 
 
 /* =========================================================
-   ESTILOS FINALES Y ARMONIOSOS PARA EL RESUMEN ANUAL
+   RESUMEN ANUAL SINCRONIZADO CON LA PALETA OFICIAL (MENSUALES)
 ========================================================= */
 
-/* 1. Fondo del modal usando el tono suave de la paleta (--pink-50) */
+/* 1. Fondo del modal con el rosa suave exacto de tus botones (ej: #ffe3ea) */
 dialog,
 .modal {
-  background-color: var(--pink-50, #fff3f6) !important;
+  background-color: var(--pink-100, #ffe3ea) !important;
   border: 1px solid var(--pink-300, #ff9db4) !important;
-  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.20) !important;
+  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.22) !important;
 }
 
-/* 2. Las 4 minitarjetas usando el tono exacto de las tarjetas de tu paleta (--card / --pink-100) */
+/* 2. Las 4 minitarjetas en blanco puro con borde rosado delicado (idéntico a tus tarjetas y botones outline) */
 body dialog .annual-mini-card,
 body dialog div[class*="annual-mini-card"],
 dialog .annual-mini-card {
-  background-color: var(--card, #ffffff) !important;
+  background-color: var(--white, #ffffff) !important;
   border: 1px solid var(--pink-200, #ffc5d2) !important;
+  border-radius: 14px !important;
 }
 
 /* 3. Hover sutil, elegante y con buen movimiento en las minitarjetas */
@@ -3316,14 +3317,14 @@ body dialog .annual-mini-card:hover,
 body dialog div[class*="annual-mini-card"]:hover,
 dialog .annual-mini-card:hover {
   transform: translateY(-3px) scale(1.02) !important;
-  box-shadow: 0 8px 20px rgba(180, 80, 110, 0.15) !important;
+  box-shadow: 0 8px 20px rgba(132, 38, 67, 0.12) !important;
 }
 
 /* 4. Hover elegante en los botones del modal */
 body dialog .btn:hover,
 body dialog button:not(.close):not(.edit-btn):hover {
   transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 4px 12px rgba(180, 80, 110, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(132, 38, 67, 0.15) !important;
 }
 
 /* 5. Modo oscuro intacto y prolijo */
