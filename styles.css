@@ -3288,3 +3288,25 @@ body dialog button:not(.close):not(.edit-btn):hover {
   transform: translateY(-3px) scale(1.04) !important;
   box-shadow: 0 6px 18px rgba(220, 90, 130, 0.3) !important;
 }
+
+
+
+
+/* =========================================================
+   CAMBIAR FONDO DEL MODAL A ROSADO SUAVE (MENSUALES)
+========================================================= */
+
+/* Fondo general del modal dialog */
+dialog,
+.modal {
+  background-color: var(--pink-50, #fff3f6) !important;
+  border: 1px solid var(--pink-200, #ffc5d2) !important;
+}
+
+/* Modo oscuro para el fondo del modal */
+body.dark-mode dialog,
+body.dark-mode .modal {
+  background-color: #211620 !important;
+  border-color: #4a2138 !important;
+}
+
