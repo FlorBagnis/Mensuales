@@ -3231,28 +3231,79 @@ body.black-mode .rec-item .rec-meta {
 }
 
 
+
+
+
 /* =========================================================
-   CORRECCIÓN DEL MODAL DE RESUMEN ANUAL Y BOTONES (MENSUALES)
+   FORZAR ROSA EN EL RESUMEN ANUAL (MENSUALES)
 ========================================================= */
 
-/* 1. Botones dentro de los modales (evita que se expandan de más o se vean agresivos) */
+/* 1. Forzar el fondo rosado suave en las tarjetas del Resumen Anual */
+body dialog .annual-mini-card,
+body dialog div[class*="annual-mini-card"],
+dialog .annual-mini-card {
+  background-color: var(--pink-100, #ffe3ea) !important;
+  border-color: var(--pink-200, #ffc5d2) !important;
+}
+
+/* 2. Hover sutil y elegante en los botones del modal */
 body dialog .btn,
 body dialog button:not(.close):not(.edit-btn) {
-  padding: 10px 16px !important;
+  padding: 11px 18px !important;
   font-size: 12px !important;
   font-weight: 700 !important;
   border-radius: 10px !important;
-  transform: none !important;
-  box-shadow: none !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
 body dialog button:not(.close):not(.edit-btn):hover {
-  transform: translateY(-1px) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 4px 12px rgba(180, 80, 110, 0.15) !important;
 }
 
-/* 2. Tarjetas y minitarjetas dentro del modal de Resumen Anual con el fondo suave correspondiente */
-body dialog .annual-mini-card,
-body dialog .summary-card {
-  background-color: var(--pink-bg, var(--card)) !important;
-  border-color: var(--line) !important;
+/* Modo oscuro para las minitarjetas del modal */
+body.dark-mode dialog .annual-mini-card {
+  background-color: #3c1a2f !important;
+  border-color: #592e47 !important;
+}
+
+
+
+
+/* =========================================================
+   HOVER MEJORADO Y MÁS NOTORIO (MENSUALES)
+========================================================= */
+
+/* 1. Hover más pronunciado en las tarjetas del Resumen Anual */
+body dialog .annual-mini-card:hover,
+body dialog div[class*="annual-mini-card"]:hover,
+dialog .annual-mini-card:hover {
+  transform: translateY(-5px) scale(1.04) !important;
+  box-shadow: 0 10px 25px rgba(220, 90, 130, 0.25) !important;
+}
+
+/* 2. Hover más marcado y fluido en los botones del modal */
+body dialog .btn:hover,
+body dialog button:not(.close):not(.edit-btn):hover {
+  transform: translateY(-3px) scale(1.04) !important;
+  box-shadow: 0 6px 18px rgba(220, 90, 130, 0.3) !important;
+}
+
+
+/* =========================================================
+   MODAL CON ROSA MÁS OSCURO Y ARMONIOSO (MENSUALES)
+========================================================= */
+
+dialog,
+.modal {
+  background-color: #ffe0e9 !important; /* Un rosa cálido, más profundo y visible */
+  border: 1px solid var(--pink-300, #ff9db4) !important;
+  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.25) !important;
+}
+
+/* Modo oscuro se mantiene con su tono borravino prolijo */
+body.dark-mode dialog,
+body.dark-mode .modal {
+  background-color: #211620 !important;
+  border-color: #4a2138 !important;
 }
