@@ -3290,27 +3290,43 @@ body dialog button:not(.close):not(.edit-btn):hover {
 }
 
 
+
 /* =========================================================
-   MODAL ROSA MEDIO Y TARJETAS EN ROSA SUAVE (MENSUALES)
+   ESTILOS FINALES Y ARMONIOSOS PARA EL RESUMEN ANUAL
 ========================================================= */
 
-/* 1. Fondo del modal con un rosa intermedio y cálido */
+/* 1. Fondo del modal usando el tono suave de la paleta (--pink-50) */
 dialog,
 .modal {
-  background-color: #ffd4e2 !important; /* Un rosa medio muy armónico */
+  background-color: var(--pink-50, #fff3f6) !important;
   border: 1px solid var(--pink-300, #ff9db4) !important;
-  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.25) !important;
+  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.20) !important;
 }
 
-/* 2. Las 4 minitarjetas con un rosa más suave (pastél) para que destaquen */
+/* 2. Las 4 minitarjetas usando el tono exacto de las tarjetas de tu paleta (--card / --pink-100) */
 body dialog .annual-mini-card,
 body dialog div[class*="annual-mini-card"],
 dialog .annual-mini-card {
-  background-color: #fff0f4 !important; /* Un rosa pastel más claro que el fondo del modal */
+  background-color: var(--card, #ffffff) !important;
   border: 1px solid var(--pink-200, #ffc5d2) !important;
 }
 
-/* Modo oscuro se mantiene con su tono borravino prolijo */
+/* 3. Hover sutil, elegante y con buen movimiento en las minitarjetas */
+body dialog .annual-mini-card:hover,
+body dialog div[class*="annual-mini-card"]:hover,
+dialog .annual-mini-card:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 8px 20px rgba(180, 80, 110, 0.15) !important;
+}
+
+/* 4. Hover elegante en los botones del modal */
+body dialog .btn:hover,
+body dialog button:not(.close):not(.edit-btn):hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 4px 12px rgba(180, 80, 110, 0.2) !important;
+}
+
+/* 5. Modo oscuro intacto y prolijo */
 body.dark-mode dialog,
 body.dark-mode .modal {
   background-color: #211620 !important;
@@ -3321,4 +3337,3 @@ body.dark-mode dialog .annual-mini-card {
   background-color: #3c1a2f !important;
   border-color: #592e47 !important;
 }
-
