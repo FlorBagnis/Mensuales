@@ -3433,42 +3433,49 @@ body.dark-blue-mode #annualDialog h2 {
 
 
 /* =========================================================
-   DISEÑO DEFINITIVO Y ARMONIOSO (MODO CLARO) - ESTILO PDF
+   SOLUCIÓN DEFINITIVA: RESUMEN ANUAL CORREGIDO
 ========================================================= */
 
-/* 1. Fondo del modal limpio, elegante y en blanco puro */
+/* 1. MODO CLARO: Fondo general del modal en rosa pastel suave y las minitarjetas más oscuras */
 dialog,
 .modal {
-  background-color: var(--white, #ffffff) !important;
+  background-color: #f9eef2 !important;
   border: 1px solid var(--pink-200, #ffc5d2) !important;
   box-shadow: 0 25px 80px rgba(132, 38, 67, 0.20) !important;
 }
 
-/* 2. Las 4 minitarjetas con el rosa pastel suave exacto (#ffe3ea) */
 body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .annual-mini-card,
-body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog div[class*="annual-mini-card"],
-body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .summary-card {
-  background-color: var(--pink-100, #ffe3ea) !important;
-  border: 1px solid var(--pink-200, #ffc5d2) !important;
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog div[class*="annual-mini-card"] {
+  background-color: var(--pink-200, #ffc5d2) !important;
+  border: 1px solid var(--pink-300, #ff9db4) !important;
   border-radius: 14px !important;
 }
 
-/* 3. Título del modal con su color borravino original */
 body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog h2,
 body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) .modal h2,
 body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) #annualSummaryTitle {
   color: var(--ink, #55152d) !important;
 }
 
-/* 4. Hover sutil y elegante en las minitarjetas */
+/* 2. MODO AZUL: Matar cualquier rastro de rojo en el título y en el subtítulo del modal */
+body.dark-blue-mode dialog h2,
+body.dark-blue-mode .modal h2,
+body.dark-blue-mode #annualSummaryTitle,
+body.dark-blue-mode #annualDialog h2,
+body.dark-blue-mode dialog p,
+body.dark-blue-mode .modal p,
+body.dark-blue-mode #annualDialog p {
+  color: #f1f5f9 !important;
+}
+
+/* 3. Hover sutil en minitarjetas y botones */
 body dialog .annual-mini-card:hover,
 body dialog div[class*="annual-mini-card"]:hover,
 dialog .annual-mini-card:hover {
   transform: translateY(-3px) scale(1.02) !important;
-  box-shadow: 0 8px 20px rgba(132, 38, 67, 0.12) !important;
+  box-shadow: 0 8px 20px rgba(132, 38, 67, 0.15) !important;
 }
 
-/* 5. Hover elegante en los botones del modal */
 body dialog .btn:hover,
 body dialog button:not(.close):not(.edit-btn):hover {
   transform: translateY(-2px) scale(1.02) !important;
