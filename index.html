@@ -333,6 +333,28 @@
     color: var(--accent-text) !important;
   }
 
+
+/* Modal "Agregar recurrente": mismos colores que los demás modales */
+#recDialog {
+  --rec-bg: var(--modal-bg);
+  --rec-fg: var(--text);
+  --rec-line: var(--modal-line);
+  background: var(--modal-bg);
+  color: var(--text);
+  border: 1px solid var(--modal-line);
+  box-shadow: var(--dialog-shadow);
+}
+#recDialog h3 { color: var(--text); }
+#recDialog label { color: var(--pink-700); }
+#recDialog input:not([type="checkbox"]),
+#recDialog select {
+  background: var(--field);
+  color: var(--text);
+  border-color: var(--line);
+}
+#recDialog input[type="checkbox"] { accent-color: var(--pink-500); }
+
+  
 </style>
 
 
