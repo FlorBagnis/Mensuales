@@ -366,6 +366,42 @@
   z-index: 2;
 }
 
+
+/* ===== RESUMEN ANUAL: COLORES ===== */
+/* Modo claro */
+#annualDialog {
+  background: var(--card, #ffffff) !important;
+  color: var(--text, #5a2337) !important;
+  border: 1px solid var(--line, #f2cfdf) !important;
+  box-shadow: 0 20px 60px rgba(90, 35, 55, 0.18);
+}
+#annualDialog h2 { color: var(--text, #5a2337) !important; }
+#annualDialog .annual-mini-card {
+  background: #fff0f5 !important;
+  border: 1px solid #fad2e1 !important;
+}
+
+/* Modo oscuro (rosa) */
+body.dark-mode #annualDialog { background: #2a161d !important; border-color: #4e2b37 !important; }
+body.dark-mode #annualDialog h2 { color: #ffb6c1 !important; }
+
+/* Modo azul */
+body.dark-blue-mode #annualDialog { background: #0f1c3f !important; border-color: #14244b !important; color: #f1f5f9 !important; }
+body.dark-blue-mode #annualDialog h2 { color: #38bdf8 !important; }
+body.dark-blue-mode #annualDialog .annual-mini-card { background: #070d1e !important; border-color: #14244b !important; }
+body.dark-blue-mode #annualDialog .annual-mini-card span { color: #7dd3fc !important; }
+body.dark-blue-mode #annualDialog .annual-mini-card strong { color: #38bdf8 !important; }
+
+/* Modo black */
+body.black-mode #annualDialog { background: #121212 !important; border-color: #262626 !important; color: #ffffff !important; }
+body.black-mode #annualDialog h2 { color: #ffffff !important; }
+body.black-mode #annualDialog .annual-mini-card { background: #1a1a1a !important; border-color: #333333 !important; }
+body.black-mode #annualDialog .annual-mini-card span { color: #a3a3a3 !important; }
+body.black-mode #annualDialog .annual-mini-card strong { color: #ffffff !important; }
+
+
+
+   
   </style>
   
 </head>
