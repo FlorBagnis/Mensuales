@@ -3290,71 +3290,6 @@ body dialog button:not(.close):not(.edit-btn):hover {
 }
 
 
-
-/* =========================================================
-   RESUMEN ANUAL IDÉNTICO AL PDF: TÍTULO OSCURO Y TARJETAS SUAVES
-========================================================= */
-
-/* 1. Fondo del modal limpio y elegante (blanco/marfil) */
-dialog,
-.modal {
-  background-color: var(--white, #ffffff) !important;
-  border: 1px solid var(--pink-200, #ffc5d2) !important;
-  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.22) !important;
-}
-
-/* 2. El encabezado principal o bloque superior del modal con el rosa oscuro del PDF (#f56b8b) */
-body dialog .modal-header,
-body dialog h2,
-body dialog .hero-modal-box {
-  background-color: var(--pink-500, #f56b8b) !important;
-  color: #ffffff !important;
-  border-radius: 12px !important;
-  padding: 14px 16px !important;
-}
-
-body dialog .modal-header h2,
-body dialog .modal-header p {
-  color: #ffffff !important;
-}
-
-/* 3. Las 4 minitarjetas con el fondo rosado suave exacto del PDF (#ffe3ea) */
-body dialog .annual-mini-card,
-body dialog div[class*="annual-mini-card"],
-dialog .annual-mini-card {
-  background-color: var(--pink-100, #ffe3ea) !important;
-  border: 1px solid var(--pink-200, #ffc5d2) !important;
-  border-radius: 14px !important;
-}
-
-/* 4. Hover sutil y elegante en las minitarjetas */
-body dialog .annual-mini-card:hover,
-body dialog div[class*="annual-mini-card"]:hover,
-dialog .annual-mini-card:hover {
-  transform: translateY(-3px) scale(1.02) !important;
-  box-shadow: 0 8px 20px rgba(132, 38, 67, 0.12) !important;
-}
-
-/* 5. Hover elegante en los botones del modal */
-body dialog .btn:hover,
-body dialog button:not(.close):not(.edit-btn):hover {
-  transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 4px 12px rgba(132, 38, 67, 0.15) !important;
-}
-
-/* 6. Modo oscuro intacto y prolijo */
-body.dark-mode dialog,
-body.dark-mode .modal {
-  background-color: #211620 !important;
-  border-color: #4a2138 !important;
-}
-
-body.dark-mode dialog .annual-mini-card {
-  background-color: #3c1a2f !important;
-  border-color: #592e47 !important;
-}
-
-
 /* =========================================================
    CORRECCIÓN DEFINITIVA DE MONTOS OCULTOS (PUNTOS SIN BLUR)
 ========================================================= */
@@ -3395,6 +3330,84 @@ body.amounts-hidden #amount::after {
   align-items: center;
   z-index: 5;
 }
+
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA: RESUMEN ANUAL UNIFORME Y LIMPIO (MODO CLARO)
+========================================================= */
+
+/* 1. Restablecer el modal en modo claro con su fondo limpio y armónico */
+dialog,
+.modal {
+  background-color: var(--card, #ffffff) !important;
+  border: 1px solid var(--pink-200, #ffc5d2) !important;
+  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.22) !important;
+}
+
+/* 2. Limpiar cualquier regla errónea anterior en la cabecera del modal */
+body dialog .modal-header,
+body dialog h2,
+body dialog .hero-modal-box {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+}
+
+body dialog .modal-header h2,
+body dialog .modal-header p {
+  color: var(--ink, #55152d) !important;
+}
+
+/* 3. Las 4 minitarjetas con el fondo rosado suave exacto (#ffe3ea) */
+body dialog .annual-mini-card,
+body dialog div[class*="annual-mini-card"],
+dialog .annual-mini-card {
+  background-color: var(--pink-100, #ffe3ea) !important;
+  border: 1px solid var(--pink-200, #ffc5d2) !important;
+  border-radius: 14px !important;
+}
+
+/* 4. Hover sutil y elegante en las minitarjetas */
+body dialog .annual-mini-card:hover,
+body dialog div[class*="annual-mini-card"]:hover,
+dialog .annual-mini-card:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 8px 20px rgba(132, 38, 67, 0.12) !important;
+}
+
+/* 5. Hover elegante en los botones del modal */
+body dialog .btn:hover,
+body dialog button:not(.close):not(.edit-btn):hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 4px 12px rgba(132, 38, 67, 0.15) !important;
+}
+
+/* 6. Garantizar que el Modo Oscuro, Azul y Black queden intactos y protegidos */
+body.dark-mode dialog,
+body.dark-mode .modal {
+  background-color: #211620 !important;
+  border-color: #4a2138 !important;
+}
+
+body.dark-mode dialog .annual-mini-card {
+  background-color: #3c1a2f !important;
+  border-color: #592e47 !important;
+}
+
+body.dark-blue-mode dialog,
+body.dark-blue-mode .modal {
+  background-color: #0f1c3f !important;
+  border-color: #14244b !important;
+}
+
+body.black-mode dialog,
+body.black-mode .modal {
+  background-color: #121212 !important;
+  border-color: #262626 !important;
+}
+
+
+
 
 body.amounts-hidden .expense-amount strong::after,
 body.amounts-hidden .rec-amount::after {
