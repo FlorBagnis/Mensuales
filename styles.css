@@ -3232,28 +3232,32 @@ body.black-mode .rec-item .rec-meta {
 
 
 /* =========================================================
-   CORRECCIÓN DEL MODAL DE RESUMEN ANUAL Y BOTONES (MENSUALES)
+   CORRECCIÓN DEL MODAL DE RESUMEN ANUAL (MENSUALES)
 ========================================================= */
 
-/* 1. Botones dentro de los modales (evita que se expandan de más o se vean agresivos) */
+/* 1. Hover sutil, elegante y fluido en los botones del modal */
 body dialog .btn,
 body dialog button:not(.close):not(.edit-btn) {
-  padding: 10px 16px !important;
+  padding: 11px 18px !important;
   font-size: 12px !important;
   font-weight: 700 !important;
   border-radius: 10px !important;
-  transform: none !important;
-  box-shadow: none !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
 body dialog button:not(.close):not(.edit-btn):hover {
-  transform: translateY(-1px) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 4px 12px rgba(180, 80, 110, 0.15) !important;
 }
 
-/* 2. Tarjetas y minitarjetas dentro del modal de Resumen Anual con el fondo suave correspondiente */
-body dialog .annual-mini-card,
-body dialog .summary-card {
-  background-color: var(--pink-bg, var(--card)) !important;
-  border-color: var(--line) !important;
+/* 2. Recuperar el fondo rosado suave original en las minitarjetas del resumen */
+body dialog .annual-mini-card {
+  background-color: var(--pink-100, #ffe3ea) !important;
+  border: 1px solid var(--pink-200, #ffc5d2) !important;
 }
 
+/* Modo oscuro para las minitarjetas del modal */
+body.dark-mode dialog .annual-mini-card {
+  background-color: #3c1a2f !important;
+  border-color: #592e47 !important;
+}
