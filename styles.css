@@ -1716,7 +1716,10 @@ body.amounts-hidden :is(
   .rec-value,
   .rec-item .amount,
   .rec-item .money,
-  .rec-item [data-amount]
+  .rec-item [data-amount],
+  [data-amount],
+  #categoryChart .bar-label span:last-child,
+  #annualContent .annual-card-grid:first-child .annual-mini-card strong
 ) {
   color: transparent !important;
   text-shadow: none !important;
@@ -1746,7 +1749,10 @@ body.amounts-hidden :is(
   .rec-value,
   .rec-item .amount,
   .rec-item .money,
-  .rec-item [data-amount]
+  .rec-item [data-amount],
+  [data-amount],
+  #categoryChart .bar-label span:last-child,
+  #annualContent .annual-card-grid:first-child .annual-mini-card strong
 )::after {
   content: "••••••";
   position: absolute;
