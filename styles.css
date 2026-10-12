@@ -3229,3 +3229,31 @@ body.black-mode .rec-item .rec-name {
 body.black-mode .rec-item .rec-meta {
   color: #8b8f97 !important;
 }
+
+
+/* =========================================================
+   CORRECCIÓN DEL MODAL DE RESUMEN ANUAL Y BOTONES (MENSUALES)
+========================================================= */
+
+/* 1. Botones dentro de los modales (evita que se expandan de más o se vean agresivos) */
+body dialog .btn,
+body dialog button:not(.close):not(.edit-btn) {
+  padding: 10px 16px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  border-radius: 10px !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+body dialog button:not(.close):not(.edit-btn):hover {
+  transform: translateY(-1px) !important;
+}
+
+/* 2. Tarjetas y minitarjetas dentro del modal de Resumen Anual con el fondo suave correspondiente */
+body dialog .annual-mini-card,
+body dialog .summary-card {
+  background-color: var(--pink-bg, var(--card)) !important;
+  border-color: var(--line) !important;
+}
+
