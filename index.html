@@ -100,171 +100,7 @@
   font-weight: 600 !important;
 }
 
-    /* =========================================================
-       ESTILOS UNIFICADOS PARA GASTOS RECURRENTES (TODOS LOS MODOS)
-    ========================================================= */
-    .rec-panel {
-      margin: 1.5rem 0 !important;
-      padding: 22px !important;
-      border-radius: 24px !important;
-      border: 1px solid var(--line, #f2cfdf) !important;
-      background: var(--card, #ffffff) !important;
-      box-shadow: 0 4px 20px rgba(90, 35, 55, 0.06) !important;
-      color: var(--text, #332934) !important;
-      box-sizing: border-box !important;
-    }
-    .rec-head h2 {
-      margin: 0 !important;
-      font-size: 1.15rem !important;
-      color: var(--pink-700, #c43878) !important;
-      font-weight: 800 !important;
-    }
-    .rec-head p {
-      margin: 2px 0 0 !important;
-      font-size: .8rem !important;
-      color: var(--muted, #8b7d86) !important;
-    }
-    .rec-item {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      padding: 12px 14px !important;
-      margin-bottom: 8px !important;
-      border-radius: 16px !important;
-      border: 1px solid var(--line, #fde2ec) !important;
-      background: var(--bg, #fff8fa) !important;
-      color: var(--text, #332934) !important;
-    }
-    .rec-name {
-      font-weight: 700 !important;
-      color: var(--text, #332934) !important;
-    }
-    .rec-meta {
-      font-size: .78rem !important;
-      color: var(--muted, #8b7d86) !important;
-    }
-    .rec-badge {
-      font-size: .75rem !important;
-      font-weight: 700 !important;
-      padding: 5px 12px !important;
-      border-radius: 999px !important;
-      white-space: nowrap !important;
-    }
-    .rec-badge.paid { background: rgba(34, 160, 90, 0.15) !important; color: #1f8a4c !important; }
-    .rec-badge.soon { background: #fff0f5 !important; color: #c26a00 !important; border: 1px solid #fad2e1 !important; }
-    .rec-badge.late { background: rgba(211, 47, 47, 0.12) !important; color: #d32f2f !important; }
-
-    body.dark-theme thead, body.dark-theme th, body.dark-theme .table-wrap th,
-    body.dark thead, body.dark th, body.dark .table-wrap th,
-    body.dark-mode thead, body.dark-mode th, body.dark-mode .table-wrap th {
-      background-color: #3d222b !important;
-      color: #ffb6c1 !important;
-    }
-
-    body.dark-theme .pastel-btn, body.dark .pastel-btn, body.dark-mode .pastel-btn {
-      background: #3d222b !important;
-      color: #ffb6c1 !important;
-      border: 1px solid #6b3b4a !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-    }
-    body.dark-theme .pastel-btn:hover, body.dark .pastel-btn:hover, body.dark-mode .pastel-btn:hover {
-      background: #4e2b37 !important;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
-    }
-
-    body.dark-theme .btn-danger, body.dark .btn-danger, body.dark-mode .btn-danger {
-      background-color: #3d222b !important;
-      color: #ffb6c1 !important;
-      border: 1px solid #6b3b4a !important;
-    }
-
-    body.dark-mode .summary-card,
-    body.dark-mode .panel,
-    body.dark-mode .toolbar,
-    body.dark-mode .trend-box,
-    body.dark-mode .auth-card,
-    body.dark-mode dialog,
-    body.dark-mode .rec-panel {
-      background-color: #2a161d !important;
-      color: #ffb6c1 !important;
-      border-color: #4e2b37 !important;
-    }
-
-    body.dark-mode .rec-item {
-      background-color: #1f1015 !important;
-      border-color: #4e2b37 !important;
-      color: #ffb6c1 !important;
-    }
-    body.dark-mode .rec-name { color: #ffb6c1 !important; }
-
-    body.dark-blue-mode .rec-panel {
-      background-color: #0f1c3f !important;
-      border-color: #14244b !important;
-      color: #f1f5f9 !important;
-    }
-    body.dark-blue-mode .rec-item {
-      background-color: #070d1e !important;
-      border-color: #14244b !important;
-      color: #38bdf8 !important;
-    }
-    body.dark-blue-mode .rec-name { color: #38bdf8 !important; }
-
-    body.black-mode .rec-panel {
-      background-color: #121212 !important;
-      border-color: #262626 !important;
-      color: #ffffff !important;
-    }
-    body.black-mode .rec-item {
-      background-color: #1a1a1a !important;
-      border-color: #333333 !important;
-      color: #ffffff !important;
-    }
-    body.black-mode .rec-name { color: #ffffff !important; }
-
-    body.dark-mode .annual-mini-card {
-      background-color: #1f1015 !important;
-      border-color: #4e2b37 !important;
-      color: #ffb6c1 !important;
-    }
-    body.dark-mode .annual-mini-card span { color: #d195a9 !important; }
-    body.dark-mode .annual-mini-card strong { color: #ffb6c1 !important; }
-
-    body.dark-mode input, 
-    body.dark-mode select {
-      background-color: #1f1015 !important;
-      color: #ffb6c1 !important;
-      border-color: #4e2b37 !important;
-    }
-
-    /* OCULTAR MONTOS */
-    body.amounts-hidden #extraTotalSumDisplay {
-      color: transparent !important;
-      position: relative;
-      user-select: none;
-    }
-    body.amounts-hidden #extraTotalSumDisplay::after {
-      content: "••••••";
-      color: var(--pink-700) !important;
-      visibility: visible;
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 5;
-      font-weight: 700;
-      background-color: white;
-      padding: 0 4px;
-    }
-
-    .money-input span {
-      border-right: none !important;
-      border: none !important;
-    }
-    .money-input input {
-      border-left: none !important;
-    }
-
-  /* =========================================================
+   /* =========================================================
    CARTELES DE AVISO: "1 por vencer" (#recBanner) y
    "Te excediste del presupuesto" (#alertaPresupuesto).
 
@@ -331,6 +167,54 @@ html body #alertaPresupuesto.budget-alert-banner * {
   color: inherit !important;
   background: transparent !important;
   text-shadow: none !important;
+}
+
+
+/* =========================================================
+   ETIQUETAS DE ESTADO (.rec-badge): Pagado / Por vencer / Vencido
+   Se adaptan al modo:
+   - Claro: fondo suave y letras oscuras
+   - Oscuro, Azul y Black: fondo translúcido y letras claras
+========================================================= */
+
+/* ---- Modo claro ---- */
+html body .rec-badge.paid {
+  background: #e3f6ea !important;
+  color: #1f6b3a !important;
+  border: 1px solid #b7e4c7 !important;
+}
+html body .rec-badge.soon {
+  background: #fff3d6 !important;
+  color: #8a5a00 !important;
+  border: 1px solid #ffd98a !important;
+}
+html body .rec-badge.late {
+  background: #ffe1e1 !important;
+  color: #a31c1c !important;
+  border: 1px solid #ffb3b3 !important;
+}
+
+/* ---- Modos oscuros (oscuro, azul y black) ---- */
+html body.dark-mode .rec-badge.paid,
+html body.dark-blue-mode .rec-badge.paid,
+html body.black-mode .rec-badge.paid {
+  background: rgba(110, 220, 150, 0.16) !important;
+  color: #6edc96 !important;
+  border: 1px solid rgba(110, 220, 150, 0.35) !important;
+}
+html body.dark-mode .rec-badge.soon,
+html body.dark-blue-mode .rec-badge.soon,
+html body.black-mode .rec-badge.soon {
+  background: rgba(255, 184, 77, 0.16) !important;
+  color: #ffb84d !important;
+  border: 1px solid rgba(255, 184, 77, 0.35) !important;
+}
+html body.dark-mode .rec-badge.late,
+html body.dark-blue-mode .rec-badge.late,
+html body.black-mode .rec-badge.late {
+  background: rgba(255, 107, 107, 0.16) !important;
+  color: #ff8a8a !important;
+  border: 1px solid rgba(255, 107, 107, 0.35) !important;
 }
    
   </style>
