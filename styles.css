@@ -3413,3 +3413,59 @@ body.amounts-hidden .expense-amount strong::after,
 body.amounts-hidden .rec-amount::after {
   justify-content: flex-end;
 }
+
+
+
+/* =========================================================
+   MODAL CON EL ROSA DEL FONDO DE LA APP (MODO CLARO)
+========================================================= */
+
+/* 1. Fondo del modal con el rosa suave idéntico al fondo general de la app (#f9eef2) */
+dialog,
+.modal {
+  background-color: #f9eef2 !important;
+  border: 1px solid var(--pink-200, #ffc5d2) !important;
+  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.20) !important;
+}
+
+/* 2. Las 4 minitarjetas con su fondo rosado pastel (#ffe3ea) para que contrasten hermoso sobre el modal */
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .annual-mini-card,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog div[class*="annual-mini-card"],
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .summary-card {
+  background-color: var(--pink-100, #ffe3ea) !important;
+  border: 1px solid var(--pink-200, #ffc5d2) !important;
+  border-radius: 14px !important;
+}
+
+/* 3. Título del modal con su color borravino original en modo claro */
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog h2,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) .modal h2,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) #annualSummaryTitle {
+  color: var(--ink, #55152d) !important;
+}
+
+/* 4. Hover sutil y elegante en las minitarjetas */
+body dialog .annual-mini-card:hover,
+body dialog div[class*="annual-mini-card"]:hover,
+dialog .annual-mini-card:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 8px 20px rgba(132, 38, 67, 0.12) !important;
+}
+
+/* 5. Hover elegante en los botones del modal */
+body dialog .btn:hover,
+body dialog button:not(.close):not(.edit-btn):hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 4px 12px rgba(132, 38, 67, 0.15) !important;
+}
+
+
+/* =========================================================
+   CORRECCIÓN DEL TÍTULO EN MODO AZUL PARA EL RESUMEN ANUAL
+========================================================= */
+body.dark-blue-mode dialog h2,
+body.dark-blue-mode .modal h2,
+body.dark-blue-mode #annualSummaryTitle,
+body.dark-blue-mode #annualDialog h2 {
+  color: #38bdf8 !important; /* Celeste brillante característico del modo azul */
+}
