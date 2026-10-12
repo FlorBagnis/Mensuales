@@ -1,6 +1,6 @@
 /* =========================================================
    GASTOS APP · styles.css (versión unificada)
-   Temas: claro (rosa) · oscuro (rosa) · azul · black
+   Temas: claro (rosa) · oscuro (bordó) · azul · black. Rosa SOLO en el modo claro.
    Todo se controla con variables por tema: si querés cambiar un
    color, cambialo en el bloque del tema y se actualiza en toda la app.
 ========================================================= */
@@ -104,87 +104,87 @@ body {
   color: var(--text);
 }
 
-/* ---------- OSCURO (rosa) ---------- */
+/* ---------- OSCURO (bordó) ---------- */
 body.dark-mode {
-  --bg: #140e13;
-  --card: #211620;
-  --field: #170f16;
-  --text: #fceef3;
-  --ink: #fceef3;
-  --muted: #b893a4;
-  --line: #3b2334;
-  --line-soft: #331f2c;
+  --bg: #150a0e;
+  --card: #241016;
+  --field: #1a0b10;
+  --text: #f5e9ec;
+  --ink: #f5e9ec;
+  --muted: #b39299;
+  --line: #3d1a24;
+  --line-soft: #321620;
   --row-alt: transparent;
   --row-hover: rgba(255, 255, 255, .03);
 
-  --pink-50: #2d1825;
-  --pink-100: #3d1b2e;
-  --pink-200: #3b2334;
-  --pink-300: #592e47;
-  --pink-500: #ff78a0;
-  --pink-700: #e0537f;
-  --pink-bg: #3c1a2f;
+  --pink-50: #2c141c;
+  --pink-100: #3a1822;
+  --pink-200: #3d1a24;
+  --pink-300: #5a2535;
+  --pink-500: #c2415d;
+  --pink-700: #e07a85;
+  --pink-bg: #3a1822;
 
-  --track: #2d1825;
-  --total-bg: #2d1825;
-  --th-bg: #ff78a0;
-  --th-text: #ffffff;
+  --track: #3a1822;
+  --total-bg: #2c141c;
+  --th-bg: #5a1a2a;
+  --th-text: #fbe9ec;
 
-  --hero-bg: linear-gradient(110deg, #42182b, #2e111e);
-  --hero-line: transparent;
-  --hero-title: #ffdbe4;
-  --hero-sub: #e5a7be;
-  --eyebrow: #ff9db4;
+  --hero-bg: linear-gradient(110deg, #4a111f, #2e0b14);
+  --hero-line: #5a1a2a;
+  --hero-title: #fbe9ec;
+  --hero-sub: #d9a3ab;
+  --eyebrow: #e07a85;
 
-  --toolbar-bg: rgba(33, 22, 32, .85);
-  --shadow: 0 10px 30px rgba(0, 0, 0, .4);
+  --toolbar-bg: #241016;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .45);
   --card-shadow: none;
 
-  --accent-text: #ffb0c2;
-  --pill-bg: #3d1b2e;
-  --pill-line: transparent;
-  --trend-text: #d1abbc;
+  --accent-text: #f0a3ab;
+  --pill-bg: #3a1620;
+  --pill-line: #5a2535;
+  --trend-text: #cfa5ac;
   --on-accent: #ffffff;
 
-  --outline-bg: #211620;
-  --outline-text: #ff9db4;
-  --outline-line: #592e47;
-  --outline-hover: #331d2b;
+  --outline-bg: #2e131b;
+  --outline-text: #f0a3ab;
+  --outline-line: #5a2535;
+  --outline-hover: #3a1822;
   --danger-hover: rgba(198, 59, 85, .15);
 
-  --btn-bg: #3d1b2e;
-  --btn-text: #ffb0c2;
-  --btn-line: #592e47;
-  --btn-hover: #4a2138;
-  --btn-shadow: none;
+  --btn-bg: #3a1620;
+  --btn-text: #f0a3ab;
+  --btn-line: #5a2535;
+  --btn-hover: #4a1c2a;
+  --btn-shadow: 0 2px 8px rgba(0, 0, 0, .4);
 
-  --modal-bg: #1e0f17;
-  --modal-line: #4a2138;
-  --dialog-shadow: 0 25px 80px rgba(0, 0, 0, .6);
-  --backdrop: rgba(0, 0, 0, .55);
+  --modal-bg: #1a0a10;
+  --modal-line: #4a1c2a;
+  --dialog-shadow: 0 25px 80px rgba(0, 0, 0, .65);
+  --backdrop: rgba(0, 0, 0, .6);
   --blur: 3px;
 
-  --mini-bg: #2d1422;
-  --mini-line: #4a2138;
-  --mini-line-hover: #6b3050;
-  --mini-label: #e5a3bc;
-  --mini-strong: #ff9db4;
-  --glow: rgba(255, 120, 160, .34);
+  --mini-bg: #2a1119;
+  --mini-line: #4a1c2a;
+  --mini-line-hover: #8a2f47;
+  --mini-label: #d9a3ab;
+  --mini-strong: #f0a3ab;
+  --glow: rgba(194, 65, 93, .40);
 
-  --item-bg: #2d1422;
-  --item-line: #4a2138;
+  --item-bg: #2a1119;
+  --item-line: #4a1c2a;
 
-  --dots: #ff9db4;
-  --edit: #ff78a0;
-  --del: #ff78a0;
+  --dots: #f0a3ab;
+  --edit: #e0607a;
+  --del: #e0607a;
   --del-hover: #ffffff;
-  --x-color: #e5a7be;
+  --x-color: #d9a3ab;
   --x-hover: #ffffff;
-  --scroll-thumb: #6b3b4a;
+  --scroll-thumb: #5a2535;
 
-  --fuchsia: #ec407a;
-  --fuchsia-line: #4a293b;
-  --fuchsia-soft: #2d1825;
+  --fuchsia: #c2415d;
+  --fuchsia-line: #5a2535;
+  --fuchsia-soft: #2e131b;
 }
 
 /* ---------- AZUL ---------- */
@@ -1466,7 +1466,7 @@ dialog .modal-actions button:hover {
   border-left: 4px solid var(--fuchsia);
   border-radius: 12px;
   padding: 12px 18px;
-  box-shadow: 0 2px 8px rgba(236, 64, 122, .06);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--fuchsia) 10%, transparent);
   transition: transform .15s ease;
 }
 
@@ -1643,7 +1643,7 @@ dialog .modal-actions button:hover {
 }
 
 body.dark-mode .budget-alert-banner {
-  background: rgba(255, 120, 160, .12);
+  background: rgba(194, 65, 93, .18);
 }
 
 body.dark-blue-mode .budget-alert-banner {
@@ -1867,6 +1867,76 @@ dialog {
 
 .btn:active:not(:disabled) {
   transform: translateY(0) scale(.98);
+}
+
+/* =========================================================
+   17b. RESPETAR LA PALETA DEL MODO EN TODA LA APP
+   Cualquier botón, campo o encabezado que tenga estilos propios
+   (rosa pastel, blanco, etc.) se adapta al tema activo.
+   El modo claro no se toca.
+========================================================= */
+
+body.dark-mode,
+body.dark-blue-mode,
+body.black-mode {
+  color-scheme: dark;
+}
+
+/* Campos de texto, selects y buscadores */
+body:is(.dark-mode, .dark-blue-mode, .black-mode)
+  :is(input, select, textarea):not([type="checkbox"], [type="radio"], [type="range"], [type="color"]) {
+  background-color: var(--field) !important;
+  color: var(--text) !important;
+  border-color: var(--line) !important;
+}
+
+body:is(.dark-mode, .dark-blue-mode, .black-mode) .money-input input {
+  background-color: transparent !important;
+  border: 0 !important;
+}
+
+body:is(.dark-mode, .dark-blue-mode, .black-mode) :is(input, textarea)::placeholder {
+  color: var(--muted) !important;
+}
+
+body:is(.dark-mode, .dark-blue-mode, .black-mode) select option {
+  background-color: var(--field);
+  color: var(--text);
+}
+
+/* Botones: nada de rosa pastel ni blanco fuera del modo claro.
+   Se excluyen los botones de ícono, que ya tienen su propio estilo. */
+body:is(.dark-mode, .dark-blue-mode, .black-mode)
+  button:not(
+    .edit-btn, .delete-btn, .edit-extra-btn, .delete-extra-btn,
+    .toggle-password, .close, .btn-close-annual, [id="closeAnnualDialog"],
+    .auth-switch, .gp-btn-action, .custom-collapse-btn, .btn-danger
+  ) {
+  background-color: var(--btn-bg) !important;
+  color: var(--btn-text) !important;
+  border-color: var(--btn-line) !important;
+}
+
+body:is(.dark-mode, .dark-blue-mode, .black-mode)
+  button:not(
+    .edit-btn, .delete-btn, .edit-extra-btn, .delete-extra-btn,
+    .toggle-password, .close, .btn-close-annual, [id="closeAnnualDialog"],
+    .auth-switch, .gp-btn-action, .custom-collapse-btn, .btn-danger
+  ):hover {
+  background-color: var(--btn-hover) !important;
+}
+
+/* Botón de peligro: rojo en los modos oscuros */
+body:is(.dark-mode, .dark-blue-mode, .black-mode) .btn-danger {
+  background-color: var(--card) !important;
+  color: #ff6b81 !important;
+  border-color: rgba(255, 107, 129, .45) !important;
+}
+
+/* Encabezados de tabla */
+body:is(.dark-mode, .dark-blue-mode, .black-mode) :is(thead, th, .table-wrap th) {
+  background-color: var(--th-bg) !important;
+  color: var(--th-text) !important;
 }
 
 /* =========================================================
