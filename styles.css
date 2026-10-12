@@ -3481,3 +3481,85 @@ body dialog button:not(.close):not(.edit-btn):hover {
   transform: translateY(-2px) scale(1.02) !important;
   box-shadow: 0 4px 12px rgba(132, 38, 67, 0.15) !important;
 }
+
+
+/* =========================================================
+   SOLUCIÓN DEFINITIVA: ADIÓS AL BLUR EN RECURRENTES Y AL ROJO EN MODAL
+========================================================= */
+
+/* 1. Eliminar efecto blur en montos ocultos de Gastos Recurrentes y forzar puntitos limpios */
+body.amounts-hidden .rec-item [class*="amount"],
+body.amounts-hidden .rec-item span[style*="blur"],
+body.amounts-hidden .rec-item div[style*="blur"],
+body.amounts-hidden .rec-item p span,
+body.amounts-hidden .rec-item .amount,
+body.amounts-hidden .rec-item small {
+  filter: none !important;
+  backdrop-filter: none !important;
+  color: transparent !important;
+  position: relative !important;
+  user-select: none !important;
+}
+
+body.amounts-hidden .rec-item span[style*="blur"]::after,
+body.amounts-hidden .rec-item div[style*="blur"]::after,
+body.amounts-hidden .rec-item p span::after {
+  content: "••••••" !important;
+  visibility: visible !important;
+  position: absolute !important;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  font-weight: 700;
+  background-color: transparent !important;
+}
+
+/* Colores de los puntitos según el modo activo */
+body.amounts-hidden.dark-blue-mode .rec-item span::after,
+body.amounts-hidden.dark-blue-mode .rec-item p span::after {
+  color: #38bdf8 !important; /* Celeste en Modo Azul */
+}
+
+body.amounts-hidden.black-mode .rec-item span::after,
+body.amounts-hidden.black-mode .rec-item p span::after {
+  color: #ffffff !important; /* Blanco en Modo Black */
+}
+
+body.amounts-hidden.dark-mode .rec-item span::after,
+body.amounts-hidden.dark-mode .rec-item p span::after {
+  color: #ff78a0 !important; /* Rosa claro en Modo Oscuro */
+}
+
+body.amounts-hidden:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) .rec-item span::after,
+body.amounts-hidden:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) .rec-item p span::after {
+  color: var(--pink-700, #c93b6e) !important; /* Fucsia/Bordó en Modo Claro */
+}
+
+
+/* 2. Eliminar rastro de rojo en subtítulos y textos secundarios del modal anual */
+body.dark-blue-mode #annualDialog p,
+body.dark-blue-mode #annualDialog span,
+body.dark-blue-mode #annualDialog small,
+body.dark-blue-mode .modal p,
+body.dark-blue-mode .modal small {
+  color: #8fa5ca !important; /* Gris azulado suave y limpio para Modo Azul */
+}
+
+body.black-mode #annualDialog p,
+body.black-mode #annualDialog span,
+body.black-mode #annualDialog small,
+body.black-mode .modal p,
+body.black-mode .modal small {
+  color: #8b8f97 !important; /* Gris neutro para Modo Black */
+}
+
+body.dark-mode #annualDialog p,
+body.dark-mode #annualDialog span,
+body.dark-mode #annualDialog small,
+body.dark-mode .modal p,
+body.dark-mode .modal small {
+  color: #b892a4 !important; /* Rosa apagado para Modo Oscuro */
+}
+
+
