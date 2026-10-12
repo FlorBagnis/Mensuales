@@ -3290,46 +3290,6 @@ body dialog button:not(.close):not(.edit-btn):hover {
 }
 
 
-/* =========================================================
-   CORRECCIÓN DEFINITIVA DE MONTOS OCULTOS (PUNTOS SIN BLUR)
-========================================================= */
-
-/* Eliminar cualquier efecto de blur previo */
-body.amounts-hidden .rec-amount {
-  filter: none !important;
-}
-
-body.amounts-hidden .rec-amount,
-body.amounts-hidden .expense-amount strong,
-body.amounts-hidden #totalPending,
-body.amounts-hidden #nextSevenDays,
-body.amounts-hidden #thisMonth,
-body.amounts-hidden #totalDebts,
-body.amounts-hidden #amount {
-  color: transparent !important;
-  position: relative;
-  user-select: none;
-}
-
-body.amounts-hidden .rec-amount::after,
-body.amounts-hidden .expense-amount strong::after,
-body.amounts-hidden #totalPending::after,
-body.amounts-hidden #nextSevenDays::after,
-body.amounts-hidden #thisMonth::after,
-body.amounts-hidden #totalDebts::after,
-body.amounts-hidden #amount::after {
-  content: "••••••";
-  color: var(--app-accent) !important;
-  visibility: visible;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  z-index: 5;
-}
 
 
 /* =========================================================
@@ -3468,4 +3428,43 @@ body.dark-blue-mode .modal h2,
 body.dark-blue-mode #annualSummaryTitle,
 body.dark-blue-mode #annualDialog h2 {
   color: #38bdf8 !important; /* Celeste brillante característico del modo azul */
+}
+
+
+
+
+/* =========================================================
+   MINITARJETAS MÁS OSCURAS Y DESTACADAS EN MODO CLARO
+========================================================= */
+
+/* 1. Fondo del modal con el rosa suave del fondo de la app (#f9eef2) */
+dialog,
+.modal {
+  background-color: #f9eef2 !important;
+  border: 1px solid var(--pink-200, #ffc5d2) !important;
+  box-shadow: 0 25px 80px rgba(132, 38, 67, 0.20) !important;
+}
+
+/* 2. Las 4 minitarjetas con un rosa más oscuro y definido para que resalten perfecto */
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .annual-mini-card,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog div[class*="annual-mini-card"],
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog .summary-card {
+  background-color: var(--pink-200, #ffc5d2) !important;
+  border: 1px solid var(--pink-300, #ff9db4) !important;
+  border-radius: 14px !important;
+}
+
+/* 3. Título del modal con su color borravino original */
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) dialog h2,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) .modal h2,
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) #annualSummaryTitle {
+  color: var(--ink, #55152d) !important;
+}
+
+/* 4. Hover sutil y elegante en las minitarjetas */
+body dialog .annual-mini-card:hover,
+body dialog div[class*="annual-mini-card"]:hover,
+dialog .annual-mini-card:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 8px 20px rgba(132, 38, 67, 0.15) !important;
 }
