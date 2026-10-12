@@ -3163,69 +3163,75 @@ body.black-mode #alertaPresupuesto * {
 
 
 /* =========================================================
-   ESTILOS KAWAI / ROSITA PARA GASTOS RECURRENTES
+   FORZAR ESTILO KAWAI / ROSITA EN GASTOS RECURRENTES
 ========================================================= */
+section#recSection.rec-panel,
 .rec-panel {
-  margin: 1.5rem 0;
-  padding: 22px;
-  border-radius: 24px;
-  border: 1px solid var(--border, #f2cfdf);
-  background: var(--white, #fff);
-  box-shadow: 0 4px 20px rgba(90, 35, 55, 0.06);
-  box-sizing: border-box;
-}
-
-.rec-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin: 1.5rem 0 !important;
+  padding: 22px !important;
+  border-radius: 24px !important;
+  border: 1px solid #f2cfdf !important;
+  background: var(--card-bg, #ffffff) !important;
+  box-shadow: 0 4px 20px rgba(90, 35, 55, 0.06) !important;
+  color: inherit !important;
+  box-sizing: border-box !important;
 }
 
 .rec-head h2 {
-  margin: 0;
-  font-size: 1.15rem;
-  color: var(--pink, #e85d9e);
-  font-weight: 800;
+  margin: 0 !important;
+  font-size: 1.15rem !important;
+  color: var(--pink-700, #c43878) !important;
+  font-weight: 800 !important;
 }
 
 .rec-head p {
-  margin: 2px 0 0;
-  font-size: .8rem;
-  color: var(--muted, #8b7d86);
+  margin: 2px 0 0 !important;
+  font-size: .8rem !important;
+  color: var(--muted, #8b7d86) !important;
 }
 
 .rec-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
-  margin-bottom: 8px;
-  border-radius: 16px;
-  border: 1px solid var(--border, #f0dfe8);
-  background: var(--pink-light, #fff0f7);
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 12px 14px !important;
+  margin-bottom: 8px !important;
+  border-radius: 16px !important;
+  border: 1px solid #fde2ec !important;
+  background: #fff8fa !important;
+}
+
+.rec-name {
+  font-weight: 700 !important;
+  color: var(--text, #332934) !important;
+}
+
+.rec-meta {
+  font-size: .78rem !important;
+  color: var(--muted, #8b7d86) !important;
 }
 
 .rec-badge {
-  font-size: .75rem;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 999px;
-  white-space: nowrap;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  padding: 5px 12px !important;
+  border-radius: 999px !important;
+  white-space: nowrap !important;
 }
 
-.rec-badge.paid { background: rgba(34, 160, 90, 0.15); color: #1f8a4c; }
-.rec-badge.soon { background: #fff0f5; color: #c26a00; border: 1px solid #fad2e1; }
-.rec-badge.late { background: rgba(211, 47, 47, 0.12); color: #d32f2f; }
+.rec-badge.paid { background: rgba(34, 160, 90, 0.15) !important; color: #1f8a4c !important; }
+.rec-badge.soon { background: #fff0f5 !important; color: #c26a00 !important; border: 1px solid #fad2e1 !important; }
+.rec-badge.late { background: rgba(211, 47, 47, 0.12) !important; color: #d32f2f !important; }
 
-/* Adaptación a Modo Oscuro, Azul y Black */
-body.dark-mode .rec-panel { background: #211620 !important; border-color: #3b2334 !important; }
-body.dark-mode .rec-item { background: #1f1015 !important; border-color: #4e2b37 !important; color: #ffdbe4 !important; }
+/* Adaptación a Modo Oscuro */
+body.dark-mode .rec-panel { background: #211620 !important; border-color: #3b2334 !important; color: #ffb6c1 !important; }
+body.dark-mode .rec-item { background: #1f1015 !important; border-color: #4e2b37 !important; color: #ffb6c1 !important; }
+body.dark-mode .rec-name { color: #ffb6c1 !important; }
 
+/* Adaptación a Modo Azul */
 body.dark-blue-mode .rec-panel { background: #0f1c3f !important; border-color: #14244b !important; color: #f1f5f9 !important; }
 body.dark-blue-mode .rec-item { background: #070d1e !important; border-color: #14244b !important; color: #f1f5f9 !important; }
 
+/* Adaptación a Modo Black */
 body.black-mode .rec-panel { background: #121212 !important; border-color: #262626 !important; color: #ffffff !important; }
 body.black-mode .rec-item { background: #1a1a1a !important; border-color: #333333 !important; color: #ffffff !important; }
