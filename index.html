@@ -91,14 +91,14 @@
       color: var(--text, #5a2337);
     }
 
-    /* ESTILO KAWAI/ROSA PARA EL AVISO DE RECURRENTES */
-    .recurrent-alert-banner, [class*="alert"], [class*="warning"] {
-      background-color: #fff0f5 !important;
-      border: 1px solid #fad2e1 !important;
-      color: #7d3c54 !important;
-      border-radius: 12px !important;
-      font-weight: 600 !important;
-    }
+/* ESTILO KAWAI/ROSA PARA EL AVISO DE RECURRENTES */
+.recurrent-alert-banner, .budget-alert-banner {
+  background-color: #fff0f5 !important;
+  border: 1px solid #fad2e1 !important;
+  color: #7d3c54 !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+}
 
     /* =========================================================
        ESTILOS UNIFICADOS PARA GASTOS RECURRENTES (TODOS LOS MODOS)
@@ -299,6 +299,54 @@
     color: #ffffff !important;
     border-color: #333333 !important;
   }
+
+/* =========================================================
+   Cartel "¡Atención! Te excediste del presupuesto..."
+   (.budget-alert-banner) respetando los modos de la app.
+   Modo claro: no se toca, queda como está hoy.
+
+   Pegalo al FINAL de tu <style> en index.html (o al final de styles.css).
+   Va al final para que gane sobre las reglas anteriores.
+========================================================= */
+
+/* ---------- MODO OSCURO ---------- */
+body.dark-mode .budget-alert-banner {
+  background: #3a1a24 !important;
+  border: 1px solid #7a3348 !important;
+  border-left: 4px solid #ff6b81 !important;
+  color: #ffd6df !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* ---------- MODO AZUL ---------- */
+body.dark-blue-mode .budget-alert-banner {
+  background: #0f1c3f !important;
+  border: 1px solid #1e356d !important;
+  border-left: 4px solid #38bdf8 !important;
+  color: #e2e8f0 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* ---------- MODO BLACK ---------- */
+body.black-mode .budget-alert-banner {
+  background: #121212 !important;
+  border: 1px solid #262626 !important;
+  border-left: 4px solid #ffffff !important;
+  color: #f1f5f9 !important;
+  box-shadow: none !important;
+}
+
+/* El texto interno (strong, div, span) hereda el color del cartel.
+   Esto es lo que arregla el texto blanco sobre fondo rosa. */
+body.dark-mode .budget-alert-banner *,
+body.dark-blue-mode .budget-alert-banner *,
+body.black-mode .budget-alert-banner * {
+  color: inherit !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+   
   </style>
   
 </head>
