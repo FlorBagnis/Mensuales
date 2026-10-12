@@ -617,6 +617,13 @@ function renderMensualesExpensesTable(expenses) {
       $("expenseAmount").value = formatCurrencyInput(String(expense.amount).replace(".", ","));
       $("expenseCurrency").value = expense.currency || "ARS";
       $("expenseForm").dataset.editingId = expense.id;
+      // Al editar, empezar con la recurrencia destildada
+      const recChk = $("expenseRecurring");
+      if (recChk) recChk.checked = false;
+      $("recurringOptions")?.classList.add("hidden");
+      $("recurringAmounts")?.classList.add("hidden");
+      const recChg = $("recurringChangingAmount");
+      if (recChg) recChg.checked = false;
       if ($("modalTitle")) $("modalTitle").textContent = "Editar gasto";
       $("expenseDialog")?.showModal();
     };
@@ -1008,6 +1015,73 @@ function initApp() {
     const category = $("expenseCategory").value;
     const baseAmount = parseCurrency($("expenseAmount").value);
     const currency = $("expenseCurrency")?.value || "ARS";
+    const isRecurring = expenseRecurring?.checked;
+
+    // Crea las cuotas futuras + el registro en users/{uid}/recurrentes.
+    // Si "existing" viene informado (se está editando un gasto), ese gasto pasa a ser la
+    // primera cuota y NO se vuelve a crear: solo se generan las siguientes.
+    async function crearSerieRecurrente(existing) {
+      const count = Number(recurringDuration?.value) || 6;
+      const interval = Number(recurringMonthsInput?.value) || 1;
+      const dayNum = Number(recurringDay?.value) || 10;
+      const changing = recurringChangingAmount?.checked;
+      const customInputs = recurringAmounts?.querySelectorAll(".rec-amount-input");
+      const baseDate = new Date(baseDateStr + "T00:00:00");
+
+      // Los gastos usan el id "rec-{recId}-{mes}", igual que recPagar(),
+      // así que si después se marca pagado en la solapa, reemplaza la cuota en vez de duplicarla.
+      const recId = createId("rec");
+      let primerPago = existing
+        ? { monthKey: existing.monthKey, fecha: existing.fecha, monto: existing.monto, mensualId: existing.id }
+        : null;
+
+      for (let i = existing ? 1 : 0; i < count; i++) {
+        const targetDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), dayNum);
+        const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}`;
+        const dateStr = `${monthKey}-${String(targetDate.getDate()).padStart(2, "0")}`;
+
+        let amount = baseAmount;
+        if (changing && customInputs && customInputs[i]) {
+          amount = Number(customInputs[i].value) || baseAmount;
+        }
+        const finalDescription = `🔄 ${description} (Cuota ${i + 1}/${count})`;
+        const mensualId = `rec-${recId}-${monthKey}`;
+
+        ensureMonth(monthKey).expenses.push({
+          id: mensualId, date: dateStr, description: finalDescription, category, amount, currency
+        });
+        await saveMonthToFirestore(monthKey);
+
+        if (i === 0) primerPago = { monthKey, fecha: dateStr, monto: amount, mensualId };
+      }
+
+      // Registro en la colección de recurrentes (solo con sesión iniciada)
+      if (currentUser && primerPago) {
+        try {
+          await setDoc(doc(db, "users", currentUser.uid, "recurrentes", recId), {
+            id: recId,
+            descripcion: description,
+            categoria: category,
+            diaVence: dayNum,
+            monto: baseAmount,
+            currency: currency,
+            avisar: $("expenseSendEmailAlert")?.checked !== false,
+            activo: true,
+            pagos: {
+              [primerPago.monthKey]: {
+                fecha: primerPago.fecha,
+                monto: primerPago.monto,
+                mensualId: primerPago.mensualId
+              }
+            },
+            createdAt: new Date().toISOString()
+          });
+        } catch (err) {
+          console.error("Error guardando recurrente:", err);
+          alert("El gasto se guardó, pero no se pudo crear el recurrente para los avisos.");
+        }
+      }
+    }
 
     if (editingId) {
       for (const [mKey, mData] of Object.entries(data.months)) {
@@ -1015,75 +1089,26 @@ function initApp() {
         if (found) {
           found.date = baseDateStr; found.description = description; found.category = category; found.amount = baseAmount; found.currency = currency;
           await saveMonthToFirestore(mKey);
+
+          // Editando + "Repetir" tildado: el gasto editado pasa a ser la primera cuota
+          if (isRecurring) {
+            if (String(found.id).startsWith("rec-")) {
+              alert("Este gasto ya forma parte de un recurrente, no se vuelve a repetir.");
+            } else {
+              await crearSerieRecurrente({ id: found.id, monthKey: mKey, fecha: baseDateStr, monto: baseAmount });
+            }
+          }
           break;
         }
       }
     } else {
-      const isRecurring = expenseRecurring?.checked;
       if (!isRecurring) {
         ensureMonth(targetMonth).expenses.push({
           id: createId("expense"), date: baseDateStr, description, category, amount: baseAmount, currency
         });
         await saveMonthToFirestore(targetMonth);
       } else {
-        const count = Number(recurringDuration?.value) || 6;
-        const interval = Number(recurringMonthsInput?.value) || 1;
-        const dayNum = Number(recurringDay?.value) || 10;
-        const changing = recurringChangingAmount?.checked;
-        const customInputs = recurringAmounts?.querySelectorAll(".rec-amount-input");
-        let baseDate = new Date(baseDateStr + "T00:00:00");
-
-        // Id del recurrente: los gastos usan "rec-{recId}-{mes}", igual que recPagar(),
-        // así que si después se marca pagado en la solapa, reemplaza la cuota en vez de duplicarla.
-        const recId = createId("rec");
-        let primerPago = null;
-
-        for (let i = 0; i < count; i++) {
-          const targetDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + (i * interval), dayNum);
-          const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}`;
-          const dateStr = `${monthKey}-${String(targetDate.getDate()).padStart(2, "0")}`;
-
-          let amount = baseAmount;
-          if (changing && customInputs && customInputs[i]) {
-            amount = Number(customInputs[i].value) || baseAmount;
-          }
-          const finalDescription = `🔄 ${description} (Cuota ${i + 1}/${count})`;
-          const mensualId = `rec-${recId}-${monthKey}`;
-
-          ensureMonth(monthKey).expenses.push({
-            id: mensualId, date: dateStr, description: finalDescription, category, amount, currency
-          });
-          await saveMonthToFirestore(monthKey);
-
-          if (i === 0) primerPago = { monthKey, fecha: dateStr, monto: amount, mensualId };
-        }
-
-        // Registro en la colección de recurrentes (solo con sesión iniciada)
-        if (currentUser && primerPago) {
-          try {
-            await setDoc(doc(db, "users", currentUser.uid, "recurrentes", recId), {
-              id: recId,
-              descripcion: description,
-              categoria: category,
-              diaVence: dayNum,
-              monto: baseAmount,
-              currency: currency,
-              avisar: true,
-              activo: true,
-              pagos: {
-                [primerPago.monthKey]: {
-                  fecha: primerPago.fecha,
-                  monto: primerPago.monto,
-                  mensualId: primerPago.mensualId
-                }
-              },
-              createdAt: new Date().toISOString()
-            });
-          } catch (err) {
-            console.error("Error guardando recurrente:", err);
-            alert("El gasto se guardó, pero no se pudo crear el recurrente para los avisos.");
-          }
-        }
+        await crearSerieRecurrente(null);
       }
     }
 
