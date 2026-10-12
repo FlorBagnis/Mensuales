@@ -3231,11 +3231,22 @@ body.black-mode .rec-item .rec-meta {
 }
 
 
+
+
+
 /* =========================================================
-   CORRECCIÓN DEL MODAL DE RESUMEN ANUAL (MENSUALES)
+   FORZAR ROSA EN EL RESUMEN ANUAL (MENSUALES)
 ========================================================= */
 
-/* 1. Hover sutil, elegante y fluido en los botones del modal */
+/* 1. Forzar el fondo rosado suave en las tarjetas del Resumen Anual */
+body dialog .annual-mini-card,
+body dialog div[class*="annual-mini-card"],
+dialog .annual-mini-card {
+  background-color: var(--pink-100, #ffe3ea) !important;
+  border-color: var(--pink-200, #ffc5d2) !important;
+}
+
+/* 2. Hover sutil y elegante en los botones del modal */
 body dialog .btn,
 body dialog button:not(.close):not(.edit-btn) {
   padding: 11px 18px !important;
@@ -3250,14 +3261,30 @@ body dialog button:not(.close):not(.edit-btn):hover {
   box-shadow: 0 4px 12px rgba(180, 80, 110, 0.15) !important;
 }
 
-/* 2. Recuperar el fondo rosado suave original en las minitarjetas del resumen */
-body dialog .annual-mini-card {
-  background-color: var(--pink-100, #ffe3ea) !important;
-  border: 1px solid var(--pink-200, #ffc5d2) !important;
-}
-
 /* Modo oscuro para las minitarjetas del modal */
 body.dark-mode dialog .annual-mini-card {
   background-color: #3c1a2f !important;
   border-color: #592e47 !important;
+}
+
+
+
+
+/* =========================================================
+   HOVER MEJORADO Y MÁS NOTORIO (MENSUALES)
+========================================================= */
+
+/* 1. Hover más pronunciado en las tarjetas del Resumen Anual */
+body dialog .annual-mini-card:hover,
+body dialog div[class*="annual-mini-card"]:hover,
+dialog .annual-mini-card:hover {
+  transform: translateY(-5px) scale(1.04) !important;
+  box-shadow: 0 10px 25px rgba(220, 90, 130, 0.25) !important;
+}
+
+/* 2. Hover más marcado y fluido en los botones del modal */
+body dialog .btn:hover,
+body dialog button:not(.close):not(.edit-btn):hover {
+  transform: translateY(-3px) scale(1.04) !important;
+  box-shadow: 0 6px 18px rgba(220, 90, 130, 0.3) !important;
 }
