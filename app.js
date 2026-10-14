@@ -2453,3 +2453,63 @@ function stopRecurrentes() {
   recItems = [];
   recRender();
 }
+
+
+/* =========================================================
+   PUENTE CON POCKI (metas de ahorro)
+========================================================= */
+window.PockiBridge = {
+  getDolar: () => currentDolarBlue,
+
+  // Misma paleta que usan los PDF de Mensuales
+  getPdfTheme: () => getPdfThemeColors(),
+
+  // Sobrante mensual sin contar los retiros de Pocki
+  getMonthlySurplusARS: () => {
+    const vals = [];
+    Object.keys(data.months).sort().reverse().slice(0, 6).forEach(k => {
+      const m = data.months[k];
+      const gastado = (m.expenses || []).reduce((s, e) => e.currency === "USD" ? s : s + Number(e.amount || 0), 0);
+      const retiros = (m.extraIncomes || []).filter(x => x.fromPocki).reduce((s, x) => s + Number(x.amount || 0), 0);
+      const presupuesto = Number(m.budget || 0) - retiros;
+      if (presupuesto > 0 && gastado > 0) vals.push(presupuesto - gastado);
+    });
+    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+  },
+
+  // Retiro de una meta -> ingreso "Ahorro" en el presupuesto del mes actual
+  addWithdrawal: async ({ amount, currency, description }) => {
+    if (!currentUser || !(amount > 0)) return false;
+    const isUSD = currency === "USD";
+    if (isUSD && !(currentDolarBlue > 0)) return false;
+
+    const hoy = hoyAR();
+    const month = ensureMonth(hoy.mes);
+
+    // Si el mes tenía un presupuesto cargado sin desglose, se conserva como "base"
+    if (month.extraIncomes.length === 0 && Number(month.budget) > 0) {
+      month.extraIncomes.push({
+        id: createId("base"), isBase: true, date: `${hoy.mes}-01`, category: "Presupuesto Base",
+        description: "Presupuesto inicial", amount: Number(month.budget), rawAmount: Number(month.budget), currency: "ARS"
+      });
+    }
+
+    month.extraIncomes.push({
+      id: createId("pocki"),
+      fromPocki: true,
+      date: hoy.iso,
+      category: "Ahorro",
+      description,
+      amount: isUSD ? amount * currentDolarBlue : amount,
+      rawAmount: amount,
+      currency: isUSD ? "USD" : "ARS"
+    });
+    month.budget = month.extraIncomes.reduce((s, i) => s + Number(i.amount || 0), 0);
+
+    renderMensuales();
+    await saveMonthToFirestore(hoy.mes);
+    return true;
+  }
+};
+
+
