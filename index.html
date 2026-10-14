@@ -32,6 +32,21 @@
 
 <style>
 
+#aboutDialog::-webkit-scrollbar {
+    width: 6px;
+  }
+  #aboutDialog::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  #aboutDialog::-webkit-scrollbar-thumb {
+    background-color: var(--pink-500, #ffb6c1);
+    border-radius: 10px;
+  }
+
+
+
+
+  
   /* =========================================================
       BASE
   ========================================================= */
@@ -1359,20 +1374,6 @@ body:not(.g-1) #scrollTopBtn:hover {
   <!-- SOBRE MI -->
 <dialog id="aboutDialog" class="panel" style="border: none; border-radius: 20px; padding: 22px; max-width: 420px; width: 90%; max-height: 82vh; overflow-y: auto; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); margin: auto; position: fixed; inset: 0; scrollbar-width: thin; scrollbar-color: var(--pink-500, #ffb6c1) transparent;">
     
-    <!-- Estilo para que la barra de scroll sea fina en navegadores modernos (Chrome/Safari) -->
-    <style>
-      #aboutDialog::-webkit-scrollbar {
-        width: 6px;
-      }
-      #aboutDialog::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      #aboutDialog::-webkit-scrollbar-thumb {
-        background-color: var(--pink-500, #ffb6c1);
-        border-radius: 10px;
-      }
-    </style>
-
     <div style="text-align: center;">
       <div style="font-size: 2.2rem; margin-bottom: 4px;">🎀</div>
       <h3 style="margin-bottom: 6px; font-size: 1.15rem; font-weight: 700;">¡Hola! Soy Flor</h3>
@@ -1466,5 +1467,12 @@ body:not(.g-1) #scrollTopBtn:hover {
   
 <script src="pocki.js" defer></script>
 <script type="module" src="app.js?v=2.5"></script>
+
+<script>
+  window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+  formspree('initForm', { formElement: '#my-form', formId: 'xkjoqyyj' });
+</script>
+<script src="https://unpkg.com/@formspree/ajax@1" defer></script>
+  
 </body>
 </html>
