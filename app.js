@@ -2655,3 +2655,11 @@ if (aboutBtn && aboutDialog) {
 if (closeAboutBtn && aboutDialog) {
   closeAboutBtn.onclick = () => aboutDialog.close();
 }
+
+
+<script>
+  window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+  formspree('initForm', { formElement: '#my-form', formId: 'xkjoqyyj' });
+</script>
+<script src="https://unpkg.com/@formspree/ajax@1" defer></script>
+
