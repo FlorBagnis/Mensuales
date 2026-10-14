@@ -68,7 +68,7 @@ const ICONS = [
   { k: 'higiene', e: '🧻', label: 'Higiene', cat: 'Personal' },
   { k: 'mascotas', e: '🐶', label: 'Mascotas', cat: 'Mascotas' },
   { k: 'bebes', e: '🍼', label: 'Bebés y niños', cat: 'Hogar' },
-  { k: 'electro', e: '🔌', label: 'Electrodomésticos', cat: 'Hogar' },
+  { k: 'electro', e: '🔌', label: 'Electro', cat: 'Hogar' },
   { k: 'tecnologia', e: '💻', label: 'Tecnología', cat: 'Hogar' },
   { k: 'ferreteria', e: '🔨', label: 'Ferretería y arreglos', cat: 'Hogar' },
 
