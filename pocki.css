@@ -113,8 +113,6 @@ body.black-mode #pocki {
   box-shadow: 0 0 16px rgba(var(--p-accent-rgb), .5) !important;
 }
 
-/* "Ocultar montos" también esconde los montos de Pocki */
-body.amounts-hidden #pocki .pocki-amt { filter: blur(7px); user-select: none; }
 
 /* cartel flotante */
 #pocki .pocki-toast {
@@ -142,27 +140,12 @@ body.amounts-hidden #pocki .pocki-amt { filter: blur(7px); user-select: none; }
 }
 
 
-/* Ocultar montos en Pocki: se ven puntitos con el color del modo activo */
-.pocki-amt .pocki-dots { display: none; }
-
-body.amounts-hidden .pocki-amt .pocki-num { display: none; }
-body.amounts-hidden .pocki-amt .pocki-dots {
-  display: inline;
-  letter-spacing: 1px;
-  font-weight: 700;
-  color: var(--dots, currentColor);
-}
-
 /* Campo "Ahorro por mes": puntitos en lugar del número, salvo que lo estés editando */
 body.amounts-hidden .pocki-plan input:not(:focus) {
   -webkit-text-security: disc;
   text-security: disc;
 }
 
-/* El monto de "Ahorro por mes" viene escrito en el campo: se desenfoca salvo que lo estés editando */
-body.amounts-hidden .pocki-plan input:not(:focus) {
-  filter: blur(6px);
-}
 
 
 /* Solapa Historial */
@@ -196,3 +179,24 @@ body.amounts-hidden .pocki-plan input:not(:focus) {
 .pocki-hist-empty { opacity: .7; font-size: .85rem; padding: 6px 2px; }
 
 
+/* "Ocultar montos" en Pocki: puntitos con el color del modo activo */
+.pocki-amt .pocki-dots { display: none; }
+
+body.amounts-hidden .pocki-amt,
+body.amounts-hidden .pocki-amt * {
+  filter: none !important;
+}
+body.amounts-hidden .pocki-amt .pocki-num { display: none !important; }
+body.amounts-hidden .pocki-amt .pocki-dots {
+  display: inline !important;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: var(--dots, currentColor);
+}
+
+/* Campo "Ahorro por mes": puntitos, salvo que lo estés editando */
+body.amounts-hidden .pocki-plan input:not(:focus) {
+  filter: none !important;
+  -webkit-text-security: disc;
+  text-security: disc;
+}
