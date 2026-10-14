@@ -149,6 +149,8 @@ body.amounts-hidden .pocki-amt .pocki-num { display: none; }
 body.amounts-hidden .pocki-amt .pocki-dots {
   display: inline;
   letter-spacing: 1px;
+  font-weight: 700;
+  color: var(--dots, currentColor);
 }
 
 /* Campo "Ahorro por mes": puntitos en lugar del número, salvo que lo estés editando */
