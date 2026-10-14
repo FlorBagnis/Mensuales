@@ -2642,4 +2642,16 @@ document.getElementById('globalRefreshBtn')?.addEventListener('click', () => {
   window.location.reload();
 });
 
+// ... Sobre mi :
 
+const aboutBtn = document.getElementById("aboutBtn");
+const aboutDialog = document.getElementById("aboutDialog");
+const closeAboutBtn = document.getElementById("closeAboutBtn");
+
+if (aboutBtn && aboutDialog) {
+  aboutBtn.onclick = () => aboutDialog.showModal();
+}
+
+if (closeAboutBtn && aboutDialog) {
+  closeAboutBtn.onclick = () => aboutDialog.close();
+}
