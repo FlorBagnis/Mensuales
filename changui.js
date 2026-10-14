@@ -108,19 +108,18 @@
   };
 
   function itemCalc(it) {
-    const base = it.price * it.qty;
+    const base = (it.price || 0) * (it.qty || 1);
     let paid = base;
     const p = it.promo || { type: 'none' };
     if (p.type === 'pct') paid = base * (1 - p.value / 100);
-    else if (p.type === '2x1') paid = it.price * Math.ceil(it.qty / 2);
+    else if (p.type === '2x1') paid = (it.price || 0) * Math.ceil((it.qty || 1) / 2);
     else if (p.type === 'second') {
-      const pairs = Math.floor(it.qty / 2);
-      paid = it.price * (it.qty - pairs) + it.price * pairs * (1 - p.value / 100);
+      const pairs = Math.floor((it.qty || 1) / 2);
+      paid = (it.price || 0) * ((it.qty || 1) - pairs) + (it.price || 0) * pairs * (1 - p.value / 100);
     }
     return { base, paid, saved: base - paid };
   }
 
-  // Obtener costo de envío actual del formulario
   function getDeliveryCost() {
     const mode = $('#chgDeliveryMode')?.value || 'presencial';
     return mode === 'envio' ? parseAmount($('#chgDeliveryCost')?.value) : 0;
@@ -141,7 +140,6 @@
       t[cur].saved = t[cur].promo + t[cur].general;
     });
 
-    // Sumar el costo de envío a los totales en ARS
     const delivery = getDeliveryCost();
     t.ARS.total += delivery;
 
@@ -186,13 +184,8 @@
   function renderCart() {
     const n = state.items.length;
     const delivery = getDeliveryCost();
-    
-    let itemsMarkup = '';
-    if (n > 0) {
-      itemsMarkup = state.items.map(itemHTML).join('');
-    }
+    let itemsMarkup = n > 0 ? state.items.map(itemHTML).join('') : '';
 
-    // Si hay costo de envío activo, lo agregamos como un ítem visual al final de la lista del changuito
     if (delivery > 0) {
       itemsMarkup += `
         <li class="chg-item" style="border-style: dashed; border-color: var(--pink-700); background: var(--pink-bg, rgba(234,91,142,0.05));">
@@ -432,7 +425,7 @@
     state.purchases.unshift({
       id: uid(), date, store, deliveryMode, deliveryCost,
       items: state.items.map((it) => ({
-        name: it.name, icon: it.icon, cur: it.cur,
+        name: it.name, icon: it.icon, cur: it.cur, price: it.price, qty: it.qty, promo: it.promo,
         paid: round2(itemCalc(it).paid * (1 - g / 100))
       }))
     });
@@ -450,10 +443,12 @@
   }
 
   /* ---------- exportar PDF ---------- */
-  function exportPDF() {
+  function exportPDF(customPurchase = null) {
     const J = window.jspdf && window.jspdf.jsPDF;
     if (!J) { toast('No se pudo cargar el generador de PDF.'); return; }
-    if (!state.items.length) { toast('Primero agregá productos al changuito.'); return; }
+
+    const itemsToPrint = customPurchase ? customPurchase.items : state.items;
+    if (!itemsToPrint || itemsToPrint.length === 0) { toast('No hay productos para exportar.'); return; }
 
     let theme;
     try { theme = bridge().getPdfTheme(); } catch (e) { theme = null; }
@@ -464,8 +459,20 @@
     const isBlack = document.body.classList.contains('black-mode');
 
     const doc = new J({ unit: 'mm', format: 'a4' });
-    const T = totals();
-    const store = plain($('#chgStore').value);
+    
+    let totalARS = 0;
+    itemsToPrint.forEach(it => {
+      const paid = customPurchase ? Number(it.paid || 0) : itemCalc(it).paid;
+      const cur = it.cur || 'ARS';
+      if (cur === 'ARS') totalARS += paid;
+    });
+
+    const delivery = customPurchase ? (customPurchase.deliveryMode === 'envio' ? Number(customPurchase.deliveryCost || 0) : 0) : getDeliveryCost();
+    totalARS += delivery;
+
+    const storeName = plain(customPurchase ? (customPurchase.store || '') : $('#chgStore')?.value || '');
+    const dateStr = customPurchase ? fmtDay(customPurchase.date) : new Date().toLocaleDateString('es-AR');
+
     const paintPage = () => { if (theme.pageBg) { doc.setFillColor(...theme.pageBg); doc.rect(0, 0, 210, 297, 'F'); } };
     const newPage = () => { doc.addPage(); paintPage(); return 20; };
     const heart = (x, yy, s) => {
@@ -482,22 +489,21 @@
     doc.setTextColor(...theme.dark); doc.setFont('helvetica', 'bold'); doc.setFontSize(17);
     doc.text('CHANGUI: CALCULA TU COMPRA', 21, 25);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-    doc.text('Detalle del changuito - ' + new Date().toLocaleDateString('es-AR') + (store ? ' - ' + store : ''), 21, 31);
+    doc.text('Detalle del changuito - ' + dateStr + (storeName ? ' - ' + storeName : ''), 21, 31);
 
     const cards = [
-      ['TOTAL EN PESOS', fmt(T.t.ARS.total, 'ARS')],
-      ['TOTAL EN DOLARES', fmt(T.t.USD.total, 'USD')],
-      ['TODO EN PESOS', T.hasUSD ? (T.rate ? fmt(T.eqTotal, 'ARS') : 'Sin cotizacion') : fmt(T.t.ARS.total, 'ARS')],
-      ['TE AHORRASTE', fmt(T.eqSaved, 'ARS')]
+      ['TOTAL GASTADO', fmt(totalARS, 'ARS')],
+      ['MODALIDAD', customPurchase ? (customPurchase.deliveryMode === 'envio' ? 'Envío a domicilio' : 'Presencial') : ($('#chgDeliveryMode')?.value === 'envio' ? 'Envío' : 'Presencial')],
+      ['CANT. ÍTEMS', String(itemsToPrint.length + (delivery > 0 ? 1 : 0))]
     ];
     cards.forEach((card, i) => {
-      const x = 15 + i * 45;
+      const x = 15 + i * 60;
       doc.setDrawColor(...theme.cardBorder);
-      doc.roundedRect(x, 49, 41, 25, 3, 3, 'S');
+      doc.roundedRect(x, 49, 56, 25, 3, 3, 'S');
       doc.setTextColor(...theme.pink); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
-      doc.text(card[0], x + 3, 57);
-      doc.setTextColor(...theme.dark); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
-      doc.text(card[1], x + 3, 65);
+      doc.text(card[0], x + 4, 57);
+      doc.setTextColor(...theme.dark); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+      doc.text(card[1], x + 4, 65);
     });
 
     let y = 84;
@@ -507,37 +513,33 @@
       doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
       doc.text('PRODUCTO', 18, y + 5);
       doc.text('CANT.', 92, y + 5);
-      doc.text('PRECIO UNIT.', 106, y + 5);
-      doc.text('PROMO', 136, y + 5);
+      doc.text('PRECIO / VALOR', 106, y + 5);
       doc.text('SUBTOTAL', 162, y + 5);
       y += 8;
       doc.setFont('helvetica', 'normal');
     };
     tableHeader();
 
-    state.items.forEach((it) => {
+    itemsToPrint.forEach((it) => {
       if (y > 255) { y = newPage(); tableHeader(); }
-      const c = itemCalc(it);
+      const paid = customPurchase ? Number(it.paid || 0) : itemCalc(it).paid;
+      const cur = it.cur || 'ARS';
       doc.setTextColor(...theme.dark); doc.setFontSize(7);
-      doc.text((plain(it.name) || plain(iconOf(it.icon).label)).slice(0, 40), 18, y + 5);
-      doc.text(String(it.qty), 92, y + 5);
-      doc.text(fmt(it.price, it.cur), 106, y + 5);
-      doc.text(promoLabel(it.promo).replace('%', ' %') || '-', 136, y + 5);
-      doc.text(fmt(c.paid, it.cur), 162, y + 5);
+      doc.text((plain(it.name) || 'Producto').slice(0, 40), 18, y + 5);
+      doc.text(String(it.qty || 1), 92, y + 5);
+      doc.text(fmt(paid / (it.qty || 1), cur), 106, y + 5);
+      doc.text(fmt(paid, cur), 162, y + 5);
       doc.setDrawColor(...theme.lineDivider);
       doc.line(15, y + 8, 195, y + 8);
       y += 9;
     });
 
-    // Si hay costo de envío, agregarlo también en el PDF
-    const delivery = getDeliveryCost();
     if (delivery > 0) {
       if (y > 255) { y = newPage(); tableHeader(); }
       doc.setTextColor(...theme.dark); doc.setFontSize(7);
       doc.text('Envío a domicilio', 18, y + 5);
       doc.text('1', 92, y + 5);
       doc.text(fmt(delivery, 'ARS'), 106, y + 5);
-      doc.text('-', 136, y + 5);
       doc.text(fmt(delivery, 'ARS'), 162, y + 5);
       doc.setDrawColor(...theme.lineDivider);
       doc.line(15, y + 8, 195, y + 8);
@@ -547,24 +549,19 @@
     y += 10;
     if (y > 225) y = newPage();
     doc.setTextColor(...theme.dark); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
-    doc.text('RESUMEN DE LA COMPRA', 15, y);
+    doc.text('RESUMEN GENERAL', 15, y);
     y += 6;
-    const both = (a, b) => [a > 0.005 ? fmt(a, 'ARS') : '', b > 0.005 ? fmt(b, 'USD') : ''].filter(Boolean).join(' + ') || fmt(0, 'ARS');
+    
     const lines = [
-      ['Ahorro por promociones', both(T.t.ARS.promo, T.t.USD.promo)],
-      [`Descuento general (${String(state.general).replace('.', ',')} %)`, both(T.t.ARS.general, T.t.USD.general)],
-      ['Total ahorrado', both(T.t.ARS.saved, T.t.USD.saved)],
-      ['Total a pagar', both(T.t.ARS.total, T.t.USD.total)]
+      ['Total general a pagar', fmt(totalARS, 'ARS')]
     ];
-    if (T.hasUSD && T.rate) lines.push(['Dolar blue usado', fmt(T.rate, 'ARS')]);
     const boxH = 10 + lines.length * 6;
     doc.setFillColor(...theme.light); doc.setDrawColor(...theme.cardBorder);
     doc.roundedRect(15, y, 180, boxH, 3, 3, 'FD');
     lines.forEach((l, i) => {
       const yy = y + 8 + i * 6;
-      const strong = i >= 2 && i <= 3;
-      doc.setFont('helvetica', strong ? 'bold' : 'normal'); doc.setFontSize(7.5);
-      doc.setTextColor(...(strong ? theme.pink : theme.dark));
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+      doc.setTextColor(...theme.pink);
       doc.text(l[0], 21, yy);
       doc.text(l[1], 189, yy, { align: 'right' });
     });
@@ -580,7 +577,39 @@
       heart(x + tw + 1.5, 283.6, 4);
       doc.text(`${i} / ${n}`, 195, 287, { align: 'right' });
     }
-    doc.save('Changui-' + todayISO() + '.pdf');
+    doc.save('Changui-' + (customPurchase ? customPurchase.date : todayISO()) + '.pdf');
+  }
+
+  /* ---------- exportar CSV ---------- */
+  function exportCSV(customPurchase = null) {
+    const itemsToPrint = customPurchase ? customPurchase.items : state.items;
+    if (!itemsToPrint || itemsToPrint.length === 0) { toast('No hay productos para exportar.'); return; }
+
+    const storeName = customPurchase ? (customPurchase.store || 'General') : ($('#chgStore')?.value || 'General');
+    const dateStr = customPurchase ? customPurchase.date : todayISO();
+
+    let csv = 'Producto,Cantidad,Moneda,Precio Subtotal\n';
+    itemsToPrint.forEach(it => {
+      const paid = customPurchase ? Number(it.paid || 0) : itemCalc(it).paid;
+      const name = `"${String(it.name || '').replace(/"/g, '""')}"`;
+      const qty = it.qty || 1;
+      const cur = it.cur || 'ARS';
+      csv += `${name},${qty},${cur},${paid.toFixed(2)}\n`;
+    });
+
+    const delivery = customPurchase ? (customPurchase.deliveryMode === 'envio' ? Number(customPurchase.deliveryCost || 0) : 0) : getDeliveryCost();
+    if (delivery > 0) {
+      csv += `"Envío a domicilio",1,ARS,${delivery.toFixed(2)}\n`;
+    }
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Changui-${dateStr}-${storeName}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Archivo CSV descargado con éxito.');
   }
 
   /* ---------- Historial de Changuitos ---------- */
@@ -619,9 +648,11 @@
         <div class="chg-history-card" data-purchase-id="${p.id}" style="border: 1px solid var(--chg-line); border-radius: 16px; padding: 14px; background: var(--bg, transparent); margin-bottom: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 0.85rem;">
             <span>📅 ${fmtDay(p.date)} · ${storeName}</span>
-            <div style="display: flex; gap: 4px;">
-              <button class="pastel-btn btn-sm" type="button" data-edit-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">✏️ Changuito</button>
-              <button class="btn btn-danger btn-sm" type="button" data-del-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">Eliminar</button>
+            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+              <button class="pastel-btn btn-sm" type="button" data-load-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Cargar este changuito en la pantalla">📂 Cargar</button>
+              <button class="pastel-btn btn-sm" type="button" data-pdf-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="PDF">📄 PDF</button>
+              <button class="pastel-btn btn-sm" type="button" data-csv-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="CSV">📊 CSV</button>
+              <button class="btn btn-danger btn-sm" type="button" data-del-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Eliminar">🗑️</button>
             </div>
           </div>
           <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 6px;">
@@ -639,7 +670,9 @@
   /* ---------- eventos ---------- */
   $('#chgForm').addEventListener('submit', submitItem);
   $('#chgCancelEdit').addEventListener('click', resetForm);
-  $('#chgPdfBtn').addEventListener('click', exportPDF);
+  $('#chgPdfBtn').addEventListener('click', () => exportPDF(null));
+  
+  // Agregar botón o acción de CSV para el changuito activo (si querés podés ponerle un id chgCsvBtn en el HTML, o lo manejamos desde historial)
   $('#chgRegisterBtn').addEventListener('click', registerPurchase);
   $('#chgDate').value = todayISO();
 
@@ -669,7 +702,6 @@
     el.setSelectionRange(pos, pos);
   });
 
-  // Eventos para el selector de envío y su input
   $('#chgDeliveryMode')?.addEventListener('change', (e) => {
     const isEnvio = e.target.value === 'envio';
     const wrap = $('#chgDeliveryCostWrap');
@@ -714,6 +746,46 @@
     }
     if (e.target.closest('#chgCloseHistoryBtn') || e.target.closest('#chgHistoryDialog')) {
       if (e.target.id === 'chgHistoryDialog') $('#chgHistoryDialog').close();
+    }
+
+    // Cargar changuito histórico a la pantalla principal
+    const loadBtn = e.target.closest('[data-load-purchase]');
+    if (loadBtn) {
+      const id = loadBtn.dataset.loadPurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (purchase) {
+        state.items = (purchase.items || []).map(it => ({
+          id: uid(), icon: it.icon || 'otros', name: it.name, price: Number(it.price || it.paid || 0), qty: Number(it.qty || 1), cur: it.cur || 'ARS', promo: it.promo || { type: 'none' }
+        }));
+        if ($('#chgStore')) $('#chgStore').value = purchase.store || '';
+        if ($('#chgDeliveryMode')) $('#chgDeliveryMode').value = purchase.deliveryMode || 'presencial';
+        if ($('#chgDeliveryCostWrap')) $('#chgDeliveryCostWrap').hidden = purchase.deliveryMode !== 'envio';
+        if ($('#chgDeliveryCost')) $('#chgDeliveryCost').value = purchase.deliveryCost ? formatAmountInput(String(purchase.deliveryCost).replace('.', ',')) : '';
+        if ($('#chgDate')) $('#chgDate').value = purchase.date || todayISO();
+        save();
+        render();
+        $('#chgHistoryDialog')?.close();
+        toast('Changuito cargado en pantalla con éxito. 🛒');
+      }
+      return;
+    }
+
+    // Exportar PDF desde el historial
+    const pdfBtn = e.target.closest('[data-pdf-purchase]');
+    if (pdfBtn) {
+      const id = pdfBtn.dataset.pdfPurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (purchase) exportPDF(purchase);
+      return;
+    }
+
+    // Exportar CSV desde el historial
+    const csvBtn = e.target.closest('[data-csv-purchase]');
+    if (csvBtn) {
+      const id = csvBtn.dataset.csvPurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (purchase) exportCSV(purchase);
+      return;
     }
 
     const delBtn = e.target.closest('[data-del-purchase]');
