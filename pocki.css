@@ -1,0 +1,142 @@
+/* =========================================================
+   POCKI: AHORRANDO ANDO
+   Usa las mismas clases de <body> que ya maneja Mensuales:
+   (sin clase) claro rosa · .dark-mode bordo · .dark-blue-mode azul · .black-mode black
+========================================================= */
+#pocki {
+  --p-card: #ffffff;  --p-item: #fff8fa;  --p-line: #f2cfdf;
+  --p-text: #332934;  --p-muted: #8b7d86; --p-track: #fde2ec;
+  --p-accent: #c43878; --p-ring: #e85d9e; --p-accent-rgb: 232, 93, 158; --p-on: #ffffff;
+}
+body.dark-mode #pocki {
+  --p-card: #2a161d;  --p-item: #1f1015;  --p-line: #4e2b37;
+  --p-text: #ffd6df;  --p-muted: #c49aa6; --p-track: #4e2b37;
+  --p-accent: #ff8fa3; --p-ring: #ff6b81; --p-accent-rgb: 255, 107, 129; --p-on: #2a161d;
+}
+body.dark-blue-mode #pocki {
+  --p-card: #0f1c3f;  --p-item: #070d1e;  --p-line: #1e356d;
+  --p-text: #f1f5f9;  --p-muted: #94a3b8; --p-track: #1e356d;
+  --p-accent: #38bdf8; --p-ring: #38bdf8; --p-accent-rgb: 56, 189, 248; --p-on: #070d1e;
+}
+body.black-mode #pocki {
+  --p-card: #121212;  --p-item: #1a1a1a;  --p-line: #333333;
+  --p-text: #ffffff;  --p-muted: #a3a3a3; --p-track: #333333;
+  --p-accent: #ffffff; --p-ring: #ffffff; --p-accent-rgb: 255, 255, 255; --p-on: #000000;
+}
+
+#pocki [hidden] { display: none !important; }
+#pocki { color: var(--p-text); }
+
+/* ---------- formulario de nueva meta ---------- */
+#pocki .pocki-form {
+  background: var(--p-item); border: 1px solid var(--p-line); border-radius: 16px;
+  padding: 16px; margin-bottom: 16px;
+}
+#pocki .pocki-fields {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 14px;
+}
+#pocki .pocki-field { display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--p-accent); }
+#pocki .pocki-field input,
+#pocki .pocki-field select,
+#pocki .pocki-add input {
+  width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; font: inherit; font-size: 13px; font-weight: 500;
+  background: var(--p-card) !important; color: var(--p-text) !important; border: 1px solid var(--p-line) !important;
+}
+#pocki input:focus-visible, #pocki select:focus-visible, #pocki button:focus-visible {
+  outline: 2px solid var(--p-ring); outline-offset: 2px;
+}
+#pocki .pocki-form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ---------- datos que calcula la app ---------- */
+#pocki .pocki-info { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+#pocki .pocki-pill {
+  background: var(--p-item); border: 1px solid var(--p-line); color: var(--p-text);
+  border-radius: 16px; padding: 6px 14px; font-size: .82rem; font-weight: 600;
+}
+
+/* ---------- tarjetas de metas ---------- */
+#pocki .pocki-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 16px; padding: 8px;
+  margin: -8px;               /* deja lugar para el zoom sin cortarse */
+}
+#pocki .pocki-goal {
+  position: relative; background: var(--p-item); border: 1px solid var(--p-line); border-radius: 20px; padding: 18px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+#pocki .pocki-goal:hover {
+  transform: scale(1.02); z-index: 2; box-shadow: 0 0 22px rgba(var(--p-accent-rgb), .35);
+}
+#pocki .pocki-goal-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+#pocki .pocki-goal-head h3 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--p-text); overflow-wrap: anywhere; }
+#pocki .pocki-del { padding: 2px 10px !important; color: var(--p-muted) !important; }
+
+#pocki .pocki-banner {
+  margin-top: 12px; padding: 9px 12px; border-radius: 12px; font-size: .88rem; font-weight: 700;
+  color: var(--p-accent); background: rgba(var(--p-accent-rgb), .14); border: 1px solid var(--p-ring);
+}
+#pocki .pocki-banner.done { background: var(--p-ring); color: var(--p-on); }
+
+/* gráfico circular */
+#pocki .pocki-ring { position: relative; width: 168px; height: 168px; margin: 14px auto 8px; }
+#pocki .pocki-ring svg { width: 100%; height: 100%; display: block; }
+#pocki .pocki-ring .track { fill: none; stroke: var(--p-track); stroke-width: 12; }
+#pocki .pocki-ring .prog  { fill: none; stroke: var(--p-ring); stroke-width: 12; stroke-linecap: round; transition: stroke-dasharray .6s ease; }
+#pocki .pocki-ring .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#pocki .pocki-ring .center strong { font-size: 1.9rem; line-height: 1; color: var(--p-text); }
+#pocki .pocki-ring .center span { font-size: .8rem; color: var(--p-muted); margin-top: 4px; }
+
+#pocki .pocki-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+#pocki .pocki-stats div { background: var(--p-card); border: 1px solid var(--p-line); border-radius: 12px; padding: 8px 10px; }
+#pocki .pocki-stats dt { display: flex; align-items: center; gap: 6px; font-size: .75rem; color: var(--p-muted); margin: 0; }
+#pocki .pocki-stats dd { margin: 2px 0 0; font-weight: 800; font-size: .95rem; color: var(--p-text); overflow-wrap: anywhere; }
+#pocki .pocki-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+#pocki .pocki-dot.a { background: var(--p-ring); }
+#pocki .pocki-dot.t { background: var(--p-track); border: 1px solid var(--p-muted); }
+
+#pocki .pocki-eta { margin: 0 0 12px; font-size: .85rem; color: var(--p-muted); line-height: 1.4; }
+#pocki .pocki-eta strong { display: block; font-size: 1.02rem; color: var(--p-text); margin-bottom: 2px; }
+
+#pocki .pocki-add { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; }
+
+#pocki .pocki-plan { margin-top: 10px; border-top: 1px solid var(--p-line); padding-top: 10px; }
+#pocki .pocki-plan summary { cursor: pointer; font-size: .82rem; font-weight: 700; color: var(--p-accent); margin-bottom: 8px; }
+#pocki .pocki-plan[open] summary { margin-bottom: 10px; }
+
+#pocki .pocki-empty { text-align: center; color: var(--p-muted); padding: 28px 0; }
+#pocki .pocki-empty div { font-size: 1.6rem; margin-bottom: 4px; }
+
+#pocki .pocki-credit { margin: 22px 0 0; text-align: center; font-size: .82rem; color: var(--p-muted); }
+
+/* botones: zoom y brillo al pasar el mouse (sobre los botones que ya tiene tu app) */
+#pocki .pastel-btn:hover, #pocki .btn:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 0 16px rgba(var(--p-accent-rgb), .5) !important;
+}
+
+/* "Ocultar montos" también esconde los montos de Pocki */
+body.amounts-hidden #pocki .pocki-amt { filter: blur(7px); user-select: none; }
+
+/* cartel flotante */
+#pocki .pocki-toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  background: var(--p-ring); color: var(--p-on); font-weight: 800; font-size: .92rem;
+  padding: 12px 18px; border-radius: 14px; max-width: 90vw; text-align: center; z-index: 9999;
+  box-shadow: 0 0 24px rgba(var(--p-accent-rgb), .6); transition: opacity .3s ease, transform .3s ease;
+}
+#pocki .pocki-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 640px) {
+  #pocki .section-heading > div { width: 100%; }
+  #pocki .section-heading .pastel-btn, #pocki .section-heading .btn { flex: 1 1 auto; justify-content: center; text-align: center; }
+  #pocki .pocki-form-actions { flex-direction: column-reverse; }
+  #pocki .pocki-form-actions .btn, #pocki .pocki-form-actions .pastel-btn { width: 100%; justify-content: center; }
+  #pocki .pocki-toast { bottom: 16px; }
+}
+@media (max-width: 480px) {
+  #pocki .pocki-add { grid-template-columns: 1fr 1fr; }
+  #pocki .pocki-add input { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #pocki .pocki-goal, #pocki .pocki-ring .prog, #pocki .pocki-toast { transition: none; }
+  #pocki .pocki-goal:hover, #pocki .pastel-btn:hover, #pocki .btn:hover { transform: none !important; }
+}
