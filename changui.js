@@ -402,7 +402,7 @@
     toast(`Listo, la compra se sumó a tus gastos.`);
   }
 
-  /* ---------- Historial de Changuitos (Modal) ---------- */
+  /* ---------- Historial de Changuitos (Modal con Edición) ---------- */
   function renderHistoryModal() {
     const container = $('#chgHistoryListContainer');
     if (!container) return;
@@ -415,6 +415,7 @@
     container.innerHTML = state.purchases.map(p => {
       const storeName = p.store ? `Supermercado: <strong>${esc(p.store)}</strong>` : 'Compra general';
       const modeText = p.deliveryMode === 'envio' ? `📦 Envío ($${p.deliveryCost || 0})` : '🛍️ Presencial';
+      
       const itemsHtml = (p.items || []).map(it => `
         <div style="display: flex; justify-content: space-between; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line);">
           <span>${iconOf(it.icon).e} ${esc(it.name)} (${it.qty || 1}x)</span>
@@ -423,10 +424,13 @@
       `).join('');
 
       return `
-        <div style="border: 1px solid var(--chg-line); border-radius: 16px; padding: 14px; background: var(--bg, transparent); margin-bottom: 8px;">
+        <div class="chg-history-card" data-purchase-id="${p.id}" style="border: 1px solid var(--chg-line); border-radius: 16px; padding: 14px; background: var(--bg, transparent); margin-bottom: 8px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85rem;">
             <span>📅 ${fmtDay(p.date)} · ${storeName} (${modeText})</span>
-            <button class="btn btn-danger btn-sm" type="button" data-del-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">Eliminar</button>
+            <div style="display: flex; gap: 4px;">
+              <button class="pastel-btn btn-sm" type="button" data-edit-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">✏️ Editar</button>
+              <button class="btn btn-danger btn-sm" type="button" data-del-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">Eliminar</button>
+            </div>
           </div>
           <div style="display: grid; gap: 2px; margin-top: 6px;">
             ${itemsHtml}
@@ -444,6 +448,8 @@
     if (e.target.closest('#chgCloseHistoryBtn') || e.target.closest('#chgHistoryDialog')) {
       if (e.target.id === 'chgHistoryDialog') $('#chgHistoryDialog').close();
     }
+
+    // Botón de Borrar
     const delBtn = e.target.closest('[data-del-purchase]');
     if (delBtn) {
       const id = delBtn.dataset.delPurchase;
@@ -453,6 +459,54 @@
         renderHistoryModal();
         renderInsight();
         toast('Changuito eliminado.');
+      }
+    }
+
+    // Botón de Editar registro del historial
+    const editBtn = e.target.closest('[data-edit-purchase]');
+    if (editBtn) {
+      const id = editBtn.dataset.editPurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (!purchase) return;
+
+      const card = editBtn.closest('.chg-history-card');
+      if (!card) return;
+
+      card.innerHTML = `
+        <div style="display: grid; gap: 8px; font-size: 0.85rem;">
+          <strong>✏️ Editando changuito</strong>
+          <label style="display: grid; gap: 2px; font-size: 0.75rem;">Supermercado / Local:
+            <input type="text" id="editStore_${id}" value="${esc(purchase.store || '')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+          </label>
+          <label style="display: grid; gap: 2px; font-size: 0.75rem;">Fecha:
+            <input type="date" id="editDate_${id}" value="${purchase.date || ''}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+          </label>
+          <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px;">
+            <button class="btn btn-outline btn-sm" type="button" data-cancel-edit-purchase="${id}">Cancelar</button>
+            <button class="pastel-btn btn-sm" type="button" data-save-purchase="${id}">Guardar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Cancelar edición
+    const cancelBtn = e.target.closest('[data-cancel-edit-purchase]');
+    if (cancelBtn) {
+      renderHistoryModal();
+    }
+
+    // Guardar cambios de la edición
+    const saveBtn = e.target.closest('[data-save-purchase]');
+    if (saveBtn) {
+      const id = saveBtn.dataset.savePurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (purchase) {
+        purchase.store = document.getElementById(`editStore_${id}`)?.value.trim() || '';
+        purchase.date = document.getElementById(`editDate_${id}`)?.value || todayISO();
+        save();
+        renderHistoryModal();
+        renderInsight();
+        toast('Changuito actualizado con éxito.');
       }
     }
   });
