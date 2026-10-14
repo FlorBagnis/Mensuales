@@ -340,6 +340,55 @@
       y += 10;
     });
 
+    // ✅ NUEVO: gráfico de barras · lo ahorrado vs. lo que falta, una barra por meta
+    y += 12;
+    if (y + 40 > 275) y = newPage();
+    doc.setTextColor(...theme.dark); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.text('GRAFICO: AHORRADO Y LO QUE FALTA', 15, y);
+    y += 6;
+
+    // Referencias de colores
+    doc.setFillColor(...theme.pink);
+    doc.roundedRect(15, y - 2.6, 4, 4, 1, 1, 'F');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...theme.dark);
+    doc.text('Ahorrado', 21, y + 0.6);
+    doc.setFillColor(...theme.light); doc.setDrawColor(...theme.cardBorder);
+    doc.roundedRect(45, y - 2.6, 4, 4, 1, 1, 'FD');
+    doc.text('Falta', 51, y + 0.6);
+    y += 8;
+
+    const BAR_X = 15, BAR_W = 180, BAR_H = 7;
+    goals.forEach((g) => {
+      if (y + 24 > 275) y = newPage();
+      const c = calc(g, ctx);
+      const pct = g.target > 0 ? Math.min(1, g.saved / g.target) : 0;
+
+      // Nombre de la meta y porcentaje
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+      doc.setTextColor(...theme.dark);
+      doc.text(plain(g.name).slice(0, 40) || 'Meta', BAR_X, y + 3);
+      doc.setTextColor(...theme.pink);
+      doc.text(Math.floor(pct * 100) + '%', BAR_X + BAR_W, y + 3, { align: 'right' });
+
+      // Barra: fondo = lo que falta, relleno = lo ahorrado
+      const by = y + 6;
+      doc.setFillColor(...theme.light); doc.setDrawColor(...theme.cardBorder);
+      doc.roundedRect(BAR_X, by, BAR_W, BAR_H, 2, 2, 'FD');
+      if (pct > 0) {
+        doc.setFillColor(...theme.pink);
+        doc.roundedRect(BAR_X, by, Math.max(BAR_W * pct, 4), BAR_H, 2, 2, 'F');
+      }
+
+      // Montos debajo de la barra
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+      doc.setTextColor(...theme.pink);
+      doc.text('Ahorrado: ' + fmt(g.saved, g.cur), BAR_X, by + BAR_H + 5);
+      doc.setTextColor(...theme.dark);
+      doc.text(c.kind === 'done' ? 'Meta cumplida' : 'Falta: ' + fmt(c.rem, g.cur), BAR_X + BAR_W, by + BAR_H + 5, { align: 'right' });
+
+      y += 24;
+    });
+
     // Estimación por meta
     y += 12;
     if (y > 220) y = newPage();
