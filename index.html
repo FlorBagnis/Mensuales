@@ -364,6 +364,47 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
   color: var(--th-text) !important;
 }
 
+/* =========================================================
+   ICONOS DE ACCIÓN FLOTANTES (✏️ editar / ✖ borrar)
+   Sin recuadro, ni en reposo ni al pasar el mouse.
+   Aplica a la tabla de gastos, dinero extra, recurrentes
+   y Changui, en los 4 modos (claro, oscuro, azul, black).
+   Los :not() de adelante suben la prioridad para ganarle a
+   las reglas de .pastel-btn / .btn-outline de los modos.
+========================================================= */
+body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item) button:is(
+  [title="Editar"], [title="Editar producto"], [title="Eliminar"],
+  [title="Borrar"], [title="Quitar"], [data-act="edit"], [data-act="del"],
+  [data-edit-item-purchase], [data-del-purchase]
+) {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 4px 6px !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: transform 0.15s ease, filter 0.15s ease !important;
+}
+
+body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item) button:is(
+  [title="Editar"], [title="Editar producto"], [title="Eliminar"],
+  [title="Borrar"], [title="Quitar"], [data-act="edit"], [data-act="del"],
+  [data-edit-item-purchase], [data-del-purchase]
+):is(:hover, :active, :focus, :focus-visible) {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transform: scale(1.25) !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
   
 </style>
 
@@ -733,6 +774,7 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
         </div>
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
           <button id="chgHistoryModalBtn" class="btn btn-outline" type="button">📜 Historial</button>
+          <button id="chgCsvBtn" class="btn btn-outline" type="button">📊 CSV</button>
           <button id="chgPdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
           <button id="chgToggleBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar Changui</button>
         </div>
