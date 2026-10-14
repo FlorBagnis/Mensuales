@@ -744,11 +744,12 @@ body:not(.g-1) #scrollTopBtn:hover {
             <p>Todos tus gastos registrados en este período.</p>
           </div>
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <!-- Buscador -->
             <input type="search" id="searchMensualesInput" placeholder="🔍 Buscar gasto..." style="padding: 6px 14px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem;">
             
+            <!-- Selector de Categorías -->
             <select id="filterCategorySelect" style="padding: 6px 12px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem; background: #fff; color: #555; cursor: pointer;">
               <option value="">Todas las categorías</option>
-
               <optgroup label="— Hogar y Servicios —">
                 <option value="Alquiler">Alquiler</option>
                 <option value="Hogar">Hogar</option>
@@ -756,7 +757,6 @@ body:not(.g-1) #scrollTopBtn:hover {
                 <option value="Servicios">Servicios</option>
                 <option value="Suscripciones">Suscripciones</option>
               </optgroup>
-
               <optgroup label="— Diario y Personal —">
                 <option value="Alimentos">Alimentos</option>
                 <option value="Transporte">Transporte</option>
@@ -768,13 +768,21 @@ body:not(.g-1) #scrollTopBtn:hover {
                 <option value="Educación">Educación</option>
                 <option value="Entretenimiento">Entretenimiento</option>
               </optgroup>
-
               <optgroup label="— Negocio y Finanzas —">
                 <option value="Local">Local</option>
                 <option value="Mercadería">Mercadería</option>
                 <option value="Cuotas">Cuotas</option>
                 <option value="Otros">Otros</option>
               </optgroup>
+            </select>
+
+            <!-- Selector de Orden (Independiente y prolijo) -->
+            <select id="ordenarPor" onchange="cambiarOrden()" style="padding: 6px 12px; border-radius: 999px; border: 1px solid #f2cfdf; outline: none; font-size: 0.85rem; background: #fff; color: #555; cursor: pointer;">
+              <option value="recientes">📅 Más recientes (Fecha)</option>
+              <option value="antiguas">📅 Más antiguas (Fecha)</option>
+              <option value="mayor-precio">💲 Mayor precio</option>
+              <option value="menor-precio">💲 Menor precio</option>
+              <option value="tipo">🏷️ Tipo de producto</option>
             </select>
 
             <button id="toggleTableBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar tabla</button>
