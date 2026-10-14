@@ -546,12 +546,19 @@ function renderExtraIncomesTable(extraIncomes) {
         alert("El presupuesto base no se puede eliminar directamente, editalo con el lápiz.");
         return;
       }
-      if (!confirm(`¿Eliminar el registro "${item.category}"?`)) return;
-      current.extraIncomes = current.extraIncomes.filter(x => x.id !== btn.dataset.id);
+      const vuelveAPocki = item.fromPocki && item.pockiGoalId && window.PockiApi;
+      const pregunta = vuelveAPocki
+        ? `¿Eliminar este retiro? ${money(item.rawAmount ?? item.amount, item.currency || "ARS")} vuelven a tu meta en Pocki.`
+        : `¿Eliminar el registro "${item.category}"?`;
+      if (!confirm(pregunta)) return;
+       current.extraIncomes = current.extraIncomes.filter(x => x.id !== btn.dataset.id);
       current.budget = current.extraIncomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
       if ($("budgetInput")) $("budgetInput").value = formatCurrencyInput(String(current.budget).replace(".", ","));
       renderMensuales();
       await saveMonthToFirestore(month);
+       if (vuelveAPocki) {
+        window.PockiApi.refund(item.pockiGoalId, Number(item.rawAmount ?? item.amount ?? 0));
+      }
     };
   });
 }
@@ -2478,8 +2485,8 @@ window.PockiBridge = {
   },
 
   // Retiro de una meta -> ingreso "Ahorro" en el presupuesto del mes actual
-  addWithdrawal: async ({ amount, currency, description }) => {
-    if (!currentUser || !(amount > 0)) return false;
+addWithdrawal: async ({ amount, currency, description, goalId }) => {
+   if (!currentUser || !(amount > 0)) return false;
     const isUSD = currency === "USD";
     if (isUSD && !(currentDolarBlue > 0)) return false;
 
@@ -2497,6 +2504,7 @@ window.PockiBridge = {
     month.extraIncomes.push({
       id: createId("pocki"),
       fromPocki: true,
+      pockiGoalId: goalId,
       date: hoy.iso,
       category: "Ahorro",
       description,
@@ -2504,6 +2512,7 @@ window.PockiBridge = {
       rawAmount: amount,
       currency: isUSD ? "USD" : "ARS"
     });
+   
     month.budget = month.extraIncomes.reduce((s, i) => s + Number(i.amount || 0), 0);
 
     renderMensuales();
