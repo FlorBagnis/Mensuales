@@ -9,11 +9,11 @@
    3) Las metas en dólares se pasan con el dólar blue que ya muestra la app.
    Si la persona elige cuánto va a ahorrar por mes en una meta, se usa ese monto.
 
-   Si algún día app.js quiere darle los datos directo, puede definir:
-     window.PockiBridge = {
-       getMonthlySurplusARS: () => 123456,   // sobrante mensual en pesos
-       getDolar: () => 1450                  // cotización del dólar
-     };
+   Puente con app.js (window.PockiBridge), todo opcional:
+     getMonthlySurplusARS()  -> sobrante mensual en pesos
+     getDolar()              -> cotización del dólar
+     getPdfTheme()           -> paleta de colores de los PDF de Mensuales
+     addWithdrawal({...})    -> suma un retiro al presupuesto como "Ahorro"
 ========================================================= */
 (() => {
   'use strict';
@@ -143,6 +143,7 @@
   let toastTimer;
   function toast(text) {
     const t = $('#pockiToast');
+    if (!t) return;
     t.textContent = text;
     t.classList.add('show');
     clearTimeout(toastTimer);
@@ -211,94 +212,118 @@
       : '<div class="pocki-empty" style="grid-column: 1 / -1;"><div>🐷</div><strong>Todavía no tenés metas</strong><br><span>Tocá "Nueva meta" y Pocki te dice cuánto tardás.</span></div>';
   }
 
- /* ---------- exportar PDF adaptado a los modos ---------- */
+  /* ---------- exportar PDF (mismo diseño y colores que el PDF de Mensuales) ---------- */
   function exportPDF() {
     const J = window.jspdf && window.jspdf.jsPDF;
     if (!J) { toast('No se pudo cargar el generador de PDF. Revisá tu conexión.'); return; }
     if (!goals.length) { toast('Primero agregá una meta para exportar.'); return; }
 
+    // Paleta de Mensuales (si el puente no está, usa la clara)
+    let theme;
+    try { theme = window.PockiBridge.getPdfTheme(); } catch (e) { theme = null; }
+    if (!theme) theme = {
+      pink: [234, 91, 142], dark: [82, 22, 42], light: [253, 232, 238], headerBg: [255, 174, 195],
+      cardBorder: [246, 214, 223], lineDivider: [246, 214, 223], pageBg: null, footerColor: [125, 80, 98]
+    };
+    const isBlack = document.body.classList.contains('black-mode');
+
     const doc = new J({ unit: 'mm', format: 'a4' });
-    const W = 210, M = 14, BOTTOM = 276;
     const ctx = getCtx();
-    let y = 0;
+    const paintPage = () => { if (theme.pageBg) { doc.setFillColor(...theme.pageBg); doc.rect(0, 0, 210, 297, 'F'); } };
+    const newPage = () => { doc.addPage(); paintPage(); return 20; };
 
-    // Detectar el modo activo en el body
-    const bodyClass = document.body.className;
-    let theme = {
-      pink: [251, 196, 212], ink: [90, 35, 55], accent: [232, 93, 158], track: [253, 226, 236], muted: [139, 125, 134], cardBg: [255, 248, 250]
+    // Tiempo corto para la tabla
+    const shortEta = (c) => {
+      if (c.kind === 'done') return 'Cumplida';
+      if (c.kind === 'far') return 'Mas de 50 anios';
+      if (c.kind === 'ok') return timeText(c.months).replace(/ñ/g, 'n');
+      return 'Sin datos';
     };
 
-    if (bodyClass.includes('dark-mode')) {
-      theme = { pink: [78, 43, 55], ink: [255, 214, 223], accent: [255, 142, 163], track: [78, 43, 55], muted: [196, 154, 166], cardBg: [31, 16, 21] };
-    } else if (bodyClass.includes('dark-blue-mode')) {
-      theme = { pink: [30, 53, 109], ink: [241, 245, 249], accent: [56, 189, 248], track: [30, 53, 109], muted: [148, 163, 184], cardBg: [7, 13, 30] };
-    } else if (bodyClass.includes('black-mode')) {
-      theme = { pink: [51, 51, 51], ink: [255, 255, 255], accent: [255, 255, 255], track: [51, 51, 51], muted: [163, 163, 163], cardBg: [26, 26, 26] };
-    }
+    paintPage();
 
-    const header = () => {
-      doc.setFillColor(...theme.pink); doc.rect(0, 0, W, 26, 'F');
-      doc.setTextColor(...theme.ink); doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
-      doc.text('Pocki: Ahorrando ando', M, 13);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-      doc.text('Resumen de metas de ahorro · ' + new Date().toLocaleDateString('es-AR'), M, 20);
-      y = 36;
-    };
+    // Encabezado
+    doc.setFillColor(...theme.headerBg);
+    doc.roundedRect(15, 15, 180, 28, 4, 4, 'F');
+    doc.setTextColor(...theme.dark); doc.setFont('helvetica', 'bold'); doc.setFontSize(17);
+    doc.text('POCKI: AHORRANDO ANDO', 21, 25);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    doc.text('Resumen de metas de ahorro - ' + new Date().toLocaleDateString('es-AR'), 21, 31);
 
-    header();
-
-    // Datos del cálculo
-    doc.setTextColor(...theme.ink); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-    doc.text('Cómo se calcula', M, y); y += 6;
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...theme.muted);
-    const lines = [];
-    if (ctx.pool === null) lines.push('Sin meses en el Historial para calcular tu sobrante mensual.');
-    else if (ctx.pool <= 0) lines.push('Tus gastos igualan o superan tu presupuesto: no queda sobrante mensual.');
-    else lines.push('Sobrante mensual (promedio de tu Historial): ' + fmt(ctx.pool, 'ARS'));
-    if (ctx.rate) lines.push('Dólar blue: ' + fmt(ctx.rate, 'ARS'));
-    lines.forEach((l) => { doc.text(l, M, y); y += 5; });
-    y += 3;
-
-    // Totales por moneda
-    ['ARS', 'USD'].forEach((cur) => {
-      const list = goals.filter((g) => g.cur === cur);
-      if (!list.length) return;
-      const saved = list.reduce((s, g) => s + g.saved, 0), target = list.reduce((s, g) => s + g.target, 0);
-      doc.setTextColor(...theme.ink); doc.setFont('helvetica', 'bold');
-      doc.text(`Total en ${cur === 'USD' ? 'dólares' : 'pesos'}: ${fmt(saved, cur)} ahorrados de ${fmt(target, cur)}`, M, y);
-      y += 6;
+    // Tarjetas
+    const sum = (cur) => goals.filter((g) => g.cur === cur).reduce((s, g) => s + g.saved, 0);
+    const cards = [
+      ['SOBRANTE MENSUAL', ctx.pool === null ? '-' : ctx.pool <= 0 ? 'Sin sobrante' : fmt(ctx.pool, 'ARS')],
+      ['DOLAR BLUE', ctx.rate ? fmt(ctx.rate, 'ARS') : '-'],
+      ['AHORRADO (ARS)', fmt(sum('ARS'), 'ARS')],
+      ['AHORRADO (USD)', fmt(sum('USD'), 'USD')]
+    ];
+    cards.forEach((card, i) => {
+      const x = 15 + i * 45;
+      doc.setDrawColor(...theme.cardBorder);
+      doc.roundedRect(x, 49, 41, 25, 3, 3, 'S');
+      doc.setTextColor(...theme.pink); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      doc.text(card[0], x + 3, 57);
+      doc.setTextColor(...theme.dark); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+      doc.text(card[1], x + 3, 65);
     });
-    y += 4;
 
-    // Una tarjeta por meta
+    // Tabla de metas
+    let y = 84;
+    const tableHeader = () => {
+      if (isBlack) doc.setFillColor(30, 30, 30); else doc.setFillColor(...theme.pink);
+      doc.rect(15, y, 180, 8, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+      doc.text('META', 18, y + 5);
+      doc.text('AHORRADO', 62, y + 5);
+      doc.text('FALTA', 92, y + 5);
+      doc.text('OBJETIVO', 122, y + 5);
+      doc.text('%', 150, y + 5);
+      doc.text('LLEGAS EN', 160, y + 5);
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+    };
+    tableHeader();
+
     goals.forEach((g) => {
+      if (y > 230) { y = newPage(); tableHeader(); }
       const c = calc(g, ctx);
       const pct = g.target > 0 ? Math.min(1, g.saved / g.target) : 0;
-      const eta = doc.splitTextToSize(plain(etaHTML(g, c, ctx)), W - 2 * M - 8);
-      const a = alertFor(g);
-      const h = 34 + eta.length * 4.6 + (a ? 7 : 0);
-      if (y + h > BOTTOM) { doc.addPage(); header(); }
+      doc.setTextColor(...theme.dark); doc.setFontSize(7);
+      doc.text(plain(g.name).slice(0, 26) || 'Meta', 18, y + 5);
+      doc.text(fmt(g.saved, g.cur), 62, y + 5);
+      doc.text(fmt(c.rem, g.cur), 92, y + 5);
+      doc.text(fmt(g.target, g.cur), 122, y + 5);
+      doc.text(Math.floor(pct * 100) + '%', 150, y + 5);
+      doc.text(shortEta(c), 160, y + 5);
+      doc.setDrawColor(...theme.lineDivider);
+      doc.line(15, y + 8, 195, y + 8);
+      y += 10;
+    });
 
-      doc.setDrawColor(...theme.pink); doc.setFillColor(...theme.cardBg);
-      doc.roundedRect(M, y, W - 2 * M, h, 3, 3, 'FD');
-      let yy = y + 8;
-      doc.setTextColor(...theme.ink); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
-      doc.text(plain(g.name) || 'Meta', M + 4, yy);
-      doc.setFontSize(12); doc.setTextColor(...theme.accent);
-      doc.text(Math.floor(pct * 100) + '%', W - M - 4, yy, { align: 'right' });
-      yy += 5;
-      doc.setFillColor(...theme.track); doc.roundedRect(M + 4, yy, W - 2 * M - 8, 4, 2, 2, 'F');
-      if (pct > 0) { doc.setFillColor(...theme.accent); doc.roundedRect(M + 4, yy, Math.max(3, (W - 2 * M - 8) * pct), 4, 2, 2, 'F'); }
-      yy += 10;
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...theme.ink);
-      doc.text(`Ahorrado: ${fmt(g.saved, g.cur)}    ·    Falta: ${fmt(c.rem, g.cur)}    ·    Meta: ${fmt(g.target, g.cur)}`, M + 4, yy);
-      yy += 5.5;
-      doc.setTextColor(...theme.muted);
-      doc.text(eta, M + 4, yy);
-      yy += eta.length * 4.6;
+    // Estimación por meta
+    y += 12;
+    if (y > 220) y = newPage();
+    doc.setTextColor(...theme.dark); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.text('ESTIMACION POR META', 15, y);
+    y += 6;
+
+    goals.forEach((g) => {
+      const c = calc(g, ctx);
+      const a = alertFor(g);
+      const body = doc.splitTextToSize(plain(etaHTML(g, c, ctx)), 168);
+      const h = 14 + body.length * 3.6 + (a ? 5 : 0);
+      if (y + h > 275) y = newPage();
+
+      doc.setFillColor(...theme.light); doc.setDrawColor(...theme.cardBorder);
+      doc.roundedRect(15, y, 180, h, 3, 3, 'FD');
+      doc.setTextColor(...theme.pink); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+      doc.text(plain(g.name).toUpperCase().slice(0, 50), 21, y + 7);
+      doc.setTextColor(...theme.dark); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+      doc.text(body, 21, y + 14);
       if (a) {
-        doc.setFont('helvetica', 'bold'); doc.setTextColor(...theme.accent);
-        doc.text(plain(a.msg + (a.amount !== undefined ? ' ' + fmt(a.amount, g.cur) : '')), M + 4, yy + 2);
+        doc.setFont('helvetica', 'bold'); doc.setTextColor(...theme.pink);
+        doc.text(plain(a.msg + (a.amount !== undefined ? ' ' + fmt(a.amount, g.cur) : '')), 21, y + 14 + body.length * 3.6 + 1);
       }
       y += h + 5;
     });
@@ -307,13 +332,23 @@
     const n = doc.getNumberOfPages();
     for (let i = 1; i <= n; i++) {
       doc.setPage(i);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...theme.muted);
-      const txt = 'Creado by Flor Bagnis 💗';
-      const x = (W - doc.getTextWidth(txt)) / 2;
-      doc.text(txt, x, 289);
-      doc.text(`${i} / ${n}`, W - M, 289, { align: 'right' });
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...theme.footerColor);
+      doc.text('POCKI - Creado por Flor Bagnis', 15, 287);
+      doc.text(`${i} / ${n}`, 195, 287, { align: 'right' });
     }
     doc.save('Pocki-metas-' + new Date().toISOString().slice(0, 10) + '.pdf');
+  }
+
+  /* ---------- retiro -> suma al presupuesto de Mensuales como "Ahorro" ---------- */
+  function sendWithdrawal(g, amount) {
+    const b = window.PockiBridge && window.PockiBridge.addWithdrawal;
+    if (!b) return;
+    const hidden = document.body.classList.contains('amounts-hidden');
+    Promise.resolve(b({ amount, currency: g.cur, description: 'Retiro de Pocki: ' + g.name }))
+      .then((ok) => toast(ok
+        ? `Se sumó a tu presupuesto como Ahorro${hidden ? '' : ': ' + fmt(amount, g.cur)}`
+        : 'No se pudo sumar el retiro al presupuesto.'))
+      .catch(() => toast('No se pudo sumar el retiro al presupuesto.'));
   }
 
   /* ---------- eventos ---------- */
@@ -372,6 +407,7 @@
     }
     if (!(amount > 0)) return;
     const before = alertFor(g);
+    const removed = act === 'sub' ? Math.min(amount, g.saved) : 0;   // lo que realmente se retira
     g.saved = act === 'add' ? g.saved + amount : Math.max(0, g.saved - amount);
     save();
     render();
@@ -381,6 +417,7 @@
       const hidden = document.body.classList.contains('amounts-hidden');
       toast(`${g.name}: ${now.msg}${now.amount !== undefined && !hidden ? ' ' + fmt(now.amount, g.cur) : ''}`);
     }
+    if (removed > 0) sendWithdrawal(g, removed);
   });
 
   /* ---------- se actualiza sola cuando cambian el Historial, el dólar o el usuario ---------- */
