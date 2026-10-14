@@ -599,6 +599,39 @@ body:not(.g-1) #scrollTopBtn:hover {
   box-shadow: 0 10px 22px -6px var(--glow), 0 0 16px var(--glow), inset 0 -2px 0 var(--glow);
 }
 
+/* =========================================================
+   CARTEL "SOBRE MÍ" · botón "¡Entendido!"
+   Forma de píldora y colores propios en cada modo, así el
+   celular no le pone su azul por defecto.
+========================================================= */
+#closeAboutBtn {
+  border-radius: 999px !important;
+  padding: 7px 24px !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+}
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) #closeAboutBtn {
+  background: #fbc4d4 !important;
+  color: #5a2337 !important;
+  border: 1px solid #f29cb5 !important;
+}
+body.dark-mode #closeAboutBtn {
+  background: #2a161d !important;
+  color: #ffb6c1 !important;
+  border: 1px solid #4e2b37 !important;
+}
+body.dark-blue-mode #closeAboutBtn {
+  background: #0f1c3f !important;
+  color: #38bdf8 !important;
+  border: 1px solid #1e356d !important;
+}
+body.black-mode #closeAboutBtn {
+  background: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
+}
+
   
 </style>
 
@@ -1433,7 +1466,7 @@ body:not(.g-1) #scrollTopBtn:hover {
       </details>
 
       <!-- BOTÓN DE CIERRE SIEMPRE DISPONIBLE -->
-      <button id="closeAboutBtn" class="btn btn-sm" type="button" style="border-radius: 999px; padding: 7px 24px; cursor: pointer; font-weight: 600; font-size: 0.82rem;">¡Entendido!</button>
+<button id="closeAboutBtn" class="pastel-btn" type="button">¡Entendido!</button>
     </div>
   </dialog>
   
