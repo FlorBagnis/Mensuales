@@ -25,6 +25,7 @@
   <meta name="theme-color" content="#ff7597">
   <link rel="icon" type="image/png" href="./icono.png">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pocki.css">
 
 
 <style>
@@ -432,6 +433,7 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
       <div class="header-actions" style="margin-top: 12px;">
         <span id="userEmail" class="user-email"></span>
         <a href="https://gastos-proximos.vercel.app/" class="pastel-btn">🌸 Próximos & Deudas</a>
+        <a href="#pocki" class="pastel-btn">🐷 Pocki</a>
         <button id="logoutBtn" class="btn btn-dark" type="button">Cerrar sesión</button>
       </div>
     </header>
@@ -664,6 +666,59 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
         <p id="trendText">Agregá gastos para comenzar a analizar tus hábitos.</p>
       </section>
     </div>
+
+    <!-- POCKI: AHORRANDO ANDO (metas de ahorro) -->
+    <section class="panel" id="pocki" style="margin-top: 1.5rem;">
+      <div class="section-heading" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h2>🐷 Pocki: Ahorrando ando</h2>
+          <p>Cargá lo que querés comprar y Pocki calcula cuánto tardás en ahorrarlo.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <button id="pockiNewBtn" class="pastel-btn" type="button">➕ Nueva meta</button>
+          <button id="pockiPdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
+          <button id="pockiToggleBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar Pocki</button>
+        </div>
+      </div>
+
+      <div id="pockiBody">
+        <form id="pockiForm" class="pocki-form" hidden>
+          <div class="pocki-fields">
+            <label class="pocki-field">¿Qué querés comprar?
+              <input id="pockiName" type="text" maxlength="40" placeholder="Ej. Auto, viaje, notebook" required>
+            </label>
+            <label class="pocki-field">Moneda
+              <select id="pockiCur">
+                <option value="ARS" selected>ARS ($)</option>
+                <option value="USD">USD (u$s)</option>
+              </select>
+            </label>
+            <label class="pocki-field">Cuánto cuesta
+              <input id="pockiTarget" type="text" inputmode="decimal" placeholder="0" required>
+            </label>
+            <label class="pocki-field">Ya ahorrado
+              <input id="pockiSaved" type="text" inputmode="decimal" placeholder="0">
+            </label>
+            <label class="pocki-field">Cuánto vas a ahorrar por mes (opcional)
+              <input id="pockiMonthly" type="text" inputmode="decimal" placeholder="Vacío = lo calcula Pocki">
+            </label>
+            <label class="pocki-field">Avisarme cuando falten (opcional)
+              <input id="pockiAlert" type="text" inputmode="decimal" placeholder="0">
+            </label>
+          </div>
+          <div class="pocki-form-actions">
+            <button id="pockiCancelBtn" class="btn btn-outline" type="button">Cancelar</button>
+            <button class="pastel-btn" type="submit">Guardar meta</button>
+          </div>
+        </form>
+
+        <div id="pockiInfo" class="pocki-info"></div>
+        <div id="pockiGoals" class="pocki-grid"></div>
+      </div>
+
+      <p class="pocki-credit">Creado by Flor Bagnis 💗</p>
+      <div id="pockiToast" class="pocki-toast" role="status" aria-live="polite"></div>
+    </section>
 
     <footer style="margin-top: 2rem;">
       MENSUALES · Tus gastos organizados mes a mes.
@@ -919,5 +974,6 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
   </div>
 </dialog>
 
+<script src="pocki.js" defer></script>
 <script type="module" src="app.js?v=2.5"></script></body>
 </html>
