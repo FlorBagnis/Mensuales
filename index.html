@@ -372,9 +372,10 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
    Los :not() de adelante suben la prioridad para ganarle a
    las reglas de .pastel-btn / .btn-outline de los modos.
 ========================================================= */
-body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item) button:is(
+body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item, .pocki-hist-btns, .pocki-goal-head) button:is(
   [title="Editar"], [title="Editar producto"], [title="Eliminar"],
   [title="Borrar"], [title="Quitar"], [data-act="edit"], [data-act="del"],
+  [data-act="hedit"], [data-act="hdel"],
   [data-edit-item-purchase], [data-del-purchase]
 ) {
   background: transparent !important;
@@ -391,9 +392,10 @@ body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item) button
   transition: transform 0.15s ease, filter 0.15s ease !important;
 }
 
-body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item) button:is(
+body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item, .pocki-hist-btns, .pocki-goal-head) button:is(
   [title="Editar"], [title="Editar producto"], [title="Eliminar"],
   [title="Borrar"], [title="Quitar"], [data-act="edit"], [data-act="del"],
+  [data-act="hedit"], [data-act="hdel"],
   [data-edit-item-purchase], [data-del-purchase]
 ):is(:hover, :active, :focus, :focus-visible) {
   background: transparent !important;
@@ -497,6 +499,31 @@ body.black-mode #scrollTopBtn {
 }
 body.black-mode #scrollTopBtn:hover {
   background: #262626;
+}
+
+/* =========================================================
+   CHANGUI · formulario "Registrar la compra en tus gastos"
+   Cada campo ocupa su propia columna, sin encimarse
+========================================================= */
+#changui .chg-reg-grid {
+  gap: 16px 18px !important;
+  margin-bottom: 16px;
+}
+#changui .chg-reg-grid > .chg-field,
+#changui .chg-reg-grid > label {
+  min-width: 0;
+}
+#changui .chg-reg-grid input,
+#changui .chg-reg-grid select {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+}
+#changui .chg-reg-grid input[type="date"] {
+  padding-right: 10px;
 }
 
   
@@ -962,7 +989,7 @@ body.black-mode #scrollTopBtn:hover {
 
             <div class="chg-register">
               <h3 class="chg-h">Registrar la compra en tus gastos</h3>
-              <div class="chg-reg-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+              <div class="chg-reg-grid" style="grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px 18px;">
                 <label class="chg-field">¿Dónde compraste? (opcional)
                   <input id="chgStore" type="text" maxlength="30" placeholder="Ej. Carrefour, Coto">
                 </label>
