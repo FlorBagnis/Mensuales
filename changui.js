@@ -402,7 +402,7 @@
     toast(`Listo, la compra se sumó a tus gastos.`);
   }
 
-  /* ---------- Historial de Changuitos (Modal con Edición) ---------- */
+  /* ---------- Historial de Changuitos (Edición completa por changuito y por producto) ---------- */
   function renderHistoryModal() {
     const container = $('#chgHistoryListContainer');
     if (!container) return;
@@ -416,23 +416,26 @@
       const storeName = p.store ? `Supermercado: <strong>${esc(p.store)}</strong>` : 'Compra general';
       const modeText = p.deliveryMode === 'envio' ? `📦 Envío ($${p.deliveryCost || 0})` : '🛍️ Presencial';
       
-      const itemsHtml = (p.items || []).map(it => `
-        <div style="display: flex; justify-content: space-between; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line);">
+      const itemsHtml = (p.items || []).map((it, idx) => `
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line);">
           <span>${iconOf(it.icon).e} ${esc(it.name)} (${it.qty || 1}x)</span>
-          <b>${money(it.paid, it.cur)}</b>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <b>${money(it.paid, it.cur)}</b>
+            <button class="pastel-btn btn-sm" type="button" data-edit-item-purchase="${p.id}" data-item-idx="${idx}" style="padding: 1px 6px; font-size: 10px;" title="Editar producto">✏️</button>
+          </div>
         </div>
       `).join('');
 
       return `
-        <div class="chg-history-card" data-purchase-id="${p.id}" style="border: 1px solid var(--chg-line); border-radius: 16px; padding: 14px; background: var(--bg, transparent); margin-bottom: 8px;">
+        <div class="chg-history-card" data-purchase-id="${p.id}" style="border: 1px solid var(--chg-line); border-radius: 16px; padding: 14px; background: var(--bg, transparent); margin-bottom: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85rem;">
             <span>📅 ${fmtDay(p.date)} · ${storeName} (${modeText})</span>
             <div style="display: flex; gap: 4px;">
-              <button class="pastel-btn btn-sm" type="button" data-edit-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">✏️ Editar</button>
+              <button class="pastel-btn btn-sm" type="button" data-edit-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">✏️ Changuito</button>
               <button class="btn btn-danger btn-sm" type="button" data-del-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">Eliminar</button>
             </div>
           </div>
-          <div style="display: grid; gap: 2px; margin-top: 6px;">
+          <div style="display: grid; gap: 4px; margin-top: 6px;">
             ${itemsHtml}
           </div>
         </div>
@@ -449,7 +452,7 @@
       if (e.target.id === 'chgHistoryDialog') $('#chgHistoryDialog').close();
     }
 
-    // Botón de Borrar
+    // 1. Eliminar changuito entero
     const delBtn = e.target.closest('[data-del-purchase]');
     if (delBtn) {
       const id = delBtn.dataset.delPurchase;
@@ -462,7 +465,7 @@
       }
     }
 
-    // Botón de Editar registro del historial
+    // 2. Editar datos generales del changuito (Supermercado / Fecha)
     const editBtn = e.target.closest('[data-edit-purchase]');
     if (editBtn) {
       const id = editBtn.dataset.editPurchase;
@@ -474,7 +477,7 @@
 
       card.innerHTML = `
         <div style="display: grid; gap: 8px; font-size: 0.85rem;">
-          <strong>✏️ Editando changuito</strong>
+          <strong>✏️ Editando datos del changuito</strong>
           <label style="display: grid; gap: 2px; font-size: 0.75rem;">Supermercado / Local:
             <input type="text" id="editStore_${id}" value="${esc(purchase.store || '')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
           </label>
@@ -489,13 +492,11 @@
       `;
     }
 
-    // Cancelar edición
+    // Cancelar edición general
     const cancelBtn = e.target.closest('[data-cancel-edit-purchase]');
-    if (cancelBtn) {
-      renderHistoryModal();
-    }
+    if (cancelBtn) { renderHistoryModal(); }
 
-    // Guardar cambios de la edición
+    // Guardar edición general
     const saveBtn = e.target.closest('[data-save-purchase]');
     if (saveBtn) {
       const id = saveBtn.dataset.savePurchase;
@@ -506,7 +507,63 @@
         save();
         renderHistoryModal();
         renderInsight();
-        toast('Changuito actualizado con éxito.');
+        toast('Changuito actualizado.');
+      }
+    }
+
+    // 3. Editar un producto específico dentro del changuito
+    const editItemBtn = e.target.closest('[data-edit-item-purchase]');
+    if (editItemBtn) {
+      const pId = editItemBtn.dataset.editItemPurchase;
+      const itemIdx = Number(editItemBtn.dataset.itemIdx);
+      const purchase = state.purchases.find(p => p.id === pId);
+      if (!purchase || !purchase.items[itemIdx]) return;
+
+      const item = purchase.items[itemIdx];
+      const card = editItemBtn.closest('.chg-history-card');
+      if (!card) return;
+
+      card.innerHTML = `
+        <div style="display: grid; gap: 8px; font-size: 0.85rem;">
+          <strong>✏️ Editando producto: ${esc(item.name)}</strong>
+          <label style="display: grid; gap: 2px; font-size: 0.75rem;">Nombre del producto:
+            <input type="text" id="editItemName_${pId}_${itemIdx}" value="${esc(item.name || '')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+          </label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <label style="display: grid; gap: 2px; font-size: 0.75rem;">Cantidad:
+              <input type="number" min="1" id="editItemQty_${pId}_${itemIdx}" value="${item.qty || 1}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+            </label>
+            <label style="display: grid; gap: 2px; font-size: 0.75rem;">Precio total pagado:
+              <input type="text" inputmode="decimal" id="editItemPaid_${pId}_${itemIdx}" value="${String(item.paid || 0).replace('.', ',')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+            </label>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px;">
+            <button class="btn btn-outline btn-sm" type="button" data-cancel-edit-purchase="${pId}">Cancelar</button>
+            <button class="pastel-btn btn-sm" type="button" data-save-item-purchase="${pId}" data-item-idx="${itemIdx}">Guardar producto</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Guardar edición de producto individual
+    const saveItemBtn = e.target.closest('[data-save-item-purchase]');
+    if (saveItemBtn) {
+      const pId = saveItemBtn.dataset.saveItemPurchase;
+      const itemIdx = Number(saveItemBtn.dataset.itemIdx);
+      const purchase = state.purchases.find(p => p.id === pId);
+      if (purchase && purchase.items[itemIdx]) {
+        const newName = document.getElementById(`editItemName_${pId}_${itemIdx}`)?.value.trim();
+        const newQty = parseInt(document.getElementById(`editItemQty_${pId}_${itemIdx}`)?.value, 10) || 1;
+        const newPaid = parseAmount(document.getElementById(`editItemPaid_${pId}_${itemIdx}`)?.value);
+
+        if (newName) purchase.items[itemIdx].name = newName;
+        purchase.items[itemIdx].qty = newQty;
+        purchase.items[itemIdx].paid = round2(newPaid);
+
+        save();
+        renderHistoryModal();
+        renderInsight();
+        toast('Producto actualizado con éxito.');
       }
     }
   });
