@@ -142,9 +142,13 @@ body.amounts-hidden #pocki .pocki-amt { filter: blur(7px); user-select: none; }
 }
 
 
-/* "Ocultar montos" muestra puntos adaptados automáticamente al modo activo */
-body.amounts-hidden #pocki .pocki-amt {
-  color: transparent !important;
-  text-shadow: 0 0 6px var(--p-text);
+/* Ocultar montos: blur en Pocki */
+body.amounts-hidden .pocki-amt {
+  filter: blur(6px);
   user-select: none;
+}
+
+/* El monto de "Ahorro por mes" viene escrito en el campo: se desenfoca salvo que lo estés editando */
+body.amounts-hidden .pocki-plan input:not(:focus) {
+  filter: blur(6px);
 }
