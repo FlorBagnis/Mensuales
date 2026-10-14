@@ -140,3 +140,11 @@ body.amounts-hidden #pocki .pocki-amt { filter: blur(7px); user-select: none; }
   #pocki .pocki-goal, #pocki .pocki-ring .prog, #pocki .pocki-toast { transition: none; }
   #pocki .pocki-goal:hover, #pocki .pastel-btn:hover, #pocki .btn:hover { transform: none !important; }
 }
+
+
+/* "Ocultar montos" muestra puntos adaptados automáticamente al modo activo */
+body.amounts-hidden #pocki .pocki-amt {
+  color: transparent !important;
+  text-shadow: 0 0 6px var(--p-text);
+  user-select: none;
+}
