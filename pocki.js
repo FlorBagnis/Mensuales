@@ -26,7 +26,8 @@
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const nf = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 });
   const fmt = (n, cur) => (cur === 'USD' ? 'u$s ' : '$ ') + nf.format(Math.round(n));
-  const money = (n, cur) => `<span class="pocki-amt">${fmt(n, cur)}</span>`;
+  // Con "Ocultar montos" el CSS esconde el número y muestra los puntitos (con el color del modo activo)
+  const money = (n, cur) => `<span class="pocki-amt"><span class="pocki-num">${fmt(n, cur)}</span><span class="pocki-dots" aria-hidden="true">••••••</span></span>`;
 
   // "1.500.000,50" -> 1500000.5 (misma convención que los campos de Mensuales)
   const parseAmount = (v) => {
@@ -34,6 +35,15 @@
     if (!s) return 0;
     const n = parseFloat(s.replace(/\./g, '').replace(',', '.'));
     return Number.isFinite(n) ? n : 0;
+  };
+  // Escribe "100000" y lo muestra como "100.000" (igual que en Mensuales)
+  const formatAmountInput = (val) => {
+    let clean = String(val ?? '').replace(/[^\d,]/g, '');
+    const parts = clean.split(',');
+    if (parts.length > 2) clean = parts[0] + ',' + parts.slice(1).join('');
+    const [int, dec] = clean.split(',');
+    const withDots = (int || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return dec !== undefined ? `${withDots},${dec.slice(0, 2)}` : withDots;
   };
   // Lee el primer número de un texto como "$ 1.234,56"
   const readNum = (txt) => {
@@ -157,7 +167,7 @@
     const C = 2 * Math.PI * 52, shown = Math.floor(pct * 100);
     const a = alertFor(g);
     const banner = a ? `<div class="pocki-banner ${a.kind || ''}" role="status">${esc(a.msg)}${a.amount !== undefined ? ' ' + money(a.amount, g.cur) : ''}</div>` : '';
-    const planValue = g.monthly > 0 ? String(g.monthly).replace('.', ',') : '';
+    const planValue = g.monthly > 0 ? formatAmountInput(String(g.monthly).replace('.', ',')) : '';
     return `
     <article class="pocki-goal" data-id="${g.id}">
       <div class="pocki-goal-head">
@@ -352,6 +362,17 @@
   }
 
   /* ---------- eventos ---------- */
+  // Puntos de miles en vivo en todos los campos de monto de Pocki
+  root.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!el.matches('#pockiTarget, #pockiSaved, #pockiMonthly, #pockiAlert, .pocki-add input')) return;
+    const start = el.selectionStart;
+    const prevLen = el.value.length;
+    el.value = formatAmountInput(el.value);
+    const pos = Math.max(0, start + (el.value.length - prevLen));
+    el.setSelectionRange(pos, pos);
+  });
+
   $('#pockiNewBtn').addEventListener('click', () => {
     const f = $('#pockiForm');
     f.hidden = !f.hidden;
