@@ -1405,9 +1405,14 @@ body:not(.g-1) #scrollTopBtn:hover {
             Completá tus datos y envianos un mensaje directo.
           </p>
           
-          <!-- Mensaje de éxito -->
-          <div id="formSuccessMsg" style="display: none; background: rgba(40, 167, 69, 0.15); color: #28a745; padding: 10px; border-radius: 8px; text-align: center; font-weight: 600; margin-bottom: 8px; font-size: 0.8rem;">
-            ¡Mensaje enviado con éxito! 💖 Te responderemos a la brevedad.
+          <!-- Contenedor de éxito con su botón para enviar otro -->
+          <div id="formSuccessContainer" style="display: none; text-align: center; margin-bottom: 8px;">
+            <div style="background: rgba(40, 167, 69, 0.15); color: #28a745; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; margin-bottom: 8px;">
+              ¡Mensaje enviado con éxito! 💖 Te responderemos a la brevedad.
+            </div>
+            <button type="button" id="resetFormBtn" class="btn btn-sm" style="background: var(--pink-500, #ffb6c1); color: #fff; border: none; border-radius: 999px; padding: 5px 16px; cursor: pointer; font-weight: 600; font-size: 0.75rem;">
+              🔄 Mandar otro mensaje
+            </button>
           </div>
 
           <form id="contactForm" style="display: flex; flex-direction: column; gap: 5px;">
@@ -1427,6 +1432,7 @@ body:not(.g-1) #scrollTopBtn:hover {
         </div>
       </details>
 
+      <!-- BOTÓN DE CIERRE SIEMPRE DISPONIBLE -->
       <button id="closeAboutBtn" class="btn btn-sm" type="button" style="border-radius: 999px; padding: 7px 24px; cursor: pointer; font-weight: 600; font-size: 0.82rem;">¡Entendido!</button>
     </div>
   </dialog>
@@ -1469,12 +1475,13 @@ body:not(.g-1) #scrollTopBtn:hover {
 <script src="pocki.js" defer></script>
 <script type="module" src="app.js?v=2.5"></script>
 
+  
 <script>
   document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const form = e.target;
     const btn = document.getElementById('submitBtn');
-    const successMsg = document.getElementById('formSuccessMsg');
+    const successContainer = document.getElementById('formSuccessContainer');
     
     btn.textContent = 'Enviando...';
     btn.disabled = true;
@@ -1488,7 +1495,7 @@ body:not(.g-1) #scrollTopBtn:hover {
 
       if (response.ok) {
         form.style.display = 'none';
-        successMsg.style.display = 'block';
+        successContainer.style.display = 'block';
       } else {
         alert('Hubo un error al enviar el mensaje. Intentá de nuevo.');
         btn.textContent = 'Enviar consulta';
@@ -1499,6 +1506,19 @@ body:not(.g-1) #scrollTopBtn:hover {
       btn.textContent = 'Enviar consulta';
       btn.disabled = false;
     }
+  });
+
+  // Botón para reiniciar y mandar otro mensaje
+  document.getElementById('resetFormBtn').addEventListener('click', function() {
+    const form = document.getElementById('contactForm');
+    const successContainer = document.getElementById('formSuccessContainer');
+    const btn = document.getElementById('submitBtn');
+
+    form.reset();
+    form.style.display = 'flex';
+    successContainer.style.display = 'none';
+    btn.textContent = 'Enviar consulta';
+    btn.disabled = false;
   });
 </script>
   
