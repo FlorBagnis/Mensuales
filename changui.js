@@ -47,25 +47,38 @@
     try { const v = bridge().getDolar && bridge().getDolar(); return typeof v === 'number' && v > 0 ? v : null; } catch (e) { return null; }
   };
 
-  const ICONS = [
-    { k: 'leche', e: '🥛', label: 'Lácteos', cat: 'Alimentos' },
-    { k: 'agua', e: '💧', label: 'Agua', cat: 'Alimentos' },
-    { k: 'bebidas', e: '🥤', label: 'Bebidas', cat: 'Alimentos' },
-    { k: 'carne', e: '🥩', label: 'Carne', cat: 'Alimentos' },
-    { k: 'pescado', e: '🐟', label: 'Pescado', cat: 'Alimentos' },
-    { k: 'pollo', e: '🍗', label: 'Pollo', cat: 'Alimentos' },
-    { k: 'queso', e: '🧀', label: 'Queso y fiambre', cat: 'Alimentos' },
-    { k: 'pan', e: '🍞', label: 'Panadería', cat: 'Alimentos' },
-    { k: 'verdura', e: '🥦', label: 'Verduras', cat: 'Alimentos' },
-    { k: 'fruta', e: '🍎', label: 'Frutas', cat: 'Alimentos' },
-    { k: 'huevos', e: '🥚', label: 'Huevos', cat: 'Alimentos' },
-    { k: 'almacen', e: '🍝', label: 'Almacén', cat: 'Alimentos' },
-    { k: 'snacks', e: '🍫', label: 'Snacks y dulces', cat: 'Alimentos' },
-    { k: 'limpieza', e: '🧴', label: 'Limpieza', cat: 'Hogar' },
-    { k: 'higiene', e: '🧻', label: 'Higiene', cat: 'Personal' },
-    { k: 'mascotas', e: '🐶', label: 'Mascotas', cat: 'Mascotas' },
-    { k: 'otros', e: '🛒', label: 'Otros', cat: 'Alimentos' }
-  ];
+const ICONS = [
+  // Alimentos y bebidas
+  { k: 'leche', e: '🥛', label: 'Lácteos', cat: 'Alimentos' },
+  { k: 'agua', e: '💧', label: 'Agua', cat: 'Alimentos' },
+  { k: 'bebidas', e: '🥤', label: 'Bebidas', cat: 'Alimentos' },
+  { k: 'carne', e: '🥩', label: 'Carne', cat: 'Alimentos' },
+  { k: 'pescado', e: '🐟', label: 'Pescado', cat: 'Alimentos' },
+  { k: 'pollo', e: '🍗', label: 'Pollo', cat: 'Alimentos' },
+  { k: 'queso', e: '🧀', label: 'Queso y fiambre', cat: 'Alimentos' },
+  { k: 'pan', e: '🍞', label: 'Panadería', cat: 'Alimentos' },
+  { k: 'verdura', e: '🥦', label: 'Verduras', cat: 'Alimentos' },
+  { k: 'fruta', e: '🍎', label: 'Frutas', cat: 'Alimentos' },
+  { k: 'huevos', e: '🥚', label: 'Huevos', cat: 'Alimentos' },
+  { k: 'almacen', e: '🍝', label: 'Almacén', cat: 'Alimentos' },
+  { k: 'snacks', e: '🍫', label: 'Snacks y dulces', cat: 'Alimentos' },
+
+  // Hogar y cotidiano
+  { k: 'limpieza', e: '🧴', label: 'Limpieza', cat: 'Hogar' },
+  { k: 'higiene', e: '🧻', label: 'Higiene', cat: 'Personal' },
+  { k: 'mascotas', e: '🐶', label: 'Mascotas', cat: 'Mascotas' },
+  { k: 'bebes', e: '🍼', label: 'Bebés y niños', cat: 'Hogar' },
+  { k: 'electro', e: '🔌', label: 'Electrodomésticos', cat: 'Hogar' },
+  { k: 'tecnologia', e: '💻', label: 'Tecnología', cat: 'Hogar' },
+  { k: 'ferreteria', e: '🔨', label: 'Ferretería y arreglos', cat: 'Hogar' },
+
+  // Personal, extras y varios
+  { k: 'zapatillas', e: '👟', label: 'Calzado e indumentaria', cat: 'Personal' },
+  { k: 'farmacia', e: '💊', label: 'Farmacia y salud', cat: 'Salud' },
+  { k: 'regalos', e: '🎁', label: 'Regalos', cat: 'Varios' },
+  { k: 'libreria', e: '📚', label: 'Librería y oficina', cat: 'Varios' },
+  { k: 'otros', e: '🛒', label: 'Otros', cat: 'Varios' }
+];
   const iconOf = (k) => ICONS.find((i) => i.k === k) || ICONS[ICONS.length - 1];
 
   const userKey = () => 'changui_v1_' + ((document.getElementById('userEmail')?.textContent || '').trim().toLowerCase() || 'anon');
