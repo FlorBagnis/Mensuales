@@ -265,9 +265,10 @@
 
       if (sortedStores.length > 1 && lowStore[0] !== topStore[0]) {
         const itemsOnlyInTop = [...topStore[1].items].filter(x => !lowStore[1].items.has(x));
+        // ✅ CORREGIDO: se escapan los nombres antes de insertarlos como HTML
         const comparisonText = itemsOnlyInTop.length > 0
-          ? ` Aquí compraste <em>(${itemsOnlyInTop.slice(0, 3).join(', ')})</em> que no llevaste en ${lowStore[0]}.`
-          : ` Concentraste tus compras grandes aquí en comparación con ${lowStore[0]}.`;
+          ? ` Aquí compraste <em>(${itemsOnlyInTop.slice(0, 3).map(esc).join(', ')})</em> que no llevaste en ${esc(lowStore[0])}.`
+          : ` Concentraste tus compras grandes aquí en comparación con ${esc(lowStore[0])}.`;
         pills.push(`📊 <strong>Comparativa:</strong> En ${esc(topStore[0])} gastaste más que en ${esc(lowStore[0])}.${comparisonText}`);
       }
     }
@@ -459,12 +460,18 @@
     const isBlack = document.body.classList.contains('black-mode');
 
     const doc = new J({ unit: 'mm', format: 'a4' });
-    
+
+    // ✅ CORREGIDO: el descuento general se aplica al changuito activo
+    // (en las compras guardadas, "paid" ya lo trae incluido)
+    const genFactor = customPurchase ? 1 : (1 - state.general / 100);
+    const paidOf = (it) => (customPurchase ? Number(it.paid || 0) : itemCalc(it).paid * genFactor);
+
+    // ✅ CORREGIDO: se suman por separado los totales en pesos y en dólares
     let totalARS = 0;
-    itemsToPrint.forEach(it => {
-      const paid = customPurchase ? Number(it.paid || 0) : itemCalc(it).paid;
-      const cur = it.cur || 'ARS';
-      if (cur === 'ARS') totalARS += paid;
+    let totalUSD = 0;
+    itemsToPrint.forEach((it) => {
+      const paid = paidOf(it);
+      if ((it.cur || 'ARS') === 'USD') totalUSD += paid; else totalARS += paid;
     });
 
     const delivery = customPurchase ? (customPurchase.deliveryMode === 'envio' ? Number(customPurchase.deliveryCost || 0) : 0) : getDeliveryCost();
@@ -491,8 +498,9 @@
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
     doc.text('Detalle del changuito - ' + dateStr + (storeName ? ' - ' + storeName : ''), 21, 31);
 
+    const totalCardText = fmt(totalARS, 'ARS') + (totalUSD > 0 ? ' + ' + fmt(totalUSD, 'USD') : '');
     const cards = [
-      ['TOTAL GASTADO', fmt(totalARS, 'ARS')],
+      ['TOTAL GASTADO', totalCardText],
       ['MODALIDAD', customPurchase ? (customPurchase.deliveryMode === 'envio' ? 'Envío a domicilio' : 'Presencial') : ($('#chgDeliveryMode')?.value === 'envio' ? 'Envío' : 'Presencial')],
       ['CANT. ÍTEMS', String(itemsToPrint.length + (delivery > 0 ? 1 : 0))]
     ];
@@ -522,7 +530,7 @@
 
     itemsToPrint.forEach((it) => {
       if (y > 255) { y = newPage(); tableHeader(); }
-      const paid = customPurchase ? Number(it.paid || 0) : itemCalc(it).paid;
+      const paid = paidOf(it);
       const cur = it.cur || 'ARS';
       doc.setTextColor(...theme.dark); doc.setFontSize(7);
       doc.text((plain(it.name) || 'Producto').slice(0, 40), 18, y + 5);
@@ -553,8 +561,11 @@
     y += 6;
     
     const lines = [
-      ['Total general a pagar', fmt(totalARS, 'ARS')]
+      ['Total en pesos a pagar', fmt(totalARS, 'ARS')]
     ];
+    if (totalUSD > 0) lines.push(['Total en dólares a pagar', fmt(totalUSD, 'USD')]);
+    if (!customPurchase && state.general > 0) lines.push(['Descuento general aplicado', state.general + '%']);
+
     const boxH = 10 + lines.length * 6;
     doc.setFillColor(...theme.light); doc.setDrawColor(...theme.cardBorder);
     doc.roundedRect(15, y, 180, boxH, 3, 3, 'FD');
@@ -590,7 +601,7 @@
 
     let csv = 'Producto,Cantidad,Moneda,Precio Subtotal\n';
     itemsToPrint.forEach(it => {
-      const paid = customPurchase ? Number(it.paid || 0) : itemCalc(it).paid;
+      const paid = customPurchase ? Number(it.paid || 0) : itemCalc(it).paid * (1 - state.general / 100);
       const name = `"${String(it.name || '').replace(/"/g, '""')}"`;
       const qty = it.qty || 1;
       const cur = it.cur || 'ARS';
@@ -652,6 +663,7 @@
               <button class="pastel-btn btn-sm" type="button" data-load-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Cargar este changuito en la pantalla">📂 Ver</button>
               <button class="pastel-btn btn-sm" type="button" data-pdf-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="PDF">📄 PDF</button>
               <button class="pastel-btn btn-sm" type="button" data-csv-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="CSV">📊 CSV</button>
+              <button class="pastel-btn btn-sm" type="button" data-edit-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Editar">✏️</button>
               <button class="btn btn-danger btn-sm" type="button" data-del-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Eliminar">🗑️</button>
             </div>
           </div>
@@ -672,7 +684,7 @@
   $('#chgCancelEdit').addEventListener('click', resetForm);
   $('#chgPdfBtn').addEventListener('click', () => exportPDF(null));
   
-  // Agregar botón o acción de CSV para el changuito activo (si querés podés ponerle un id chgCsvBtn en el HTML, o lo manejamos desde historial)
+  $('#chgCsvBtn')?.addEventListener('click', () => exportCSV(null));
   $('#chgRegisterBtn').addEventListener('click', registerPurchase);
   $('#chgDate').value = todayISO();
 
