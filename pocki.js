@@ -211,7 +211,7 @@
       : '<div class="pocki-empty" style="grid-column: 1 / -1;"><div>🐷</div><strong>Todavía no tenés metas</strong><br><span>Tocá "Nueva meta" y Pocki te dice cuánto tardás.</span></div>';
   }
 
-  /* ---------- exportar PDF (usa jsPDF, el mismo que ya carga Mensuales) ---------- */
+ /* ---------- exportar PDF adaptado a los modos ---------- */
   function exportPDF() {
     const J = window.jspdf && window.jspdf.jsPDF;
     if (!J) { toast('No se pudo cargar el generador de PDF. Revisá tu conexión.'); return; }
@@ -219,31 +219,38 @@
 
     const doc = new J({ unit: 'mm', format: 'a4' });
     const W = 210, M = 14, BOTTOM = 276;
-    const pink = [251, 196, 212], ink = [90, 35, 55], accent = [232, 93, 158], track = [253, 226, 236], muted = [139, 125, 134];
     const ctx = getCtx();
     let y = 0;
 
+    // Detectar el modo activo en el body
+    const bodyClass = document.body.className;
+    let theme = {
+      pink: [251, 196, 212], ink: [90, 35, 55], accent: [232, 93, 158], track: [253, 226, 236], muted: [139, 125, 134], cardBg: [255, 248, 250]
+    };
+
+    if (bodyClass.includes('dark-mode')) {
+      theme = { pink: [78, 43, 55], ink: [255, 214, 223], accent: [255, 142, 163], track: [78, 43, 55], muted: [196, 154, 166], cardBg: [31, 16, 21] };
+    } else if (bodyClass.includes('dark-blue-mode')) {
+      theme = { pink: [30, 53, 109], ink: [241, 245, 249], accent: [56, 189, 248], track: [30, 53, 109], muted: [148, 163, 184], cardBg: [7, 13, 30] };
+    } else if (bodyClass.includes('black-mode')) {
+      theme = { pink: [51, 51, 51], ink: [255, 255, 255], accent: [255, 255, 255], track: [51, 51, 51], muted: [163, 163, 163], cardBg: [26, 26, 26] };
+    }
+
     const header = () => {
-      doc.setFillColor(...pink); doc.rect(0, 0, W, 26, 'F');
-      doc.setTextColor(...ink); doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
+      doc.setFillColor(...theme.pink); doc.rect(0, 0, W, 26, 'F');
+      doc.setTextColor(...theme.ink); doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
       doc.text('Pocki: Ahorrando ando', M, 13);
       doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
       doc.text('Resumen de metas de ahorro · ' + new Date().toLocaleDateString('es-AR'), M, 20);
       y = 36;
     };
-    const heart = (x, yy, s) => {
-      const r = s / 4;
-      doc.setFillColor(...accent);
-      doc.circle(x + r, yy + r, r, 'F'); doc.circle(x + 3 * r, yy + r, r, 'F');
-      doc.triangle(x, yy + r * 1.3, x + 4 * r, yy + r * 1.3, x + 2 * r, yy + 4 * r, 'F');
-    };
 
     header();
 
     // Datos del cálculo
-    doc.setTextColor(...ink); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
+    doc.setTextColor(...theme.ink); doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
     doc.text('Cómo se calcula', M, y); y += 6;
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...muted);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...theme.muted);
     const lines = [];
     if (ctx.pool === null) lines.push('Sin meses en el Historial para calcular tu sobrante mensual.');
     else if (ctx.pool <= 0) lines.push('Tus gastos igualan o superan tu presupuesto: no queda sobrante mensual.');
@@ -257,7 +264,7 @@
       const list = goals.filter((g) => g.cur === cur);
       if (!list.length) return;
       const saved = list.reduce((s, g) => s + g.saved, 0), target = list.reduce((s, g) => s + g.target, 0);
-      doc.setTextColor(...ink); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...theme.ink); doc.setFont('helvetica', 'bold');
       doc.text(`Total en ${cur === 'USD' ? 'dólares' : 'pesos'}: ${fmt(saved, cur)} ahorrados de ${fmt(target, cur)}`, M, y);
       y += 6;
     });
@@ -272,25 +279,25 @@
       const h = 34 + eta.length * 4.6 + (a ? 7 : 0);
       if (y + h > BOTTOM) { doc.addPage(); header(); }
 
-      doc.setDrawColor(...pink); doc.setFillColor(255, 248, 250);
+      doc.setDrawColor(...theme.pink); doc.setFillColor(...theme.cardBg);
       doc.roundedRect(M, y, W - 2 * M, h, 3, 3, 'FD');
       let yy = y + 8;
-      doc.setTextColor(...ink); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+      doc.setTextColor(...theme.ink); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
       doc.text(plain(g.name) || 'Meta', M + 4, yy);
-      doc.setFontSize(12); doc.setTextColor(...accent);
+      doc.setFontSize(12); doc.setTextColor(...theme.accent);
       doc.text(Math.floor(pct * 100) + '%', W - M - 4, yy, { align: 'right' });
       yy += 5;
-      doc.setFillColor(...track); doc.roundedRect(M + 4, yy, W - 2 * M - 8, 4, 2, 2, 'F');
-      if (pct > 0) { doc.setFillColor(...accent); doc.roundedRect(M + 4, yy, Math.max(3, (W - 2 * M - 8) * pct), 4, 2, 2, 'F'); }
+      doc.setFillColor(...theme.track); doc.roundedRect(M + 4, yy, W - 2 * M - 8, 4, 2, 2, 'F');
+      if (pct > 0) { doc.setFillColor(...theme.accent); doc.roundedRect(M + 4, yy, Math.max(3, (W - 2 * M - 8) * pct), 4, 2, 2, 'F'); }
       yy += 10;
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...ink);
-      doc.text(`Ahorrado: ${fmt(g.saved, g.cur)}   ·   Falta: ${fmt(c.rem, g.cur)}   ·   Meta: ${fmt(g.target, g.cur)}`, M + 4, yy);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...theme.ink);
+      doc.text(`Ahorrado: ${fmt(g.saved, g.cur)}    ·    Falta: ${fmt(c.rem, g.cur)}    ·    Meta: ${fmt(g.target, g.cur)}`, M + 4, yy);
       yy += 5.5;
-      doc.setTextColor(...muted);
+      doc.setTextColor(...theme.muted);
       doc.text(eta, M + 4, yy);
       yy += eta.length * 4.6;
       if (a) {
-        doc.setFont('helvetica', 'bold'); doc.setTextColor(...accent);
+        doc.setFont('helvetica', 'bold'); doc.setTextColor(...theme.accent);
         doc.text(plain(a.msg + (a.amount !== undefined ? ' ' + fmt(a.amount, g.cur) : '')), M + 4, yy + 2);
       }
       y += h + 5;
@@ -300,11 +307,10 @@
     const n = doc.getNumberOfPages();
     for (let i = 1; i <= n; i++) {
       doc.setPage(i);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...muted);
-      const txt = 'Creado by Flor Bagnis';
-      const x = (W - doc.getTextWidth(txt) - 6) / 2;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...theme.muted);
+      const txt = 'Creado by Flor Bagnis 💗';
+      const x = (W - doc.getTextWidth(txt)) / 2;
       doc.text(txt, x, 289);
-      heart(x + doc.getTextWidth(txt) + 1.5, 285.6, 4);
       doc.text(`${i} / ${n}`, W - M, 289, { align: 'right' });
     }
     doc.save('Pocki-metas-' + new Date().toISOString().slice(0, 10) + '.pdf');
