@@ -674,3 +674,23 @@
   renderIcons();
   render();
 })();
+
+
+/* ---------- Mostrar/ocultar costo de envío y formatear monto ---------- */
+  document.addEventListener('change', (e) => {
+    if (e.target.id === 'chgDeliveryMode') {
+      const isEnvio = e.target.value === 'envio';
+      const wrap = $('#chgDeliveryCostWrap');
+      if (wrap) wrap.hidden = !isEnvio;
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'chgDeliveryCost') {
+      const el = e.target;
+      const start = el.selectionStart, prevLen = el.value.length;
+      el.value = formatAmountInput(el.value);
+      const pos = Math.max(0, start + (el.value.length - prevLen));
+      el.setSelectionRange(pos, pos);
+    }
+  });
