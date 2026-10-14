@@ -68,7 +68,7 @@ const ICONS = [
   { k: 'higiene', e: '🧻', label: 'Higiene', cat: 'Personal' },
   { k: 'mascotas', e: '🐶', label: 'Mascotas', cat: 'Mascotas' },
   { k: 'bebes', e: '🍼', label: 'Bebés y niños', cat: 'Hogar' },
-  { k: 'electro', e: '🔌', label: 'Electro', cat: 'Hogar' },
+  { k: 'electro', e: '🔌', label: 'Electrodomésticos', cat: 'Hogar' },
   { k: 'tecnologia', e: '💻', label: 'Tecnología', cat: 'Hogar' },
   { k: 'ferreteria', e: '🔨', label: 'Ferretería y arreglos', cat: 'Hogar' },
 
@@ -77,6 +77,9 @@ const ICONS = [
   { k: 'farmacia', e: '💊', label: 'Farmacia y salud', cat: 'Salud' },
   { k: 'regalos', e: '🎁', label: 'Regalos', cat: 'Varios' },
   { k: 'libreria', e: '📚', label: 'Librería y oficina', cat: 'Varios' },
+  { k: 'jardin', e: '🌸', label: 'Jardín y plantas', cat: 'Hogar' },
+  { k: 'decoracion', e: '🛋️', label: 'Decoración y hogar', cat: 'Hogar' },
+  { k: 'vehiculo', e: '🚗', label: 'Vehículo / Auto', cat: 'Varios' },
   { k: 'otros', e: '🛒', label: 'Otros', cat: 'Varios' }
 ];
   const iconOf = (k) => ICONS.find((i) => i.k === k) || ICONS[ICONS.length - 1];
