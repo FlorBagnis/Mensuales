@@ -728,6 +728,7 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
       <p>Armá tu changuito, mirá cuánto ahorrás con las promos y cargalo a tus gastos del mes.</p>
     </div>
     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <button id="chgHistoryModalBtn" class="btn btn-outline" type="button">📜 Historial</button>
       <button id="chgPdfBtn" class="btn btn-outline" type="button">📄 PDF</button>
       <button id="chgToggleBtn" class="btn btn-outline btn-sm custom-collapse-btn" type="button">▲ Ocultar Changui</button>
     </div>
@@ -844,6 +845,15 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
         </div>
       </div>
 
+
+<dialog id="chgHistoryDialog" style="border-radius: 24px; border: 1px solid var(--line); padding: 25px; max-width: 520px; width: 100%; background: var(--card); color: var(--text);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h3 style="margin: 0; font-size: 1.1rem; color: var(--pink-700);">📜 Tus Changuitos Anteriores</h3>
+    <button id="chgCloseHistoryBtn" type="button" class="close" style="position: static; font-size: 20px;" onclick="this.closest('dialog').close()">×</button>
+  </div>
+  <div id="chgHistoryListContainer" style="max-height: 60vh; overflow-y: auto; display: grid; gap: 10px;"></div>
+</dialog>
+      
     </div>
   </div>
 </section>
