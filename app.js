@@ -596,7 +596,27 @@ function renderMensualesExpensesTable(expenses) {
 
   if ($("emptyState")) $("emptyState").style.display = list.length ? "none" : "block";
 
-  list.sort((a, b) => String(a.date || "").localeCompare(String(b.date || ""))).forEach(e => {
+  // --- ORDENAMIENTO DINÁMICO Y PERSISTENCIA (localStorage) ---
+  const selectOrden = $("ordenarPor");
+  const criterio = selectOrden ? selectOrden.value : (localStorage.getItem('criterioOrden') || 'recientes');
+  if (selectOrden && !localStorage.getItem('criterioOrden')) {
+    selectOrden.value = criterio;
+  }
+
+  if (criterio === 'mayor-precio') {
+    list.sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0));
+  } else if (criterio === 'menor-precio') {
+    list.sort((a, b) => Number(a.amount || 0) - Number(b.amount || 0));
+  } else if (criterio === 'tipo') {
+    list.sort((a, b) => String(a.category || "").localeCompare(String(b.category || "")));
+  } else if (criterio === 'recientes') {
+    list.sort((a, b) => new Date(b.date || "") - new Date(a.date || ""));
+  } else if (criterio === 'antiguas') {
+    list.sort((a, b) => new Date(a.date || "") - new Date(b.date || ""));
+  }
+  // -----------------------------------------------------------
+
+  list.forEach(e => {
     const row = document.createElement("tr");
     const curr = e.currency || "ARS";
     row.innerHTML = `
@@ -611,6 +631,16 @@ function renderMensualesExpensesTable(expenses) {
     `;
     table.appendChild(row);
   });
+
+  // Guardar la preferencia en localStorage cuando cambie el select
+  if (selectOrden && !selectOrden.onchange) {
+    selectOrden.onchange = () => {
+      localStorage.setItem('criterioOrden', selectOrden.value);
+      if (typeof renderMensuales === 'function') {
+        renderMensuales();
+      }
+    };
+  }
 
   table.querySelectorAll(".edit-btn").forEach(btn => {
     btn.onclick = () => {
