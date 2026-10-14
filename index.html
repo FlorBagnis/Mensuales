@@ -405,6 +405,100 @@ body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item) button
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
 
+/* =========================================================
+   FLECHA PARA VOLVER ARRIBA
+   Aparece al bajar y te lleva al inicio. Usa los colores de
+   cada modo (claro, oscuro, azul y black).
+========================================================= */
+#scrollTopBtn {
+  position: fixed;
+  right: calc(18px + env(safe-area-inset-right, 0px));
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--btn-line, #f29cb5);
+  background: var(--btn-bg, #fbc4d4);
+  color: var(--btn-text, #5a2337);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  z-index: 900;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease, box-shadow 0.2s ease;
+}
+#scrollTopBtn.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+#scrollTopBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  background: var(--btn-hover, var(--btn-bg, #f9b0c6));
+}
+#scrollTopBtn:focus-visible {
+  outline: 2px solid var(--pink-700, #c43878);
+  outline-offset: 3px;
+}
+#scrollTopBtn svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@media (prefers-reduced-motion: reduce) {
+  #scrollTopBtn { transition: none; }
+}
+
+/* Colores explícitos por modo (mismos tonos que los botones de cada tema) */
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) #scrollTopBtn {
+  background: #fbc4d4;
+  color: #5a2337;
+  border-color: #f29cb5;
+  box-shadow: 0 6px 18px rgba(90, 35, 55, 0.25);
+}
+body:not(.dark-mode):not(.dark-blue-mode):not(.black-mode) #scrollTopBtn:hover {
+  background: #f9b0c6;
+}
+
+body.dark-mode #scrollTopBtn {
+  background: #2a161d;
+  color: #ffb6c1;
+  border-color: #4e2b37;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+body.dark-mode #scrollTopBtn:hover {
+  background: #3a1f29;
+}
+
+body.dark-blue-mode #scrollTopBtn {
+  background: #0f1c3f;
+  color: #38bdf8;
+  border-color: #1e356d;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+body.dark-blue-mode #scrollTopBtn:hover {
+  background: #14244b;
+}
+
+body.black-mode #scrollTopBtn {
+  background: #1a1a1a;
+  color: #ffffff;
+  border-color: #333333;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+}
+body.black-mode #scrollTopBtn:hover {
+  background: #262626;
+}
+
   
 </style>
 
@@ -1166,6 +1260,39 @@ body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item) button
     <button id="closeAnnualCancelBtn" class="btn btn-outline" style="width: 100%; border-radius: 14px; padding: 14px; justify-content: center;">Cerrar</button>
   </div>
 </dialog>
+
+<!-- FLECHA PARA VOLVER ARRIBA -->
+<button id="scrollTopBtn" type="button" aria-label="Volver arriba" title="Volver arriba">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg>
+</button>
+
+<script>
+  (function () {
+    var btn = document.getElementById('scrollTopBtn');
+    if (!btn) return;
+    var ticking = false;
+
+    function update() {
+      var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      btn.classList.toggle('show', y > 300);
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    btn.addEventListener('click', function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+
+    update();
+  })();
+</script>
 
 <script src="changui.js" defer></script>
   
