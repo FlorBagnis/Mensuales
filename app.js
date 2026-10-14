@@ -2594,3 +2594,10 @@ window.ChanguiBridge = {
     }
   }
 };
+
+// Botón global para refrescar la app
+document.getElementById('globalRefreshBtn')?.addEventListener('click', () => {
+  window.location.reload();
+});
+
+
