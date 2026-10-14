@@ -219,17 +219,33 @@
       pills.push(`🛒 En ${esc(monthName(month))} todavía no cargaste gastos de comida o súper.`);
     }
 
-    const stores = {};
+    const storesData = {};
     state.purchases.forEach((p) => {
       const storeName = p.store ? p.store.trim() : 'Sin especificar';
+      if (!storesData[storeName]) storesData[storeName] = { total: 0, items: new Set() };
       let storeTotal = 0;
-      (p.items || []).forEach((it) => { storeTotal += toARS(Number(it.paid || 0), it.cur); });
+      (p.items || []).forEach((it) => {
+        storeTotal += toARS(Number(it.paid || 0), it.cur);
+        storesData[storeName].items.add(String(it.name).trim().toLowerCase());
+      });
       if (p.deliveryCost) storeTotal += toARS(Number(p.deliveryCost), 'ARS');
-      stores[storeName] = (stores[storeName] || 0) + storeTotal;
+      storesData[storeName].total += storeTotal;
     });
-    const topStore = Object.entries(stores).sort((a, c) => c[1] - a[1])[0];
-    if (topStore && topStore[1] > 0 && topStore[0] !== 'Sin especificar') {
-      pills.push(`🏪 El supermercado donde más plata dejaste es <strong>${esc(topStore[0])}</strong> (${money(topStore[1], 'ARS')} acumulados).`);
+
+    const sortedStores = Object.entries(storesData).filter(s => s[0] !== 'Sin especificar').sort((a, c) => c[1].total - a[1].total);
+
+    if (sortedStores.length > 0) {
+      const topStore = sortedStores[0];
+      const lowStore = sortedStores[sortedStores.length - 1];
+      pills.push(`🏪 Donde más gastaste fue en <strong>${esc(topStore[0])}</strong> (${money(topStore[1].total, 'ARS')}).`);
+
+      if (sortedStores.length > 1 && lowStore[0] !== topStore[0]) {
+        const itemsOnlyInTop = [...topStore[1].items].filter(x => !lowStore[1].items.has(x));
+        const comparisonText = itemsOnlyInTop.length > 0
+          ? ` Aquí compraste <em>(${itemsOnlyInTop.slice(0, 3).join(', ')})</em> que no llevaste en ${lowStore[0]}.`
+          : ` Concentraste tus compras grandes aquí en comparación con ${lowStore[0]}.`;
+        pills.push(`📊 <strong>Comparativa:</strong> En ${esc(topStore[0])} gastaste más que en ${esc(lowStore[0])}.${comparisonText}`);
+      }
     }
 
     const prods = {};
@@ -402,6 +418,125 @@
     toast(`Listo, la compra se sumó a tus gastos.`);
   }
 
+  /* ---------- exportar PDF (mismo diseño y colores que los PDF de Mensuales) ---------- */
+  function exportPDF() {
+    const J = window.jspdf && window.jspdf.jsPDF;
+    if (!J) { toast('No se pudo cargar el generador de PDF. Revisá tu conexión.'); return; }
+    if (!state.items.length) { toast('Primero agregá productos al changuito.'); return; }
+
+    let theme;
+    try { theme = bridge().getPdfTheme(); } catch (e) { theme = null; }
+    if (!theme) theme = {
+      pink: [234, 91, 142], dark: [82, 22, 42], light: [253, 232, 238], headerBg: [255, 174, 195],
+      cardBorder: [246, 214, 223], lineDivider: [246, 214, 223], pageBg: null, footerColor: [125, 80, 98]
+    };
+    const isBlack = document.body.classList.contains('black-mode');
+
+    const doc = new J({ unit: 'mm', format: 'a4' });
+    const T = totals();
+    const store = plain($('#chgStore').value);
+    const paintPage = () => { if (theme.pageBg) { doc.setFillColor(...theme.pageBg); doc.rect(0, 0, 210, 297, 'F'); } };
+    const newPage = () => { doc.addPage(); paintPage(); return 20; };
+    const heart = (x, yy, s) => {
+      const r = s / 4;
+      doc.setFillColor(...theme.pink);
+      doc.circle(x + r, yy + r, r, 'F'); doc.circle(x + 3 * r, yy + r, r, 'F');
+      doc.triangle(x, yy + r * 1.3, x + 4 * r, yy + r * 1.3, x + 2 * r, yy + 4 * r, 'F');
+    };
+
+    paintPage();
+
+    doc.setFillColor(...theme.headerBg);
+    doc.roundedRect(15, 15, 180, 28, 4, 4, 'F');
+    doc.setTextColor(...theme.dark); doc.setFont('helvetica', 'bold'); doc.setFontSize(17);
+    doc.text('CHANGUI: CALCULA TU COMPRA', 21, 25);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    doc.text('Detalle del changuito - ' + new Date().toLocaleDateString('es-AR') + (store ? ' - ' + store : ''), 21, 31);
+
+    const cards = [
+      ['TOTAL EN PESOS', fmt(T.t.ARS.total, 'ARS')],
+      ['TOTAL EN DOLARES', fmt(T.t.USD.total, 'USD')],
+      ['TODO EN PESOS', T.hasUSD ? (T.rate ? fmt(T.eqTotal, 'ARS') : 'Sin cotizacion') : fmt(T.t.ARS.total, 'ARS')],
+      ['TE AHORRASTE', fmt(T.eqSaved, 'ARS')]
+    ];
+    cards.forEach((card, i) => {
+      const x = 15 + i * 45;
+      doc.setDrawColor(...theme.cardBorder);
+      doc.roundedRect(x, 49, 41, 25, 3, 3, 'S');
+      doc.setTextColor(...theme.pink); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      doc.text(card[0], x + 3, 57);
+      doc.setTextColor(...theme.dark); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+      doc.text(card[1], x + 3, 65);
+    });
+
+    let y = 84;
+    const tableHeader = () => {
+      if (isBlack) doc.setFillColor(30, 30, 30); else doc.setFillColor(...theme.pink);
+      doc.rect(15, y, 180, 8, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+      doc.text('PRODUCTO', 18, y + 5);
+      doc.text('CANT.', 92, y + 5);
+      doc.text('PRECIO UNIT.', 106, y + 5);
+      doc.text('PROMO', 136, y + 5);
+      doc.text('SUBTOTAL', 162, y + 5);
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+    };
+    tableHeader();
+
+    state.items.forEach((it) => {
+      if (y > 255) { y = newPage(); tableHeader(); }
+      const c = itemCalc(it);
+      doc.setTextColor(...theme.dark); doc.setFontSize(7);
+      doc.text((plain(it.name) || plain(iconOf(it.icon).label)).slice(0, 40), 18, y + 5);
+      doc.text(String(it.qty), 92, y + 5);
+      doc.text(fmt(it.price, it.cur), 106, y + 5);
+      doc.text(promoLabel(it.promo).replace('%', ' %') || '-', 136, y + 5);
+      doc.text(fmt(c.paid, it.cur), 162, y + 5);
+      doc.setDrawColor(...theme.lineDivider);
+      doc.line(15, y + 8, 195, y + 8);
+      y += 9;
+    });
+
+    y += 10;
+    if (y > 225) y = newPage();
+    doc.setTextColor(...theme.dark); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.text('RESUMEN DE LA COMPRA', 15, y);
+    y += 6;
+    const both = (a, b) => [a > 0.005 ? fmt(a, 'ARS') : '', b > 0.005 ? fmt(b, 'USD') : ''].filter(Boolean).join(' + ') || fmt(0, 'ARS');
+    const lines = [
+      ['Ahorro por promociones', both(T.t.ARS.promo, T.t.USD.promo)],
+      [`Descuento general (${String(state.general).replace('.', ',')} %)`, both(T.t.ARS.general, T.t.USD.general)],
+      ['Total ahorrado', both(T.t.ARS.saved, T.t.USD.saved)],
+      ['Total a pagar', both(T.t.ARS.total, T.t.USD.total)]
+    ];
+    if (T.hasUSD && T.rate) lines.push(['Dolar blue usado', fmt(T.rate, 'ARS')]);
+    const boxH = 10 + lines.length * 6;
+    doc.setFillColor(...theme.light); doc.setDrawColor(...theme.cardBorder);
+    doc.roundedRect(15, y, 180, boxH, 3, 3, 'FD');
+    lines.forEach((l, i) => {
+      const yy = y + 8 + i * 6;
+      const strong = i >= 2 && i <= 3;
+      doc.setFont('helvetica', strong ? 'bold' : 'normal'); doc.setFontSize(7.5);
+      doc.setTextColor(...(strong ? theme.pink : theme.dark));
+      doc.text(l[0], 21, yy);
+      doc.text(l[1], 189, yy, { align: 'right' });
+    });
+
+    const n = doc.getNumberOfPages();
+    for (let i = 1; i <= n; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...theme.footerColor);
+      const txt = 'Creado by Flor Bagnis';
+      const tw = doc.getTextWidth(txt);
+      const x = (210 - tw - 6) / 2;
+      doc.text(txt, x, 287);
+      heart(x + tw + 1.5, 283.6, 4);
+      doc.text(`${i} / ${n}`, 195, 287, { align: 'right' });
+    }
+    doc.save('Changui-' + todayISO() + '.pdf');
+  }
+
   /* ---------- Historial de Changuitos (Edición completa por changuito y por producto) ---------- */
   function renderHistoryModal() {
     const container = $('#chgHistoryListContainer');
@@ -452,7 +587,6 @@
       if (e.target.id === 'chgHistoryDialog') $('#chgHistoryDialog').close();
     }
 
-    // 1. Eliminar changuito entero
     const delBtn = e.target.closest('[data-del-purchase]');
     if (delBtn) {
       const id = delBtn.dataset.delPurchase;
@@ -465,13 +599,11 @@
       }
     }
 
-    // 2. Editar datos generales del changuito (Supermercado / Fecha)
     const editBtn = e.target.closest('[data-edit-purchase]');
     if (editBtn) {
       const id = editBtn.dataset.editPurchase;
       const purchase = state.purchases.find(p => p.id === id);
       if (!purchase) return;
-
       const card = editBtn.closest('.chg-history-card');
       if (!card) return;
 
@@ -492,11 +624,9 @@
       `;
     }
 
-    // Cancelar edición general
     const cancelBtn = e.target.closest('[data-cancel-edit-purchase]');
     if (cancelBtn) { renderHistoryModal(); }
 
-    // Guardar edición general
     const saveBtn = e.target.closest('[data-save-purchase]');
     if (saveBtn) {
       const id = saveBtn.dataset.savePurchase;
@@ -511,7 +641,6 @@
       }
     }
 
-    // 3. Editar un producto específico dentro del changuito
     const editItemBtn = e.target.closest('[data-edit-item-purchase]');
     if (editItemBtn) {
       const pId = editItemBtn.dataset.editItemPurchase;
@@ -545,7 +674,6 @@
       `;
     }
 
-    // Guardar edición de producto individual
     const saveItemBtn = e.target.closest('[data-save-item-purchase]');
     if (saveItemBtn) {
       const pId = saveItemBtn.dataset.saveItemPurchase;
@@ -568,9 +696,10 @@
     }
   });
 
-  /* ---------- Eventos generales ---------- */
+  /* ---------- eventos ---------- */
   $('#chgForm').addEventListener('submit', submitItem);
   $('#chgCancelEdit').addEventListener('click', resetForm);
+  $('#chgPdfBtn').addEventListener('click', exportPDF);
   $('#chgRegisterBtn').addEventListener('click', registerPurchase);
   $('#chgDate').value = todayISO();
 
