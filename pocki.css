@@ -163,3 +163,36 @@ body.amounts-hidden .pocki-plan input:not(:focus) {
 body.amounts-hidden .pocki-plan input:not(:focus) {
   filter: blur(6px);
 }
+
+
+/* Solapa Historial */
+.pocki-hist-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.pocki-hist-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--line, rgba(128, 128, 128, .3));
+}
+.pocki-hist-main { display: flex; flex-direction: column; min-width: 0; }
+.pocki-hist-main small { opacity: .7; }
+.pocki-hist-amt { font-weight: 700; white-space: nowrap; }
+.pocki-hist-btns { display: flex; gap: 4px; }
+.pocki-hist-btns .pastel-btn,
+.pocki-hist-btns .btn {
+  padding: 6px 10px !important;
+  min-width: 0;
+}
+.pocki-hist-empty { opacity: .7; font-size: .85rem; padding: 6px 2px; }
+
+
