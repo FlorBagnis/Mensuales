@@ -649,7 +649,7 @@
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 0.85rem;">
             <span>📅 ${fmtDay(p.date)} · ${storeName}</span>
             <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-              <button class="pastel-btn btn-sm" type="button" data-load-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Cargar este changuito en la pantalla">📂 Cargar</button>
+              <button class="pastel-btn btn-sm" type="button" data-load-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Cargar este changuito en la pantalla">📂 Ver</button>
               <button class="pastel-btn btn-sm" type="button" data-pdf-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="PDF">📄 PDF</button>
               <button class="pastel-btn btn-sm" type="button" data-csv-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="CSV">📊 CSV</button>
               <button class="btn btn-danger btn-sm" type="button" data-del-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Eliminar">🗑️</button>
