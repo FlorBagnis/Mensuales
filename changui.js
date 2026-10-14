@@ -537,7 +537,7 @@
     doc.save('Changui-' + todayISO() + '.pdf');
   }
 
-  /* ---------- Historial de Changuitos (Edición completa por changuito y por producto) ---------- */
+  /* ---------- Historial de Changuitos (con modalidad y envío visibles) ---------- */
   function renderHistoryModal() {
     const container = $('#chgHistoryListContainer');
     if (!container) return;
@@ -549,7 +549,12 @@
 
     container.innerHTML = state.purchases.map(p => {
       const storeName = p.store ? `Supermercado: <strong>${esc(p.store)}</strong>` : 'Compra general';
-      const modeText = p.deliveryMode === 'envio' ? `📦 Envío ($${p.deliveryCost || 0})` : '🛍️ Presencial';
+      
+      // Detalle de modalidad y costo de envío
+      const isEnvio = p.deliveryMode === 'envio';
+      const deliveryText = isEnvio 
+        ? `📦 Envío a domicilio (${money(p.deliveryCost || 0, 'ARS')})` 
+        : '🛍️ Presencial (Local)';
       
       const itemsHtml = (p.items || []).map((it, idx) => `
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line);">
@@ -561,140 +566,34 @@
         </div>
       `).join('');
 
+      // Si hubo envío, agregamos una línea extra en la lista de items mostrando el costo del envío
+      const deliveryHtml = isEnvio && p.deliveryCost > 0 ? `
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line); color: var(--pink-700);">
+          <span>📦 Costo de envío</span>
+          <b>${money(p.deliveryCost, 'ARS')}</b>
+        </div>
+      ` : '';
+
       return `
         <div class="chg-history-card" data-purchase-id="${p.id}" style="border: 1px solid var(--chg-line); border-radius: 16px; padding: 14px; background: var(--bg, transparent); margin-bottom: 10px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.85rem;">
-            <span>📅 ${fmtDay(p.date)} · ${storeName} (${modeText})</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 0.85rem;">
+            <span>📅 ${fmtDay(p.date)} · ${storeName}</span>
             <div style="display: flex; gap: 4px;">
               <button class="pastel-btn btn-sm" type="button" data-edit-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">✏️ Changuito</button>
               <button class="btn btn-danger btn-sm" type="button" data-del-purchase="${p.id}" style="padding: 2px 8px; font-size: 11px;">Eliminar</button>
             </div>
           </div>
+          <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 6px;">
+            📍 Modalidad: <strong>${deliveryText}</strong>
+          </div>
           <div style="display: grid; gap: 4px; margin-top: 6px;">
             ${itemsHtml}
+            ${deliveryHtml}
           </div>
         </div>
       `;
     }).join('');
   }
-
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('#chgHistoryModalBtn')) {
-      renderHistoryModal();
-      $('#chgHistoryDialog')?.showModal();
-    }
-    if (e.target.closest('#chgCloseHistoryBtn') || e.target.closest('#chgHistoryDialog')) {
-      if (e.target.id === 'chgHistoryDialog') $('#chgHistoryDialog').close();
-    }
-
-    const delBtn = e.target.closest('[data-del-purchase]');
-    if (delBtn) {
-      const id = delBtn.dataset.delPurchase;
-      if (confirm('¿Eliminar este registro del historial?')) {
-        state.purchases = state.purchases.filter(p => p.id !== id);
-        save();
-        renderHistoryModal();
-        renderInsight();
-        toast('Changuito eliminado.');
-      }
-    }
-
-    const editBtn = e.target.closest('[data-edit-purchase]');
-    if (editBtn) {
-      const id = editBtn.dataset.editPurchase;
-      const purchase = state.purchases.find(p => p.id === id);
-      if (!purchase) return;
-      const card = editBtn.closest('.chg-history-card');
-      if (!card) return;
-
-      card.innerHTML = `
-        <div style="display: grid; gap: 8px; font-size: 0.85rem;">
-          <strong>✏️ Editando datos del changuito</strong>
-          <label style="display: grid; gap: 2px; font-size: 0.75rem;">Supermercado / Local:
-            <input type="text" id="editStore_${id}" value="${esc(purchase.store || '')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
-          </label>
-          <label style="display: grid; gap: 2px; font-size: 0.75rem;">Fecha:
-            <input type="date" id="editDate_${id}" value="${purchase.date || ''}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
-          </label>
-          <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px;">
-            <button class="btn btn-outline btn-sm" type="button" data-cancel-edit-purchase="${id}">Cancelar</button>
-            <button class="pastel-btn btn-sm" type="button" data-save-purchase="${id}">Guardar</button>
-          </div>
-        </div>
-      `;
-    }
-
-    const cancelBtn = e.target.closest('[data-cancel-edit-purchase]');
-    if (cancelBtn) { renderHistoryModal(); }
-
-    const saveBtn = e.target.closest('[data-save-purchase]');
-    if (saveBtn) {
-      const id = saveBtn.dataset.savePurchase;
-      const purchase = state.purchases.find(p => p.id === id);
-      if (purchase) {
-        purchase.store = document.getElementById(`editStore_${id}`)?.value.trim() || '';
-        purchase.date = document.getElementById(`editDate_${id}`)?.value || todayISO();
-        save();
-        renderHistoryModal();
-        renderInsight();
-        toast('Changuito actualizado.');
-      }
-    }
-
-    const editItemBtn = e.target.closest('[data-edit-item-purchase]');
-    if (editItemBtn) {
-      const pId = editItemBtn.dataset.editItemPurchase;
-      const itemIdx = Number(editItemBtn.dataset.itemIdx);
-      const purchase = state.purchases.find(p => p.id === pId);
-      if (!purchase || !purchase.items[itemIdx]) return;
-
-      const item = purchase.items[itemIdx];
-      const card = editItemBtn.closest('.chg-history-card');
-      if (!card) return;
-
-      card.innerHTML = `
-        <div style="display: grid; gap: 8px; font-size: 0.85rem;">
-          <strong>✏️ Editando producto: ${esc(item.name)}</strong>
-          <label style="display: grid; gap: 2px; font-size: 0.75rem;">Nombre del producto:
-            <input type="text" id="editItemName_${pId}_${itemIdx}" value="${esc(item.name || '')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
-          </label>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-            <label style="display: grid; gap: 2px; font-size: 0.75rem;">Cantidad:
-              <input type="number" min="1" id="editItemQty_${pId}_${itemIdx}" value="${item.qty || 1}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
-            </label>
-            <label style="display: grid; gap: 2px; font-size: 0.75rem;">Precio total pagado:
-              <input type="text" inputmode="decimal" id="editItemPaid_${pId}_${itemIdx}" value="${String(item.paid || 0).replace('.', ',')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
-            </label>
-          </div>
-          <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px;">
-            <button class="btn btn-outline btn-sm" type="button" data-cancel-edit-purchase="${pId}">Cancelar</button>
-            <button class="pastel-btn btn-sm" type="button" data-save-item-purchase="${pId}" data-item-idx="${itemIdx}">Guardar producto</button>
-          </div>
-        </div>
-      `;
-    }
-
-    const saveItemBtn = e.target.closest('[data-save-item-purchase]');
-    if (saveItemBtn) {
-      const pId = saveItemBtn.dataset.saveItemPurchase;
-      const itemIdx = Number(saveItemBtn.dataset.itemIdx);
-      const purchase = state.purchases.find(p => p.id === pId);
-      if (purchase && purchase.items[itemIdx]) {
-        const newName = document.getElementById(`editItemName_${pId}_${itemIdx}`)?.value.trim();
-        const newQty = parseInt(document.getElementById(`editItemQty_${pId}_${itemIdx}`)?.value, 10) || 1;
-        const newPaid = parseAmount(document.getElementById(`editItemPaid_${pId}_${itemIdx}`)?.value);
-
-        if (newName) purchase.items[itemIdx].name = newName;
-        purchase.items[itemIdx].qty = newQty;
-        purchase.items[itemIdx].paid = round2(newPaid);
-
-        save();
-        renderHistoryModal();
-        renderInsight();
-        toast('Producto actualizado con éxito.');
-      }
-    }
-  });
 
   /* ---------- eventos ---------- */
   $('#chgForm').addEventListener('submit', submitItem);
