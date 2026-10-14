@@ -1,0 +1,632 @@
+/* =========================================================
+   CHANGUI: CALCULÁ TU COMPRA · módulo de Mensuales
+   Creado by Flor Bagnis 💗
+
+   Qué hace:
+   1) Armás tu changuito (producto, precio, moneda, cantidad y promo).
+   2) Calcula en tiempo real el total en pesos y en dólares, y cuánto ahorrás
+      con las promos y con el descuento general.
+   3) Registra la compra como gastos reales del mes en Mensuales.
+   4) Resumen inteligente: cuánto venís gastando en comida/súper este mes y
+      en qué categoría y producto gastaste más.
+   5) Exporta el detalle a PDF con los colores del modo activo.
+
+   Puente con app.js (window.ChanguiBridge):
+     getDolar()             -> cotización del dólar blue
+     getPdfTheme()          -> paleta de colores de los PDF de Mensuales
+     getCurrentMonth()      -> mes seleccionado en Mensuales ("2026-10")
+     getMonthExpenses(mes)  -> gastos de ese mes
+     addExpenses({date, expenses}) -> los carga en Mensuales
+========================================================= */
+(() => {
+  'use strict';
+
+  const root = document.getElementById('changui');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  /* ---------- utilidades ---------- */
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const nf2 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = (n, cur) => (cur === 'USD' ? 'u$s ' : '$ ') + nf2.format(Number(n) || 0);
+  // Con "Ocultar montos" el CSS esconde el número y muestra los puntitos (con el color del modo activo)
+  const money = (n, cur) => `<span class="chg-amt"><span class="chg-num">${fmt(n, cur)}</span><span class="chg-dots" aria-hidden="true">••••••</span></span>`;
+  const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  // "1.500,50" -> 1500.5 (misma convención que los campos de Mensuales)
+  const parseAmount = (v) => {
+    const s = String(v || '').trim().replace(/\s/g, '');
+    if (!s) return 0;
+    const n = parseFloat(s.replace(/\./g, '').replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+  };
+  // Puntos de miles en vivo: "100000" -> "100.000"
+  const formatAmountInput = (val) => {
+    let clean = String(val ?? '').replace(/[^\d,]/g, '');
+    const parts = clean.split(',');
+    if (parts.length > 2) clean = parts[0] + ',' + parts.slice(1).join('');
+    const [int, dec] = clean.split(',');
+    const withDots = (int || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return dec !== undefined ? `${withDots},${dec.slice(0, 2)}` : withDots;
+  };
+  const todayISO = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date());
+  const fmtDay = (iso) => { const [y, m, d] = String(iso || '').split('-'); return d ? `${d}/${m}/${y}` : '—'; };
+  const monthName = (k) => {
+    const [y, m] = String(k).split('-').map(Number);
+    if (!y || !m) return '';
+    return new Date(y, m - 1, 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).replace(/^./, (c) => c.toUpperCase());
+  };
+  // Para el PDF: sin etiquetas y sin emojis (el PDF solo admite letras latinas)
+  const plain = (s) => String(s).replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/[^\x20-\xFF]/g, '').replace(/\s+/g, ' ').trim();
+
+  const bridge = () => window.ChanguiBridge || {};
+  const dolar = () => {
+    try { const v = bridge().getDolar && bridge().getDolar(); return typeof v === 'number' && v > 0 ? v : null; } catch (e) { return null; }
+  };
+
+  /* ---------- catálogo de íconos / rubros ----------
+     "cat" es la categoría de Mensuales a la que va cada rubro cuando se separa automáticamente. */
+  const ICONS = [
+    { k: 'leche', e: '🥛', label: 'Lácteos', cat: 'Alimentos' },
+    { k: 'agua', e: '💧', label: 'Agua', cat: 'Alimentos' },
+    { k: 'bebidas', e: '🥤', label: 'Bebidas', cat: 'Alimentos' },
+    { k: 'carne', e: '🥩', label: 'Carne', cat: 'Alimentos' },
+    { k: 'pescado', e: '🐟', label: 'Pescado', cat: 'Alimentos' },
+    { k: 'pollo', e: '🍗', label: 'Pollo', cat: 'Alimentos' },
+    { k: 'queso', e: '🧀', label: 'Queso y fiambre', cat: 'Alimentos' },
+    { k: 'pan', e: '🍞', label: 'Panadería', cat: 'Alimentos' },
+    { k: 'verdura', e: '🥦', label: 'Verduras', cat: 'Alimentos' },
+    { k: 'fruta', e: '🍎', label: 'Frutas', cat: 'Alimentos' },
+    { k: 'huevos', e: '🥚', label: 'Huevos', cat: 'Alimentos' },
+    { k: 'almacen', e: '🍝', label: 'Almacén', cat: 'Alimentos' },
+    { k: 'snacks', e: '🍫', label: 'Snacks y dulces', cat: 'Alimentos' },
+    { k: 'limpieza', e: '🧴', label: 'Limpieza', cat: 'Hogar' },
+    { k: 'higiene', e: '🧻', label: 'Higiene', cat: 'Personal' },
+    { k: 'mascotas', e: '🐶', label: 'Mascotas', cat: 'Mascotas' },
+    { k: 'otros', e: '🛒', label: 'Otros', cat: 'Alimentos' }
+  ];
+  const iconOf = (k) => ICONS.find((i) => i.k === k) || ICONS[ICONS.length - 1];
+
+  /* ---------- guardado (por usuario, en este dispositivo) ---------- */
+  const userKey = () => 'changui_v1_' + ((document.getElementById('userEmail')?.textContent || '').trim().toLowerCase() || 'anon');
+  let state = { items: [], general: 0, purchases: [] };
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem(userKey()) || 'null');
+      state = Object.assign({ items: [], general: 0, purchases: [] }, s || {});
+    } catch (e) { state = { items: [], general: 0, purchases: [] }; }
+    if (!Array.isArray(state.items)) state.items = [];
+    if (!Array.isArray(state.purchases)) state.purchases = [];
+    state.general = Math.min(100, Math.max(0, Number(state.general) || 0));
+  }
+  function save() {
+    try { localStorage.setItem(userKey(), JSON.stringify(state)); } catch (e) { /* sin guardado */ }
+  }
+
+  let selIcon = 'otros';
+  let editingId = null;
+
+  /* ---------- carteles ---------- */
+  let toastTimer;
+  function toast(text) {
+    let t = $('#chgToast');
+    if (!t) {
+      root.insertAdjacentHTML('beforeend', '<div id="chgToast" class="chg-toast" role="status"></div>');
+      t = $('#chgToast');
+    }
+    t.textContent = text;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 4500);
+  }
+
+  /* ---------- cálculos ---------- */
+  const promoLabel = (p) => {
+    if (!p || p.type === 'none') return '';
+    if (p.type === 'pct') return `${p.value}% off`;
+    if (p.type === '2x1') return '2x1';
+    if (p.type === 'second') return `2da al ${p.value}%`;
+    return '';
+  };
+
+  // Cuánto cuesta un ítem sin promo (base), cuánto pagás (paid) y cuánto ahorrás (saved)
+  function itemCalc(it) {
+    const base = it.price * it.qty;
+    let paid = base;
+    const p = it.promo || { type: 'none' };
+    if (p.type === 'pct') paid = base * (1 - p.value / 100);
+    else if (p.type === '2x1') paid = it.price * Math.ceil(it.qty / 2);
+    else if (p.type === 'second') {
+      const pairs = Math.floor(it.qty / 2);
+      paid = it.price * (it.qty - pairs) + it.price * pairs * (1 - p.value / 100);
+    }
+    return { base, paid, saved: base - paid };
+  }
+
+  function totals() {
+    const t = { ARS: { base: 0, promo: 0 }, USD: { base: 0, promo: 0 } };
+    state.items.forEach((it) => {
+      const c = itemCalc(it);
+      t[it.cur].base += c.base;
+      t[it.cur].promo += c.saved;
+    });
+    const g = state.general;
+    ['ARS', 'USD'].forEach((cur) => {
+      const afterPromo = t[cur].base - t[cur].promo;
+      t[cur].general = afterPromo * g / 100;
+      t[cur].total = afterPromo - t[cur].general;
+      t[cur].saved = t[cur].promo + t[cur].general;
+    });
+    const rate = dolar();
+    const hasUSD = t.USD.base > 0;
+    const eq = (a, b) => a + (rate ? b * rate : 0);
+    return {
+      t, rate, hasUSD,
+      eqTotal: eq(t.ARS.total, t.USD.total),
+      eqSaved: eq(t.ARS.saved, t.USD.saved),
+      eqPromo: eq(t.ARS.promo, t.USD.promo),
+      eqGeneral: eq(t.ARS.general, t.USD.general)
+    };
+  }
+
+  /* ---------- dibujo ---------- */
+  function renderIcons() {
+    $('#chgIcons').innerHTML = ICONS.map((i) =>
+      `<button type="button" class="chg-chip${i.k === selIcon ? ' on' : ''}" data-icon="${i.k}" aria-pressed="${i.k === selIcon}" title="${esc(i.label)}"><span>${i.e}</span><small>${esc(i.label)}</small></button>`
+    ).join('');
+  }
+
+  function itemHTML(it) {
+    const c = itemCalc(it);
+    const ic = iconOf(it.icon);
+    const badge = promoLabel(it.promo) ? `<span class="chg-badge">${esc(promoLabel(it.promo))}</span>` : '';
+    const old = c.saved > 0.005 ? `<s class="chg-old">${money(c.base, it.cur)}</s>` : '';
+    return `
+      <li class="chg-item" data-id="${it.id}">
+        <span class="chg-ico">${ic.e}</span>
+        <span class="chg-info">
+          <strong>${esc(it.name)}</strong>
+          <small>${it.qty} x ${money(it.price, it.cur)} ${badge}</small>
+        </span>
+        <span class="chg-sub">${old}<b>${money(c.paid, it.cur)}</b></span>
+        <span class="chg-btns">
+          <button class="pastel-btn" type="button" data-act="edit" title="Editar" aria-label="Editar ${esc(it.name)}">✏️</button>
+          <button class="btn btn-outline" type="button" data-act="del" title="Quitar" aria-label="Quitar ${esc(it.name)}">🗑️</button>
+        </span>
+      </li>`;
+  }
+
+  function renderCart() {
+    const n = state.items.length;
+    $('#chgCount').textContent = n ? `(${n})` : '';
+    $('#chgList').innerHTML = n
+      ? state.items.map(itemHTML).join('')
+      : '<li class="chg-empty"><div>🛒</div><strong>Tu changuito está vacío</strong><br><span>Elegí un ícono, cargá el precio y sumalo.</span></li>';
+    const gi = $('#chgGeneral');
+    if (gi && document.activeElement !== gi) gi.value = state.general ? String(state.general).replace('.', ',') : '';
+    root.querySelectorAll('[data-gen]').forEach((b) => b.classList.toggle('on', Number(b.dataset.gen) === state.general));
+  }
+
+  function renderTotals() {
+    const T = totals();
+    const card = (title, value, sub, cls) =>
+      `<div class="chg-card ${cls || ''}"><span>${title}</span><strong>${value}</strong>${sub ? `<small>${sub}</small>` : ''}</div>`;
+    const out = [];
+    out.push(card('TOTAL EN PESOS', money(T.t.ARS.total, 'ARS'), T.t.ARS.saved > 0.005 ? `Ahorrás ${money(T.t.ARS.saved, 'ARS')}` : ''));
+    if (T.hasUSD) {
+      out.push(card('TOTAL EN DÓLARES', money(T.t.USD.total, 'USD'), T.t.USD.saved > 0.005 ? `Ahorrás ${money(T.t.USD.saved, 'USD')}` : ''));
+      out.push(card('TODO EN PESOS', T.rate ? money(T.eqTotal, 'ARS') : 'Esperando el dólar…', T.rate ? `Dólar blue ${money(T.rate, 'ARS')}` : ''));
+    }
+    out.push(card('TE AHORRASTE', money(T.eqSaved, 'ARS'),
+      `Promos ${money(T.eqPromo, 'ARS')} · General ${money(T.eqGeneral, 'ARS')}`, 'save'));
+    $('#chgTotals').innerHTML = out.join('');
+  }
+
+  // Mini-panel: cuánto vas gastando en comida/súper y en qué gastaste más
+  function renderInsight() {
+    const box = $('#chgInsight');
+    if (!box) return;
+    const b = bridge();
+    if (!b.getMonthExpenses) { box.innerHTML = '<span class="chg-pill">Conectando con tus gastos de Mensuales…</span>'; return; }
+
+    const month = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
+    const list = b.getMonthExpenses(month) || [];
+    const rate = dolar();
+    const toARS = (amount, cur) => (cur === 'USD' ? (rate ? amount * rate : 0) : amount);
+    const pills = [];
+
+    // 1) Comida y súper del mes (categoría Alimentos + todo lo cargado con Changui)
+    const food = list.filter((e) => e.category === 'Alimentos' || e.fromChangui);
+    let foodARS = 0, foodUSD = 0;
+    food.forEach((e) => { if (e.currency === 'USD') foodUSD += Number(e.amount || 0); else foodARS += Number(e.amount || 0); });
+    if (food.length) {
+      pills.push(`🛒 En ${esc(monthName(month))} venís gastando ${money(foodARS, 'ARS')}${foodUSD > 0 ? ' + ' + money(foodUSD, 'USD') : ''} en comida y súper (${food.length} ${food.length === 1 ? 'gasto' : 'gastos'}).`);
+    } else {
+      pills.push(`🛒 En ${esc(monthName(month))} todavía no cargaste gastos de comida o súper.`);
+    }
+
+    // 2) Categoría donde más gastaste (todos los gastos del mes)
+    const cats = {};
+    let totalMonth = 0;
+    list.forEach((e) => {
+      const v = toARS(Number(e.amount || 0), e.currency);
+      cats[e.category || 'Otros'] = (cats[e.category || 'Otros'] || 0) + v;
+      totalMonth += v;
+    });
+    const topCat = Object.entries(cats).sort((a, c) => c[1] - a[1])[0];
+    if (topCat && topCat[1] > 0) {
+      const pct = totalMonth > 0 ? Math.round((topCat[1] / totalMonth) * 100) : 0;
+      pills.push(`🏆 La categoría donde más gastaste es <strong>${esc(topCat[0])}</strong>: ${money(topCat[1], 'ARS')} (${pct}% del mes).`);
+    }
+
+    // 3) Producto y rubro del changuito donde más gastaste (según las compras registradas con Changui)
+    const prods = {}, rubros = {};
+    state.purchases.filter((p) => String(p.date).slice(0, 7) === month).forEach((p) => {
+      (p.items || []).forEach((it) => {
+        const v = toARS(Number(it.paid || 0), it.cur);
+        const key = String(it.name).trim().toLowerCase();
+        if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, amt: 0 };
+        prods[key].amt += v;
+        rubros[it.icon] = (rubros[it.icon] || 0) + v;
+      });
+    });
+    const topProd = Object.values(prods).sort((a, c) => c.amt - a.amt)[0];
+    const topRubro = Object.entries(rubros).sort((a, c) => c[1] - a[1])[0];
+    if (topProd && topProd.amt > 0) {
+      pills.push(`${iconOf(topProd.icon).e} Producto que más pesó: <strong>${esc(topProd.name)}</strong> (${money(topProd.amt, 'ARS')})${topRubro ? ` · Rubro: ${iconOf(topRubro[0]).e} ${esc(iconOf(topRubro[0]).label)}` : ''}.`);
+    } else {
+      pills.push('📦 Cuando registres compras con Changui, acá vas a ver en qué producto y rubro gastás más.');
+    }
+
+    box.innerHTML = pills.map((p) => `<span class="chg-pill">${p}</span>`).join('');
+  }
+
+  function render() {
+    renderCart();
+    renderTotals();
+    renderInsight();
+  }
+
+  /* ---------- formulario ---------- */
+  function promoFromForm() {
+    const v = $('#chgPromo').value;
+    if (v === 'none') return { type: 'none' };
+    if (v === '2x1') return { type: '2x1' };
+    if (v === '2nd50') return { type: 'second', value: 50 };
+    if (v === '2nd70') return { type: 'second', value: 70 };
+    if (v === 'custom') {
+      const n = Math.min(99, Math.max(0, parseAmount($('#chgPromoCustom').value)));
+      return n > 0 ? { type: 'pct', value: n } : { type: 'none' };
+    }
+    return { type: 'pct', value: Number(v) };
+  }
+  function promoToForm(p) {
+    const sel = $('#chgPromo'), wrap = $('#chgPromoCustomWrap'), custom = $('#chgPromoCustom');
+    wrap.hidden = true; custom.value = '';
+    if (!p || p.type === 'none') { sel.value = 'none'; return; }
+    if (p.type === '2x1') { sel.value = '2x1'; return; }
+    if (p.type === 'second') { sel.value = p.value === 70 ? '2nd70' : '2nd50'; return; }
+    const preset = [...sel.options].some((o) => o.value === String(p.value));
+    if (preset) sel.value = String(p.value);
+    else { sel.value = 'custom'; wrap.hidden = false; custom.value = String(p.value).replace('.', ','); }
+  }
+
+  function resetForm() {
+    editingId = null;
+    selIcon = 'otros';
+    $('#chgName').value = '';
+    $('#chgPrice').value = '';
+    $('#chgQty').value = '1';
+    promoToForm(null);
+    $('#chgSubmit').textContent = '➕ Agregar al changuito';
+    $('#chgCancelEdit').hidden = true;
+    renderIcons();
+  }
+
+  function submitItem(e) {
+    e.preventDefault();
+    const price = parseAmount($('#chgPrice').value);
+    if (!(price > 0)) { toast('Ingresá el precio del producto.'); $('#chgPrice').focus(); return; }
+    const it = {
+      id: editingId || uid(),
+      icon: selIcon,
+      name: $('#chgName').value.trim() || iconOf(selIcon).label,
+      price,
+      qty: Math.min(99, Math.max(1, parseInt($('#chgQty').value, 10) || 1)),
+      cur: $('#chgCur').value === 'USD' ? 'USD' : 'ARS',
+      promo: promoFromForm()
+    };
+    if (editingId) {
+      const i = state.items.findIndex((x) => x.id === editingId);
+      if (i >= 0) state.items[i] = it; else state.items.push(it);
+    } else {
+      state.items.push(it);
+    }
+    save();
+    resetForm();
+    render();
+    $('#chgName').focus();
+  }
+
+  function startEdit(id) {
+    const it = state.items.find((x) => x.id === id);
+    if (!it) return;
+    editingId = id;
+    selIcon = it.icon;
+    $('#chgName').value = it.name;
+    $('#chgPrice').value = formatAmountInput(String(it.price).replace('.', ','));
+    $('#chgQty').value = String(it.qty);
+    $('#chgCur').value = it.cur;
+    promoToForm(it.promo);
+    $('#chgSubmit').textContent = '💾 Guardar cambios';
+    $('#chgCancelEdit').hidden = false;
+    renderIcons();
+    $('#chgForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('#chgName').focus();
+  }
+
+  /* ---------- registrar la compra en los gastos de Mensuales ---------- */
+  async function registerPurchase() {
+    if (!state.items.length) { toast('Primero agregá productos al changuito.'); return; }
+    const b = bridge();
+    if (!b.addExpenses) { toast('No se pudo conectar con Mensuales.'); return; }
+
+    const mode = $('#chgCatMode').value;                       // "auto" o una categoría fija
+    const store = plain($('#chgStore').value);
+    const date = $('#chgDate').value || todayISO();
+    const g = state.general;
+
+    // Agrupa por categoría y moneda, con el descuento general ya aplicado
+    const groups = {};
+    state.items.forEach((it) => {
+      const paid = itemCalc(it).paid * (1 - g / 100);
+      const cat = mode === 'auto' ? iconOf(it.icon).cat : mode;
+      const key = cat + '|' + it.cur;
+      if (!groups[key]) groups[key] = { cat, cur: it.cur, amount: 0, n: 0 };
+      groups[key].amount += paid;
+      groups[key].n += 1;
+    });
+    const label = store ? ' - ' + store : '';
+    const expenses = Object.values(groups)
+      .map((x) => ({
+        description: `Changui${label} (${x.n} ${x.n === 1 ? 'producto' : 'productos'})`,
+        category: x.cat,
+        amount: round2(x.amount),
+        currency: x.cur
+      }))
+      .filter((x) => x.amount > 0);
+    if (!expenses.length) { toast('El total de la compra es cero.'); return; }
+
+    const resumen = expenses.map((x) => `• ${x.category}: ${fmt(x.amount, x.currency)}`).join('\n');
+    if (!confirm(`Se van a cargar ${expenses.length} ${expenses.length === 1 ? 'gasto' : 'gastos'} en ${monthName(date.slice(0, 7))}:\n\n${resumen}\n\n¿Confirmás?`)) return;
+
+    let res = false;
+    try { res = await b.addExpenses({ date, expenses }); } catch (e) { res = false; }
+    if (!res) { toast('No se pudo registrar la compra. Revisá tu conexión e intentá de nuevo.'); return; }
+
+    // Guarda la compra en el historial local (para el resumen "producto que más pesó")
+    state.purchases.unshift({
+      id: uid(), date, store,
+      items: state.items.map((it) => ({
+        name: it.name, icon: it.icon, cur: it.cur,
+        paid: round2(itemCalc(it).paid * (1 - g / 100))
+      }))
+    });
+    state.purchases = state.purchases.slice(0, 60);
+    state.items = [];
+    state.general = 0;
+    save();
+    $('#chgStore').value = '';
+    resetForm();
+    render();
+    toast(`Listo, la compra se sumó a tus gastos de ${monthName(date.slice(0, 7))}.`);
+  }
+
+  /* ---------- exportar PDF (mismo diseño y colores que los PDF de Mensuales) ---------- */
+  function exportPDF() {
+    const J = window.jspdf && window.jspdf.jsPDF;
+    if (!J) { toast('No se pudo cargar el generador de PDF. Revisá tu conexión.'); return; }
+    if (!state.items.length) { toast('Primero agregá productos al changuito.'); return; }
+
+    // Paleta del modo activo (si el puente no está, usa la clara)
+    let theme;
+    try { theme = bridge().getPdfTheme(); } catch (e) { theme = null; }
+    if (!theme) theme = {
+      pink: [234, 91, 142], dark: [82, 22, 42], light: [253, 232, 238], headerBg: [255, 174, 195],
+      cardBorder: [246, 214, 223], lineDivider: [246, 214, 223], pageBg: null, footerColor: [125, 80, 98]
+    };
+    const isBlack = document.body.classList.contains('black-mode');
+
+    const doc = new J({ unit: 'mm', format: 'a4' });
+    const T = totals();
+    const store = plain($('#chgStore').value);
+    const paintPage = () => { if (theme.pageBg) { doc.setFillColor(...theme.pageBg); doc.rect(0, 0, 210, 297, 'F'); } };
+    const newPage = () => { doc.addPage(); paintPage(); return 20; };
+    const heart = (x, yy, s) => {
+      const r = s / 4;
+      doc.setFillColor(...theme.pink);
+      doc.circle(x + r, yy + r, r, 'F'); doc.circle(x + 3 * r, yy + r, r, 'F');
+      doc.triangle(x, yy + r * 1.3, x + 4 * r, yy + r * 1.3, x + 2 * r, yy + 4 * r, 'F');
+    };
+
+    paintPage();
+
+    // Encabezado
+    doc.setFillColor(...theme.headerBg);
+    doc.roundedRect(15, 15, 180, 28, 4, 4, 'F');
+    doc.setTextColor(...theme.dark); doc.setFont('helvetica', 'bold'); doc.setFontSize(17);
+    doc.text('CHANGUI: CALCULA TU COMPRA', 21, 25);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    doc.text('Detalle del changuito - ' + new Date().toLocaleDateString('es-AR') + (store ? ' - ' + store : ''), 21, 31);
+
+    // Tarjetas
+    const cards = [
+      ['TOTAL EN PESOS', fmt(T.t.ARS.total, 'ARS')],
+      ['TOTAL EN DOLARES', fmt(T.t.USD.total, 'USD')],
+      ['TODO EN PESOS', T.hasUSD ? (T.rate ? fmt(T.eqTotal, 'ARS') : 'Sin cotizacion') : fmt(T.t.ARS.total, 'ARS')],
+      ['TE AHORRASTE', fmt(T.eqSaved, 'ARS')]
+    ];
+    cards.forEach((card, i) => {
+      const x = 15 + i * 45;
+      doc.setDrawColor(...theme.cardBorder);
+      doc.roundedRect(x, 49, 41, 25, 3, 3, 'S');
+      doc.setTextColor(...theme.pink); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      doc.text(card[0], x + 3, 57);
+      doc.setTextColor(...theme.dark); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+      doc.text(card[1], x + 3, 65);
+    });
+
+    // Tabla de productos
+    let y = 84;
+    const tableHeader = () => {
+      if (isBlack) doc.setFillColor(30, 30, 30); else doc.setFillColor(...theme.pink);
+      doc.rect(15, y, 180, 8, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+      doc.text('PRODUCTO', 18, y + 5);
+      doc.text('CANT.', 92, y + 5);
+      doc.text('PRECIO UNIT.', 106, y + 5);
+      doc.text('PROMO', 136, y + 5);
+      doc.text('SUBTOTAL', 162, y + 5);
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+    };
+    tableHeader();
+
+    state.items.forEach((it) => {
+      if (y > 255) { y = newPage(); tableHeader(); }
+      const c = itemCalc(it);
+      doc.setTextColor(...theme.dark); doc.setFontSize(7);
+      doc.text((plain(it.name) || plain(iconOf(it.icon).label)).slice(0, 40), 18, y + 5);
+      doc.text(String(it.qty), 92, y + 5);
+      doc.text(fmt(it.price, it.cur), 106, y + 5);
+      doc.text(promoLabel(it.promo).replace('%', ' %') || '-', 136, y + 5);
+      doc.text(fmt(c.paid, it.cur), 162, y + 5);
+      doc.setDrawColor(...theme.lineDivider);
+      doc.line(15, y + 8, 195, y + 8);
+      y += 9;
+    });
+
+    // Resumen de ahorro
+    y += 10;
+    if (y > 225) y = newPage();
+    doc.setTextColor(...theme.dark); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.text('RESUMEN DE LA COMPRA', 15, y);
+    y += 6;
+    const both = (a, b) => [a > 0.005 ? fmt(a, 'ARS') : '', b > 0.005 ? fmt(b, 'USD') : ''].filter(Boolean).join(' + ') || fmt(0, 'ARS');
+    const lines = [
+      ['Ahorro por promociones', both(T.t.ARS.promo, T.t.USD.promo)],
+      [`Descuento general (${String(state.general).replace('.', ',')} %)`, both(T.t.ARS.general, T.t.USD.general)],
+      ['Total ahorrado', both(T.t.ARS.saved, T.t.USD.saved)],
+      ['Total a pagar', both(T.t.ARS.total, T.t.USD.total)]
+    ];
+    if (T.hasUSD && T.rate) lines.push(['Dolar blue usado', fmt(T.rate, 'ARS')]);
+    const boxH = 10 + lines.length * 6;
+    doc.setFillColor(...theme.light); doc.setDrawColor(...theme.cardBorder);
+    doc.roundedRect(15, y, 180, boxH, 3, 3, 'FD');
+    lines.forEach((l, i) => {
+      const yy = y + 8 + i * 6;
+      const strong = i >= 2 && i <= 3;
+      doc.setFont('helvetica', strong ? 'bold' : 'normal'); doc.setFontSize(7.5);
+      doc.setTextColor(...(strong ? theme.pink : theme.dark));
+      doc.text(l[0], 21, yy);
+      doc.text(l[1], 189, yy, { align: 'right' });
+    });
+
+    // Pie de cada página: "Creado by Flor Bagnis" + corazón + número de página
+    const n = doc.getNumberOfPages();
+    for (let i = 1; i <= n; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...theme.footerColor);
+      const txt = 'Creado by Flor Bagnis';
+      const tw = doc.getTextWidth(txt);
+      const x = (210 - tw - 6) / 2;
+      doc.text(txt, x, 287);
+      heart(x + tw + 1.5, 283.6, 4);
+      doc.text(`${i} / ${n}`, 195, 287, { align: 'right' });
+    }
+    doc.save('Changui-' + todayISO() + '.pdf');
+  }
+
+  /* ---------- eventos ---------- */
+  $('#chgForm').addEventListener('submit', submitItem);
+  $('#chgCancelEdit').addEventListener('click', resetForm);
+  $('#chgPdfBtn').addEventListener('click', exportPDF);
+  $('#chgRegisterBtn').addEventListener('click', registerPurchase);
+  $('#chgDate').value = todayISO();
+
+  $('#chgToggleBtn').addEventListener('click', (e) => {
+    const body = $('#chgBody');
+    body.hidden = !body.hidden;
+    e.currentTarget.textContent = body.hidden ? '▼ Mostrar Changui' : '▲ Ocultar Changui';
+  });
+
+  $('#chgClearBtn').addEventListener('click', () => {
+    if (!state.items.length) return;
+    if (!confirm('¿Vaciar todo el changuito?')) return;
+    state.items = []; state.general = 0; save(); resetForm(); render();
+  });
+
+  $('#chgPromo').addEventListener('change', (e) => {
+    const custom = e.target.value === 'custom';
+    $('#chgPromoCustomWrap').hidden = !custom;
+    if (custom) $('#chgPromoCustom').focus();
+  });
+
+  // Puntos de miles en vivo en el precio
+  $('#chgPrice').addEventListener('input', (e) => {
+    const el = e.target;
+    const start = el.selectionStart, prevLen = el.value.length;
+    el.value = formatAmountInput(el.value);
+    const pos = Math.max(0, start + (el.value.length - prevLen));
+    el.setSelectionRange(pos, pos);
+  });
+
+  // Descuento general (se recalcula mientras escribís)
+  $('#chgGeneral').addEventListener('input', (e) => {
+    const n = parseFloat(String(e.target.value).replace(',', '.'));
+    state.general = Math.min(100, Math.max(0, Number.isFinite(n) ? n : 0));
+    save();
+    renderTotals();
+    root.querySelectorAll('[data-gen]').forEach((b) => b.classList.toggle('on', Number(b.dataset.gen) === state.general));
+  });
+
+  root.addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-icon]');
+    if (chip) { selIcon = chip.dataset.icon; renderIcons(); return; }
+
+    const gen = e.target.closest('[data-gen]');
+    if (gen) {
+      const v = Number(gen.dataset.gen);
+      state.general = state.general === v ? 0 : v;       // tocar de nuevo lo saca
+      save(); renderCart(); renderTotals();
+      return;
+    }
+
+    const btn = e.target.closest('.chg-item [data-act]');
+    if (!btn) return;
+    const id = btn.closest('.chg-item').dataset.id;
+    if (btn.dataset.act === 'edit') startEdit(id);
+    if (btn.dataset.act === 'del') {
+      state.items = state.items.filter((x) => x.id !== id);
+      if (editingId === id) resetForm();
+      save(); render();
+    }
+  });
+
+  /* ---------- se actualiza sola cuando cambian los gastos, el dólar o el usuario ---------- */
+  let timer;
+  const refresh = () => { clearTimeout(timer); timer = setTimeout(() => { renderTotals(); renderInsight(); }, 250); };
+  const watch = (id, cb) => {
+    const el = document.getElementById(id);
+    if (el) new MutationObserver(cb).observe(el, { childList: true, subtree: true, characterData: true });
+  };
+  watch('expenseTable', refresh);
+  watch('dolarBadge', refresh);
+  watch('userEmail', () => { load(); render(); });
+  document.getElementById('monthPicker')?.addEventListener('change', refresh);
+
+  load();
+  renderIcons();
+  render();
+})();

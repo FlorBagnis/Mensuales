@@ -1,0 +1,247 @@
+/* =========================================================
+   CHANGUI: CALCULÁ TU COMPRA
+   Usa las mismas variables de color que el resto de Mensuales
+   (--card, --line, --text, --muted, --pink-500, --pink-700, --pink-bg, --field),
+   así se adapta solo a modo claro, oscuro, azul y black.
+========================================================= */
+
+#changui { --chg-line: var(--line, rgba(128, 128, 128, .3)); }
+
+/* ---------- resumen inteligente ---------- */
+.chg-insight {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 16px;
+}
+.chg-pill {
+  display: inline-block;
+  padding: 9px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--chg-line);
+  background: var(--pink-bg, rgba(251, 196, 212, .2));
+  color: var(--text, inherit);
+  font-size: .85rem;
+  line-height: 1.4;
+}
+
+/* ---------- distribución ---------- */
+.chg-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .chg-layout { grid-template-columns: 1fr; }
+}
+
+.chg-form,
+.chg-main {
+  border: 1px solid var(--chg-line);
+  border-radius: 22px;
+  padding: 18px;
+  background: var(--card, transparent);
+  color: var(--text, inherit);
+  box-sizing: border-box;
+  min-width: 0;
+}
+.chg-h { margin: 0 0 12px; font-size: 1rem; color: var(--pink-700, inherit); }
+.chg-label { font-size: .75rem; font-weight: 800; color: var(--pink-700, inherit); margin-bottom: 6px; }
+
+/* ---------- selector de íconos ---------- */
+.chg-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.chg-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  border-radius: 14px;
+  border: 1px solid var(--chg-line);
+  background: var(--field, transparent);
+  color: var(--text, inherit);
+  cursor: pointer;
+  font: inherit;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.chg-chip span { font-size: 1.4rem; line-height: 1.1; }
+.chg-chip small { font-size: .62rem; text-align: center; opacity: .85; line-height: 1.15; }
+.chg-chip:hover { transform: translateY(-2px); border-color: var(--pink-500, currentColor); }
+.chg-chip.on {
+  border-color: var(--pink-500, currentColor);
+  background: var(--pink-bg, rgba(251, 196, 212, .25));
+  box-shadow: 0 0 0 2px var(--pink-500, currentColor);
+}
+
+/* ---------- campos ---------- */
+.chg-field {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 12px;
+  font-size: .75rem;
+  font-weight: 800;
+  color: var(--pink-700, inherit);
+}
+.chg-field[hidden] { display: none; }
+.chg-field input,
+.chg-field select,
+.chg-gen input,
+.chg-register input,
+.chg-register select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--chg-line);
+  background: var(--field, transparent);
+  color: var(--text, inherit);
+  font: inherit;
+  font-size: .9rem;
+}
+.chg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chg-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.chg-actions [hidden] { display: none; }
+
+/* ---------- changuito ---------- */
+.chg-cart-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.chg-cart-head .chg-h { margin: 0; }
+.chg-list { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 6px; }
+.chg-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--chg-line);
+  background: var(--bg, transparent);
+}
+.chg-ico { font-size: 1.5rem; }
+.chg-info { display: flex; flex-direction: column; min-width: 0; }
+.chg-info strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chg-info small { opacity: .8; }
+.chg-sub { display: flex; flex-direction: column; align-items: flex-end; white-space: nowrap; }
+.chg-old { opacity: .6; font-size: .75rem; }
+.chg-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: .68rem;
+  font-weight: 800;
+  background: var(--pink-bg, rgba(251, 196, 212, .3));
+  color: var(--pink-700, inherit);
+  border: 1px solid var(--chg-line);
+}
+.chg-btns { display: flex; gap: 4px; }
+.chg-btns .pastel-btn,
+.chg-btns .btn { padding: 6px 10px !important; min-width: 0; }
+.chg-empty { text-align: center; padding: 22px 10px; opacity: .75; font-size: .9rem; list-style: none; }
+.chg-empty div { font-size: 2rem; }
+@media (max-width: 520px) {
+  .chg-item { grid-template-columns: auto 1fr auto; }
+  .chg-sub { grid-column: 2; align-items: flex-start; }
+  .chg-btns { grid-row: 1; grid-column: 3; }
+}
+
+/* ---------- descuento general ---------- */
+.chg-gen {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: .78rem;
+  font-weight: 800;
+  color: var(--pink-700, inherit);
+}
+.chg-gen input { width: 90px; }
+.chg-gen-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chg-gen-chips button {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--chg-line);
+  background: var(--field, transparent);
+  color: var(--text, inherit);
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.chg-gen-chips button.on {
+  border-color: var(--pink-500, currentColor);
+  background: var(--pink-bg, rgba(251, 196, 212, .3));
+  box-shadow: 0 0 0 2px var(--pink-500, currentColor);
+}
+
+/* ---------- totales ---------- */
+.chg-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.chg-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--chg-line);
+  background: var(--bg, transparent);
+  min-width: 0;
+}
+.chg-card span { font-size: .65rem; font-weight: 800; letter-spacing: .4px; color: var(--pink-700, inherit); }
+.chg-card strong { font-size: 1.15rem; overflow-wrap: anywhere; }
+.chg-card small { font-size: .72rem; opacity: .8; }
+.chg-card.save { border-color: var(--pink-500, currentColor); }
+
+/* ---------- registrar en Mensuales ---------- */
+.chg-register { border-top: 1px solid var(--chg-line); padding-top: 14px; }
+.chg-reg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.chg-register .chg-field { margin-bottom: 0; }
+.chg-register .pastel-btn { width: 100%; }
+.chg-note { margin: 8px 0 0; font-size: .75rem; opacity: .75; }
+
+/* ---------- OCULTAR MONTOS: puntitos con el color del modo activo ---------- */
+.chg-amt .chg-dots { display: none; }
+body.amounts-hidden .chg-amt,
+body.amounts-hidden .chg-amt * { filter: none !important; text-shadow: none !important; }
+body.amounts-hidden .chg-amt .chg-num { display: none !important; }
+body.amounts-hidden .chg-amt .chg-dots {
+  display: inline !important;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: var(--dots, currentColor);
+}
+
+/* ---------- cartelito ---------- */
+.chg-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 20px);
+  max-width: min(92vw, 460px);
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: var(--text, #333);
+  color: var(--bg, #fff);
+  font-size: .88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 9999;
+}
+.chg-toast.show { opacity: 1; transform: translate(-50%, 0); }
