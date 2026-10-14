@@ -2,7 +2,19 @@
    MENSUALES & GASTOS PRÓXIMOS (SISTEMA UNIFICADO)
    FIREBASE FIRESTORE + TIEMPO REAL + MULTIMONEDA + PWA + CSV
 ========================================================= */
- 
+
+// Función global colgada de window para que el HTML la detecte con el onchange
+window.cambiarOrden = function() {
+  const selectOrden = $("ordenarPor");
+  if (selectOrden) {
+    localStorage.setItem('criterioOrden', selectOrden.value);
+    // Vuelve a renderizar la vista de mensuales para aplicar el orden nuevo
+    if (typeof renderMensuales === 'function') {
+      renderMensuales();
+    }
+  }
+}
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 import {
   getAuth,
