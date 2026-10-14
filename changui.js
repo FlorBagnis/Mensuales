@@ -643,7 +643,7 @@
           <span>${iconOf(it.icon).e} ${esc(it.name)} (${it.qty || 1}x)</span>
           <div style="display: flex; align-items: center; gap: 6px;">
             <b>${money(it.paid, it.cur)}</b>
-            <button class="pastel-btn btn-sm" type="button" data-edit-item-purchase="${p.id}" data-item-idx="${idx}" style="padding: 1px 6px; font-size: 10px;" title="Editar producto">✏️</button>
+            <button class="chg-ico-btn" type="button" data-edit-item-purchase="${p.id}" data-item-idx="${idx}" title="Editar producto">✏️</button>
           </div>
         </div>
       `).join('');
@@ -663,8 +663,8 @@
               <button class="pastel-btn btn-sm" type="button" data-load-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Cargar este changuito en la pantalla">📂 Ver</button>
               <button class="pastel-btn btn-sm" type="button" data-pdf-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="PDF">📄 PDF</button>
               <button class="pastel-btn btn-sm" type="button" data-csv-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="CSV">📊 CSV</button>
-              <button class="pastel-btn btn-sm" type="button" data-edit-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Editar">✏️</button>
-              <button class="btn btn-danger btn-sm" type="button" data-del-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Eliminar">🗑️</button>
+              <button class="chg-ico-btn" type="button" data-edit-purchase="${p.id}" title="Editar">✏️</button>
+              <button class="chg-ico-btn" type="button" data-del-purchase="${p.id}" title="Eliminar">🗑️</button>
             </div>
           </div>
           <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 6px;">
