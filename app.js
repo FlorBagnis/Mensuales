@@ -2546,3 +2546,51 @@ window.PockiBridge = {
 };
 
 
+/* =========================================================
+   PUENTE CON CHANGUI (Calculá tu compra)
+========================================================= */
+window.ChanguiBridge = {
+  getDolar: () => currentDolarBlue,
+
+  getPdfTheme: () => getPdfThemeColors(),
+
+  getCurrentMonth: () => {
+    return $("monthPicker")?.value || currentMonthValue();
+  },
+
+  getMonthExpenses: (mes) => {
+    const monthData = data.months[mes];
+    return monthData ? (monthData.expenses || []) : [];
+  },
+
+  addExpenses: async ({ date, expenses }) => {
+    if (!currentUser) return false;
+    try {
+      const monthKey = date.slice(0, 7);
+      const monthData = ensureMonth(monthKey);
+
+      if (!Array.isArray(monthData.expenses)) {
+        monthData.expenses = [];
+      }
+
+      expenses.forEach(exp => {
+        monthData.expenses.push({
+          id: createId("expense"),
+          date: date,
+          description: exp.description,
+          category: exp.category,
+          amount: Number(exp.amount),
+          currency: exp.currency || "ARS",
+          fromChangui: true
+        });
+      });
+
+      renderMensuales();
+      await saveMonthToFirestore(monthKey);
+      return true;
+    } catch (err) {
+      console.error("Error al registrar gastos desde Changui:", err);
+      return false;
+    }
+  }
+};
