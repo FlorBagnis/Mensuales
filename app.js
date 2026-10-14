@@ -2485,15 +2485,14 @@ window.PockiBridge = {
   },
 
   // Retiro de una meta -> ingreso "Ahorro" en el presupuesto del mes actual
-addWithdrawal: async ({ amount, currency, description, goalId }) => {
-   if (!currentUser || !(amount > 0)) return false;
+  addWithdrawal: async ({ amount, currency, description, goalId }) => {
+    if (!currentUser || !(amount > 0)) return false;
     const isUSD = currency === "USD";
     if (isUSD && !(currentDolarBlue > 0)) return false;
 
     const hoy = hoyAR();
     const month = ensureMonth(hoy.mes);
 
-    // Si el mes tenía un presupuesto cargado sin desglose, se conserva como "base"
     if (month.extraIncomes.length === 0 && Number(month.budget) > 0) {
       month.extraIncomes.push({
         id: createId("base"), isBase: true, date: `${hoy.mes}-01`, category: "Presupuesto Base",
@@ -2501,8 +2500,9 @@ addWithdrawal: async ({ amount, currency, description, goalId }) => {
       });
     }
 
+    const id = createId("pocki");
     month.extraIncomes.push({
-      id: createId("pocki"),
+      id,
       fromPocki: true,
       pockiGoalId: goalId,
       date: hoy.iso,
@@ -2512,11 +2512,35 @@ addWithdrawal: async ({ amount, currency, description, goalId }) => {
       rawAmount: amount,
       currency: isUSD ? "USD" : "ARS"
     });
-   
     month.budget = month.extraIncomes.reduce((s, i) => s + Number(i.amount || 0), 0);
 
     renderMensuales();
     await saveMonthToFirestore(hoy.mes);
+    return { id, month: hoy.mes };
+  },
+
+  // Editar el monto de un retiro desde el Historial de Pocki
+  updateWithdrawal: async ({ month, id, amount }) => {
+    const m = data.months[month];
+    const item = m && Array.isArray(m.extraIncomes) ? m.extraIncomes.find(x => x.id === id) : null;
+    if (!item || !(amount > 0)) return false;
+    const rate = item.currency === "USD" && Number(item.rawAmount) > 0 ? Number(item.amount) / Number(item.rawAmount) : 1;
+    item.rawAmount = amount;
+    item.amount = amount * rate;
+    m.budget = m.extraIncomes.reduce((s, i) => s + Number(i.amount || 0), 0);
+    renderMensuales();
+    await saveMonthToFirestore(month);
+    return true;
+  },
+
+  // Eliminar un retiro desde el Historial de Pocki
+  removeWithdrawal: async ({ month, id }) => {
+    const m = data.months[month];
+    if (!m || !Array.isArray(m.extraIncomes)) return false;
+    m.extraIncomes = m.extraIncomes.filter(x => x.id !== id);
+    m.budget = m.extraIncomes.reduce((s, i) => s + Number(i.amount || 0), 0);
+    renderMensuales();
+    await saveMonthToFirestore(month);
     return true;
   }
 };
