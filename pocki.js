@@ -45,6 +45,9 @@
     const withDots = (int || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     return dec !== undefined ? `${withDots},${dec.slice(0, 2)}` : withDots;
   };
+  // Fecha de hoy en Argentina (yyyy-mm-dd) y formato dd/mm/yyyy
+  const todayISO = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date());
+  const fmtDay = (iso) => { const [y, m, d] = String(iso || '').split('-'); return d ? `${d}/${m}/${y}` : '—'; };
   // Lee el primer número de un texto como "$ 1.234,56"
   const readNum = (txt) => {
     const m = String(txt || '').match(/(\d[\d.]*(?:,\d+)?)/);
@@ -160,6 +163,31 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 4500);
   }
 
+  /* ---------- solapa "Historial" de cada meta ---------- */
+  const openHist = new Set();   // metas con el historial abierto (para que no se cierre al redibujar)
+
+  function histHTML(g) {
+    const list = Array.isArray(g.history) ? g.history.slice().reverse() : [];
+    const rows = list.length ? list.map((h) => `
+        <li class="pocki-hist-row">
+          <span class="pocki-hist-main">
+            <strong>${h.type === 'add' ? '➕ Sumaste' : '➖ Retiraste'}</strong>
+            <small>${fmtDay(h.date)}</small>
+          </span>
+          <span class="pocki-hist-amt">${h.type === 'add' ? '+' : '−'} ${money(h.amount, g.cur)}</span>
+          <span class="pocki-hist-btns">
+            <button class="pastel-btn" type="button" data-act="hedit" data-hid="${h.id}" title="Editar" aria-label="Editar movimiento">✏️</button>
+            <button class="btn btn-outline" type="button" data-act="hdel" data-hid="${h.id}" title="Eliminar" aria-label="Eliminar movimiento">🗑️</button>
+          </span>
+        </li>`).join('')
+      : '<li class="pocki-hist-empty">Todavía no hay movimientos. Se anotan acá cuando sumás o retirás.</li>';
+    return `
+      <details class="pocki-plan pocki-hist" data-gid="${g.id}" ${openHist.has(g.id) ? 'open' : ''}>
+        <summary>Historial (${list.length})</summary>
+        <ul class="pocki-hist-list">${rows}</ul>
+      </details>`;
+  }
+
   /* ---------- dibujo ---------- */
   function goalHTML(g, ctx) {
     const c = calc(g, ctx);
@@ -201,6 +229,7 @@
           <button class="btn btn-outline" type="button" data-act="auto">Automático</button>
         </div>
       </details>
+      ${histHTML(g)}
     </article>`;
   }
 
@@ -350,15 +379,56 @@
   }
 
   /* ---------- retiro -> suma al presupuesto de Mensuales como "Ahorro" ---------- */
-  function sendWithdrawal(g, amount) {
+  function sendWithdrawal(g, amount, mov) {
     const b = window.PockiBridge && window.PockiBridge.addWithdrawal;
     if (!b) return;
     const hidden = document.body.classList.contains('amounts-hidden');
-    Promise.resolve(b({ amount, currency: g.cur, description: 'Retiro de Pocki: ' + g.name }))
-      .then((ok) => toast(ok
-        ? `Se sumó a tu presupuesto como Ahorro${hidden ? '' : ': ' + fmt(amount, g.cur)}`
-        : 'No se pudo sumar el retiro al presupuesto.'))
+    Promise.resolve(b({ amount, currency: g.cur, description: 'Retiro de Pocki: ' + g.name, goalId: g.id }))
+      .then((res) => {
+        if (!res) { toast('No se pudo sumar el retiro al presupuesto.'); return; }
+        if (mov) { mov.mensualId = res.id; mov.month = res.month; save(); }   // queda vinculado para editarlo/borrarlo
+        toast(`Se sumó a tu presupuesto como Ahorro${hidden ? '' : ': ' + fmt(amount, g.cur)}`);
+      })
       .catch(() => toast('No se pudo sumar el retiro al presupuesto.'));
+  }
+
+  /* ---------- editar / eliminar un movimiento del historial ---------- */
+  function historyAction(g, act, hid) {
+    const h = (g.history || []).find((x) => String(x.id) === String(hid));
+    if (!h) return;
+    const bridge = window.PockiBridge || {};
+    const linked = h.type === 'sub' && h.mensualId;
+
+    if (act === 'hdel') {
+      const msg = h.type === 'add'
+        ? `¿Eliminar esta suma de ${fmt(h.amount, g.cur)}? Se descuenta de lo ahorrado.`
+        : `¿Eliminar este retiro de ${fmt(h.amount, g.cur)}? Vuelve a la meta${linked ? ' y se saca del presupuesto de Mensuales' : ''}.`;
+      if (!confirm(msg)) return;
+      g.saved = h.type === 'add' ? Math.max(0, g.saved - h.amount) : g.saved + h.amount;
+      g.history = g.history.filter((x) => x !== h);
+      save();
+      render();
+      if (linked && bridge.removeWithdrawal) Promise.resolve(bridge.removeWithdrawal({ month: h.month, id: h.mensualId })).catch(() => {});
+      toast('Movimiento eliminado.');
+      return;
+    }
+
+    // editar monto
+    const txt = prompt(`Nuevo monto (${g.cur === 'USD' ? 'u$s' : '$'}):`, formatAmountInput(String(h.amount).replace('.', ',')));
+    if (txt === null) return;
+    const n = parseAmount(txt);
+    if (!(n > 0)) { toast('Ingresá un monto válido.'); return; }
+    const diff = n - h.amount;
+    if (h.type === 'add') g.saved = Math.max(0, g.saved + diff);
+    else {
+      if (diff > g.saved) { toast('No alcanza lo ahorrado para ese retiro.'); return; }
+      g.saved -= diff;
+    }
+    h.amount = n;
+    save();
+    render();
+    if (linked && bridge.updateWithdrawal) Promise.resolve(bridge.updateWithdrawal({ month: h.month, id: h.mensualId, amount: n })).catch(() => {});
+    toast('Movimiento actualizado.');
   }
 
   /* ---------- eventos ---------- */
@@ -419,6 +489,7 @@
       return;
     }
     if (act === 'auto') { g.monthly = 0; save(); render(); return; }
+    if (act === 'hedit' || act === 'hdel') { historyAction(g, act, btn.dataset.hid); return; }
 
     const amount = parseAmount(btn.closest('.pocki-add').querySelector('input').value);
     if (act === 'plan') {
@@ -429,6 +500,12 @@
     if (!(amount > 0)) return;
     const before = alertFor(g);
     const removed = act === 'sub' ? Math.min(amount, g.saved) : 0;   // lo que realmente se retira
+    const moved = act === 'add' ? amount : removed;
+    let mov = null;
+    if (moved > 0) {
+      mov = { id: Date.now() + Math.floor(Math.random() * 1000), type: act === 'add' ? 'add' : 'sub', amount: moved, date: todayISO() };
+      (g.history = g.history || []).push(mov);
+    }
     g.saved = act === 'add' ? g.saved + amount : Math.max(0, g.saved - amount);
     save();
     render();
@@ -438,8 +515,16 @@
       const hidden = document.body.classList.contains('amounts-hidden');
       toast(`${g.name}: ${now.msg}${now.amount !== undefined && !hidden ? ' ' + fmt(now.amount, g.cur) : ''}`);
     }
-    if (removed > 0) sendWithdrawal(g, removed);
+    if (removed > 0) sendWithdrawal(g, removed, mov);
   });
+
+  // Recuerda qué historiales están abiertos (el evento "toggle" no sube, por eso se escucha en captura)
+  $('#pockiGoals').addEventListener('toggle', (e) => {
+    const d = e.target;
+    if (!d.matches || !d.matches('details.pocki-hist')) return;
+    const id = Number(d.dataset.gid);
+    if (d.open) openHist.add(id); else openHist.delete(id);
+  }, true);
 
   /* ---------- se actualiza sola cuando cambian el Historial, el dólar o el usuario ---------- */
   let timer;
@@ -451,6 +536,22 @@
   watch('historyTable', refresh);
   watch('dolarBadge', refresh);
   watch('userEmail', () => { load(); render(); });
+
+  /* ---------- lo usa Mensuales: al borrar un retiro "Ahorro", el monto vuelve a la meta ---------- */
+  window.PockiApi = {
+    refund(goalId, amount, extraId) {
+      const g = goals.find((x) => x.id === Number(goalId));
+      if (!g) { toast('La meta de ese retiro ya no existe, así que no hay a dónde devolver el monto.'); return false; }
+      if (!(amount > 0)) return false;
+      if (extraId && Array.isArray(g.history)) g.history = g.history.filter((h) => h.mensualId !== extraId);
+      g.saved += amount;
+      save();
+      render();
+      const hidden = document.body.classList.contains('amounts-hidden');
+      toast(`Volvió a "${g.name}"${hidden ? '' : ': ' + fmt(amount, g.cur)}`);
+      return true;
+    }
+  };
 
   load();
   render();
