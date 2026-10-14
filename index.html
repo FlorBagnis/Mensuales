@@ -432,14 +432,15 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
         
       </div>
 
-      <div class="header-actions" style="margin-top: 12px;">
+     <div class="header-actions" style="margin-top: 12px;">
         <span id="userEmail" class="user-email"></span>
+        <!-- 👇 ACÁ AGREGAMOS EL BOTÓN GENERAL DE REFRESCAR -->
+        <button id="globalRefreshBtn" class="pastel-btn" type="button" title="Refrescar aplicación">🔄 Refrescar</button>
         <a href="https://gastos-proximos.vercel.app/" class="pastel-btn">🌸 Próximos & Deudas</a>
         <a href="#pocki" class="pastel-btn">🐷 Pocki</a>
         <a href="#changui" class="pastel-btn">🛒 Changui</a>
         <button id="logoutBtn" class="btn btn-dark" type="button">Cerrar sesión</button>
       </div>
-    </header>
 
     <div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
      <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
