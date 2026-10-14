@@ -120,6 +120,12 @@
     return { base, paid, saved: base - paid };
   }
 
+  // Obtener costo de envío actual del formulario
+  function getDeliveryCost() {
+    const mode = $('#chgDeliveryMode')?.value || 'presencial';
+    return mode === 'envio' ? parseAmount($('#chgDeliveryCost')?.value) : 0;
+  }
+
   function totals() {
     const t = { ARS: { base: 0, promo: 0 }, USD: { base: 0, promo: 0 } };
     state.items.forEach((it) => {
@@ -134,6 +140,11 @@
       t[cur].total = afterPromo - t[cur].general;
       t[cur].saved = t[cur].promo + t[cur].general;
     });
+
+    // Sumar el costo de envío a los totales en ARS
+    const delivery = getDeliveryCost();
+    t.ARS.total += delivery;
+
     const rate = dolar();
     const hasUSD = t.USD.base > 0;
     const eq = (a, b) => a + (rate ? b * rate : 0);
@@ -174,10 +185,30 @@
 
   function renderCart() {
     const n = state.items.length;
-    $('#chgCount').textContent = n ? `(${n})` : '';
-    $('#chgList').innerHTML = n
-      ? state.items.map(itemHTML).join('')
-      : '<li class="chg-empty"><div>🛒</div><strong>Tu changuito está vacío</strong><br><span>Elegí un ícono, cargá el precio y sumalo.</span></li>';
+    const delivery = getDeliveryCost();
+    
+    let itemsMarkup = '';
+    if (n > 0) {
+      itemsMarkup = state.items.map(itemHTML).join('');
+    }
+
+    // Si hay costo de envío activo, lo agregamos como un ítem visual al final de la lista del changuito
+    if (delivery > 0) {
+      itemsMarkup += `
+        <li class="chg-item" style="border-style: dashed; border-color: var(--pink-700); background: var(--pink-bg, rgba(234,91,142,0.05));">
+          <span class="chg-ico">📦</span>
+          <span class="chg-info">
+            <strong>Envío a domicilio</strong>
+            <small>Costo de logística</small>
+          </span>
+          <span class="chg-sub"><b>${money(delivery, 'ARS')}</b></span>
+          <span class="chg-btns"></span>
+        </li>`;
+    }
+
+    $('#chgCount').textContent = (n > 0 || delivery > 0) ? `(${n + (delivery > 0 ? 1 : 0)})` : '';
+    $('#chgList').innerHTML = itemsMarkup || '<li class="chg-empty"><div>🛒</div><strong>Tu changuito está vacío</strong><br><span>Elegí un ícono, cargá el precio y sumalo.</span></li>';
+    
     const gi = $('#chgGeneral');
     if (gi && document.activeElement !== gi) gi.value = state.general ? String(state.general).replace('.', ',') : '';
     root.querySelectorAll('[data-gen]').forEach((b) => b.classList.toggle('on', Number(b.dataset.gen) === state.general));
@@ -498,6 +529,21 @@
       y += 9;
     });
 
+    // Si hay costo de envío, agregarlo también en el PDF
+    const delivery = getDeliveryCost();
+    if (delivery > 0) {
+      if (y > 255) { y = newPage(); tableHeader(); }
+      doc.setTextColor(...theme.dark); doc.setFontSize(7);
+      doc.text('Envío a domicilio', 18, y + 5);
+      doc.text('1', 92, y + 5);
+      doc.text(fmt(delivery, 'ARS'), 106, y + 5);
+      doc.text('-', 136, y + 5);
+      doc.text(fmt(delivery, 'ARS'), 162, y + 5);
+      doc.setDrawColor(...theme.lineDivider);
+      doc.line(15, y + 8, 195, y + 8);
+      y += 9;
+    }
+
     y += 10;
     if (y > 225) y = newPage();
     doc.setTextColor(...theme.dark); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
@@ -623,11 +669,13 @@
     el.setSelectionRange(pos, pos);
   });
 
-  // Evento para mostrar/ocultar el costo de envío y formatear su valor
+  // Eventos para el selector de envío y su input
   $('#chgDeliveryMode')?.addEventListener('change', (e) => {
     const isEnvio = e.target.value === 'envio';
     const wrap = $('#chgDeliveryCostWrap');
     if (wrap) wrap.hidden = !isEnvio;
+    renderCart();
+    renderTotals();
   });
 
   $('#chgDeliveryCost')?.addEventListener('input', (e) => {
@@ -636,6 +684,8 @@
     el.value = formatAmountInput(el.value);
     const pos = Math.max(0, start + (el.value.length - prevLen));
     el.setSelectionRange(pos, pos);
+    renderCart();
+    renderTotals();
   });
 
   $('#chgGeneral').addEventListener('input', (e) => {
