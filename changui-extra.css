@@ -41,7 +41,7 @@ body.black-mode {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  margin: 0 8px 0 0;
+  margin: 0 0 0 8px;
   padding: 2px 10px;
   border-radius: 999px;
   border: 1px solid var(--cd-line) !important;
@@ -189,10 +189,30 @@ body.black-mode {
   .table-total { font-size: .8rem; }
   .table-total strong { font-size: .95rem; }
 
-  #expenseTable .chg-tog { font-size: .62rem; padding: 1px 8px; margin-right: 5px; }
+  #expenseTable .chg-tog { font-size: .62rem; padding: 1px 8px; margin: 0 0 0 5px; }
   #expenseTable tr.chg-detail-row > td { padding: 0 6px 10px !important; }
   .chg-detail { padding: 6px 10px; }
   .chg-d-line { font-size: .74rem; gap: 6px; }
   .chg-d-sub { font-size: .66rem; }
   .chg-d-title { font-size: .62rem; }
 }
+
+/* ---------- productos del detalle: ✏️ y ✖ ---------- */
+#expenseTable .chg-d-del {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 2px 5px !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--cd-muted) !important;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: transform .15s ease, color .15s ease;
+}
+#expenseTable .chg-d-del:hover { transform: scale(1.25); color: var(--cd-accent) !important; }
+.chg-d-form label[hidden] { display: none; }
+.chg-d-full { grid-column: 1 / -1; }
