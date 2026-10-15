@@ -799,9 +799,11 @@
     return `<div class="chg-detail"${attrs}><div class="chg-d-title">🛒 ¿QUÉ SE COMPRÓ?</div>${body}${note}</div>`;
   }
 
-  function enhanceTable() {
+  function enhanceTable(force) {
     const tb = document.getElementById('expenseTable');
     if (!tb) return;
+    // Si hay un producto abierto para editar, no se rearma la tabla (si no, el editor se cierra solo)
+    if (force !== true && tb.querySelector('.chg-d-form')) return;
     if (tableObs) tableObs.disconnect();
     try {
       tb.querySelectorAll('.chg-detail-row').forEach((r) => r.remove());
@@ -924,7 +926,7 @@
   // Guarda el detalle en el gasto. El total se recalcula solo si todos los productos tienen precio.
   async function applyDetalle(box, exp, detalle, oldList, okMsg) {
     const b = bridge();
-    if (!b.updateExpense) { toast('Falta actualizar app.js para poder editar.'); return; }
+    if (!b.updateExpense) { toast('Falta actualizar app.js para poder editar.'); return false; }
     const month = box.dataset.month;
 
     const allPriced = detalle.every((x) => Number(x.paid) > 0);
@@ -955,10 +957,11 @@
       openKeys.delete(newKey);
       if (wasOpen) openKeys.add(oldKey);
       toast('No se pudo guardar el cambio.');
-      return;
+      return false;
     }
     syncPurchaseFromExpense(oldDesc, newDesc, exp.date, detalle, amount);
     toast(okMsg);
+    return true;
   }
 
   async function saveItemEdit(btn) {
@@ -996,7 +999,8 @@
     const factor = oldCalc > 0 && Number(old.paid) > 0 ? Number(old.paid) / oldCalc : 1;
     nu.paid = round2(itemCalc(nu).paid * factor);
 
-    await applyDetalle(box, exp, list.map((x, i) => (i === idx ? nu : x)), list, 'Listo, actualicé el producto.');
+    const saved = await applyDetalle(box, exp, list.map((x, i) => (i === idx ? nu : x)), list, 'Listo, actualicé el producto.');
+    if (saved) enhanceTable(true);   // se cierra el editor y se redibuja el detalle
   }
 
   async function deleteItem(btn) {
@@ -1007,7 +1011,8 @@
     if (!list || !list[idx]) return;
     if (list.length <= 1) { toast('Es el único producto. Para borrar el gasto completo usá la ✖ de la fila.'); return; }
     if (!confirm(`¿Quitar "${list[idx].name}" de este gasto?`)) return;
-    await applyDetalle(box, exp, list.filter((_, i) => i !== idx), list, 'Producto quitado.');
+    const removed = await applyDetalle(box, exp, list.filter((_, i) => i !== idx), list, 'Producto quitado.');
+    if (removed) enhanceTable(true);
   }
 
   document.addEventListener('click', (e) => {
@@ -1025,7 +1030,7 @@
     if (ed) { openItemEditor(ed); return; }
     const del = e.target.closest('#expenseTable .chg-d-del');
     if (del) { deleteItem(del); return; }
-    if (e.target.closest('#expenseTable .chg-d-cancel')) { enhanceTable(); return; }
+    if (e.target.closest('#expenseTable .chg-d-cancel')) { enhanceTable(true); return; }
     const sv = e.target.closest('#expenseTable .chg-d-save');
     if (sv) saveItemEdit(sv);
   });
