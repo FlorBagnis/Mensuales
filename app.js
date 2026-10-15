@@ -1557,6 +1557,15 @@ function generateMensualesPDF() {
   const month = $("monthPicker")?.value || currentMonthValue();
   const current = ensureMonth(month);
 
+  // Helpers para el detalle de Changui (kilos / unidades)
+  const nf3 = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 3 });
+  const kgLabel = (kg) => {
+    kg = Number(kg) || 0;
+    return kg < 1 ? `${Math.round(kg * 1000)} g` : `${nf3.format(kg)} kg`;
+  };
+  // jsPDF (helvetica) no soporta emojis: se quitan del texto
+  const limpiarTxt = (s) => String(s || "").replace(/[^\x20-\x7E\u00C0-\u00FF]/g, "").replace(/\s+/g, " ").trim();
+
   let totalARS = 0;
   let totalUSD = 0;
   current.expenses.forEach(e => {
@@ -1604,6 +1613,15 @@ function generateMensualesPDF() {
 
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
   const theme = getPdfThemeColors();
+
+  const nuevaPagina = () => {
+    pdf.addPage();
+    if (theme.pageBg) {
+      pdf.setFillColor(...theme.pageBg);
+      pdf.rect(0, 0, 210, 297, "F");
+    }
+    return 20;
+  };
 
   if (theme.pageBg) {
     pdf.setFillColor(...theme.pageBg);
@@ -1685,42 +1703,71 @@ function generateMensualesPDF() {
   pdf.setFont("helvetica", "normal");
 
   current.expenses.slice().sort((a, b) => String(a.date || "").localeCompare(String(b.date || ""))).forEach(expense => {
-    if (y > 230) {
-      pdf.addPage();
-      if (theme.pageBg) {
-        pdf.setFillColor(...theme.pageBg);
-        pdf.rect(0, 0, 210, 297, "F");
-      }
-      y = 20;
-    }
+    if (y > 230) y = nuevaPagina();
 
     const curr = expense.currency || "ARS";
-    const cleanDescription = String(expense.description || "").replace("🔄 ", "").trim();
+    const detalle = Array.isArray(expense.detalle) ? expense.detalle : [];
+    const tieneDetalle = detalle.length > 0;
 
+    let cleanDescription = String(expense.description || "").replace("🔄 ", "").trim();
+    // Si hay detalle, la lista de productos va debajo: la descripción queda corta
+    if (tieneDetalle) {
+      cleanDescription = cleanDescription.replace(/\s*\([^()]*\)\s*$/, "").trim() || cleanDescription;
+    }
+
+    // Fila principal del gasto
+    pdf.setFont("helvetica", "normal");
     pdf.setTextColor(...theme.dark);
     pdf.setFontSize(7);
     pdf.text(formatDate(expense.date), 18, y + 5);
-    pdf.text(cleanDescription.slice(0, 35), 45, y + 5);
+    pdf.text(limpiarTxt(cleanDescription).slice(0, 35), 45, y + 5);
     pdf.text(String(expense.category).slice(0, 18), 120, y + 5);
     pdf.text(money(expense.amount, curr), 165, y + 5);
 
+    if (!tieneDetalle) {
+      pdf.setDrawColor(...theme.lineDivider);
+      pdf.line(15, y + 8, 195, y + 8);
+      y += 10;
+      return;
+    }
+
+    // Detalle de productos: cantidad (kg / unidades), precio y subtotal
+    let sy = y + 9.5;
+    detalle.forEach(it => {
+      if (sy > 272) {
+        y = nuevaPagina();
+        sy = y + 5;
+      }
+      const icur = it.cur || curr;
+      const paid = Number(it.paid) || 0;
+      const units = it.byKg ? (Number(it.kg) || 1) : (Number(it.qty) || 1);
+      const cantTxt = it.byKg ? kgLabel(it.kg) : `${Number(it.qty) || 1} u`;
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(6.5);
+      pdf.setTextColor(...theme.footerColor);
+      pdf.text("- " + (limpiarTxt(it.name) || "Producto").slice(0, 38), 50, sy);
+      pdf.text(cantTxt, 120, sy);
+      if (paid > 0) {
+        pdf.text(money(paid / units, icur) + (it.byKg ? " /kg" : ""), 138, sy);
+        pdf.text(money(paid, icur), 165, sy);
+      } else {
+        pdf.text("Sin precio", 138, sy);
+        pdf.text("-", 165, sy);
+      }
+      sy += 4.5;
+    });
+
     pdf.setDrawColor(...theme.lineDivider);
-    pdf.line(15, y + 8, 195, y + 8);
-    y += 10;
+    pdf.line(15, sy - 2, 195, sy - 2);
+    y = sy + 1;
   });
 
   // Sección de gastos recurrentes en el PDF
   y = recDibujarEnPDF(pdf, theme, y + 8);
 
   y += 12;
-  if (y > 220) {
-    pdf.addPage();
-    if (theme.pageBg) {
-      pdf.setFillColor(...theme.pageBg);
-      pdf.rect(0, 0, 210, 297, "F");
-    }
-    y = 25;
-  }
+  if (y > 220) y = nuevaPagina() + 5;
 
   const categoryTotals = {};
   current.expenses.forEach(e => {
@@ -1762,9 +1809,16 @@ function generateMensualesPDF() {
   const splitTrend = pdf.splitTextToSize(trendSummary, 165);
   pdf.text(splitTrend, 21, y + 14);
 
-  pdf.setFontSize(7);
-  pdf.setTextColor(...theme.footerColor);
-  pdf.text("MENSUALES - Creado por Flor Bagnis", 15, 287);
+  // Pie de página en todas las hojas
+  const totalPages = pdf.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    pdf.setPage(i);
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(...theme.footerColor);
+    pdf.text("MENSUALES - Creado por Flor Bagnis", 15, 287);
+    pdf.text(`${i} / ${totalPages}`, 195, 287, { align: "right" });
+  }
 
   pdf.save(`MENSUALES-${month}.pdf`);
 }
@@ -2605,7 +2659,7 @@ window.ChanguiBridge = {
     await saveMonthToFirestore(month);
     return true;
   },
-   
+
   getCurrentMonth: () => {
     return $("monthPicker")?.value || currentMonthValue();
   },
@@ -2666,4 +2720,3 @@ if (aboutBtn && aboutDialog) {
 if (closeAboutBtn && aboutDialog) {
   closeAboutBtn.onclick = () => aboutDialog.close();
 }
-
