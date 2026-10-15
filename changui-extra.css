@@ -152,3 +152,47 @@ body.black-mode {
   cursor: pointer;
 }
 #expenseTable .chg-d-btns .chg-d-save { background: var(--cd-accent) !important; color: var(--cd-bg) !important; }
+
+/* =========================================================
+   CELULAR · tabla "Gastos del mes" más compacta
+   Letras, botones y espacios al mismo tamaño que el resto.
+========================================================= */
+@media (max-width: 640px) {
+  .table-container-collapsible table {
+    width: 100%;
+    min-width: 0 !important;
+    table-layout: auto;
+  }
+  .table-container-collapsible th {
+    font-size: .62rem !important;
+    padding: 8px 6px !important;
+    letter-spacing: .2px;
+  }
+  .table-container-collapsible td {
+    font-size: .74rem !important;
+    padding: 8px 6px !important;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    line-height: 1.3;
+  }
+  .table-container-collapsible td .category {
+    font-size: .62rem !important;
+    padding: 2px 7px !important;
+    white-space: nowrap;
+  }
+  .table-container-collapsible td.amount { white-space: nowrap; font-size: .74rem !important; }
+  .table-container-collapsible td button {
+    padding: 3px 6px !important;
+    font-size: .8rem !important;
+    min-width: 0 !important;
+  }
+  .table-total { font-size: .8rem; }
+  .table-total strong { font-size: .95rem; }
+
+  #expenseTable .chg-tog { font-size: .62rem; padding: 1px 8px; margin-right: 5px; }
+  #expenseTable tr.chg-detail-row > td { padding: 0 6px 10px !important; }
+  .chg-detail { padding: 6px 10px; }
+  .chg-d-line { font-size: .74rem; gap: 6px; }
+  .chg-d-sub { font-size: .66rem; }
+  .chg-d-title { font-size: .62rem; }
+}
