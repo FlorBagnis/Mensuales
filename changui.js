@@ -116,6 +116,36 @@
   // Si el changuito viene del Historial ("📂 Ver"), se recuerda de dónde, así al registrar no se duplica
   let loadedFrom = null;
   let registering = false;
+  // El chango abierto también se guarda en el navegador, así no se pierde si la app se refresca
+  const setLoaded = (v) => { loadedFrom = v || null; state.loadedFrom = v || null; };
+
+  // "Firma" de un chango: misma fecha, local, modalidad y productos = es el mismo chango
+  const purchaseSig = (p) => [
+    p.date || '', String(p.store || '').toLowerCase().trim(), p.deliveryMode || 'presencial', round2(p.deliveryCost || 0),
+    (p.items || []).map((i) => String(i.name || '').toLowerCase().trim() + '|' + (i.byKg ? Number(i.kg) : Number(i.qty || 1)) + '|' + round2(i.paid)).sort().join(';')
+  ].join('#');
+
+  // Saca de la lista local los changos repetidos (queda el que ya está enlazado a su gasto)
+  function dedupeLocal() {
+    const groups = new Map();
+    (state.purchases || []).forEach((p) => {
+      if (!p || !(p.items || []).length) return;
+      const k = purchaseSig(p);
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(p);
+    });
+    const drop = new Set();
+    groups.forEach((arr) => {
+      if (arr.length < 2) return;
+      const linked = arr.filter((p) => !p.draft && Array.isArray(p.expIds) && p.expIds.length);
+      if (linked.length) arr.filter((p) => !linked.includes(p)).forEach((p) => drop.add(p));
+      else arr.slice(1).forEach((p) => drop.add(p));
+    });
+    if (!drop.size) return false;
+    state.purchases = state.purchases.filter((p) => !drop.has(p));
+    try { localStorage.setItem(userKey(), JSON.stringify(state)); } catch (e) { /* sin guardado */ }
+    return true;
+  }
 
   function load() {
     try {
@@ -125,7 +155,7 @@
     if (!Array.isArray(state.items)) state.items = [];
     if (!Array.isArray(state.purchases)) state.purchases = [];
     state.general = Math.min(100, Math.max(0, Number(state.general) || 0));
-    loadedFrom = null;
+    loadedFrom = state.loadedFrom && typeof state.loadedFrom === 'object' && Array.isArray(state.loadedFrom.expIds) ? state.loadedFrom : null;
 
     // Limpieza: copias duplicadas que creaba el sincronizador viejo (tienen "desc" y ids de gasto como texto).
     // El gasto real sigue en Gastos del mes y se ve igual en el Historial.
@@ -134,6 +164,7 @@
     if (state.purchases.length !== before) {
       try { localStorage.setItem(userKey(), JSON.stringify(state)); } catch (e) { /* sin guardado */ }
     }
+    dedupeLocal();
   }
   function save() {
     try { localStorage.setItem(userKey(), JSON.stringify(state)); } catch (e) { /* sin guardado */ }
@@ -635,7 +666,7 @@
         if (lf.draft || replaced || !lf.expIds.length) state.purchases = state.purchases.filter((p) => p.id !== lf.id);
       }
 
-      state.purchases.unshift({
+      const newP = {
         id: uid(), date, store, deliveryMode, deliveryCost,
         expIds: newIds, expMonth: date.slice(0, 7),
         expenses: details,
@@ -644,11 +675,24 @@
           byKg: !!it.byKg, kg: it.kg || 0, promo: it.promo,
           paid: round2(itemCalc(it).paid * (1 - g / 100))
         }))
-      });
+      };
+
+      // Si ya existe un chango IGUAL (mismo día, local y productos), no se crea otro: se reemplaza
+      const sigNew = purchaseSig(newP);
+      const dupes = state.purchases.filter((p) => purchaseSig(p) === sigNew);
+      for (const d of dupes) {
+        const ids = (Array.isArray(d.expIds) ? d.expIds : []).filter((i) => !newIds.includes(i));
+        if (ids.length && b.removeExpenses) {
+          try { await b.removeExpenses({ month: d.expMonth || String(d.date || '').slice(0, 7), ids }); } catch (e) { /* sigue */ }
+        }
+      }
+      if (dupes.length) { state.purchases = state.purchases.filter((p) => !dupes.includes(p)); if (!replaced) replaced = true; }
+
+      state.purchases.unshift(newP);
       state.purchases = state.purchases.slice(0, 60);
       state.items = [];
       state.general = 0;
-      loadedFrom = null;
+      setLoaded(null);
       save();
       $('#chgStore').value = '';
       if ($('#chgDeliveryCost')) $('#chgDeliveryCost').value = '';
@@ -1264,6 +1308,7 @@
     const container = $('#chgHistoryListContainer');
     if (!container) return;
     fixThousands();
+    dedupeLocal();
 
     const b = bridge();
     const currentMonth = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
@@ -1458,13 +1503,13 @@
     }
 
     // Se recuerda de dónde vino para actualizar esa compra en vez de duplicarla
-    loadedFrom = {
+    setLoaded({
       id: purchase.id,
       draft: !!purchase.draft,
       expIds,
       month,
       date: purchase.date || todayISO()
-    };
+    });
 
     save();
     render();
@@ -1488,7 +1533,7 @@
   $('#chgClearBtn').addEventListener('click', () => {
     if (!state.items.length) return;
     if (!confirm('¿Vaciar todo el changuito?')) return;
-    state.items = []; state.general = 0; loadedFrom = null; save(); resetForm(); render();
+    state.items = []; state.general = 0; setLoaded(null); save(); resetForm(); render();
   });
 
   $('#chgPromo').addEventListener('change', (e) => {
