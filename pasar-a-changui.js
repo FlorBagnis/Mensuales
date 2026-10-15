@@ -627,7 +627,7 @@
     box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, 15);
 
-  // 1) 🛒 en cada fila de la tabla
+  // 1) 🛒 en cada fila de la tabla (ahora es un SVG que toma el color del tema, igual que ✏️ y ✖)
   const expTable = $('expenseTable');
   if (expTable) {
     const decorateRows = () => {
@@ -641,10 +641,9 @@
         const esChg = !!exp && /^changui\b/i.test(String(exp.description || '').trim());
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'chg-mv-row';
+        b.className = 'chg-mv-row cart-btn';
         b.title = esChg ? 'Editar productos de Changui' : 'Pasar a Changui';
-        b.textContent = '🛒';
-        b.style.cssText = 'background:transparent;border:none;box-shadow:none;cursor:pointer;font-size:15px;padding:4px 6px;';
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L21 8H6"/></svg>';
         edit.before(b);
       });
     };
@@ -747,42 +746,42 @@
         return;
       }
 
-   
-      // 🗑️ Eliminar: usa el mismo borrado (con confirmación) de «Gastos del mes»
-      const del = e.target.closest('[data-mv-del]');
-      if (del) {
-        const delBtn = document.querySelector(`#expenseTable .delete-btn[data-id="${CSS.escape(del.dataset.mvDel)}"]`);
-        if (!delBtn) { alert('No encuentro este gasto en «Gastos del mes». Sacá la búsqueda o el filtro de categoría y probá de nuevo.'); return; }
-        delBtn.click();
-        setTimeout(refreshHistory, 500);
-        return;
-      }
 
-      const save = e.target.closest('[data-mv-save]');
-      if (!save) return;
-      const card = save.closest('.chg-history-card');
-      const id = save.dataset.mvSave;
-      const month = currentMonth();
-      const exp = findExp(month, id);
-      if (!exp || !card) return;
+      // 🗑️ Eliminar: usa el mismo borrado (con confirmación) de «Gastos del mes»
+      const del = e.target.closest('[data-mv-del]');
+      if (del) {
+        const delBtn = document.querySelector(`#expenseTable .delete-btn[data-id="${CSS.escape(del.dataset.mvDel)}"]`);
+        if (!delBtn) { alert('No encuentro este gasto en «Gastos del mes». Sacá la búsqueda o el filtro de categoría y probá de nuevo.'); return; }
+        delBtn.click();
+        setTimeout(refreshHistory, 500);
+        return;
+      }
 
-      const newStore = card.querySelector('.mv-store').value.trim().replace(/[()]/g, '').slice(0, 30);
-      const newDate = card.querySelector('.mv-date').value || exp.date;
-      const before = { date: exp.date, description: exp.description };
+      const save = e.target.closest('[data-mv-save]');
+      if (!save) return;
+      const card = save.closest('.chg-history-card');
+      const id = save.dataset.mvSave;
+      const month = currentMonth();
+      const exp = findExp(month, id);
+      if (!exp || !card) return;
 
-      exp.date = newDate;
-      const parts = String(exp.description || '').match(/^changui(?:\s+en\s+[^(]*?)?\s*(\([^()]*\))?\s*$/i);
-      if (parts) exp.description = `Changui${newStore ? ' en ' + newStore : ''}${parts[1] ? ' ' + parts[1] : ''}`;
+      const newStore = card.querySelector('.mv-store').value.trim().replace(/[()]/g, '').slice(0, 30);
+      const newDate = card.querySelector('.mv-date').value || exp.date;
+      const before = { date: exp.date, description: exp.description };
 
-      let ok = false;
-      try { ok = await bridge().updateExpense({ month, id, amount: exp.amount, detalle: exp.detalle }); } catch (err) { ok = false; }
-      if (!ok) {
-        Object.assign(exp, before);
-        alert('No se pudo guardar el cambio.');
-        return;
-      }
-      syncLocal(before.description, exp.description, exp.date, exp.detalle, exp.amount);
-      refreshHistory();
-    });
-  }
+      exp.date = newDate;
+      const parts = String(exp.description || '').match(/^changui(?:\s+en\s+[^(]*?)?\s*(\([^()]*\))?\s*$/i);
+      if (parts) exp.description = `Changui${newStore ? ' en ' + newStore : ''}${parts[1] ? ' ' + parts[1] : ''}`;
+
+      let ok = false;
+      try { ok = await bridge().updateExpense({ month, id, amount: exp.amount, detalle: exp.detalle }); } catch (err) { ok = false; }
+      if (!ok) {
+        Object.assign(exp, before);
+        alert('No se pudo guardar el cambio.');
+        return;
+      }
+      syncLocal(before.description, exp.description, exp.date, exp.detalle, exp.amount);
+      refreshHistory();
+    });
+  }
 })();
