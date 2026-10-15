@@ -1,0 +1,1349 @@
+/* =========================================================
+   CHANGUI: CALCULÁ TU COMPRA · módulo de Mensuales
+   Creado by Flor Bagnis 💗
+   + Compra por kilo (verduras, frutas, queso y fiambres, carne, pollo, pescado)
+   + Solapa "¿Qué se compró?" en Gastos del mes
+========================================================= */
+(() => {
+  'use strict';
+
+  const root = document.getElementById('changui');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  /* ---------- utilidades ---------- */
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const nf2 = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const nf3 = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 3 });
+  const fmt = (n, cur) => (cur === 'USD' ? 'u$s ' : '$ ') + nf2.format(Number(n) || 0);
+  const money = (n, cur) => `<span class="chg-amt"><span class="chg-num">${fmt(n, cur)}</span><span class="chg-dots" aria-hidden="true">••••••</span></span>`;
+  const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  const parseAmount = (v) => {
+    const s = String(v || '').trim().replace(/\s/g, '');
+    if (!s) return 0;
+    const n = parseFloat(s.replace(/\./g, '').replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  // Peso: acepta 0,5 · 0.5 · 1,25 · 1.500
+  const parseWeight = (v) => {
+    let s = String(v || '').trim().replace(/\s/g, '');
+    if (!s) return 0;
+    if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+    const n = parseFloat(s);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  };
+
+  const kgLabel = (kg) => {
+    kg = Number(kg) || 0;
+    return kg < 1 ? `${Math.round(kg * 1000)} g` : `${nf3.format(kg)} kg`;
+  };
+  const qtyText = (it) => (it.byKg ? kgLabel(it.kg) : `${it.qty || 1}x`);
+
+  const formatAmountInput = (val) => {
+    let clean = String(val ?? '').replace(/[^\d,]/g, '');
+    const parts = clean.split(',');
+    if (parts.length > 2) clean = parts[0] + ',' + parts.slice(1).join('');
+    const [int, dec] = clean.split(',');
+    const withDots = (int || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return dec !== undefined ? `${withDots},${dec.slice(0, 2)}` : withDots;
+  };
+
+  const todayISO = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date());
+  const fmtDay = (iso) => { const [y, m, d] = String(iso || '').split('-'); return d ? `${d}/${m}/${y}` : '—'; };
+  const monthName = (k) => {
+    const [y, m] = String(k).split('-').map(Number);
+    if (!y || !m) return '';
+    return new Date(y, m - 1, 1).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' }).replace(/^./, (c) => c.toUpperCase());
+  };
+  const plain = (s) => String(s).replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/[^\x20-\xFF]/g, '').replace(/\s+/g, ' ').trim();
+
+  const bridge = () => window.ChanguiBridge || {};
+  const dolar = () => {
+    try { const v = bridge().getDolar && bridge().getDolar(); return typeof v === 'number' && v > 0 ? v : null; } catch (e) { return null; }
+  };
+
+  const ICONS = [
+    // Alimentos y bebidas
+    { k: 'leche', e: '🥛', label: 'Lácteos', cat: 'Alimentos' },
+    { k: 'agua', e: '💧', label: 'Agua', cat: 'Alimentos' },
+    { k: 'bebidas', e: '🥤', label: 'Bebidas', cat: 'Alimentos' },
+    { k: 'carne', e: '🥩', label: 'Carne', cat: 'Alimentos' },
+    { k: 'pescado', e: '🐟', label: 'Pescado', cat: 'Alimentos' },
+    { k: 'pollo', e: '🍗', label: 'Pollo', cat: 'Alimentos' },
+    { k: 'queso', e: '🧀', label: 'Queso y fiambre', cat: 'Alimentos' },
+    { k: 'pan', e: '🍞', label: 'Panadería', cat: 'Alimentos' },
+    { k: 'verdura', e: '🥦', label: 'Verduras', cat: 'Alimentos' },
+    { k: 'fruta', e: '🍎', label: 'Frutas', cat: 'Alimentos' },
+    { k: 'huevos', e: '🥚', label: 'Huevos', cat: 'Alimentos' },
+    { k: 'almacen', e: '🍝', label: 'Almacén', cat: 'Alimentos' },
+    { k: 'snacks', e: '🍫', label: 'Snacks y dulces', cat: 'Alimentos' },
+
+    // Hogar y cotidiano
+    { k: 'limpieza', e: '🧴', label: 'Limpieza', cat: 'Hogar' },
+    { k: 'higiene', e: '🧻', label: 'Higiene', cat: 'Personal' },
+    { k: 'mascotas', e: '🐶', label: 'Mascotas', cat: 'Mascotas' },
+    { k: 'bebes', e: '🍼', label: 'Bebés y niños', cat: 'Hogar' },
+    { k: 'electro', e: '🔌', label: 'Electro', cat: 'Hogar' },
+    { k: 'tecnologia', e: '💻', label: 'Tecnología', cat: 'Hogar' },
+    { k: 'ferreteria', e: '🔨', label: 'Ferretería y arreglos', cat: 'Hogar' },
+
+    // Personal, extras y varios
+    { k: 'zapatillas', e: '👟', label: 'Calzado e indumentaria', cat: 'Personal' },
+    { k: 'farmacia', e: '💊', label: 'Farmacia y salud', cat: 'Salud' },
+    { k: 'regalos', e: '🎁', label: 'Regalos', cat: 'Varios' },
+    { k: 'libreria', e: '📚', label: 'Librería y oficina', cat: 'Varios' },
+    { k: 'jardin', e: '🌸', label: 'Jardín y plantas', cat: 'Hogar' },
+    { k: 'decoracion', e: '🛋️', label: 'Decoración y hogar', cat: 'Hogar' },
+    { k: 'vehiculo', e: '🚗', label: 'Vehículo / Auto', cat: 'Varios' },
+    { k: 'otros', e: '🛒', label: 'Otros', cat: 'Varios' }
+  ];
+  const iconOf = (k) => ICONS.find((i) => i.k === k) || ICONS[ICONS.length - 1];
+
+  // Rubros que se pueden comprar por kilo
+  const KG_KEYS = ['verdura', 'fruta', 'queso', 'carne', 'pollo', 'pescado'];
+
+  const userKey = () => 'changui_v1_' + ((document.getElementById('userEmail')?.textContent || '').trim().toLowerCase() || 'anon');
+  let state = { items: [], general: 0, purchases: [] };
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem(userKey()) || 'null');
+      state = Object.assign({ items: [], general: 0, purchases: [] }, s || {});
+    } catch (e) { state = { items: [], general: 0, purchases: [] }; }
+    if (!Array.isArray(state.items)) state.items = [];
+    if (!Array.isArray(state.purchases)) state.purchases = [];
+    state.general = Math.min(100, Math.max(0, Number(state.general) || 0));
+  }
+  function save() {
+    try { localStorage.setItem(userKey(), JSON.stringify(state)); } catch (e) { /* sin guardado */ }
+    enhanceTable();
+  }
+
+  let selIcon = 'otros';
+  let editingId = null;
+  let kgMode = false;
+  let priceTextNode = null;
+  let tableObs = null;
+  const openKeys = new Set();
+
+  let toastTimer;
+  function toast(text) {
+    let t = $('#chgToast');
+    if (!t) {
+      root.insertAdjacentHTML('beforeend', '<div id="chgToast" class="chg-toast" role="status"></div>');
+      t = $('#chgToast');
+    }
+    t.textContent = text;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 4500);
+  }
+
+  const promoLabel = (p) => {
+    if (!p || p.type === 'none') return '';
+    if (p.type === 'pct') return `${p.value}% off`;
+    if (p.type === '2x1') return '2x1';
+    if (p.type === 'second') return `2da al ${p.value}%`;
+    return '';
+  };
+
+  function itemCalc(it) {
+    const p = it.promo || { type: 'none' };
+    // Por kilo: precio por kg x kilos comprados (solo admite % de descuento)
+    if (it.byKg) {
+      const base = (it.price || 0) * (Number(it.kg) || 0);
+      const paid = p.type === 'pct' ? base * (1 - p.value / 100) : base;
+      return { base, paid, saved: base - paid };
+    }
+    const base = (it.price || 0) * (it.qty || 1);
+    let paid = base;
+    if (p.type === 'pct') paid = base * (1 - p.value / 100);
+    else if (p.type === '2x1') paid = (it.price || 0) * Math.ceil((it.qty || 1) / 2);
+    else if (p.type === 'second') {
+      const pairs = Math.floor((it.qty || 1) / 2);
+      paid = (it.price || 0) * ((it.qty || 1) - pairs) + (it.price || 0) * pairs * (1 - p.value / 100);
+    }
+    return { base, paid, saved: base - paid };
+  }
+
+  function getDeliveryCost() {
+    const mode = $('#chgDeliveryMode')?.value || 'presencial';
+    return mode === 'envio' ? parseAmount($('#chgDeliveryCost')?.value) : 0;
+  }
+
+  function totals() {
+    const t = { ARS: { base: 0, promo: 0 }, USD: { base: 0, promo: 0 } };
+    state.items.forEach((it) => {
+      const c = itemCalc(it);
+      t[it.cur].base += c.base;
+      t[it.cur].promo += c.saved;
+    });
+    const g = state.general;
+    ['ARS', 'USD'].forEach((cur) => {
+      const afterPromo = t[cur].base - t[cur].promo;
+      t[cur].general = afterPromo * g / 100;
+      t[cur].total = afterPromo - t[cur].general;
+      t[cur].saved = t[cur].promo + t[cur].general;
+    });
+
+    const delivery = getDeliveryCost();
+    t.ARS.total += delivery;
+
+    const rate = dolar();
+    const hasUSD = t.USD.base > 0;
+    const eq = (a, b) => a + (rate ? b * rate : 0);
+    return {
+      t, rate, hasUSD,
+      eqTotal: eq(t.ARS.total, t.USD.total),
+      eqSaved: eq(t.ARS.saved, t.USD.saved),
+      eqPromo: eq(t.ARS.promo, t.USD.promo),
+      eqGeneral: eq(t.ARS.general, t.USD.general)
+    };
+  }
+
+  /* ---------- compra por kilo: interfaz ---------- */
+  function setupKgUI() {
+    const icons = $('#chgIcons');
+    const qtyLabel = $('#chgQty')?.closest('label');
+    const priceLabel = $('#chgPrice')?.closest('label');
+    if (!icons || !qtyLabel || !priceLabel) return;
+
+    // Texto "Precio por unidad" -> editable
+    priceTextNode = [...priceLabel.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
+
+    icons.insertAdjacentHTML('afterend',
+      `<div id="chgKgMode" class="chg-gen-chips chg-kgmode" hidden>
+         <button type="button" data-kgmode="unit">Por unidad</button>
+         <button type="button" data-kgmode="kg">⚖️ Por kilo</button>
+       </div>`);
+
+    qtyLabel.id = 'chgQtyWrap';
+    qtyLabel.insertAdjacentHTML('afterend',
+      `<label class="chg-field" id="chgWeightWrap" hidden>Peso comprado
+         <div class="chg-weight">
+           <input id="chgWeight" type="text" inputmode="decimal" placeholder="Ej. 0,5">
+           <select id="chgWeightUnit"><option value="kg" selected>kg</option><option value="g">g</option></select>
+         </div>
+       </label>`);
+
+    qtyLabel.parentElement.insertAdjacentHTML('afterend',
+      `<div id="chgWeightChips" class="chg-gen-chips chg-wchips" hidden>
+         <button type="button" data-wv="100" data-wu="g">100 g</button>
+         <button type="button" data-wv="250" data-wu="g">250 g</button>
+         <button type="button" data-wv="500" data-wu="g">½ kg</button>
+         <button type="button" data-wv="1" data-wu="kg">1 kg</button>
+         <button type="button" data-wv="2" data-wu="kg">2 kg</button>
+       </div>
+       <div id="chgKgPreview" class="chg-kgprev" hidden></div>`);
+
+    $('#chgWeight').addEventListener('input', updateKgPreview);
+    $('#chgWeightUnit').addEventListener('change', updateKgPreview);
+  }
+
+  function currentKg() {
+    const w = parseWeight($('#chgWeight')?.value);
+    return $('#chgWeightUnit')?.value === 'g' ? w / 1000 : w;
+  }
+
+  function updateKgPreview() {
+    const box = $('#chgKgPreview');
+    if (!box) return;
+    if (!kgMode) { box.textContent = ''; return; }
+    const kg = currentKg();
+    const price = parseAmount($('#chgPrice')?.value);
+    const cur = $('#chgCur')?.value === 'USD' ? 'USD' : 'ARS';
+    box.textContent = kg > 0 && price > 0 ? `${kgLabel(kg)} x ${fmt(price, cur)}/kg = ${fmt(price * kg, cur)}` : '';
+  }
+
+  function applyKgUI() {
+    const eligible = KG_KEYS.includes(selIcon);
+    if (!eligible) kgMode = false;
+    const modeBox = $('#chgKgMode');
+    if (!modeBox) return;
+    modeBox.hidden = !eligible;
+    modeBox.querySelectorAll('[data-kgmode]').forEach((b) => b.classList.toggle('on', (b.dataset.kgmode === 'kg') === kgMode));
+    $('#chgQtyWrap').hidden = kgMode;
+    $('#chgWeightWrap').hidden = !kgMode;
+    $('#chgWeightChips').hidden = !kgMode;
+    $('#chgKgPreview').hidden = !kgMode;
+    if (priceTextNode) priceTextNode.nodeValue = kgMode ? 'Precio por kg ' : 'Precio por unidad ';
+
+    // 2x1 y "2da unidad" no aplican al peso
+    const promo = $('#chgPromo');
+    [...promo.options].forEach((o) => { if (['2x1', '2nd50', '2nd70'].includes(o.value)) o.disabled = kgMode; });
+    if (kgMode && ['2x1', '2nd50', '2nd70'].includes(promo.value)) promo.value = 'none';
+    updateKgPreview();
+  }
+
+  function renderIcons() {
+    $('#chgIcons').innerHTML = ICONS.map((i) =>
+      `<button type="button" class="chg-chip${i.k === selIcon ? ' on' : ''}" data-icon="${i.k}" aria-pressed="${i.k === selIcon}" title="${esc(i.label)}"><span>${i.e}</span><small>${esc(i.label)}</small></button>`
+    ).join('');
+  }
+
+  function itemHTML(it) {
+    const c = itemCalc(it);
+    const ic = iconOf(it.icon);
+    const badge = promoLabel(it.promo) ? `<span class="chg-badge">${esc(promoLabel(it.promo))}</span>` : '';
+    const old = c.saved > 0.005 ? `<s class="chg-old">${money(c.base, it.cur)}</s>` : '';
+    const line = it.byKg
+      ? `⚖️ ${esc(kgLabel(it.kg))} x ${money(it.price, it.cur)}/kg`
+      : `${it.qty} x ${money(it.price, it.cur)}`;
+    return `
+      <li class="chg-item" data-id="${it.id}">
+        <span class="chg-ico">${ic.e}</span>
+        <span class="chg-info">
+          <strong>${esc(it.name)}</strong>
+          <small>${line} ${badge}</small>
+        </span>
+        <span class="chg-sub">${old}<b>${money(c.paid, it.cur)}</b></span>
+        <span class="chg-btns">
+          <button class="pastel-btn" type="button" data-act="edit" title="Editar">✏️</button>
+          <button class="btn btn-outline" type="button" data-act="del" title="Quitar">🗑️</button>
+        </span>
+      </li>`;
+  }
+
+  function renderCart() {
+    const n = state.items.length;
+    const delivery = getDeliveryCost();
+    let itemsMarkup = n > 0 ? state.items.map(itemHTML).join('') : '';
+
+    if (delivery > 0) {
+      itemsMarkup += `
+        <li class="chg-item" style="border-style: dashed; border-color: var(--pink-700); background: var(--pink-bg, rgba(234,91,142,0.05));">
+          <span class="chg-ico">📦</span>
+          <span class="chg-info">
+            <strong>Envío a domicilio</strong>
+            <small>Costo de logística</small>
+          </span>
+          <span class="chg-sub"><b>${money(delivery, 'ARS')}</b></span>
+          <span class="chg-btns"></span>
+        </li>`;
+    }
+
+    $('#chgCount').textContent = (n > 0 || delivery > 0) ? `(${n + (delivery > 0 ? 1 : 0)})` : '';
+    $('#chgList').innerHTML = itemsMarkup || '<li class="chg-empty"><div>🛒</div><strong>Tu changuito está vacío</strong><br><span>Elegí un ícono, cargá el precio y sumalo.</span></li>';
+
+    const gi = $('#chgGeneral');
+    if (gi && document.activeElement !== gi) gi.value = state.general ? String(state.general).replace('.', ',') : '';
+    root.querySelectorAll('[data-gen]').forEach((b) => b.classList.toggle('on', Number(b.dataset.gen) === state.general));
+  }
+
+  function renderTotals() {
+    const T = totals();
+    const card = (title, value, sub, cls) =>
+      `<div class="chg-card ${cls || ''}"><span>${title}</span><strong>${value}</strong>${sub ? `<small>${sub}</small>` : ''}</div>`;
+    const out = [];
+    out.push(card('TOTAL EN PESOS', money(T.t.ARS.total, 'ARS'), T.t.ARS.saved > 0.005 ? `Ahorrás ${money(T.t.ARS.saved, 'ARS')}` : ''));
+    if (T.hasUSD) {
+      out.push(card('TOTAL EN DÓLARES', money(T.t.USD.total, 'USD'), T.t.USD.saved > 0.005 ? `Ahorrás ${money(T.t.USD.saved, 'USD')}` : ''));
+      out.push(card('TODO EN PESOS', T.rate ? money(T.eqTotal, 'ARS') : 'Esperando el dólar…', T.rate ? `Dólar blue ${money(T.rate, 'ARS')}` : ''));
+    }
+    out.push(card('TE AHORRASTE', money(T.eqSaved, 'ARS'),
+      `Promos ${money(T.eqPromo, 'ARS')} · General ${money(T.eqGeneral, 'ARS')}`, 'save'));
+    $('#chgTotals').innerHTML = out.join('');
+  }
+
+  function renderInsight() {
+    const box = $('#chgInsight');
+    if (!box) return;
+    const b = bridge();
+    if (!b.getMonthExpenses) { box.innerHTML = '<span class="chg-pill">Conectando con tus gastos de Mensuales…</span>'; return; }
+
+    const month = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
+    const list = b.getMonthExpenses(month) || [];
+    const rate = dolar();
+    const toARS = (amount, cur) => (cur === 'USD' ? (rate ? amount * rate : 0) : amount);
+    const pills = [];
+
+    const food = list.filter((e) => e.category === 'Alimentos' || e.fromChangui);
+    let foodARS = 0, foodUSD = 0;
+    food.forEach((e) => { if (e.currency === 'USD') foodUSD += Number(e.amount || 0); else foodARS += Number(e.amount || 0); });
+    if (food.length) {
+      pills.push(`🛒 En ${esc(monthName(month))} venís gastando ${money(foodARS, 'ARS')}${foodUSD > 0 ? ' + ' + money(foodUSD, 'USD') : ''} en comida y súper.`);
+    } else {
+      pills.push(`🛒 En ${esc(monthName(month))} todavía no cargaste gastos de comida o súper.`);
+    }
+
+    const storesData = {};
+    state.purchases.forEach((p) => {
+      const storeName = p.store ? p.store.trim() : 'Sin especificar';
+      if (!storesData[storeName]) storesData[storeName] = { total: 0, items: new Set() };
+      let storeTotal = 0;
+      (p.items || []).forEach((it) => {
+        storeTotal += toARS(Number(it.paid || 0), it.cur);
+        storesData[storeName].items.add(String(it.name).trim().toLowerCase());
+      });
+      if (p.deliveryCost) storeTotal += toARS(Number(p.deliveryCost), 'ARS');
+      storesData[storeName].total += storeTotal;
+    });
+
+    const sortedStores = Object.entries(storesData).filter(s => s[0] !== 'Sin especificar').sort((a, c) => c[1].total - a[1].total);
+
+    if (sortedStores.length > 0) {
+      const topStore = sortedStores[0];
+      const lowStore = sortedStores[sortedStores.length - 1];
+      pills.push(`🏪 Donde más gastaste fue en <strong>${esc(topStore[0])}</strong> (${money(topStore[1].total, 'ARS')}).`);
+
+      if (sortedStores.length > 1 && lowStore[0] !== topStore[0]) {
+        const itemsOnlyInTop = [...topStore[1].items].filter(x => !lowStore[1].items.has(x));
+        const comparisonText = itemsOnlyInTop.length > 0
+          ? ` Aquí compraste <em>(${itemsOnlyInTop.slice(0, 3).map(esc).join(', ')})</em> que no llevaste en ${esc(lowStore[0])}.`
+          : ` Concentraste tus compras grandes aquí en comparación con ${esc(lowStore[0])}.`;
+        pills.push(`📊 <strong>Comparativa:</strong> En ${esc(topStore[0])} gastaste más que en ${esc(lowStore[0])}.${comparisonText}`);
+      }
+    }
+
+    const prods = {};
+    state.purchases.filter((p) => String(p.date).slice(0, 7) === month).forEach((p) => {
+      (p.items || []).forEach((it) => {
+        const v = toARS(Number(it.paid || 0), it.cur);
+        const key = String(it.name).trim().toLowerCase();
+        if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, amt: 0 };
+        prods[key].amt += v;
+      });
+    });
+    const topProd = Object.values(prods).sort((a, c) => c.amt - a.amt)[0];
+    if (topProd && topProd.amt > 0) {
+      pills.push(`${iconOf(topProd.icon).e} Producto que más pesó este mes: <strong>${esc(topProd.name)}</strong> (${money(topProd.amt, 'ARS')}).`);
+    }
+
+    box.innerHTML = pills.map((p) => `<span class="chg-pill">${p}</span>`).join('');
+  }
+
+  function render() {
+    renderCart();
+    renderTotals();
+    renderInsight();
+  }
+
+  function promoFromForm() {
+    const v = $('#chgPromo').value;
+    if (v === 'none') return { type: 'none' };
+    if (kgMode && ['2x1', '2nd50', '2nd70'].includes(v)) return { type: 'none' };
+    if (v === '2x1') return { type: '2x1' };
+    if (v === '2nd50') return { type: 'second', value: 50 };
+    if (v === '2nd70') return { type: 'second', value: 70 };
+    if (v === 'custom') {
+      const n = Math.min(99, Math.max(0, parseAmount($('#chgPromoCustom').value)));
+      return n > 0 ? { type: 'pct', value: n } : { type: 'none' };
+    }
+    return { type: 'pct', value: Number(v) };
+  }
+
+  function promoToForm(p) {
+    const sel = $('#chgPromo'), wrap = $('#chgPromoCustomWrap'), custom = $('#chgPromoCustom');
+    wrap.hidden = true; custom.value = '';
+    if (!p || p.type === 'none') { sel.value = 'none'; return; }
+    if (p.type === '2x1') { sel.value = '2x1'; return; }
+    if (p.type === 'second') { sel.value = p.value === 70 ? '2nd70' : '2nd50'; return; }
+    const preset = [...sel.options].some((o) => o.value === String(p.value));
+    if (preset) sel.value = String(p.value);
+    else { sel.value = 'custom'; wrap.hidden = false; custom.value = String(p.value).replace('.', ','); }
+  }
+
+  function resetForm() {
+    editingId = null;
+    selIcon = 'otros';
+    kgMode = false;
+    $('#chgName').value = '';
+    $('#chgPrice').value = '';
+    $('#chgQty').value = '1';
+    if ($('#chgWeight')) $('#chgWeight').value = '';
+    if ($('#chgWeightUnit')) $('#chgWeightUnit').value = 'kg';
+    promoToForm(null);
+    $('#chgSubmit').textContent = '➕ Agregar al changuito';
+    $('#chgCancelEdit').hidden = true;
+    renderIcons();
+    applyKgUI();
+  }
+
+  function submitItem(e) {
+    e.preventDefault();
+    const price = parseAmount($('#chgPrice').value);
+    if (!(price > 0)) { toast(kgMode ? 'Ingresá el precio por kilo.' : 'Ingresá el precio del producto.'); $('#chgPrice').focus(); return; }
+
+    const byKg = kgMode && KG_KEYS.includes(selIcon);
+    let kg = 0;
+    if (byKg) {
+      kg = Math.round(currentKg() * 1000) / 1000;
+      if (!(kg > 0)) { toast('Ingresá el peso comprado.'); $('#chgWeight').focus(); return; }
+    }
+
+    const it = {
+      id: editingId || uid(),
+      icon: selIcon,
+      name: $('#chgName').value.trim() || iconOf(selIcon).label,
+      price,
+      qty: byKg ? 1 : Math.min(99, Math.max(1, parseInt($('#chgQty').value, 10) || 1)),
+      byKg,
+      kg: byKg ? kg : 0,
+      cur: $('#chgCur').value === 'USD' ? 'USD' : 'ARS',
+      promo: promoFromForm()
+    };
+    if (editingId) {
+      const i = state.items.findIndex((x) => x.id === editingId);
+      if (i >= 0) state.items[i] = it; else state.items.push(it);
+    } else {
+      state.items.push(it);
+    }
+    save();
+    resetForm();
+    render();
+    $('#chgName').focus();
+  }
+
+  function startEdit(id) {
+    const it = state.items.find((x) => x.id === id);
+    if (!it) return;
+    editingId = id;
+    selIcon = it.icon;
+    kgMode = !!it.byKg;
+    $('#chgName').value = it.name;
+    $('#chgPrice').value = formatAmountInput(String(it.price).replace('.', ','));
+    $('#chgQty').value = String(it.qty);
+    $('#chgCur').value = it.cur;
+    if (it.byKg) {
+      const grams = Number(it.kg) < 1;
+      $('#chgWeightUnit').value = grams ? 'g' : 'kg';
+      $('#chgWeight').value = String(grams ? Math.round(it.kg * 1000) : it.kg).replace('.', ',');
+    } else {
+      $('#chgWeight').value = '';
+    }
+    promoToForm(it.promo);
+    $('#chgSubmit').textContent = '💾 Guardar cambios';
+    $('#chgCancelEdit').hidden = false;
+    renderIcons();
+    applyKgUI();
+    $('#chgForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('#chgName').focus();
+  }
+
+  async function registerPurchase() {
+    if (!state.items.length) { toast('Primero agregá productos al changuito.'); return; }
+    const b = bridge();
+    if (!b.addExpenses) { toast('No se pudo conectar con Mensuales.'); return; }
+
+    const mode = $('#chgCatMode').value;
+    const store = plain($('#chgStore').value);
+    const date = $('#chgDate').value || todayISO();
+    const g = state.general;
+    const deliveryMode = $('#chgDeliveryMode')?.value || 'presencial';
+    const deliveryCost = deliveryMode === 'envio' ? parseAmount($('#chgDeliveryCost')?.value) : 0;
+
+    const groups = {};
+    state.items.forEach((it) => {
+      const paid = itemCalc(it).paid * (1 - g / 100);
+      const cat = mode === 'auto' ? iconOf(it.icon).cat : mode;
+      const key = cat + '|' + it.cur;
+      if (!groups[key]) groups[key] = { cat, cur: it.cur, amount: 0, items: [] };
+      groups[key].amount += paid;
+      groups[key].items.push(it);
+    });
+
+    const snap = (it) => ({
+      name: it.name, icon: it.icon, cur: it.cur, price: it.price, qty: it.qty,
+      byKg: !!it.byKg, kg: it.kg || 0, promo: it.promo,
+      paid: round2(itemCalc(it).paid * (1 - g / 100))
+    });
+
+    const storeLabel = store ? ` en ${store}` : '';
+    const expenses = Object.values(groups)
+      .map((x) => ({
+        description: `Changui${storeLabel} (${x.items.map(i => i.name).join(', ')})`,
+        category: x.cat,
+        amount: round2(x.amount),
+        currency: x.cur,
+        detalle: x.items.map(snap)   // viaja dentro del gasto (Firestore) para la solapa
+      }))
+      .filter((x) => x.amount > 0);
+
+    // Copia local del detalle (respaldo)
+    const details = expenses.map((x) => ({
+      description: x.description, amount: x.amount, currency: x.currency, items: x.detalle
+    }));
+
+    if (deliveryCost > 0) {
+      expenses.push({
+        description: `Envío a domicilio${storeLabel}`,
+        category: 'Otros',
+        amount: round2(deliveryCost),
+        currency: 'ARS',
+        isDelivery: true
+      });
+    }
+
+    if (!expenses.length) { toast('El total de la compra es cero.'); return; }
+
+    let res = false;
+    try { res = await b.addExpenses({ date, expenses }); } catch (e) { res = false; }
+    if (!res) { toast('No se pudo registrar la compra.'); return; }
+
+    state.purchases.unshift({
+      id: uid(), date, store, deliveryMode, deliveryCost,
+      expenses: details,
+      items: state.items.map((it) => ({
+        name: it.name, icon: it.icon, cur: it.cur, price: it.price, qty: it.qty,
+        byKg: !!it.byKg, kg: it.kg || 0, promo: it.promo,
+        paid: round2(itemCalc(it).paid * (1 - g / 100))
+      }))
+    });
+    state.purchases = state.purchases.slice(0, 60);
+    state.items = [];
+    state.general = 0;
+    save();
+    $('#chgStore').value = '';
+    if ($('#chgDeliveryCost')) $('#chgDeliveryCost').value = '';
+    if ($('#chgDeliveryMode')) $('#chgDeliveryMode').value = 'presencial';
+    if ($('#chgDeliveryCostWrap')) $('#chgDeliveryCostWrap').hidden = true;
+    resetForm();
+    render();
+    toast(`Listo, la compra se sumó a tus gastos.`);
+  }
+
+  /* ---------- solapa "¿Qué se compró?" en Gastos del mes ---------- */
+  const norm = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const isoFromCell = (t) => {
+    const m = String(t || '').trim().match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : '';
+  };
+
+  function findDetail(desc, iso) {
+    const d = norm(desc);
+    const P = state.purchases || [];
+    // 0) detalle guardado dentro del gasto (se sincroniza entre dispositivos)
+    try {
+      const b = bridge();
+      if (b.getMonthExpenses && iso) {
+        const hit = (b.getMonthExpenses(iso.slice(0, 7)) || [])
+          .find((e) => e.date === iso && norm(e.description) === d && Array.isArray(e.detalle) && e.detalle.length);
+        if (hit) return { items: hit.detalle, expId: hit.id, month: iso.slice(0, 7) };
+      }
+    } catch (e) { /* sigue con las otras opciones */ }
+    // 1) compra guardada con su detalle exacto
+    for (const p of P) {
+      if (iso && p.date !== iso) continue;
+      for (const ex of (p.expenses || [])) {
+        if (!ex.isDelivery && norm(ex.description) === d) return { items: ex.items };
+      }
+    }
+    // 2) compras viejas: productos del día cuyo nombre aparece en la descripción
+    for (const p of P) {
+      if (iso && p.date !== iso) continue;
+      const its = (p.items || []).filter((it) => it.name && d.includes(norm(it.name)));
+      if (its.length) return { items: its };
+    }
+    // 3) solo el texto entre paréntesis
+    const m = String(desc).match(/\(([^()]*)\)\s*$/);
+    return { names: m ? m[1].split(',').map((s) => s.trim()).filter(Boolean) : [] };
+  }
+
+  function detailHTML(r) {
+    let body = '';
+    if (r.items && r.items.length) {
+      const canEdit = !!(r.expId && typeof bridge().updateExpense === 'function');
+      body = r.items.map((it, idx) => {
+        const promo = promoLabel(it.promo) ? ` · ${esc(promoLabel(it.promo))}` : '';
+        const sub = it.byKg
+          ? `⚖️ ${esc(kgLabel(it.kg))} x ${money(it.price, it.cur)}/kg${promo}`
+          : `${it.qty || 1} x ${money(it.price, it.cur)}${promo}`;
+        return `<div class="chg-d-line"><span>${iconOf(it.icon).e}</span><span class="chg-d-name">${esc(it.name)}<span class="chg-d-sub">${sub}</span></span><span class="chg-d-right"><b>${money(it.paid, it.cur)}</b>${canEdit ? `<button type="button" class="chg-d-edit" data-idx="${idx}" title="Editar peso / cantidad">✏️</button>` : ''}</span></div>`;
+      }).join('');
+    } else if (r.names && r.names.length) {
+      body = r.names.map((n) => `<div class="chg-d-line"><span>•</span><span class="chg-d-name">${esc(n)}</span><span></span></div>`).join('')
+        + '<p class="chg-d-note">Esta compra se cargó sin detalle de precios.</p>';
+    } else {
+      body = '<p class="chg-d-note">No hay detalle guardado para este gasto.</p>';
+    }
+    const attrs = r.expId ? ` data-exp="${esc(r.expId)}" data-month="${esc(r.month)}"` : '';
+    return `<div class="chg-detail"${attrs}><div class="chg-d-title">🛒 ¿QUÉ SE COMPRÓ?</div>${body}</div>`;
+  }
+
+  function enhanceTable() {
+    const tb = document.getElementById('expenseTable');
+    if (!tb) return;
+    if (tableObs) tableObs.disconnect();
+    try {
+      tb.querySelectorAll('.chg-detail-row').forEach((r) => r.remove());
+      tb.querySelectorAll('.chg-tog').forEach((b) => b.remove());
+
+      [...tb.children].forEach((tr) => {
+        if (tr.tagName !== 'TR' || tr.children.length < 3) return;
+        const dateCell = tr.children[0];
+        const descCell = tr.children[1];
+        const desc = descCell.textContent.trim();
+        if (!/^changui\b/i.test(desc)) return;
+
+        const iso = isoFromCell(dateCell.textContent);
+        const key = iso + '|' + norm(desc);
+        const isOpen = openKeys.has(key);
+
+        const detail = document.createElement('tr');
+        detail.className = 'chg-detail-row' + (isOpen ? ' open' : '');
+        detail.dataset.key = key;
+        if (tr.style.display === 'none' || tr.hidden) detail.setAttribute('data-ph', '');
+        detail.innerHTML = `<td colspan="${tr.children.length}">${detailHTML(findDetail(desc, iso))}</td>`;
+        tr.after(detail);
+
+        descCell.insertAdjacentHTML('afterbegin',
+          `<button type="button" class="chg-tog" data-key="${esc(key)}" aria-expanded="${isOpen}" title="Ver qué se compró"><span class="chg-arrow">▸</span> Detalle</button>`);
+      });
+    } finally {
+      observeTable();
+    }
+  }
+
+  function observeTable() {
+    const tb = document.getElementById('expenseTable');
+    if (!tb) return;
+    if (!tableObs) {
+      let t;
+      tableObs = new MutationObserver(() => { clearTimeout(t); t = setTimeout(enhanceTable, 40); });
+    }
+    tableObs.observe(tb, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'hidden'] });
+  }
+
+  function pauseObs(fn) {
+    if (tableObs) tableObs.disconnect();
+    try { fn(); } finally { observeTable(); }
+  }
+
+  const findExp = (month, id) => {
+    const b = bridge();
+    return (b.getMonthExpenses ? b.getMonthExpenses(month) || [] : []).find((x) => x.id === id);
+  };
+
+  /* ---------- editar kilos / cantidad desde la solapa ---------- */
+  function openItemEditor(btn) {
+    const box = btn.closest('.chg-detail');
+    const exp = box && findExp(box.dataset.month, box.dataset.exp);
+    const idx = Number(btn.dataset.idx);
+    const it = exp && exp.detalle && exp.detalle[idx];
+    if (!it) return;
+    const grams = it.byKg && Number(it.kg) < 1;
+    const qtyField = it.byKg
+      ? `<label>Peso comprado<div class="chg-weight"><input class="chg-d-qty" type="text" inputmode="decimal" value="${grams ? Math.round(it.kg * 1000) : String(it.kg).replace('.', ',')}"><select class="chg-d-unit"><option value="kg"${grams ? '' : ' selected'}>kg</option><option value="g"${grams ? ' selected' : ''}>g</option></select></div></label>`
+      : `<label>Cantidad<input class="chg-d-qty" type="number" min="1" max="99" value="${it.qty || 1}"></label>`;
+    const priceField = `<label>${it.byKg ? 'Precio por kg' : 'Precio por unidad'}<input class="chg-d-price" type="text" inputmode="decimal" value="${formatAmountInput(String(it.price).replace('.', ','))}"></label>`;
+    const line = btn.closest('.chg-d-line');
+    pauseObs(() => {
+      line.insertAdjacentHTML('afterend',
+        `<div class="chg-d-form" data-idx="${idx}"><strong>${iconOf(it.icon).e} ${esc(it.name)}</strong><div class="chg-d-fields">${qtyField}${priceField}</div><div class="chg-d-btns"><button type="button" class="chg-d-cancel">Cancelar</button><button type="button" class="chg-d-save">Guardar</button></div></div>`);
+      line.remove();
+    });
+  }
+
+  async function saveItemEdit(btn) {
+    const form = btn.closest('.chg-d-form');
+    const box = btn.closest('.chg-detail');
+    if (!form || !box) return;
+    const month = box.dataset.month, id = box.dataset.exp, idx = Number(form.dataset.idx);
+    const exp = findExp(month, id);
+    const b = bridge();
+    if (!exp || !exp.detalle || !b.updateExpense) { toast('Falta actualizar app.js para poder editar.'); return; }
+
+    const old = exp.detalle[idx];
+    const price = parseAmount(form.querySelector('.chg-d-price').value);
+    if (!(price > 0)) { toast('Ingresá un precio válido.'); return; }
+
+    const nu = Object.assign({}, old, { price });
+    const qtyVal = form.querySelector('.chg-d-qty').value;
+    if (old.byKg) {
+      const w = parseWeight(qtyVal);
+      const kg = form.querySelector('.chg-d-unit').value === 'g' ? w / 1000 : w;
+      if (!(kg > 0)) { toast('Ingresá el peso comprado.'); return; }
+      nu.kg = Math.round(kg * 1000) / 1000;
+    } else {
+      nu.qty = Math.min(99, Math.max(1, parseInt(qtyVal, 10) || 1));
+    }
+
+    // conserva el descuento general que tenía la compra
+    const oldCalc = itemCalc(old).paid;
+    const factor = oldCalc > 0 ? Number(old.paid) / oldCalc : 1;
+    nu.paid = round2(itemCalc(nu).paid * factor);
+
+    const detalle = exp.detalle.map((x, i) => (i === idx ? nu : x));
+    const amount = round2(detalle.reduce((s, x) => s + Number(x.paid || 0), 0));
+
+    let ok = false;
+    try { ok = await b.updateExpense({ month, id, amount, detalle }); } catch (err) { ok = false; }
+    if (!ok) { toast('No se pudo guardar el cambio.'); return; }
+
+    // mantiene al día la copia local (historial de Changui)
+    state.purchases.forEach((p) => {
+      if (p.date !== exp.date) return;
+      const ex = (p.expenses || []).find((x) => norm(x.description) === norm(exp.description));
+      if (!ex) return;
+      ex.items = detalle; ex.amount = amount;
+      const pi = (p.items || []).find((x) => x.name === old.name && Math.abs(Number(x.paid) - Number(old.paid)) < 0.01);
+      if (pi) Object.assign(pi, { price: nu.price, qty: nu.qty, kg: nu.kg, paid: nu.paid });
+    });
+    save();
+    toast('Listo, actualicé el gasto.');
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#expenseTable .chg-tog');
+    if (!btn) return;
+    const tr = btn.closest('tr');
+    const detail = tr && tr.nextElementSibling;
+    if (!detail || !detail.classList.contains('chg-detail-row')) return;
+    const open = detail.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+    if (open) openKeys.add(detail.dataset.key); else openKeys.delete(detail.dataset.key);
+  });
+
+  document.addEventListener('click', (e) => {
+    const ed = e.target.closest('#expenseTable .chg-d-edit');
+    if (ed) { openItemEditor(ed); return; }
+    if (e.target.closest('#expenseTable .chg-d-cancel')) { enhanceTable(); return; }
+    const sv = e.target.closest('#expenseTable .chg-d-save');
+    if (sv) saveItemEdit(sv);
+  });
+
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (!el.classList || !el.classList.contains('chg-d-price')) return;
+    const start = el.selectionStart, prevLen = el.value.length;
+    el.value = formatAmountInput(el.value);
+    const pos = Math.max(0, start + (el.value.length - prevLen));
+    el.setSelectionRange(pos, pos);
+  });
+
+  /* ---------- exportar PDF ---------- */
+  function exportPDF(customPurchase = null) {
+    const J = window.jspdf && window.jspdf.jsPDF;
+    if (!J) { toast('No se pudo cargar el generador de PDF.'); return; }
+
+    const itemsToPrint = customPurchase ? customPurchase.items : state.items;
+    if (!itemsToPrint || itemsToPrint.length === 0) { toast('No hay productos para exportar.'); return; }
+
+    let theme;
+    try { theme = bridge().getPdfTheme(); } catch (e) { theme = null; }
+    if (!theme) theme = {
+      pink: [234, 91, 142], dark: [82, 22, 42], light: [253, 232, 238], headerBg: [255, 174, 195],
+      cardBorder: [246, 214, 223], lineDivider: [246, 214, 223], pageBg: null, footerColor: [125, 80, 98]
+    };
+    const isBlack = document.body.classList.contains('black-mode');
+
+    const doc = new J({ unit: 'mm', format: 'a4' });
+
+    // El descuento general se aplica al changuito activo
+    // (en las compras guardadas, "paid" ya lo trae incluido)
+    const genFactor = customPurchase ? 1 : (1 - state.general / 100);
+    const paidOf = (it) => (customPurchase ? Number(it.paid || 0) : itemCalc(it).paid * genFactor);
+    const unitsOf = (it) => (it.byKg ? (Number(it.kg) || 1) : (it.qty || 1));
+
+    let totalARS = 0;
+    let totalUSD = 0;
+    itemsToPrint.forEach((it) => {
+      const paid = paidOf(it);
+      if ((it.cur || 'ARS') === 'USD') totalUSD += paid; else totalARS += paid;
+    });
+
+    const delivery = customPurchase ? (customPurchase.deliveryMode === 'envio' ? Number(customPurchase.deliveryCost || 0) : 0) : getDeliveryCost();
+    totalARS += delivery;
+
+    const storeName = plain(customPurchase ? (customPurchase.store || '') : $('#chgStore')?.value || '');
+    const dateStr = customPurchase ? fmtDay(customPurchase.date) : new Date().toLocaleDateString('es-AR');
+
+    const paintPage = () => { if (theme.pageBg) { doc.setFillColor(...theme.pageBg); doc.rect(0, 0, 210, 297, 'F'); } };
+    const newPage = () => { doc.addPage(); paintPage(); return 20; };
+    const heart = (x, yy, s) => {
+      const r = s / 4;
+      doc.setFillColor(...theme.pink);
+      doc.circle(x + r, yy + r, r, 'F'); doc.circle(x + 3 * r, yy + r, r, 'F');
+      doc.triangle(x, yy + r * 1.3, x + 4 * r, yy + r * 1.3, x + 2 * r, yy + 4 * r, 'F');
+    };
+
+    paintPage();
+
+    doc.setFillColor(...theme.headerBg);
+    doc.roundedRect(15, 15, 180, 28, 4, 4, 'F');
+    doc.setTextColor(...theme.dark); doc.setFont('helvetica', 'bold'); doc.setFontSize(17);
+    doc.text('CHANGUI: CALCULA TU COMPRA', 21, 25);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    doc.text('Detalle del changuito - ' + dateStr + (storeName ? ' - ' + storeName : ''), 21, 31);
+
+    const totalCardText = fmt(totalARS, 'ARS') + (totalUSD > 0 ? ' + ' + fmt(totalUSD, 'USD') : '');
+    const cards = [
+      ['TOTAL GASTADO', totalCardText],
+      ['MODALIDAD', customPurchase ? (customPurchase.deliveryMode === 'envio' ? 'Envío a domicilio' : 'Presencial') : ($('#chgDeliveryMode')?.value === 'envio' ? 'Envío' : 'Presencial')],
+      ['CANT. ÍTEMS', String(itemsToPrint.length + (delivery > 0 ? 1 : 0))]
+    ];
+    cards.forEach((card, i) => {
+      const x = 15 + i * 60;
+      doc.setDrawColor(...theme.cardBorder);
+      doc.roundedRect(x, 49, 56, 25, 3, 3, 'S');
+      doc.setTextColor(...theme.pink); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      doc.text(card[0], x + 4, 57);
+      doc.setTextColor(...theme.dark); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+      doc.text(card[1], x + 4, 65);
+    });
+
+    let y = 84;
+    const tableHeader = () => {
+      if (isBlack) doc.setFillColor(30, 30, 30); else doc.setFillColor(...theme.pink);
+      doc.rect(15, y, 180, 8, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+      doc.text('PRODUCTO', 18, y + 5);
+      doc.text('CANT.', 92, y + 5);
+      doc.text('PRECIO / VALOR', 106, y + 5);
+      doc.text('SUBTOTAL', 162, y + 5);
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+    };
+    tableHeader();
+
+    itemsToPrint.forEach((it) => {
+      if (y > 255) { y = newPage(); tableHeader(); }
+      const paid = paidOf(it);
+      const cur = it.cur || 'ARS';
+      doc.setTextColor(...theme.dark); doc.setFontSize(7);
+      doc.text((plain(it.name) || 'Producto').slice(0, 40), 18, y + 5);
+      doc.text(it.byKg ? kgLabel(it.kg) : String(it.qty || 1), 92, y + 5);
+      doc.text(fmt(paid / unitsOf(it), cur) + (it.byKg ? ' /kg' : ''), 106, y + 5);
+      doc.text(fmt(paid, cur), 162, y + 5);
+      doc.setDrawColor(...theme.lineDivider);
+      doc.line(15, y + 8, 195, y + 8);
+      y += 9;
+    });
+
+    if (delivery > 0) {
+      if (y > 255) { y = newPage(); tableHeader(); }
+      doc.setTextColor(...theme.dark); doc.setFontSize(7);
+      doc.text('Envío a domicilio', 18, y + 5);
+      doc.text('1', 92, y + 5);
+      doc.text(fmt(delivery, 'ARS'), 106, y + 5);
+      doc.text(fmt(delivery, 'ARS'), 162, y + 5);
+      doc.setDrawColor(...theme.lineDivider);
+      doc.line(15, y + 8, 195, y + 8);
+      y += 9;
+    }
+
+    y += 10;
+    if (y > 225) y = newPage();
+    doc.setTextColor(...theme.dark); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+    doc.text('RESUMEN GENERAL', 15, y);
+    y += 6;
+
+    const lines = [
+      ['Total en pesos a pagar', fmt(totalARS, 'ARS')]
+    ];
+    if (totalUSD > 0) lines.push(['Total en dólares a pagar', fmt(totalUSD, 'USD')]);
+    if (!customPurchase && state.general > 0) lines.push(['Descuento general aplicado', state.general + '%']);
+
+    const boxH = 10 + lines.length * 6;
+    doc.setFillColor(...theme.light); doc.setDrawColor(...theme.cardBorder);
+    doc.roundedRect(15, y, 180, boxH, 3, 3, 'FD');
+    lines.forEach((l, i) => {
+      const yy = y + 8 + i * 6;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+      doc.setTextColor(...theme.pink);
+      doc.text(l[0], 21, yy);
+      doc.text(l[1], 189, yy, { align: 'right' });
+    });
+
+    const n = doc.getNumberOfPages();
+    for (let i = 1; i <= n; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...theme.footerColor);
+      const txt = 'Creado by Flor Bagnis';
+      const tw = doc.getTextWidth(txt);
+      const x = (210 - tw - 6) / 2;
+      doc.text(txt, x, 287);
+      heart(x + tw + 1.5, 283.6, 4);
+      doc.text(`${i} / ${n}`, 195, 287, { align: 'right' });
+    }
+    doc.save('Changui-' + (customPurchase ? customPurchase.date : todayISO()) + '.pdf');
+  }
+
+  /* ---------- exportar CSV ---------- */
+  function exportCSV(customPurchase = null) {
+    const itemsToPrint = customPurchase ? customPurchase.items : state.items;
+    if (!itemsToPrint || itemsToPrint.length === 0) { toast('No hay productos para exportar.'); return; }
+
+    const storeName = customPurchase ? (customPurchase.store || 'General') : ($('#chgStore')?.value || 'General');
+    const dateStr = customPurchase ? customPurchase.date : todayISO();
+
+    let csv = 'Producto,Cantidad,Unidad,Moneda,Precio Subtotal\n';
+    itemsToPrint.forEach(it => {
+      const paid = customPurchase ? Number(it.paid || 0) : itemCalc(it).paid * (1 - state.general / 100);
+      const name = `"${String(it.name || '').replace(/"/g, '""')}"`;
+      const qty = it.byKg ? Number(it.kg || 0) : (it.qty || 1);
+      const unit = it.byKg ? 'kg' : 'u';
+      const cur = it.cur || 'ARS';
+      csv += `${name},${qty},${unit},${cur},${paid.toFixed(2)}\n`;
+    });
+
+    const delivery = customPurchase ? (customPurchase.deliveryMode === 'envio' ? Number(customPurchase.deliveryCost || 0) : 0) : getDeliveryCost();
+    if (delivery > 0) {
+      csv += `"Envío a domicilio",1,u,ARS,${delivery.toFixed(2)}\n`;
+    }
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Changui-${dateStr}-${storeName}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Archivo CSV descargado con éxito.');
+  }
+
+  /* ---------- Historial de Changuitos ---------- */
+  function renderHistoryModal() {
+    const container = $('#chgHistoryListContainer');
+    if (!container) return;
+
+    if (!state.purchases || state.purchases.length === 0) {
+      container.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--muted);">🛒 Todavía no guardaste ningún changuito.</div>`;
+      return;
+    }
+
+    container.innerHTML = state.purchases.map(p => {
+      const storeName = p.store ? `Supermercado: <strong>${esc(p.store)}</strong>` : 'Compra general';
+      const isEnvio = p.deliveryMode === 'envio';
+      const deliveryText = isEnvio ? `📦 Envío a domicilio (${money(p.deliveryCost || 0, 'ARS')})` : '🛍️ Presencial (Local)';
+
+      const itemsHtml = (p.items || []).map((it, idx) => `
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line);">
+          <span>${iconOf(it.icon).e} ${esc(it.name)} (${esc(qtyText(it))})</span>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <b>${money(it.paid, it.cur)}</b>
+            <button class="chg-ico-btn" type="button" data-edit-item-purchase="${p.id}" data-item-idx="${idx}" title="Editar producto">✏️</button>
+          </div>
+        </div>
+      `).join('');
+
+      const deliveryHtml = isEnvio && p.deliveryCost > 0 ? `
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line); color: var(--pink-700);">
+          <span>📦 Costo de envío</span>
+          <b>${money(p.deliveryCost, 'ARS')}</b>
+        </div>
+      ` : '';
+
+      return `
+        <div class="chg-history-card" data-purchase-id="${p.id}" style="border: 1px solid var(--chg-line); border-radius: 16px; padding: 14px; background: var(--bg, transparent); margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 0.85rem;">
+            <span>📅 ${fmtDay(p.date)} · ${storeName}</span>
+            <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+              <button class="pastel-btn btn-sm" type="button" data-load-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Cargar este changuito en la pantalla">📂 Ver</button>
+              <button class="pastel-btn btn-sm" type="button" data-pdf-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="PDF">📄 PDF</button>
+              <button class="pastel-btn btn-sm" type="button" data-csv-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="CSV">📊 CSV</button>
+              <button class="chg-ico-btn" type="button" data-edit-purchase="${p.id}" title="Editar">✏️</button>
+              <button class="chg-ico-btn" type="button" data-del-purchase="${p.id}" title="Eliminar">🗑️</button>
+            </div>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 6px;">
+            📍 Modalidad: <strong>${deliveryText}</strong>
+          </div>
+          <div style="display: grid; gap: 4px; margin-top: 6px;">
+            ${itemsHtml}
+            ${deliveryHtml}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  /* ---------- eventos ---------- */
+  $('#chgForm').addEventListener('submit', submitItem);
+  $('#chgCancelEdit').addEventListener('click', resetForm);
+  $('#chgPdfBtn').addEventListener('click', () => exportPDF(null));
+
+  $('#chgCsvBtn')?.addEventListener('click', () => exportCSV(null));
+  $('#chgRegisterBtn').addEventListener('click', registerPurchase);
+  $('#chgDate').value = todayISO();
+
+  $('#chgToggleBtn').addEventListener('click', (e) => {
+    const body = $('#chgBody');
+    body.hidden = !body.hidden;
+    e.currentTarget.textContent = body.hidden ? '▼ Mostrar Changui' : '▲ Ocultar Changui';
+  });
+
+  $('#chgClearBtn').addEventListener('click', () => {
+    if (!state.items.length) return;
+    if (!confirm('¿Vaciar todo el changuito?')) return;
+    state.items = []; state.general = 0; save(); resetForm(); render();
+  });
+
+  $('#chgPromo').addEventListener('change', (e) => {
+    const custom = e.target.value === 'custom';
+    $('#chgPromoCustomWrap').hidden = !custom;
+    if (custom) $('#chgPromoCustom').focus();
+  });
+
+  $('#chgPrice').addEventListener('input', (e) => {
+    const el = e.target;
+    const start = el.selectionStart, prevLen = el.value.length;
+    el.value = formatAmountInput(el.value);
+    const pos = Math.max(0, start + (el.value.length - prevLen));
+    el.setSelectionRange(pos, pos);
+    updateKgPreview();
+  });
+  $('#chgCur').addEventListener('change', updateKgPreview);
+
+  $('#chgDeliveryMode')?.addEventListener('change', (e) => {
+    const isEnvio = e.target.value === 'envio';
+    const wrap = $('#chgDeliveryCostWrap');
+    if (wrap) wrap.hidden = !isEnvio;
+    renderCart();
+    renderTotals();
+  });
+
+  $('#chgDeliveryCost')?.addEventListener('input', (e) => {
+    const el = e.target;
+    const start = el.selectionStart, prevLen = el.value.length;
+    el.value = formatAmountInput(el.value);
+    const pos = Math.max(0, start + (el.value.length - prevLen));
+    el.setSelectionRange(pos, pos);
+    renderCart();
+    renderTotals();
+  });
+
+  $('#chgGeneral').addEventListener('input', (e) => {
+    const n = parseFloat(String(e.target.value).replace(',', '.'));
+    state.general = Math.min(100, Math.max(0, Number.isFinite(n) ? n : 0));
+    save();
+    renderTotals();
+    root.querySelectorAll('[data-gen]').forEach((b) => b.classList.toggle('on', Number(b.dataset.gen) === state.general));
+  });
+
+  root.addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-icon]');
+    if (chip) {
+      const changed = selIcon !== chip.dataset.icon;
+      selIcon = chip.dataset.icon;
+      if (changed) kgMode = KG_KEYS.includes(selIcon);   // verduras, frutas, etc. arrancan por kilo
+      renderIcons();
+      applyKgUI();
+      return;
+    }
+
+    const modeBtn = e.target.closest('[data-kgmode]');
+    if (modeBtn) {
+      kgMode = modeBtn.dataset.kgmode === 'kg';
+      applyKgUI();
+      return;
+    }
+
+    const wchip = e.target.closest('[data-wv]');
+    if (wchip) {
+      $('#chgWeight').value = wchip.dataset.wv;
+      $('#chgWeightUnit').value = wchip.dataset.wu;
+      updateKgPreview();
+      return;
+    }
+
+    const gen = e.target.closest('[data-gen]');
+    if (gen) {
+      const v = Number(gen.dataset.gen);
+      state.general = state.general === v ? 0 : v;
+      save(); renderCart(); renderTotals();
+      return;
+    }
+
+    if (e.target.closest('#chgHistoryModalBtn')) {
+      renderHistoryModal();
+      $('#chgHistoryDialog')?.showModal();
+    }
+    if (e.target.closest('#chgCloseHistoryBtn') || e.target.closest('#chgHistoryDialog')) {
+      if (e.target.id === 'chgHistoryDialog') $('#chgHistoryDialog').close();
+    }
+
+    // Cargar changuito histórico a la pantalla principal
+    const loadBtn = e.target.closest('[data-load-purchase]');
+    if (loadBtn) {
+      const id = loadBtn.dataset.loadPurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (purchase) {
+        state.items = (purchase.items || []).map(it => ({
+          id: uid(), icon: it.icon || 'otros', name: it.name, price: Number(it.price || it.paid || 0),
+          qty: Number(it.qty || 1), byKg: !!it.byKg, kg: Number(it.kg || 0),
+          cur: it.cur || 'ARS', promo: it.promo || { type: 'none' }
+        }));
+        if ($('#chgStore')) $('#chgStore').value = purchase.store || '';
+        if ($('#chgDeliveryMode')) $('#chgDeliveryMode').value = purchase.deliveryMode || 'presencial';
+        if ($('#chgDeliveryCostWrap')) $('#chgDeliveryCostWrap').hidden = purchase.deliveryMode !== 'envio';
+        if ($('#chgDeliveryCost')) $('#chgDeliveryCost').value = purchase.deliveryCost ? formatAmountInput(String(purchase.deliveryCost).replace('.', ',')) : '';
+        if ($('#chgDate')) $('#chgDate').value = purchase.date || todayISO();
+        save();
+        render();
+        $('#chgHistoryDialog')?.close();
+        toast('Changuito cargado en pantalla con éxito. 🛒');
+      }
+      return;
+    }
+
+    // Exportar PDF desde el historial
+    const pdfBtn = e.target.closest('[data-pdf-purchase]');
+    if (pdfBtn) {
+      const id = pdfBtn.dataset.pdfPurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (purchase) exportPDF(purchase);
+      return;
+    }
+
+    // Exportar CSV desde el historial
+    const csvBtn = e.target.closest('[data-csv-purchase]');
+    if (csvBtn) {
+      const id = csvBtn.dataset.csvPurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (purchase) exportCSV(purchase);
+      return;
+    }
+
+    const delBtn = e.target.closest('[data-del-purchase]');
+    if (delBtn) {
+      const id = delBtn.dataset.delPurchase;
+      if (confirm('¿Eliminar este registro del historial?')) {
+        state.purchases = state.purchases.filter(p => p.id !== id);
+        save();
+        renderHistoryModal();
+        renderInsight();
+        toast('Changuito eliminado.');
+      }
+    }
+
+    const editBtn = e.target.closest('[data-edit-purchase]');
+    if (editBtn) {
+      const id = editBtn.dataset.editPurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (!purchase) return;
+      const card = editBtn.closest('.chg-history-card');
+      if (!card) return;
+
+      card.innerHTML = `
+        <div style="display: grid; gap: 8px; font-size: 0.85rem;">
+          <strong>✏️ Editando datos del changuito</strong>
+          <label style="display: grid; gap: 2px; font-size: 0.75rem;">Supermercado / Local:
+            <input type="text" id="editStore_${id}" value="${esc(purchase.store || '')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+          </label>
+          <label style="display: grid; gap: 2px; font-size: 0.75rem;">Fecha:
+            <input type="date" id="editDate_${id}" value="${purchase.date || ''}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+          </label>
+          <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px;">
+            <button class="btn btn-outline btn-sm" type="button" data-cancel-edit-purchase="${id}">Cancelar</button>
+            <button class="pastel-btn btn-sm" type="button" data-save-purchase="${id}">Guardar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    const cancelBtn = e.target.closest('[data-cancel-edit-purchase]');
+    if (cancelBtn) { renderHistoryModal(); }
+
+    const saveBtn = e.target.closest('[data-save-purchase]');
+    if (saveBtn) {
+      const id = saveBtn.dataset.savePurchase;
+      const purchase = state.purchases.find(p => p.id === id);
+      if (purchase) {
+        purchase.store = document.getElementById(`editStore_${id}`)?.value.trim() || '';
+        purchase.date = document.getElementById(`editDate_${id}`)?.value || todayISO();
+        save();
+        renderHistoryModal();
+        renderInsight();
+        toast('Changuito actualizado.');
+      }
+    }
+
+    const editItemBtn = e.target.closest('[data-edit-item-purchase]');
+    if (editItemBtn) {
+      const pId = editItemBtn.dataset.editItemPurchase;
+      const itemIdx = Number(editItemBtn.dataset.itemIdx);
+      const purchase = state.purchases.find(p => p.id === pId);
+      if (!purchase || !purchase.items[itemIdx]) return;
+
+      const item = purchase.items[itemIdx];
+      const card = editItemBtn.closest('.chg-history-card');
+      if (!card) return;
+
+      const qtyField = item.byKg
+        ? `<label style="display: grid; gap: 2px; font-size: 0.75rem;">Peso (kg):
+              <input type="text" inputmode="decimal" id="editItemQty_${pId}_${itemIdx}" value="${String(item.kg || 0).replace('.', ',')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+            </label>`
+        : `<label style="display: grid; gap: 2px; font-size: 0.75rem;">Cantidad:
+              <input type="number" min="1" id="editItemQty_${pId}_${itemIdx}" value="${item.qty || 1}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+            </label>`;
+
+      card.innerHTML = `
+        <div style="display: grid; gap: 8px; font-size: 0.85rem;">
+          <strong>✏️ Editando producto: ${esc(item.name)}</strong>
+          <label style="display: grid; gap: 2px; font-size: 0.75rem;">Nombre del producto:
+            <input type="text" id="editItemName_${pId}_${itemIdx}" value="${esc(item.name || '')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+          </label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            ${qtyField}
+            <label style="display: grid; gap: 2px; font-size: 0.75rem;">Precio total pagado:
+              <input type="text" inputmode="decimal" id="editItemPaid_${pId}_${itemIdx}" value="${String(item.paid || 0).replace('.', ',')}" style="padding: 6px; border-radius: 8px; border: 1px solid var(--chg-line); background: transparent; color: inherit;">
+            </label>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 6px; margin-top: 4px;">
+            <button class="btn btn-outline btn-sm" type="button" data-cancel-edit-purchase="${pId}">Cancelar</button>
+            <button class="pastel-btn btn-sm" type="button" data-save-item-purchase="${pId}" data-item-idx="${itemIdx}">Guardar producto</button>
+          </div>
+        </div>
+      `;
+    }
+
+    const saveItemBtn = e.target.closest('[data-save-item-purchase]');
+    if (saveItemBtn) {
+      const pId = saveItemBtn.dataset.saveItemPurchase;
+      const itemIdx = Number(saveItemBtn.dataset.itemIdx);
+      const purchase = state.purchases.find(p => p.id === pId);
+      if (purchase && purchase.items[itemIdx]) {
+        const item = purchase.items[itemIdx];
+        const newName = document.getElementById(`editItemName_${pId}_${itemIdx}`)?.value.trim();
+        const qtyRaw = document.getElementById(`editItemQty_${pId}_${itemIdx}`)?.value;
+        const newPaid = parseAmount(document.getElementById(`editItemPaid_${pId}_${itemIdx}`)?.value);
+
+        if (newName) item.name = newName;
+        if (item.byKg) {
+          const kg = parseWeight(qtyRaw);
+          if (kg > 0) item.kg = Math.round(kg * 1000) / 1000;
+        } else {
+          item.qty = parseInt(qtyRaw, 10) || 1;
+        }
+        item.paid = round2(newPaid);
+
+        save();
+        renderHistoryModal();
+        renderInsight();
+        toast('Producto actualizado con éxito.');
+      }
+    }
+
+    const btn = e.target.closest('.chg-item [data-act]');
+    if (!btn) return;
+    const id = btn.closest('.chg-item').dataset.id;
+    if (btn.dataset.act === 'edit') startEdit(id);
+    if (btn.dataset.act === 'del') {
+      state.items = state.items.filter((x) => x.id !== id);
+      if (editingId === id) resetForm();
+      save(); render();
+    }
+  });
+
+  let timer;
+  const refresh = () => { clearTimeout(timer); timer = setTimeout(() => { renderTotals(); renderInsight(); }, 250); };
+  const watch = (id, cb) => {
+    const el = document.getElementById(id);
+    if (el) new MutationObserver(cb).observe(el, { childList: true, subtree: true, characterData: true });
+  };
+  watch('expenseTable', refresh);
+  watch('dolarBadge', refresh);
+  watch('userEmail', () => { load(); render(); enhanceTable(); });
+  document.getElementById('monthPicker')?.addEventListener('change', refresh);
+
+  setupKgUI();
+  load();
+  renderIcons();
+  applyKgUI();
+  render();
+  enhanceTable();
+})();
