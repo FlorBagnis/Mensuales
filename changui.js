@@ -776,7 +776,8 @@
            <strong>${iconOf(it.icon).e} Editar producto</strong>
            <div class="chg-d-fields">
              <label class="chg-d-full">Nombre<input class="chg-d-name-in" type="text" maxlength="40" value="${esc(it.name)}"></label>
-             <label>Se compra<select class="chg-d-mode"><option value="unit"${it.byKg ? '' : ' selected'}>Por unidad</option><option value="kg"${it.byKg ? ' selected' : ''}>Por kilo</option></select></label>
+             <label class="chg-d-full">Tipo de producto<select class="chg-d-icon">${ICONS.map((i) => `<option value="${i.k}"${i.k === it.icon ? ' selected' : ''}>${i.e} ${esc(i.label)}</option>`).join('')}</select></label>
+             <label>Se compra<select class="chg-d-mode"><option value="unit"${it.byKg ? '' : ' selected'}>Por unidad</option><option value="kg"${it.byKg ? ' selected' : ''}${KG_KEYS.includes(it.icon) ? '' : ' disabled'}>Por kilo</option></select></label>
              <label class="chg-d-qtywrap"${it.byKg ? ' hidden' : ''}>Cantidad<input class="chg-d-qty" type="number" min="1" max="99" value="${it.qty || 1}"></label>
              <label class="chg-d-wtwrap"${it.byKg ? '' : ' hidden'}>Peso comprado<div class="chg-weight"><input class="chg-d-wt" type="text" inputmode="decimal" value="${wt}" placeholder="Ej. 0,5"><select class="chg-d-unit"><option value="kg"${grams ? '' : ' selected'}>kg</option><option value="g"${grams ? ' selected' : ''}>g</option></select></div></label>
              <label class="chg-d-price-label">${it.byKg ? 'Precio por kg' : 'Precio por unidad'}<input class="chg-d-price" type="text" inputmode="decimal" value="${price}" placeholder="0,00"></label>
@@ -785,6 +786,32 @@
          </div>`);
       line.remove();
     });
+  }
+
+  // Refleja en el historial de Changui (copia local) los cambios hechos desde Gastos del mes
+  function syncPurchaseFromExpense(oldDesc, newDesc, date, detalle, amount) {
+    const od = norm(oldDesc);
+    const apply = (ignoreDate) => {
+      let found = false;
+      (state.purchases || []).forEach((p) => {
+        if (!ignoreDate && date && p.date !== date) return;
+        let hit = false;
+        (p.expenses || []).forEach((x) => {
+          if (x.isDelivery || norm(x.description) !== od) return;
+          x.description = newDesc;
+          x.items = detalle.map((d) => Object.assign({}, d));
+          x.amount = Number(amount);
+          hit = true;
+        });
+        if (hit) {
+          // la lista de productos de la compra se rearma con los productos actualizados
+          p.items = (p.expenses || []).filter((x) => !x.isDelivery).flatMap((x) => x.items || []);
+          found = true;
+        }
+      });
+      return found;
+    };
+    if (apply(false) || apply(true)) save();
   }
 
   // Guarda el detalle en el gasto. El total se recalcula solo si todos los productos tienen precio.
@@ -800,7 +827,8 @@
     const oldDesc = String(exp.description || '');
     let newDesc = oldDesc;
     const m = oldDesc.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
-    if (m && norm(m[2]) === norm(oldList.map((x) => x.name).join(', '))) {
+    // Solo si el detalle ya estaba guardado: si venía del texto, el paréntesis puede ser el local (ej: Verdulería Roberto)
+    if (m && Array.isArray(exp.detalle) && exp.detalle.length && norm(m[2]) === norm(oldList.map((x) => x.name).join(', '))) {
       newDesc = `${m[1].trim()} (${detalle.map((x) => x.name).join(', ')})`;
     }
 
@@ -822,6 +850,7 @@
       toast('No se pudo guardar el cambio.');
       return;
     }
+    syncPurchaseFromExpense(oldDesc, newDesc, exp.date, detalle, amount);
     toast(okMsg);
   }
 
@@ -837,10 +866,12 @@
 
     const q = (s) => form.querySelector(s);
     const name = q('.chg-d-name-in').value.trim() || old.name;
-    const byKg = q('.chg-d-mode').value === 'kg';
+    const iconSel = q('.chg-d-icon');
+    const icon = iconSel ? iconSel.value : old.icon;
+    const byKg = q('.chg-d-mode').value === 'kg' && KG_KEYS.includes(icon);
     const price = parseAmount(q('.chg-d-price').value);
 
-    const nu = Object.assign({}, old, { name, price, byKg });
+    const nu = Object.assign({}, old, { name, icon, price, byKg });
     if (byKg) {
       const w = parseWeight(q('.chg-d-wt').value);
       const kg = q('.chg-d-unit').value === 'g' ? w / 1000 : w;
@@ -890,6 +921,23 @@
     if (e.target.closest('#expenseTable .chg-d-cancel')) { enhanceTable(); return; }
     const sv = e.target.closest('#expenseTable .chg-d-save');
     if (sv) saveItemEdit(sv);
+  });
+
+  // Al cambiar el tipo de producto: "por kilo" solo para verduras, frutas, carne, etc.
+  document.addEventListener('change', (e) => {
+    const iconSel = e.target.closest && e.target.closest('#expenseTable .chg-d-icon');
+    if (!iconSel) return;
+    const form = iconSel.closest('.chg-d-form');
+    const modeSel = form && form.querySelector('.chg-d-mode');
+    if (!modeSel) return;
+    const eligible = KG_KEYS.includes(iconSel.value);
+    const kgOpt = modeSel.querySelector('option[value="kg"]');
+    if (kgOpt) kgOpt.disabled = !eligible;
+    const target = eligible ? 'kg' : 'unit';
+    if (modeSel.value !== target) {
+      modeSel.value = target;
+      modeSel.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   });
 
   document.addEventListener('change', (e) => {
@@ -1151,7 +1199,8 @@
       return;
     }
 
-    container.innerHTML = unifiedPurchases.map((p) => {
+    const hint = '<p style="font-size: 0.75rem; color: var(--muted); margin: 0 0 10px;">Para editar un producto, abrí el Detalle del gasto en Gastos del mes: el cambio se refleja acá.</p>';
+    container.innerHTML = hint + unifiedPurchases.map((p) => {
       const isLocal = p.source === 'local';
       const storeName = p.store ? `Supermercado: <strong>${esc(p.store)}</strong>` : 'Compra general';
       const isEnvio = p.deliveryMode === 'envio';
@@ -1162,7 +1211,6 @@
           <span>${iconOf(it.icon).e} ${esc(it.name)} (${esc(qtyText(it))})</span>
           <div style="display: flex; align-items: center; gap: 6px;">
             <b>${Number(it.paid) > 0 ? money(it.paid, it.cur) : '—'}</b>
-            ${isLocal ? `<button class="chg-ico-btn" type="button" data-edit-item-purchase="${esc(p.id)}" data-item-idx="${idx}" title="Editar producto">✏️</button>` : ''}
           </div>
         </div>
       `).join('');
@@ -1539,6 +1587,25 @@
   watch('dolarBadge', refresh);
   watch('userEmail', () => { load(); render(); enhanceTable(); });
   document.getElementById('monthPicker')?.addEventListener('change', refresh);
+
+  // Efecto hover de los botones de la solapa "¿Qué se compró?": luz abajo + zoom chiquito
+  (function injectDetailFx() {
+    if (document.getElementById('chgDetailFx')) return;
+    const st = document.createElement('style');
+    st.id = 'chgDetailFx';
+    st.textContent = `
+      /* Color de la luz según el tema: claro (rosa), oscuro (rosa suave), azul (celeste), black (blanco) */
+      body{--chg-fx:234,91,142;--chg-fa:.35}
+      body.dark-mode{--chg-fx:255,120,160;--chg-fa:.40}
+      body.dark-blue-mode{--chg-fx:56,189,248;--chg-fa:.40}
+      body.black-mode{--chg-fx:255,255,255;--chg-fa:.28}
+      .chg-tog,.chg-d-edit,.chg-d-del,.chg-d-save,.chg-d-cancel{cursor:pointer;transition:transform .15s ease,box-shadow .2s ease,border-color .2s ease}
+      .chg-tog:hover,.chg-d-save:hover,.chg-d-cancel:hover{transform:translateY(-1px) scale(1.05);border-color:rgba(var(--chg-fx),.85);box-shadow:0 6px 14px rgba(var(--chg-fx),var(--chg-fa))}
+      .chg-d-edit:hover,.chg-d-del:hover{transform:scale(1.18);box-shadow:0 4px 10px rgba(var(--chg-fx),var(--chg-fa))}
+      .chg-tog:active,.chg-d-edit:active,.chg-d-del:active,.chg-d-save:active,.chg-d-cancel:active{transform:scale(.96);box-shadow:none}
+    `;
+    document.head.appendChild(st);
+  })();
 
   setupKgUI();
   load();
