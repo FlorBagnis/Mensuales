@@ -785,7 +785,9 @@
     });
   }
 
-  /* ---------- 🆕 Chango nuevo: deja el changuito en cero (no toca el historial guardado) ---------- */
+  /* ---------- 🛒 Chango nuevo: guarda el chango actual en el Historial y abre uno vacío ---------- */
+  /* Nada se borra: el chango actual pasa al Historial (botón "📂 Ver" para volver a abrirlo).      */
+  /* "Vaciar" sigue siendo la opción para borrar todo sin guardar.                                   */
   const clearBtn = $('chgClearBtn');
   if (clearBtn && !$('chgNewBtn')) {
     const nb = document.createElement('button');
@@ -793,30 +795,97 @@
     nb.type = 'button';
     nb.className = 'btn btn-outline btn-sm';
     nb.textContent = '🛒 Chango nuevo';
-    nb.title = 'Empezar un changuito en cero (los guardados no se borran)';
-    nb.style.marginRight = '6px';
-    nb.addEventListener('click', () => {
-      // salir de cualquier edición de producto en curso
-      const cancel = $('chgCancelEdit');
-      if (cancel && !cancel.hidden) cancel.click();
-      // vaciar el changuito actual con el mismo botón "Vaciar" de Changui
-      clearBtn.click();
-      // limpiar descuento general y datos de compra
-      const fire = (el) => el && el.dispatchEvent(new Event('input', { bubbles: true }));
-      const gen = $('chgGeneral'); if (gen && gen.value) { gen.value = ''; fire(gen); }
-      const store = $('chgStore'); if (store) store.value = '';
-      const mode = $('chgDeliveryMode');
-      if (mode && mode.value !== 'presencial') { mode.value = 'presencial'; mode.dispatchEvent(new Event('change', { bubbles: true })); }
-      const cost = $('chgDeliveryCost'); if (cost) cost.value = '';
-      const form = $('chgForm'); if (form) form.reset();
-      const top = $('changui'); if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-    // los dos botones juntos, uno al lado del otro, a la derecha
+    nb.title = 'Guarda este chango en el Historial y abre uno nuevo en cero';
+
     const wrap = document.createElement('div');
     wrap.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;';
     clearBtn.before(wrap);
     wrap.appendChild(nb);
     wrap.appendChild(clearBtn);
-    nb.style.marginRight = '0';
+
+    const say = (text) => {
+      let t = document.getElementById('chgNewToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'chgNewToast';
+        t.className = 'chg-toast';
+        t.setAttribute('role', 'status');
+        document.body.appendChild(t);
+      }
+      t.textContent = text;
+      t.classList.add('show');
+      clearTimeout(t._tm);
+      t._tm = setTimeout(() => t.classList.remove('show'), 4500);
+    };
+
+    // Mismo cálculo que usa Changui para cada producto
+    const paidOf = (it, general) => {
+      const p = it.promo || { type: 'none' };
+      const price = Number(it.price) || 0, qty = Number(it.qty) || 1;
+      let paid;
+      if (it.byKg) {
+        const base = price * (Number(it.kg) || 0);
+        paid = p.type === 'pct' ? base * (1 - p.value / 100) : base;
+      } else if (p.type === 'pct') paid = price * qty * (1 - p.value / 100);
+      else if (p.type === '2x1') paid = price * Math.ceil(qty / 2);
+      else if (p.type === 'second') {
+        const pairs = Math.floor(qty / 2);
+        paid = price * (qty - pairs) + price * pairs * (1 - p.value / 100);
+      } else paid = price * qty;
+      return round2(paid * (1 - general / 100));
+    };
+
+    nb.addEventListener('click', () => {
+      const emailEl = $('userEmail');
+      const email = ((emailEl && emailEl.textContent) || '').trim().toLowerCase();
+      const key = 'changui_v1_' + (email || 'anon');
+      let st = null;
+      try { st = JSON.parse(localStorage.getItem(key) || 'null'); } catch (err) { st = null; }
+
+      if (!st || !Array.isArray(st.items) || !st.items.length) {
+        say('Tu changuito ya está vacío: podés empezar uno nuevo. 🛒');
+        return;
+      }
+      if (!confirm('¿Empezar un chango nuevo? El actual se guarda en el Historial (📜), no se borra nada.')) return;
+
+      const general = Math.min(100, Math.max(0, Number(st.general) || 0));
+      const mode = ($('chgDeliveryMode') && $('chgDeliveryMode').value) || 'presencial';
+      const cost = mode === 'envio' ? parseMoney($('chgDeliveryCost') && $('chgDeliveryCost').value) : 0;
+      const hoy = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date());
+
+      if (!Array.isArray(st.purchases)) st.purchases = [];
+      st.purchases.unshift({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+        date: hoy,
+        store: (($('chgStore') && $('chgStore').value) || '').trim().replace(/[()]/g, '').slice(0, 30),
+        deliveryMode: mode,
+        deliveryCost: cost,
+        draft: true,                       // guardado sin registrar en los gastos del mes
+        expenses: [],
+        items: st.items.map((it) => ({
+          name: it.name, icon: it.icon, cur: it.cur, price: it.price, qty: it.qty,
+          byKg: !!it.byKg, kg: it.kg || 0, promo: it.promo || { type: 'none' },
+          paid: paidOf(it, general)
+        }))
+      });
+      st.items = [];
+      st.general = 0;
+      try { localStorage.setItem(key, JSON.stringify(st)); } catch (err) { say('No se pudo guardar el chango.'); return; }
+
+      // limpiar la pantalla y los datos de compra
+      const cancel = $('chgCancelEdit'); if (cancel) cancel.click();   // sale de cualquier edición y limpia el formulario
+      const store = $('chgStore'); if (store) store.value = '';
+      const dm = $('chgDeliveryMode'); if (dm) dm.value = 'presencial';
+      const dw = $('chgDeliveryCostWrap'); if (dw) dw.hidden = true;
+      const dc = $('chgDeliveryCost'); if (dc) dc.value = '';
+      const gen = $('chgGeneral'); if (gen) gen.value = '';
+
+      // avisarle a Changui que vuelva a leer sus datos (él ya escucha cambios en #userEmail)
+      if (emailEl) emailEl.textContent = emailEl.textContent;
+      else window.location.reload();
+
+      const top = $('changui'); if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      say('Listo: chango guardado en el Historial y chango nuevo en cero. 🛒');
+    });
   }
 })();
