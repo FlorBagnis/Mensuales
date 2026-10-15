@@ -144,14 +144,96 @@
     const w = (i || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     return d !== undefined ? `${w},${d.slice(0, 2)}` : w;
   };
-  // Mantiene al día la copia guardada en el Historial de Changui (evita tarjetas duplicadas)
-  const syncLocal = (oldDesc, newDesc, date, detalle, amount) => {
+
+  // Mantiene al día la copia guardada en el Historial y Análisis de Changui + refresca gráficos en tiempo real
+  const syncLocal = (oldDesc, newDesc, date, detalle, amount, expId, isRemoved = false) => {
     try {
-      if (typeof window.__changuiSyncPurchase === 'function' && Array.isArray(detalle)) {
+      // 1) Si changui.js tiene su propio sincronizador, lo llamamos primero
+      if (!isRemoved && typeof window.__changuiSyncPurchase === 'function' && Array.isArray(detalle)) {
         window.__changuiSyncPurchase(oldDesc, newDesc, date, detalle, amount);
       }
-    } catch (err) { console.warn('Pasar a Changui: no se pudo sincronizar el historial', err); }
+
+      // 2) Aseguramos que figure en localStorage (st.purchases) para el análisis (#chgInsight) y gráficos de Changui
+      const emailEl = $('userEmail');
+      const email = ((emailEl && emailEl.textContent) || '').trim().toLowerCase();
+      const key = 'changui_v1_' + (email || 'anon');
+      const st = JSON.parse(localStorage.getItem(key) || 'null') || { items: [], general: 0, purchases: [] };
+
+      if (st && typeof st === 'object') {
+        if (!Array.isArray(st.purchases)) st.purchases = [];
+
+        const storeMatch = String(newDesc || '').match(/^changui\s+en\s+([^(]*?)\s*(\(|$)/i);
+        const storeName = storeMatch ? storeMatch[1].trim() : '';
+
+        // Buscamos si ya existía esta compra en el historial de Changui (para no duplicarla)
+        const idx = st.purchases.findIndex((p) =>
+          (expId && (p.id === expId || (Array.isArray(p.expenses) && p.expenses.includes(expId)))) ||
+          (oldDesc && (p.desc === oldDesc || p.description === oldDesc) && p.date === date) ||
+          (newDesc && (p.desc === newDesc || p.description === newDesc) && p.date === date)
+        );
+
+        if (isRemoved) {
+          if (idx !== -1) st.purchases.splice(idx, 1);
+        } else if (Array.isArray(detalle) && detalle.length) {
+          // Si viene un solo producto o varios sin precio individual, repartimos el monto para que sume bien en Changui
+          const sumPaid = detalle.reduce((acc, it) => acc + (Number(it.paid) || 0), 0);
+          const fallbackPaid = sumPaid > 0 ? 0 : round2(Number(amount || 0) / detalle.length);
+
+          const itemsMapped = detalle.map((it) => {
+            const paidVal = Number(it.paid) > 0 ? round2(it.paid) : fallbackPaid;
+            const units = it.byKg ? (Number(it.kg) || 1) : (Number(it.qty) || 1);
+            const priceVal = Number(it.price) > 0 ? round2(it.price) : round2(paidVal / units);
+            return {
+              name: it.name,
+              icon: it.icon,
+              cur: it.cur || 'ARS',
+              price: priceVal,
+              qty: Number(it.qty) || 1,
+              byKg: !!it.byKg,
+              kg: Number(it.kg) || 0,
+              promo: it.promo || { type: 'none' },
+              paid: paidVal
+            };
+          });
+
+          const purchaseObj = {
+            id: (idx !== -1 && st.purchases[idx].id) ? st.purchases[idx].id : (expId || (Date.now().toString(36) + Math.random().toString(36).slice(2, 7))),
+            date: date,
+            store: storeName,
+            desc: newDesc,
+            total: round2(amount),
+            deliveryMode: (idx !== -1 && st.purchases[idx].deliveryMode) ? st.purchases[idx].deliveryMode : 'presencial',
+            deliveryCost: (idx !== -1 && st.purchases[idx].deliveryCost) ? st.purchases[idx].deliveryCost : 0,
+            draft: false,
+            expenses: expId ? [expId] : [],
+            items: itemsMapped
+          };
+
+          if (idx !== -1) {
+            st.purchases[idx] = Object.assign({}, st.purchases[idx], purchaseObj);
+          } else {
+            st.purchases.unshift(purchaseObj);
+          }
+        }
+
+        localStorage.setItem(key, JSON.stringify(st));
+      }
+
+      // 3) Forzamos a changui.js a releer localStorage y redibujar #chgInsight (su MutationObserver escucha #userEmail)
+      if (emailEl) {
+        emailEl.textContent = emailEl.textContent;
+      }
+
+      // 4) Disparamos eventos para que app.js y changui.js redibujen gráficos (#categoryChart) y análisis (#trendText)
+      window.dispatchEvent(new CustomEvent('mensuales:refresh'));
+      window.dispatchEvent(new CustomEvent('changui:refresh'));
+      const mp = $('monthPicker');
+      if (mp) mp.dispatchEvent(new Event('change', { bubbles: true }));
+    } catch (err) {
+      console.warn('Pasar a Changui: no se pudo sincronizar el historial/análisis', err);
+    }
   };
+
   const showRecurring = (show) => { if (recBox) recBox.style.display = show ? '' : 'none'; };
 
   /* ---------- renglones de productos ---------- */
@@ -378,6 +460,18 @@
   }).observe(dialog, { attributes: true, attributeFilter: ['open'] });
 
   /* ---------- eventos del bloque ---------- */
+  // ✅ RECUPERADO: muestra/oculta los campos de productos al tildar el checkbox
+  chk.addEventListener('change', () => {
+    fields.hidden = !chk.checked;
+    if (chk.checked) {
+      // un gasto de Changui no se repite como recurrente
+      const rec = $('expenseRecurring');
+      if (rec) rec.checked = false;
+      const opts = $('recurringOptions');
+      if (opts) opts.classList.add('hidden');
+    }
+    showRecurring(!chk.checked);
+  });
 
   back.addEventListener('click', async () => {
     const b = bridge();
@@ -395,7 +489,16 @@
     delete exp.detalle;
 
     let ok = false;
-    try { ok = await b.updateExpense({ month, id, amount: exp.amount }); } catch (err) { ok = false; }
+    try {
+      ok = await b.updateExpense({
+        month,
+        id,
+        amount: exp.amount,
+        category: exp.category,
+        description: exp.description,
+        date: exp.date
+      });
+    } catch (err) { ok = false; }
     if (!ok) {
       exp.description = before.description;
       if (before.fromChangui !== undefined) exp.fromChangui = before.fromChangui;
@@ -404,8 +507,8 @@
       return;
     }
 
-     window.dispatchEvent(new CustomEvent('mensuales:refresh'));
-
+    // Quita la compra del análisis/historial de Changui y refresca gráficos de Mensuales
+    syncLocal(before.description, exp.description, exp.date, [], exp.amount, id, true);
     dialog.close();
   });
 
@@ -520,8 +623,24 @@
         clearInterval(timer);
         found.fromChangui = true;
         let ok = false;
-        try { ok = await bridge().updateExpense({ month: foundMonth, id: found.id, amount: round2(found.amount), detalle: info.items }); } catch (err) { ok = false; }
-        if (!ok) { delete found.fromChangui; alert('El gasto se guardó, pero no pude cargarle los productos de Changui. Editalo y probá de nuevo.'); }
+        try {
+          ok = await bridge().updateExpense({
+            month: foundMonth,
+            id: found.id,
+            amount: round2(found.amount),
+            category: found.category,
+            description: found.description,
+            date: found.date,
+            detalle: info.items
+          });
+        } catch (err) { ok = false; }
+        if (!ok) {
+          delete found.fromChangui;
+          alert('El gasto se guardó, pero no pude cargarle los productos de Changui. Editalo y probá de nuevo.');
+        } else {
+          // Sincroniza el gasto nuevo con el gráfico y el análisis de Changui
+          syncLocal(found.description, found.description, found.date, info.items, round2(found.amount), found.id, false);
+        }
       } else if (tries >= 25) {
         clearInterval(timer);
         console.warn('Pasar a Changui: no encontré el gasto nuevo para agregarle los productos.');
@@ -536,7 +655,12 @@
       const id0 = form.dataset.editingId;
       const e0 = id0 ? findExp(currentMonth(), id0) : null;
       const d0 = String(($('expenseDescription') && $('expenseDescription').value) || '').trim();
-      if (e0 && (e0.fromChangui || e0.detalle) && !/^changui\b/i.test(d0)) { delete e0.fromChangui; delete e0.detalle; }
+      if (e0 && (e0.fromChangui || e0.detalle) && !/^changui\b/i.test(d0)) {
+        const oldD = e0.description;
+        delete e0.fromChangui;
+        delete e0.detalle;
+        syncLocal(oldD, d0, e0.date, [], e0.amount, id0, true);
+      }
       return;
     }
     const stop = () => { e.preventDefault(); e.stopImmediatePropagation(); };
@@ -583,8 +707,8 @@
       const descEl = $('expenseDescription');
       if (descEl) descEl.value = newDesc;
       // mismo mes que usa app.js para guardar: «Imputar al mes» (o el mes de la fecha)
-      const tm = ($('expenseTargetMonth') && $('expenseTargetMonth').value) ||
-        String(($('expenseDate') && $('expenseDate').value) || '').slice(0, 7) || month;
+      const tm = ($('expenseTargetMonth') &&$('expenseTargetMonth').value) ||
+        String(($('expenseDate') &&$('expenseDate').value) || '').slice(0, 7) || month;
       attachToNewExpense({ desc: newDesc, amount: round2(amount), items, month: tm });
       return;                                          // sigue el guardado normal de app.js
     }
@@ -592,21 +716,31 @@
     // ----- GASTO EXISTENTE: se aplican los datos del modal y se marca como gasto de Changui -----
     stop();
     const before = { date: exp.date, description: exp.description, category: exp.category, currency: exp.currency, fromChangui: exp.fromChangui };
-    exp.date = ($('expenseDate') && $('expenseDate').value) || exp.date;
+    exp.date = ($('expenseDate') &&$('expenseDate').value) || exp.date;
     exp.description = newDesc;
-    exp.category = ($('expenseCategory') && $('expenseCategory').value) || exp.category;
+    exp.category = ($('expenseCategory') &&$('expenseCategory').value) || exp.category;
     exp.currency = currency;
     exp.fromChangui = true;
 
     let ok = false;
-    try { ok = await b.updateExpense({ month, id, amount: round2(amount), detalle: items }); } catch (err) { ok = false; }
+    try {
+      ok = await b.updateExpense({
+        month,
+        id,
+        amount: round2(amount),
+        category: exp.category,
+        description: exp.description,
+        date: exp.date,
+        detalle: items
+      });
+    } catch (err) { ok = false; }
     if (!ok) {
       Object.assign(exp, before);
       if (before.fromChangui === undefined) delete exp.fromChangui;
       alert('No se pudo guardar. Probá de nuevo.');
       return;
     }
-    syncLocal(before.description, exp.description, exp.date, items, round2(amount));
+    syncLocal(before.description, exp.description, exp.date, items, round2(amount), id, false);
     dialog.close();
   }, true);   // captura: corre antes que el guardado normal de app.js
 
@@ -672,7 +806,7 @@
   const refreshHistory = () => {
     if (histDialog && histDialog.open) histDialog.close();
     const btn = $('chgHistoryModalBtn');
-    if (btn) btn.click();            // vuelve a armar el historial con los datos nuevos
+    if (btn) btn.click();             // vuelve a armar el historial con los datos nuevos
   };
 
   if (histBox) {
@@ -738,14 +872,21 @@
         return;
       }
 
-
       // 🗑️ Eliminar: usa el mismo borrado (con confirmación) de «Gastos del mes»
       const del = e.target.closest('[data-mv-del]');
       if (del) {
-        const delBtn = document.querySelector(`#expenseTable .delete-btn[data-id="${CSS.escape(del.dataset.mvDel)}"]`);
+        const delId = del.dataset.mvDel;
+        const expToDel = findExp(currentMonth(), delId);
+        const delBtn = document.querySelector(`#expenseTable .delete-btn[data-id="${CSS.escape(delId)}"]`);
         if (!delBtn) { alert('No encuentro este gasto en «Gastos del mes». Sacá la búsqueda o el filtro de categoría y probá de nuevo.'); return; }
         delBtn.click();
-        setTimeout(refreshHistory, 500);
+        setTimeout(() => {
+          // Si efectivamente se borró de los gastos del mes, lo sacamos también del análisis de Changui
+          if (!findExp(currentMonth(), delId) && expToDel) {
+            syncLocal(expToDel.description, expToDel.description, expToDel.date, [], expToDel.amount, delId, true);
+          }
+          refreshHistory();
+        }, 500);
         return;
       }
 
@@ -766,13 +907,23 @@
       if (parts) exp.description = `Changui${newStore ? ' en ' + newStore : ''}${parts[1] ? ' ' + parts[1] : ''}`;
 
       let ok = false;
-      try { ok = await bridge().updateExpense({ month, id, amount: exp.amount, detalle: exp.detalle }); } catch (err) { ok = false; }
+      try {
+        ok = await bridge().updateExpense({
+          month,
+          id,
+          amount: exp.amount,
+          category: exp.category,
+          description: exp.description,
+          date: exp.date,
+          detalle: exp.detalle
+        });
+      } catch (err) { ok = false; }
       if (!ok) {
         Object.assign(exp, before);
         alert('No se pudo guardar el cambio.');
         return;
       }
-      syncLocal(before.description, exp.description, exp.date, exp.detalle, exp.amount);
+      syncLocal(before.description, exp.description, exp.date, exp.detalle, exp.amount, id, false);
       refreshHistory();
     });
   }
@@ -841,18 +992,18 @@
       if (!confirm('¿Empezar un chango nuevo? El actual se guarda en el Historial (📜), no se borra nada.')) return;
 
       const general = Math.min(100, Math.max(0, Number(st.general) || 0));
-      const mode = ($('chgDeliveryMode') && $('chgDeliveryMode').value) || 'presencial';
-      const cost = mode === 'envio' ? parseMoney($('chgDeliveryCost') && $('chgDeliveryCost').value) : 0;
+      const mode = ($('chgDeliveryMode') &&$('chgDeliveryMode').value) || 'presencial';
+      const cost = mode === 'envio' ? parseMoney($('chgDeliveryCost') &&$('chgDeliveryCost').value) : 0;
       const hoy = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date());
 
       if (!Array.isArray(st.purchases)) st.purchases = [];
       st.purchases.unshift({
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
         date: hoy,
-        store: (($('chgStore') && $('chgStore').value) || '').trim().replace(/[()]/g, '').slice(0, 30),
+        store: (($('chgStore') &&$('chgStore').value) || '').trim().replace(/[()]/g, '').slice(0, 30),
         deliveryMode: mode,
         deliveryCost: cost,
-        draft: true,                       // guardado sin registrar en los gastos del mes
+        draft: true,                    // guardado sin registrar en los gastos del mes
         expenses: [],
         items: st.items.map((it) => ({
           name: it.name, icon: it.icon, cur: it.cur, price: it.price, qty: it.qty,
@@ -886,7 +1037,126 @@
 window.addEventListener('mensuales:refresh', () => {
   if (typeof renderCategoryChart === 'function') renderCategoryChart();
   if (typeof renderTrendAnalysis === 'function') renderTrendAnalysis();
-  if (typeof updateUI === 'function') updateUI(); 
+  if (typeof updateUI === 'function') updateUI();
 });
+
+
+
+
+/* =========================================================
+   SINCRONIZACIÓN AUTOMÁTICA DE GASTOS YA CARGADOS EN EL MES
+   Revisa los gastos del mes que ya son de Changui y los suma
+   al análisis y gráficos de Changui automáticamente al abrir.
+========================================================= */
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+
+  function syncExistingMonthChanguis() {
+    try {
+      const b = window.ChanguiBridge || {};
+      if (typeof b.getMonthExpenses !== 'function') return;
+
+      const month = (b.getCurrentMonth && b.getCurrentMonth()) || ($('monthPicker') && $('monthPicker').value) || '';
+      if (!month) return;
+
+      const list = b.getMonthExpenses(month) || [];
+      if (!list.length) return;
+
+      const emailEl = $('userEmail');
+      const email = ((emailEl && emailEl.textContent) || '').trim().toLowerCase();
+      const key = 'changui_v1_' + (email || 'anon');
+      const st = JSON.parse(localStorage.getItem(key) || 'null') || { items: [], general: 0, purchases: [] };
+      if (!Array.isArray(st.purchases)) st.purchases = [];
+
+      let changed = false;
+
+      list.forEach((exp) => {
+        const desc = String(exp.description || '').trim();
+        const esChg = exp.fromChangui || /^changui\b/i.test(desc);
+        const detalle = Array.isArray(exp.detalle) ? exp.detalle : [];
+        if (!esChg || !detalle.length) return;
+
+        // Primero avisamos al sincronizador nativo de changui.js si existe
+        if (typeof window.__changuiSyncPurchase === 'function') {
+          window.__changuiSyncPurchase(desc, desc, exp.date, detalle, exp.amount);
+        }
+
+        // Verificamos si ya figura en st.purchases de localStorage
+        const idx = st.purchases.findIndex((p) =>
+          (exp.id && (p.id === exp.id || (Array.isArray(p.expenses) && p.expenses.includes(exp.id)))) ||
+          ((p.desc === desc || p.description === desc) && p.date === exp.date)
+        );
+
+        const sumPaid = detalle.reduce((acc, it) => acc + (Number(it.paid) || 0), 0);
+        const fallbackPaid = sumPaid > 0 ? 0 : round2(Number(exp.amount || 0) / detalle.length);
+
+        const itemsMapped = detalle.map((it) => {
+          const paidVal = Number(it.paid) > 0 ? round2(it.paid) : fallbackPaid;
+          const units = it.byKg ? (Number(it.kg) || 1) : (Number(it.qty) || 1);
+          const priceVal = Number(it.price) > 0 ? round2(it.price) : round2(paidVal / units);
+          return {
+            name: it.name,
+            icon: it.icon,
+            cur: it.cur || exp.currency || 'ARS',
+            price: priceVal,
+            qty: Number(it.qty) || 1,
+            byKg: !!it.byKg,
+            kg: Number(it.kg) || 0,
+            promo: it.promo || { type: 'none' },
+            paid: paidVal
+          };
+        });
+
+        const storeMatch = desc.match(/^changui\s+en\s+([^(]*?)\s*(\(|$)/i);
+        const storeName = storeMatch ? storeMatch[1].trim() : '';
+
+        if (idx === -1) {
+          // No estaba en el análisis de Changui: lo agregamos
+          st.purchases.push({
+            id: exp.id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 7)),
+            date: exp.date,
+            store: storeName,
+            desc: desc,
+            total: round2(exp.amount),
+            deliveryMode: 'presencial',
+            deliveryCost: 0,
+            draft: false,
+            expenses: exp.id ? [exp.id] : [],
+            items: itemsMapped
+          });
+          changed = true;
+        } else if (!Array.isArray(st.purchases[idx].items) || !st.purchases[idx].items.length) {
+          // Estaba pero sin el desglose de productos o precios: lo completamos
+          st.purchases[idx].items = itemsMapped;
+          st.purchases[idx].total = round2(exp.amount);
+          st.purchases[idx].draft = false;
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        localStorage.setItem(key, JSON.stringify(st));
+        if (emailEl) emailEl.textContent = emailEl.textContent;
+        window.dispatchEvent(new CustomEvent('changui:refresh'));
+      }
+    } catch (e) {
+      console.warn('AutoSync Changui:', e);
+    }
+  }
+
+  // Se ejecuta solo cuando la tabla de gastos carga los datos de Firebase o cambiás de mes
+  const expTable = $('expenseTable');
+  if (expTable) {
+    let timer = null;
+    new MutationObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(syncExistingMonthChanguis, 300);
+    }).observe(expTable, { childList: true });
+  }
+
+  // Y una pasada inicial al cargar
+  window.addEventListener('load', () => setTimeout(syncExistingMonthChanguis, 800));
+})();
 
 
