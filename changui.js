@@ -588,6 +588,26 @@
   }
 
   /* ---------- registrar la compra en Gastos del mes (sin duplicar) ---------- */
+  // Si addExpenses no devuelve los ids de los gastos nuevos, se los busca en el mes (misma fecha, descripción y monto)
+  async function resolveNewIds(month, idsBefore, wanted) {
+    const b = bridge();
+    let got = [];
+    for (let t = 0; t < 8; t++) {
+      const list = b.getMonthExpenses ? b.getMonthExpenses(month) || [] : [];
+      const used = new Set();
+      got = [];
+      wanted.forEach((x) => {
+        const hit = list.find((e) => e.id && !idsBefore.has(e.id) && !used.has(e.id) && e.date === x.date
+          && String(e.description || '').toLowerCase().replace(/\s+/g, ' ').trim() === String(x.description || '').toLowerCase().replace(/\s+/g, ' ').trim()
+          && Math.abs(Number(e.amount) - Number(x.amount)) < 0.01);
+        if (hit) { used.add(hit.id); got.push(hit.id); }
+      });
+      if (got.length >= wanted.length) break;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    return got;
+  }
+
   async function registerPurchase() {
     if (registering) return;                       // evita el doble toque
     if (!state.items.length) { toast('Primero agregá productos al changuito.'); return; }
@@ -654,20 +674,66 @@
     registering = true;
     if (btn) btn.disabled = true;
     try {
-      let res = false;
-      try { res = await b.addExpenses({ date, expenses }); } catch (e) { res = false; }
-      if (!res) { toast('No se pudo registrar la compra.'); return; }
-      const newIds = Array.isArray(res) ? res : [];
-
-      // ¿Es el mismo chango que abriste desde el Historial? Entonces se REEMPLAZA, no se suma otra vez
-      // (aunque hayas cambiado la fecha: se borran los gastos viejos del mes donde estaban)
+      const monthOfNew = date.slice(0, 7);
+      const idsBefore = new Set((b.getMonthExpenses ? b.getMonthExpenses(monthOfNew) || [] : []).map((x) => x.id));
+      let newIds = [];
       let replaced = false;
-      if (lf) {
-        if (!lf.draft && lf.expIds.length && b.removeExpenses) {
-          try { replaced = !!(await b.removeExpenses({ month: lf.month, ids: lf.expIds })); } catch (e) { replaced = false; }
+
+      // A) Chango abierto desde el Historial (mismo mes): se ACTUALIZAN sus gastos, no se crea ninguno repetido
+      const canUpdateInPlace = !!(lf && !lf.draft && lf.expIds.length && b.updateExpense && b.getMonthExpenses && lf.month === monthOfNew);
+      const oldExps = canUpdateInPlace ? lf.expIds.map((id) => findExp(lf.month, id)).filter(Boolean) : [];
+
+      if (oldExps.length) {
+        const unused = oldExps.slice();
+        const take = (x) => {
+          const isDel = !!x.isDelivery;
+          let i = unused.findIndex((o) => isDeliveryExp(o) === isDel && (o.currency || 'ARS') === x.currency && o.category === x.category);
+          if (i < 0) i = unused.findIndex((o) => isDeliveryExp(o) === isDel && (o.currency || 'ARS') === x.currency);
+          return i >= 0 ? unused.splice(i, 1)[0] : null;
+        };
+        const toAdd = [];
+        for (const x of expenses) {
+          const o = take(x);
+          if (!o) { toAdd.push(x); continue; }
+          const payload = { month: lf.month, id: o.id, amount: x.amount, category: x.category, description: x.description, date };
+          if (x.detalle) payload.detalle = x.detalle;
+          let ok = false;
+          try { ok = !!(await b.updateExpense(payload)); } catch (e) { ok = false; }
+          if (!ok) { toast('No se pudo actualizar la compra. No se guardó nada repetido: probá de nuevo.'); return; }
+          o.amount = x.amount; o.category = x.category; o.description = x.description; o.date = date;
+          if (x.detalle) o.detalle = x.detalle; else delete o.detalle;
+          newIds.push(o.id);
         }
-        // También se saca la copia local si nunca estuvo enlazada a un gasto (no quedan dos tarjetas)
-        if (lf.draft || replaced || !lf.expIds.length) state.purchases = state.purchases.filter((p) => p.id !== lf.id);
+        // productos nuevos que no tenían gasto propio (ej. otra moneda o categoría)
+        if (toAdd.length) {
+          let r2 = false;
+          try { r2 = await b.addExpenses({ date, expenses: toAdd }); } catch (e) { r2 = false; }
+          if (!r2) { toast('Se actualizó la compra, pero no pude sumar los productos nuevos. Probá de nuevo.'); return; }
+          let added = Array.isArray(r2) ? r2 : [];
+          if (added.length < toAdd.length) added = await resolveNewIds(monthOfNew, idsBefore, toAdd.map((x) => Object.assign({}, x, { date })));
+          newIds = newIds.concat(added);
+        }
+        // gastos viejos que ya no corresponden (ej. se sacó el envío)
+        if (unused.length && b.removeExpenses) {
+          try { await b.removeExpenses({ month: lf.month, ids: unused.map((o) => o.id) }); } catch (e) { /* sigue */ }
+        }
+        replaced = true;
+        state.purchases = state.purchases.filter((p) => p.id !== lf.id);
+      } else {
+        // B) Chango nuevo (o que no se pudo enlazar): se agrega, y si venía de otro se borra el viejo
+        let res = false;
+        try { res = await b.addExpenses({ date, expenses }); } catch (e) { res = false; }
+        if (!res) { toast('No se pudo registrar la compra.'); return; }
+        newIds = Array.isArray(res) ? res : [];
+        if (newIds.length < expenses.length) newIds = await resolveNewIds(monthOfNew, idsBefore, expenses.map((x) => Object.assign({}, x, { date })));
+
+        if (lf) {
+          if (!lf.draft && lf.expIds.length && b.removeExpenses) {
+            try { replaced = !!(await b.removeExpenses({ month: lf.month, ids: lf.expIds.filter((i) => !newIds.includes(i)) })); } catch (e) { replaced = false; }
+          }
+          // También se saca la copia local si nunca estuvo enlazada a un gasto (no quedan dos tarjetas)
+          if (lf.draft || replaced || !lf.expIds.length) state.purchases = state.purchases.filter((p) => p.id !== lf.id);
+        }
       }
 
       const newP = {
@@ -705,7 +771,7 @@
       resetForm();
       render();
       if (replaced) toast('Listo, actualicé esa compra en tus gastos (no se duplicó).');
-      else if (lf && !lf.draft && lf.expIds.length) toast('Se guardó, pero no pude borrar la compra anterior: revisá Gastos del mes por si quedó repetida.');
+      else if (lf && !lf.draft && lf.expIds.length) toast('Se guardó, pero NO pude borrar la compra anterior: borrá la repetida con la ✖ en Gastos del mes.');
       else toast('Listo, la compra se sumó a tus gastos.');
     } finally {
       registering = false;
@@ -1509,6 +1575,13 @@
         const hit = monthList.find((e) => !expIds.includes(e.id) && e.date === purchase.date && norm(e.description) === norm(x.description));
         if (hit) expIds.push(hit.id);
       });
+      // Si no coincide la descripción, se prueba por fecha + mismos productos (por si se editó el gasto)
+      if (!expIds.length) {
+        const names = (purchase.items || []).map((i) => norm(i.name)).sort().join('|');
+        const hit = monthList.find((e) => e.date === purchase.date && Array.isArray(e.detalle) && e.detalle.length
+          && e.detalle.map((i) => norm(i.name)).sort().join('|') === names);
+        if (hit) expIds.push(hit.id);
+      }
     }
 
     // Se recuerda de dónde vino para actualizar esa compra en vez de duplicarla
