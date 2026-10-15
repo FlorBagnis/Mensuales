@@ -784,4 +784,39 @@
       refreshHistory();
     });
   }
+
+  /* ---------- 🆕 Chango nuevo: deja el changuito en cero (no toca el historial guardado) ---------- */
+  const clearBtn = $('chgClearBtn');
+  if (clearBtn && !$('chgNewBtn')) {
+    const nb = document.createElement('button');
+    nb.id = 'chgNewBtn';
+    nb.type = 'button';
+    nb.className = 'btn btn-outline btn-sm';
+    nb.textContent = '🛒 Chango nuevo';
+    nb.title = 'Empezar un changuito en cero (los guardados no se borran)';
+    nb.style.marginRight = '6px';
+    nb.addEventListener('click', () => {
+      // salir de cualquier edición de producto en curso
+      const cancel = $('chgCancelEdit');
+      if (cancel && !cancel.hidden) cancel.click();
+      // vaciar el changuito actual con el mismo botón "Vaciar" de Changui
+      clearBtn.click();
+      // limpiar descuento general y datos de compra
+      const fire = (el) => el && el.dispatchEvent(new Event('input', { bubbles: true }));
+      const gen = $('chgGeneral'); if (gen && gen.value) { gen.value = ''; fire(gen); }
+      const store = $('chgStore'); if (store) store.value = '';
+      const mode = $('chgDeliveryMode');
+      if (mode && mode.value !== 'presencial') { mode.value = 'presencial'; mode.dispatchEvent(new Event('change', { bubbles: true })); }
+      const cost = $('chgDeliveryCost'); if (cost) cost.value = '';
+      const form = $('chgForm'); if (form) form.reset();
+      const top = $('changui'); if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    // los dos botones juntos, uno al lado del otro, a la derecha
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;';
+    clearBtn.before(wrap);
+    wrap.appendChild(nb);
+    wrap.appendChild(clearBtn);
+    nb.style.marginRight = '0';
+  }
 })();
