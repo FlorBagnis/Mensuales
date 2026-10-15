@@ -616,6 +616,13 @@ function detalleHTML(e) {
 function renderMensualesExpensesTable(expenses) {
   const table = $("expenseTable");
   if (!table) return;
+
+  // Recordar el scroll para que al guardar no salte arriba ni se "cierre" todo
+  const scrollBox = table.closest(".table-wrap, .table-container-collapsible");
+  const prevBoxTop = scrollBox ? scrollBox.scrollTop : 0;
+  const prevBoxLeft = scrollBox ? scrollBox.scrollLeft : 0;
+  const prevPageY = window.scrollY;
+
   table.innerHTML = "";
 
   let list = expenses.slice();
@@ -712,6 +719,15 @@ function renderMensualesExpensesTable(expenses) {
       });
     }
   });
+
+  // Volver a la misma posición donde estaba el usuario
+  if (scrollBox) {
+    scrollBox.style.scrollBehavior = "auto";
+    scrollBox.scrollTop = prevBoxTop;
+    scrollBox.scrollLeft = prevBoxLeft;
+    scrollBox.style.scrollBehavior = "";
+  }
+  if (Math.abs(window.scrollY - prevPageY) > 1) window.scrollTo(0, prevPageY);
 
   // Guardar la preferencia en localStorage cuando cambie el select
   if (selectOrden && !selectOrden.onchange) {
