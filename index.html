@@ -382,18 +382,17 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) .category[style*="--pink-700"]
 }
 
 /* =========================================================
-   ICONOS DE ACCIÓN FLOTANTES (✏️ editar / ✖ borrar)
+   ICONOS DE ACCIÓN FLOTANTES (✏️ editar / 🛒 changuito / ✖ borrar)
    Sin recuadro, ni en reposo ni al pasar el mouse.
    Aplica a la tabla de gastos, dinero extra, recurrentes
    y Changui, en los 4 modos (claro, oscuro, azul, black).
-   Los :not() de adelante suben la prioridad para ganarle a
-   las reglas de .pastel-btn / .btn-outline de los modos.
 ========================================================= */
 body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item, .pocki-hist-btns, .pocki-goal-head) button:is(
   [title="Editar"], [title="Editar producto"], [title="Eliminar"],
   [title="Borrar"], [title="Quitar"], [data-act="edit"], [data-act="del"],
   [data-act="hedit"], [data-act="hdel"],
-  [data-edit-item-purchase], [data-del-purchase]
+  [data-edit-item-purchase], [data-del-purchase],
+  .chg-ico-btn, [title="Pasar a Changui"], [title="Editar productos de Changui"]
 ) {
   background: transparent !important;
   background-color: transparent !important;
@@ -413,7 +412,8 @@ body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item, .pocki
   [title="Editar"], [title="Editar producto"], [title="Eliminar"],
   [title="Borrar"], [title="Quitar"], [data-act="edit"], [data-act="del"],
   [data-act="hedit"], [data-act="hdel"],
-  [data-edit-item-purchase], [data-del-purchase]
+  [data-edit-item-purchase], [data-del-purchase],
+  .chg-ico-btn, [title="Pasar a Changui"], [title="Editar productos de Changui"]
 ):is(:hover, :active, :focus, :focus-visible) {
   background: transparent !important;
   background-color: transparent !important;
@@ -423,7 +423,6 @@ body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item, .pocki
   transform: scale(1.25) !important;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
-
 /* =========================================================
    FLECHA PARA VOLVER ARRIBA
    Aparece al bajar y te lleva al inicio. Usa los colores de
