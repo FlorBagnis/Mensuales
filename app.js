@@ -422,6 +422,7 @@ function restoreScroll(s) {
   };
   apply();
   requestAnimationFrame(apply);
+  setTimeout(apply, 90);   // por si algún módulo (Changui) termina de armar filas recién después
 }
 
 // Al abrir cualquier modal se guarda dónde estabas; al cerrarlo se vuelve ahí
@@ -528,6 +529,12 @@ function renderMensuales() {
   // 3. Verificador de alertas pasando valores numéricos directos
   checkFinancialAlerts(totalARS, totalUSD, current.budget, currentDolarBlue);
 
+  // Changui arma su solapa de detalle YA (no 40 ms después), así la tabla
+  // tiene su altura final y el scroll vuelve exactamente a donde estabas
+  if (typeof window.__changuiEnhance === "function") {
+    try { window.__changuiEnhance(); } catch (e) { console.error("Changui:", e); }
+  }
+
   // Quedarte exactamente donde estabas (editar, eliminar, guardar, sincronizar)
   restoreScroll(scrollState);
 }
@@ -620,53 +627,9 @@ function renderExtraIncomesTable(extraIncomes) {
   });
 }
 
-/* ---------- Detalle desplegable en "Gastos del mes" ---------- */
-const expandedDetalles = new Set();
-const nfDetalle = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 3 });
-
-function cantidadDetalle(it) {
-  if (it.byKg) {
-    const kg = Number(it.kg) || 0;
-    return kg < 1 ? `${Math.round(kg * 1000)} g` : `${nfDetalle.format(kg)} kg`;
-  }
-  return `${Number(it.qty) || 1} u`;
-}
-
-function detalleHTML(e) {
-  const curr = e.currency || "ARS";
-  const filas = e.detalle.map(it => {
-    const icur = it.cur || curr;
-    const paid = Number(it.paid) || 0;
-    const units = it.byKg ? (Number(it.kg) || 1) : (Number(it.qty) || 1);
-    const unit = paid > 0 ? money(paid / units, icur) + (it.byKg ? " /kg" : "") : "—";
-    const sub = paid > 0 ? money(paid, icur) : "Sin precio";
-    return `
-      <div class="detalle-item">
-        <span class="detalle-prod">${escapeHtml(it.name || "Producto")}</span>
-        <span class="detalle-cant">${cantidadDetalle(it)}</span>
-        <span class="detalle-unit amount">${unit}</span>
-        <span class="detalle-sub amount">${sub}</span>
-      </div>`;
-  }).join("");
-
-  return `
-    <div class="detalle-box">
-      <div class="detalle-item detalle-head">
-        <span>Producto</span><span>Cantidad</span><span>Precio</span><span>Subtotal</span>
-      </div>
-      ${filas}
-    </div>`;
-}
-
 function renderMensualesExpensesTable(expenses) {
   const table = $("expenseTable");
   if (!table) return;
-
-  // Recordar el scroll para que al guardar no salte arriba ni se "cierre" todo
-  const scrollBox = table.closest(".table-wrap, .table-container-collapsible");
-  const prevBoxTop = scrollBox ? scrollBox.scrollTop : 0;
-  const prevBoxLeft = scrollBox ? scrollBox.scrollLeft : 0;
-  const prevPageY = window.scrollY;
 
   table.innerHTML = "";
 
@@ -721,21 +684,10 @@ function renderMensualesExpensesTable(expenses) {
   list.forEach((e, idx) => {
     const row = document.createElement("tr");
     const curr = e.currency || "ARS";
-    const tieneDetalle = Array.isArray(e.detalle) && e.detalle.length > 0;
-    const abierto = tieneDetalle && expandedDetalles.has(e.id);
-    const alt = idx % 2 === 1 ? "row-alt" : "";
-    row.className = alt;
-
-    const toggleHTML = tieneDetalle
-      ? `<span class="detalle-toggle" role="button" tabindex="0" data-id="${e.id}">${abierto ? "▾" : "▸"} ${abierto ? "Ocultar" : "Ver"} detalle (${e.detalle.length})</span>`
-      : "";
-
+    if (idx % 2 === 1) row.className = "row-alt";
     row.innerHTML = `
       <td>${formatDate(e.date)}</td>
-      <td>
-        <div class="gasto-nombre">${escapeHtml(e.description)}</div>
-        ${toggleHTML}
-      </td>
+      <td>${escapeHtml(e.description)}</td>
       <td><span class="category">${escapeHtml(e.category)}</span></td>
       <td class="amount" style="text-align: right;">${money(e.amount, curr)}</td>
       <td style="text-align: right; white-space: nowrap;">
@@ -744,35 +696,7 @@ function renderMensualesExpensesTable(expenses) {
       </td>
     `;
     table.appendChild(row);
-
-    if (tieneDetalle) {
-      const detalleRow = document.createElement("tr");
-      detalleRow.className = `detalle-row ${alt} ${abierto ? "" : "hidden"}`.trim();
-      detalleRow.innerHTML = `<td colspan="5">${detalleHTML(e)}</td>`;
-      table.appendChild(detalleRow);
-
-      const toggle = row.querySelector(".detalle-toggle");
-      const alternar = () => {
-        const ahoraAbierto = detalleRow.classList.toggle("hidden") === false;
-        if (ahoraAbierto) expandedDetalles.add(e.id);
-        else expandedDetalles.delete(e.id);
-        toggle.textContent = `${ahoraAbierto ? "▾ Ocultar" : "▸ Ver"} detalle (${e.detalle.length})`;
-      };
-      toggle.addEventListener("click", alternar);
-      toggle.addEventListener("keydown", ev => {
-        if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); alternar(); }
-      });
-    }
   });
-
-  // Volver a la misma posición donde estaba el usuario
-  if (scrollBox) {
-    scrollBox.style.scrollBehavior = "auto";
-    scrollBox.scrollTop = prevBoxTop;
-    scrollBox.scrollLeft = prevBoxLeft;
-    scrollBox.style.scrollBehavior = "";
-  }
-  if (Math.abs(window.scrollY - prevPageY) > 1) window.scrollTo(0, prevPageY);
 
   // Guardar la preferencia en localStorage cuando cambie el select
   if (selectOrden && !selectOrden.onchange) {
