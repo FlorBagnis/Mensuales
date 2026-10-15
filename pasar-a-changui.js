@@ -46,6 +46,17 @@
     .chg-move-full{grid-column:1/-1}
     .chg-move-weight{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:6px}
     .chg-move-grid input,.chg-move-grid select{width:100%;min-width:0;box-sizing:border-box}
+    .chg-move-store{display:grid;gap:6px;margin:10px 0 0}
+    .chg-move-item{margin-top:10px;padding:10px 12px;border-radius:14px;box-sizing:border-box;
+      border:1px solid var(--line,#f2cfdf);background:var(--card,transparent)}
+    .chg-move-item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;
+      font-size:.8rem;color:var(--pink-700,#c43878)}
+    .chg-move-rm{background:transparent;border:none;cursor:pointer;font-size:14px;color:inherit;padding:2px 6px;border-radius:6px}
+    .chg-move-add,.chg-move-split{background:transparent;border:1px dashed var(--pink-700,#c43878);
+      color:var(--pink-700,#c43878);border-radius:12px;font-weight:700;cursor:pointer}
+    .chg-move-add{margin-top:10px;width:100%;padding:9px 14px;font-size:.82rem}
+    .chg-move-split{padding:5px 10px;font-size:.72rem}
+    .chg-move-add:hover,.chg-move-split:hover,.chg-move-rm:hover{transform:scale(1.04)}
     @media (max-width:480px){
       .chg-move{padding:10px 12px}
       .chg-move-grid{grid-template-columns:1fr}
@@ -54,6 +65,7 @@
   document.head.appendChild(st);
 
   /* ---------- bloque dentro del modal "Editar gasto" ---------- */
+  const iconOpts = ICONS.map((i) => `<option value="${i[0]}">${i[1]} ${i[2]}</option>`).join('');
   const box = document.createElement('div');
   box.id = 'chgMoveWrap';
   box.className = 'chg-move';
@@ -61,52 +73,25 @@
   box.innerHTML = `
     <label class="checkbox-label chg-move-toggle">
       <input id="chgMoveChk" type="checkbox">
-      <span>🛒 Pasar este gasto a Changui</span>
+      <span id="chgMoveLbl">🛒 Pasar este gasto a Changui</span>
     </label>
     <div id="chgMoveFields" hidden>
-      <p class="chg-move-hint">Este gasto pasa a ser un producto de Changui. Sigue sumando en el mes, y lo ves en “Detalle” y en el Historial de Changui.</p>
-      <div class="chg-move-grid">
-        <label class="chg-move-full">Tipo de producto
-          <select id="chgMoveIcon">
-            <option value="" selected disabled>Elegí el tipo…</option>
-            ${ICONS.map((i) => `<option value="${i[0]}">${i[1]} ${i[2]}</option>`).join('')}
-          </select>
-        </label>
-        <label class="chg-move-full">Nombre del producto
-          <input id="chgMoveName" type="text" maxlength="40" placeholder="Ej. Pollo entero">
-        </label>
-        <label class="chg-move-full">¿Dónde compraste? (opcional)
-          <input id="chgMoveStore" type="text" maxlength="30" placeholder="Ej. Carrefour, Coto, verdulería">
-        </label>
-        <label>Se compra
-          <select id="chgMoveMode">
-            <option value="unit" selected>Por unidad</option>
-            <option value="kg" disabled>Por kilo</option>
-          </select>
-        </label>
-        <label id="chgMoveQtyWrap">Cantidad
-          <input id="chgMoveQty" type="number" min="1" max="99" value="1">
-        </label>
-        <label id="chgMoveWtWrap" hidden>Peso comprado
-          <div class="chg-move-weight">
-            <input id="chgMoveWt" type="text" inputmode="decimal" placeholder="Ej. 1,5">
-            <select id="chgMoveUnit"><option value="kg" selected>kg</option><option value="g">g</option></select>
-          </div>
-        </label>
-      </div>
+      <p class="chg-move-hint" id="chgMoveHint"></p>
+      <label class="chg-move-store">¿Dónde compraste? (opcional)
+        <input id="chgMoveStore" type="text" maxlength="30" placeholder="Ej. Carrefour, Coto, verdulería">
+      </label>
+      <div id="chgMoveItems"></div>
+      <button type="button" id="chgMoveAdd" class="chg-move-add">➕ Agregar otro producto</button>
     </div>`;
   const recBox = form.querySelector('.recurring-box');
   if (recBox) recBox.before(box); else (form.querySelector('.modal-actions') || form.lastElementChild).before(box);
 
   const chk = box.querySelector('#chgMoveChk');
   const fields = box.querySelector('#chgMoveFields');
-  const selIcon = box.querySelector('#chgMoveIcon');
-  const nameIn = box.querySelector('#chgMoveName');
+  const lbl = box.querySelector('#chgMoveLbl');
+  const hint = box.querySelector('#chgMoveHint');
   const storeIn = box.querySelector('#chgMoveStore');
-  const selMode = box.querySelector('#chgMoveMode');
-  const qtyIn = box.querySelector('#chgMoveQty');
-  const wtIn = box.querySelector('#chgMoveWt');
-  const wtUnit = box.querySelector('#chgMoveUnit');
+  const itemsBox = box.querySelector('#chgMoveItems');
 
   /* ---------- utilidades ---------- */
   const bridge = () => window.ChanguiBridge || {};
@@ -119,38 +104,102 @@
   };
   // Peso: acepta 0,5 · 0.5 · 1,25 · 1.500
   const parseWeight = (v) => {
-    let s = String(v || '').trim().replace(/\s/g, '');
-    if (!s) return 0;
-    if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
-    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
-    const n = parseFloat(s);
+    let t = String(v || '').trim().replace(/\s/g, '');
+    if (!t) return 0;
+    if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+    const n = parseFloat(t);
     return Number.isFinite(n) && n > 0 ? n : 0;
   };
+  const fmtInput = (v) => {
+    let c = String(v == null ? '' : v).replace(/[^\d,]/g, '');
+    const p = c.split(',');
+    if (p.length > 2) c = p[0] + ',' + p.slice(1).join('');
+    const [i, d] = c.split(',');
+    const w = (i || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return d !== undefined ? `${w},${d.slice(0, 2)}` : w;
+  };
+  const showRecurring = (show) => { if (recBox) recBox.style.display = show ? '' : 'none'; };
 
-  function showRecurring(show) {
-    if (recBox) recBox.style.display = show ? '' : 'none';
+  /* ---------- renglones de productos ---------- */
+  const rows = () => [...itemsBox.children];
+  const SNAP = ['.mv-icon', '.mv-name', '.mv-mode', '.mv-qty', '.mv-wt', '.mv-unit', '.mv-price'];
+  const snap = (r) => SNAP.map((q) => r.querySelector(q).value).join('|');
+
+  function syncRow(r) {
+    const eligible = KG_KEYS.includes(r.querySelector('.mv-icon').value);
+    const mode = r.querySelector('.mv-mode');
+    mode.querySelector('option[value="kg"]').disabled = !eligible;
+    if (!eligible && mode.value === 'kg') mode.value = 'unit';
+    const kg = mode.value === 'kg';
+    r.querySelector('.mv-qtywrap').hidden = kg;
+    r.querySelector('.mv-wtwrap').hidden = !kg;
+    r.querySelector('.mv-split').hidden = !r.querySelector('.mv-name').value.includes(',');
   }
 
-  function syncMode() {
-    const eligible = KG_KEYS.includes(selIcon.value);
-    const kgOpt = selMode.querySelector('option[value="kg"]');
-    if (kgOpt) kgOpt.disabled = !eligible;
-    if (!eligible && selMode.value === 'kg') selMode.value = 'unit';
-    const kg = selMode.value === 'kg';
-    box.querySelector('#chgMoveQtyWrap').hidden = kg;
-    box.querySelector('#chgMoveWtWrap').hidden = !kg;
+  function renumber() {
+    const rs = rows();
+    const multi = rs.length > 1;
+    rs.forEach((r, i) => {
+      r.querySelector('.chg-move-num').textContent = 'Producto ' + (i + 1);
+      r.querySelector('.chg-move-rm').hidden = !multi;
+      r.querySelector('.mv-pricewrap').hidden = !multi;   // con un solo producto, el precio es el monto del gasto
+    });
+  }
+
+  function addRow(d = {}) {
+    const r = document.createElement('div');
+    r.className = 'chg-move-item';
+    r.innerHTML = `
+      <div class="chg-move-item-head"><strong class="chg-move-num"></strong><button type="button" class="chg-move-rm" title="Quitar este producto">✖</button></div>
+      <div class="chg-move-grid">
+        <label class="chg-move-full">Tipo de producto
+          <select class="mv-icon"><option value="" disabled selected>Elegí el tipo…</option>${iconOpts}</select>
+        </label>
+        <label class="chg-move-full">Nombre del producto
+          <input class="mv-name" type="text" maxlength="40" placeholder="Ej. Pollo entero">
+        </label>
+        <div class="chg-move-full"><button type="button" class="chg-move-split" hidden>✂️ Separar por comas en varios productos</button></div>
+        <label>Se compra
+          <select class="mv-mode"><option value="unit" selected>Por unidad</option><option value="kg">Por kilo</option></select>
+        </label>
+        <label class="mv-qtywrap">Cantidad
+          <input class="mv-qty" type="number" min="1" max="99" value="1">
+        </label>
+        <label class="mv-wtwrap" hidden>Peso comprado
+          <div class="chg-move-weight">
+            <input class="mv-wt" type="text" inputmode="decimal" placeholder="Ej. 1,5">
+            <select class="mv-unit"><option value="kg" selected>kg</option><option value="g">g</option></select>
+          </div>
+        </label>
+        <label class="chg-move-full mv-pricewrap" hidden>Precio pagado (opcional)
+          <input class="mv-price" type="text" inputmode="decimal" placeholder="0,00">
+        </label>
+      </div>`;
+    itemsBox.appendChild(r);
+    const q = (s) => r.querySelector(s);
+    q('.mv-icon').value = ICONS.some((i) => i[0] === d.icon) ? d.icon : '';
+    q('.mv-name').value = d.name || '';
+    syncRow(r);
+    if (d.byKg) { q('.mv-mode').value = 'kg'; syncRow(r); }
+    if (d.byKg && Number(d.kg) > 0) {
+      const grams = Number(d.kg) < 1;
+      q('.mv-unit').value = grams ? 'g' : 'kg';
+      q('.mv-wt').value = String(grams ? Math.round(d.kg * 1000) : d.kg).replace('.', ',');
+    } else if (d.qty) {
+      q('.mv-qty').value = String(d.qty);
+    }
+    if (Number(d.price) > 0) q('.mv-price').value = fmtInput(String(d.price).replace('.', ','));
+    r._orig = d.orig || null;
+    r._snap = snap(r);
+    return r;
   }
 
   function reset() {
     chk.checked = false;
     fields.hidden = true;
-    selIcon.value = '';
+    itemsBox.innerHTML = '';
     storeIn.value = '';
-    selMode.value = 'unit';
-    qtyIn.value = '1';
-    wtIn.value = '';
-    wtUnit.value = 'kg';
-    syncMode();
     showRecurring(true);
   }
 
@@ -162,11 +211,27 @@
 
     const b = bridge();
     const exp = typeof b.updateExpense === 'function' ? findExp(currentMonth(), id) : null;
-    const yaEsChangui = exp && (exp.fromChangui || /^changui\b/i.test(String(exp.description || '').trim()));
-    const esRecurrente = exp && String(exp.id).startsWith('rec-');
-    if (!exp || yaEsChangui || esRecurrente) { box.hidden = true; return; }
+    if (!exp || String(exp.id).startsWith('rec-')) { box.hidden = true; return; }
 
-    nameIn.value = String(exp.description || '').slice(0, 40);
+    const esChangui = exp.fromChangui || /^changui\b/i.test(String(exp.description || '').trim());
+    const tieneDetalle = Array.isArray(exp.detalle) && exp.detalle.length > 0;
+    if (esChangui && !tieneDetalle) { box.hidden = true; return; }
+
+    if (esChangui) {
+      lbl.textContent = '🛒 Editar los productos de este Changui';
+      hint.textContent = 'Podés cambiar, quitar o agregar productos. El total del gasto es el «Monto» de arriba.';
+      const m = String(exp.description || '').match(/^changui\s+en\s+([^(]*?)\s*(\(|$)/i);
+      storeIn.value = m ? m[1] : '';
+      exp.detalle.forEach((it) => addRow({
+        icon: it.icon, name: it.name, byKg: !!it.byKg, qty: it.qty, kg: it.kg,
+        price: Number(it.paid) > 0 ? Number(it.paid) : 0, orig: it
+      }));
+    } else {
+      lbl.textContent = '🛒 Pasar este gasto a Changui';
+      hint.textContent = 'Este gasto pasa a ser un Changui con los productos que cargues acá. Sigue sumando en el mes, y lo ves en «Detalle» y en el Historial de Changui.';
+      addRow({ name: String(exp.description || '').slice(0, 40) });
+    }
+    renumber();
     box.hidden = false;
   }
 
@@ -181,7 +246,7 @@
   chk.addEventListener('change', () => {
     fields.hidden = !chk.checked;
     if (chk.checked) {
-      // un gasto que pasa a Changui no se repite como recurrente
+      // un gasto de Changui no se repite como recurrente
       const rec = $('expenseRecurring');
       if (rec) rec.checked = false;
       const opts = $('recurringOptions');
@@ -190,14 +255,82 @@
     showRecurring(!chk.checked);
   });
 
-  selIcon.addEventListener('change', () => {
-    syncMode();
-    // la categoría del gasto acompaña al tipo de producto (la podés cambiar después)
-    const info = ICONS.find((i) => i[0] === selIcon.value);
-    const cat = $('expenseCategory');
-    if (info && cat && [...cat.options].some((o) => o.value === info[3])) cat.value = info[3];
+  $('chgMoveAdd').addEventListener('click', () => {
+    const r = addRow();
+    renumber();
+    r.querySelector('.mv-icon').focus();
   });
-  selMode.addEventListener('change', syncMode);
+
+  itemsBox.addEventListener('change', (e) => {
+    const r = e.target.closest('.chg-move-item');
+    if (!r) return;
+    syncRow(r);
+    if (e.target.classList.contains('mv-icon') && r === itemsBox.firstElementChild) {
+      // la categoría del gasto acompaña al primer producto (la podés cambiar después)
+      const info = ICONS.find((i) => i[0] === e.target.value);
+      const cat = $('expenseCategory');
+      if (info && cat && [...cat.options].some((o) => o.value === info[3])) cat.value = info[3];
+    }
+  });
+
+  itemsBox.addEventListener('input', (e) => {
+    const r = e.target.closest('.chg-move-item');
+    if (!r) return;
+    if (e.target.classList.contains('mv-price')) {
+      const el = e.target, start = el.selectionStart, prev = el.value.length;
+      el.value = fmtInput(el.value);
+      const pos = Math.max(0, start + (el.value.length - prev));
+      el.setSelectionRange(pos, pos);
+    }
+    if (e.target.classList.contains('mv-name')) syncRow(r);
+  });
+
+  itemsBox.addEventListener('click', (e) => {
+    const r = e.target.closest('.chg-move-item');
+    if (!r) return;
+    if (e.target.closest('.chg-move-rm')) {
+      r.remove();
+      renumber();
+      return;
+    }
+    if (e.target.closest('.chg-move-split')) {
+      const names = r.querySelector('.mv-name').value.split(',').map((x) => x.trim()).filter(Boolean);
+      if (names.length < 2) return;
+      r.querySelector('.mv-name').value = names[0];
+      r.querySelector('.mv-price').value = '';
+      r._orig = null;
+      syncRow(r);
+      names.slice(1).forEach((n) => addRow({ name: n }));
+      renumber();
+    }
+  });
+
+  /* ---------- lee un renglón y arma el producto de Changui ---------- */
+  function readRow(r, multi, amount, currency) {
+    const q = (s) => r.querySelector(s);
+    const icon = q('.mv-icon').value;
+    if (!icon) { alert('Elegí el tipo de producto en cada renglón.'); q('.mv-icon').focus(); return null; }
+
+    // Si no tocó nada de un producto que ya existía, se conserva tal cual (con su promo y precio)
+    if (r._orig && snap(r) === r._snap && (multi || Math.abs(Number(r._orig.paid) - amount) < 0.005)) {
+      return Object.assign({}, r._orig, { cur: currency });
+    }
+
+    const label = (ICONS.find((i) => i[0] === icon) || [])[2] || 'Producto';
+    const name = (q('.mv-name').value.trim() || label).replace(/[()]/g, '').slice(0, 40);
+    const byKg = KG_KEYS.includes(icon) && q('.mv-mode').value === 'kg';
+    let qty = 1, kg = 0;
+    if (byKg) {
+      const w = parseWeight(q('.mv-wt').value);
+      kg = Math.round((q('.mv-unit').value === 'g' ? w / 1000 : w) * 1000) / 1000;
+      if (!(kg > 0)) { alert('Ingresá el peso comprado de «' + name + '».'); q('.mv-wt').focus(); return null; }
+    } else {
+      qty = Math.min(99, Math.max(1, parseInt(q('.mv-qty').value, 10) || 1));
+    }
+    const paid = multi ? round2(parseMoney(q('.mv-price').value)) : round2(amount);
+    const price = paid > 0 ? round2(paid / (byKg ? kg : qty)) : 0;
+    return { name, icon, cur: currency, price, qty, byKg, kg, promo: { type: 'none' }, paid };
+  }
 
   /* ---------- guardar: el gasto pasa a ser un gasto de Changui ---------- */
   form.addEventListener('submit', async (e) => {
@@ -211,44 +344,47 @@
     const exp = id ? findExp(month, id) : null;
     if (!exp || typeof b.updateExpense !== 'function') { alert('No pude encontrar el gasto para pasarlo a Changui.'); return; }
 
-    const key = selIcon.value;
-    if (!key) { alert('Elegí el tipo de producto de Changui.'); selIcon.focus(); return; }
-
     const amount = parseMoney($('expenseAmount') && $('expenseAmount').value);
     if (!(amount > 0)) { alert('El monto tiene que ser mayor a cero.'); return; }
     const currency = ($('expenseCurrency') && $('expenseCurrency').value) === 'USD' ? 'USD' : 'ARS';
 
-    const byKg = KG_KEYS.includes(key) && selMode.value === 'kg';
-    let qty = 1, kg = 0, price = round2(amount);
-    if (byKg) {
-      const w = parseWeight(wtIn.value);
-      kg = Math.round((wtUnit.value === 'g' ? w / 1000 : w) * 1000) / 1000;
-      if (!(kg > 0)) { alert('Ingresá el peso comprado.'); wtIn.focus(); return; }
-      price = round2(amount / kg);
-    } else {
-      qty = Math.min(99, Math.max(1, parseInt(qtyIn.value, 10) || 1));
-      price = round2(amount / qty);
+    const rs = rows();
+    if (!rs.length) { alert('Cargá al menos un producto.'); return; }
+    const multi = rs.length > 1;
+    const items = [];
+    for (const r of rs) {
+      const it = readRow(r, multi, amount, currency);
+      if (!it) return;
+      items.push(it);
     }
 
-    const name = (nameIn.value.trim() || ($('expenseDescription') && $('expenseDescription').value.trim()) || 'Producto')
-      .replace(/[()]/g, '').slice(0, 40);
-    const item = { name, icon: key, cur: currency, price, qty, byKg, kg, promo: { type: 'none' }, paid: round2(amount) };
+    if (multi) {
+      const sum = round2(items.reduce((t, x) => t + Number(x.paid || 0), 0));
+      const todosConPrecio = items.every((x) => Number(x.paid) > 0);
+      const tol = 0.02 + 0.005 * items.length;   // tolera los centavos de redondeo
+      if (sum > amount + tol || (todosConPrecio && Math.abs(sum - amount) > tol)) {
+        alert('La suma de los precios de los productos (' + sum.toLocaleString('es-AR', { minimumFractionDigits: 2 }) +
+          ') no coincide con el monto del gasto (' + amount.toLocaleString('es-AR', { minimumFractionDigits: 2 }) +
+          '). Ajustá los precios o dejá en blanco los que no sepas.');
+        return;
+      }
+    }
 
     // Se aplican los datos del modal y se marca como gasto de Changui
+    const store = storeIn.value.trim().replace(/[()]/g, '').slice(0, 30);
     const before = { date: exp.date, description: exp.description, category: exp.category, currency: exp.currency, fromChangui: exp.fromChangui };
     exp.date = ($('expenseDate') && $('expenseDate').value) || exp.date;
-    const store = storeIn.value.trim().replace(/[()]/g, '').slice(0, 30);
-    exp.description = `Changui${store ? ' en ' + store : ''} (${name})`;
+    exp.description = `Changui${store ? ' en ' + store : ''} (${items.map((x) => x.name).join(', ')})`;
     exp.category = ($('expenseCategory') && $('expenseCategory').value) || exp.category;
     exp.currency = currency;
     exp.fromChangui = true;
 
     let ok = false;
-    try { ok = await b.updateExpense({ month, id, amount: round2(amount), detalle: [item] }); } catch (err) { ok = false; }
+    try { ok = await b.updateExpense({ month, id, amount: round2(amount), detalle: items }); } catch (err) { ok = false; }
     if (!ok) {
       Object.assign(exp, before);
       if (before.fromChangui === undefined) delete exp.fromChangui;
-      alert('No se pudo pasar el gasto a Changui. Probá de nuevo.');
+      alert('No se pudo guardar. Probá de nuevo.');
       return;
     }
     dialog.close();
