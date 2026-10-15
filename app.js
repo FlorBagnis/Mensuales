@@ -2726,62 +2726,38 @@ window.ChanguiBridge = {
     return monthData ? (monthData.expenses || []) : [];
   },
 
-  addExpenses: async ({ date, expenses, replaceIds, replaceMonth }) => {
+  addExpenses: async ({ date, expenses }) => {
     if (!currentUser) return false;
     try {
       const monthKey = date.slice(0, 7);
       const monthData = ensureMonth(monthKey);
-      const monthsToSave = new Set();
 
       if (!Array.isArray(monthData.expenses)) {
         monthData.expenses = [];
       }
 
-      if (Array.isArray(replaceIds) && replaceIds.length) {
-        const oldMonth = replaceMonth || monthKey;
-        const oldData = data.months[oldMonth];
-        if (oldData && Array.isArray(oldData.expenses)) {
-          oldData.expenses = oldData.expenses.filter(x => !replaceIds.includes(x.id));
-          monthsToSave.add(oldMonth);
-        }
-        if (oldMonth !== monthKey) {
-          monthData.expenses = monthData.expenses.filter(x => !replaceIds.includes(x.id));
-        }
-      }
-
-      const ids = [];
       expenses.forEach(exp => {
-        const id = createId("expense");
-        ids.push(id);
         monthData.expenses.push({
-          id,
+          id: createId("expense"),
           date: date,
           description: exp.description,
           category: exp.category,
           amount: Number(exp.amount),
           currency: exp.currency || "ARS",
           fromChangui: true,
-          ...(exp.detalle ? { detalle: exp.detalle } : {}),
-          ...(exp.isDelivery ? { isDelivery: true } : {})
+          ...(exp.detalle ? { detalle: exp.detalle } : {})
         });
       });
 
-      monthsToSave.add(monthKey);
       renderMensuales();
-      for (const mk of monthsToSave) {
-        await saveMonthToFirestore(mk);
-      }
-      return { ok: true, ids };
+      await saveMonthToFirestore(monthKey);
+      return true;
     } catch (err) {
       console.error("Error al registrar gastos desde Changui:", err);
       return false;
     }
   }
 };
-
-window.addEventListener("mensuales:refresh", () => {
-  if (typeof renderMensuales === "function") renderMensuales();
-});
 
 // Botón global para refrescar la app
 document.getElementById('globalRefreshBtn')?.addEventListener('click', () => {
