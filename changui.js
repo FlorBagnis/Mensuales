@@ -1094,17 +1094,52 @@
     toast('Archivo CSV descargado con éxito.');
   }
 
-  /* ---------- Historial de Changuitos ---------- */
+  /* ---------- Historial de Changuitos (Sincronizado y Seguro) ---------- */
   function renderHistoryModal() {
     const container = $('#chgHistoryListContainer');
     if (!container) return;
 
-    if (!state.purchases || state.purchases.length === 0) {
+    // Obtenemos los gastos del mes actual desde el bridge para asegurar que no se pierda nada
+    const b = bridge();
+    const currentMonth = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
+    const monthExpenses = (b.getMonthExpenses ? b.getMonthExpenses(currentMonth) || [] : []);
+
+    // Unificamos el historial local con los gastos de la app principal
+    const unifiedPurchases = [];
+    const seenIds = new Set();
+
+    // 1. Cargamos primero los guardados en state.purchases
+    (state.purchases || []).forEach(p => {
+      if (p.id && !seenIds.has(p.id)) {
+        seenIds.add(p.id);
+        unifiedPurchases.push({ ...p, source: 'local' });
+      }
+    });
+
+    // 2. Buscamos en los gastos del mes aquellos que vengan del changuito
+    monthExpenses.forEach(exp => {
+      if (/^changui\b/i.test(exp.description) || (exp.detalle && exp.detalle.length > 0)) {
+        const pId = exp.id || ('exp_' + exp.date + '_' + exp.amount);
+        if (!seenIds.has(pId)) {
+          seenIds.add(pId);
+          unifiedPurchases.push({
+            id: pId,
+            date: exp.date || todayISO(),
+            store: exp.description.replace(/^changui\b/i, '').replace(/[()]/g, '').trim() || 'Supermercado',
+            deliveryMode: exp.isDelivery ? 'envio' : 'presencial',
+            deliveryCost: exp.isDelivery ? exp.amount : 0,
+            items: exp.detalle || (exp.items || [])
+          });
+        }
+      }
+    });
+
+    if (unifiedPurchases.length === 0) {
       container.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--muted);">🛒 Todavía no guardaste ningún changuito.</div>`;
       return;
     }
 
-    container.innerHTML = state.purchases.map(p => {
+    container.innerHTML = unifiedPurchases.map(p => {
       const storeName = p.store ? `Supermercado: <strong>${esc(p.store)}</strong>` : 'Compra general';
       const isEnvio = p.deliveryMode === 'envio';
       const deliveryText = isEnvio ? `📦 Envío a domicilio (${money(p.deliveryCost || 0, 'ARS')})` : '🛍️ Presencial (Local)';
