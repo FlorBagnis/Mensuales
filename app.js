@@ -392,7 +392,49 @@ function stopAllSync() {
    RENDER DE DATOS Y RESUMEN
 ========================================================= */
 
+/* ---------- Mantener la posición al actualizar / editar / eliminar ---------- */
+function captureScroll() {
+  const items = new Set();
+  document.querySelectorAll("table").forEach(t => {
+    let p = t.parentElement;
+    while (p && p !== document.body && p !== document.documentElement) {
+      if (p.scrollTop > 0 || p.scrollLeft > 0) items.add(p);
+      p = p.parentElement;
+    }
+  });
+  return {
+    x: window.scrollX,
+    y: window.scrollY,
+    items: [...items].map(el => [el, el.scrollTop, el.scrollLeft])
+  };
+}
+
+function restoreScroll(s) {
+  if (!s) return;
+  const apply = () => {
+    s.items.forEach(([el, top, left]) => {
+      el.style.scrollBehavior = "auto";
+      el.scrollTop = top;
+      el.scrollLeft = left;
+      el.style.scrollBehavior = "";
+    });
+    window.scrollTo({ left: s.x, top: s.y, behavior: "instant" });
+  };
+  apply();
+  requestAnimationFrame(apply);
+}
+
+// Al abrir cualquier modal se guarda dónde estabas; al cerrarlo se vuelve ahí
+let dialogScrollState = null;
+const originalShowModal = HTMLDialogElement.prototype.showModal;
+HTMLDialogElement.prototype.showModal = function (...args) {
+  dialogScrollState = captureScroll();
+  return originalShowModal.apply(this, args);
+};
+document.addEventListener("close", () => restoreScroll(dialogScrollState), true);
+
 function renderMensuales() {
+  const scrollState = captureScroll();
   const month = $("monthPicker")?.value || currentMonthValue();
   const current = ensureMonth(month);
   const prevMonth = previousMonth(month);
@@ -485,6 +527,9 @@ function renderMensuales() {
 
   // 3. Verificador de alertas pasando valores numéricos directos
   checkFinancialAlerts(totalARS, totalUSD, current.budget, currentDolarBlue);
+
+  // Quedarte exactamente donde estabas (editar, eliminar, guardar, sincronizar)
+  restoreScroll(scrollState);
 }
 
 function renderExtraIncomesTable(extraIncomes) {
@@ -2401,6 +2446,7 @@ function recItemHTML(rec, hoy) {
 function recRender() {
   const lista = document.getElementById("recList");
   if (!lista) return;
+  const scrollState = captureScroll();
   const hoy = hoyAR();
   const activos = recItems.filter(r => r.activo !== false);
 
@@ -2442,6 +2488,7 @@ function recRender() {
   // Lista agrupada
   if (!activos.length) {
     lista.innerHTML = `<div class="rec-empty">Todavía no cargaste recurrentes.<br>Agregá Netflix, Fibertel, el alquiler, el monotributo… y te aviso antes de que venzan.</div>`;
+    restoreScroll(scrollState);
     return;
   }
 
@@ -2457,6 +2504,7 @@ function recRender() {
     html += `<div class="rec-group"><h4>${REC_ICONOS[g]} ${g}</h4>${items.map(r => recItemHTML(r, hoy)).join("")}</div>`;
   });
   lista.innerHTML = html;
+  restoreScroll(scrollState);
 }
 
 function recMontarUI() {
