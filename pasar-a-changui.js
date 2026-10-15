@@ -773,7 +773,7 @@
       const parts = String(exp.description || '').match(/^changui(?:\s+en\s+[^(]*?)?\s*(\([^()]*\))?\s*$/i);
       if (parts) exp.description = `Changui${newStore ? ' en ' + newStore : ''}${parts[1] ? ' ' + parts[1] : ''}`;
 
-      let ok = false;
+     let ok = false;
       try { ok = await bridge().updateExpense({ month, id, amount: exp.amount, detalle: exp.detalle }); } catch (err) { ok = false; }
       if (!ok) {
         Object.assign(exp, before);
@@ -782,6 +782,40 @@
       }
       syncLocal(before.description, exp.description, exp.date, exp.detalle, exp.amount);
       refreshHistory();
+    });
+  }
+
+  /* ---------- Botón del changuito al lado del lápiz en la tabla ---------- */
+  const expTable = $('expenseTable');
+  if (expTable) {
+    const decorateRows = () => {
+      expTable.querySelectorAll('tr').forEach((tr) => {
+        if (tr.querySelector('.chg-mv-row')) return;
+        const edit = tr.querySelector('.edit-btn');
+        if (!edit) return;
+        const id = edit.dataset.id;
+        if (String(id).startsWith('rec-')) return;
+        const exp = findExp(currentMonth(), id);
+        const esChg = !!exp && /^changui\b/i.test(String(exp.description || '').trim());
+        
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chg-mv-row chg-ico-btn';
+        b.title = esChg ? 'Editar productos de Changui' : 'Pasar a Changui';
+        b.textContent = '🛒';
+        edit.before(b);
+      });
+    };
+    new MutationObserver(decorateRows).observe(expTable, { childList: true, subtree: true });
+    decorateRows();
+
+    expTable.addEventListener('click', (e) => {
+      const b = e.target.closest('.chg-mv-row');
+      if (!b) return;
+      const edit = b.closest('tr').querySelector('.edit-btn');
+      if (!edit) return;
+      edit.click();
+      openChecked();
     });
   }
 })();
