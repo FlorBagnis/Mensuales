@@ -2595,7 +2595,17 @@ window.ChanguiBridge = {
   getDolar: () => currentDolarBlue,
 
   getPdfTheme: () => getPdfThemeColors(),
-
+  updateExpense: async ({ month, id, amount, detalle }) => {
+    const m = data.months[month];
+    const exp = m && (m.expenses || []).find(x => x.id === id);
+    if (!exp) return false;
+    exp.amount = Number(amount);
+    if (detalle) exp.detalle = detalle;
+    renderMensuales();
+    await saveMonthToFirestore(month);
+    return true;
+  },
+   
   getCurrentMonth: () => {
     return $("monthPicker")?.value || currentMonthValue();
   },
@@ -2623,7 +2633,8 @@ window.ChanguiBridge = {
           category: exp.category,
           amount: Number(exp.amount),
           currency: exp.currency || "ARS",
-          fromChangui: true
+          fromChangui: true,
+          ...(exp.detalle ? { detalle: exp.detalle } : {})
         });
       });
 
