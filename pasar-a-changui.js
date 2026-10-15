@@ -218,7 +218,8 @@
     const exp = typeof b.updateExpense === 'function' ? findExp(currentMonth(), id) : null;
     if (!exp || String(exp.id).startsWith('rec-')) { box.hidden = true; return; }
 
-    const esChangui = exp.fromChangui || /^changui\b/i.test(String(exp.description || '').trim());
+    // Es Changui solo si la descripción empieza con «Changui» (igual que la tabla). Si se la sacaste, vuelve a aparecer el tilde.
+    const esChangui = /^changui\b/i.test(String(exp.description || '').trim());
     const tieneDetalle = Array.isArray(exp.detalle) && exp.detalle.length > 0;
     if (esChangui && !tieneDetalle) {      // Changui viejo sin lista de productos: solo se puede sacar de Changui
       toggleLbl.hidden = true;
@@ -240,7 +241,17 @@
     } else {
       lbl.textContent = '🛒 Pasar este gasto a Changui';
       hint.textContent = 'Este gasto pasa a ser un Changui con los productos que cargues acá. Sigue sumando en el mes, y lo ves en «Detalle» y en el Historial de Changui.';
-      addRow({ name: String(exp.description || '').slice(0, 40) });
+      if (Array.isArray(exp.detalle) && exp.detalle.length) {
+        // el gasto ya estuvo en Changui: se recuperan sus productos y el local
+        const sm = String(exp.description || '').match(/^(.*?)\s*\(/);
+        storeIn.value = sm ? sm[1].trim().slice(0, 30) : '';
+        exp.detalle.forEach((it) => addRow({
+          icon: it.icon, name: it.name, byKg: !!it.byKg, qty: it.qty, kg: it.kg,
+          price: Number(it.paid) > 0 ? Number(it.paid) : 0, orig: it
+        }));
+      } else {
+        addRow({ name: String(exp.description || '').slice(0, 40) });
+      }
     }
     renumber();
     box.hidden = false;
@@ -372,7 +383,14 @@
 
   /* ---------- guardar: el gasto pasa a ser un gasto de Changui ---------- */
   form.addEventListener('submit', async (e) => {
-    if (box.hidden || !chk.checked) return;           // flujo normal de la app
+    if (box.hidden || !chk.checked) {                  // flujo normal de la app
+      // si le sacaste «Changui» a la descripción, se limpian las marcas viejas (PDF, resúmenes)
+      const id0 = form.dataset.editingId;
+      const e0 = id0 ? findExp(currentMonth(), id0) : null;
+      const d0 = String(($('expenseDescription') && $('expenseDescription').value) || '').trim();
+      if (e0 && (e0.fromChangui || e0.detalle) && !/^changui\b/i.test(d0)) { delete e0.fromChangui; delete e0.detalle; }
+      return;
+    }
     e.preventDefault();
     e.stopImmediatePropagation();
 
