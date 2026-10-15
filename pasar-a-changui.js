@@ -75,6 +75,7 @@
       <input id="chgMoveChk" type="checkbox">
       <span id="chgMoveLbl">🛒 Pasar este gasto a Changui</span>
     </label>
+    <button type="button" id="chgMoveBack" class="chg-move-add" hidden>↩️ Sacar de Changui (volver a gasto normal)</button>
     <div id="chgMoveFields" hidden>
       <p class="chg-move-hint" id="chgMoveHint"></p>
       <label class="chg-move-store">¿Dónde compraste? (opcional)
@@ -87,6 +88,8 @@
   if (recBox) recBox.before(box); else (form.querySelector('.modal-actions') || form.lastElementChild).before(box);
 
   const chk = box.querySelector('#chgMoveChk');
+  const toggleLbl = box.querySelector('.chg-move-toggle');
+  const back = box.querySelector('#chgMoveBack');
   const fields = box.querySelector('#chgMoveFields');
   const lbl = box.querySelector('#chgMoveLbl');
   const hint = box.querySelector('#chgMoveHint');
@@ -197,6 +200,8 @@
 
   function reset() {
     chk.checked = false;
+    toggleLbl.hidden = false;
+    back.hidden = true;
     fields.hidden = true;
     itemsBox.innerHTML = '';
     storeIn.value = '';
@@ -215,7 +220,13 @@
 
     const esChangui = exp.fromChangui || /^changui\b/i.test(String(exp.description || '').trim());
     const tieneDetalle = Array.isArray(exp.detalle) && exp.detalle.length > 0;
-    if (esChangui && !tieneDetalle) { box.hidden = true; return; }
+    if (esChangui && !tieneDetalle) {      // Changui viejo sin lista de productos: solo se puede sacar de Changui
+      toggleLbl.hidden = true;
+      back.hidden = false;
+      box.hidden = false;
+      return;
+    }
+    back.hidden = !esChangui;
 
     if (esChangui) {
       lbl.textContent = '🛒 Editar los productos de este Changui';
@@ -253,6 +264,33 @@
       if (opts) opts.classList.add('hidden');
     }
     showRecurring(!chk.checked);
+  });
+
+  back.addEventListener('click', async () => {
+    const b = bridge();
+    const id = form.dataset.editingId;
+    const month = currentMonth();
+    const exp = id ? findExp(month, id) : null;
+    if (!exp || typeof b.updateExpense !== 'function') return;
+    if (!confirm('¿Sacar este gasto de Changui? Vuelve a ser un gasto normal, con el mismo monto, y después lo podés pasar de nuevo.')) return;
+
+    const before = { description: exp.description, fromChangui: exp.fromChangui, detalle: exp.detalle };
+    const desc = String(exp.description || '');
+    const m = desc.match(/\(([^()]*)\)\s*$/);
+    exp.description = (m && m[1].trim()) || desc.replace(/^changui\s*(en\s+)?/i, '').trim() || 'Gasto';
+    delete exp.fromChangui;
+    delete exp.detalle;
+
+    let ok = false;
+    try { ok = await b.updateExpense({ month, id, amount: exp.amount }); } catch (err) { ok = false; }
+    if (!ok) {
+      exp.description = before.description;
+      if (before.fromChangui !== undefined) exp.fromChangui = before.fromChangui;
+      if (before.detalle !== undefined) exp.detalle = before.detalle;
+      alert('No se pudo sacar el gasto de Changui. Probá de nuevo.');
+      return;
+    }
+    dialog.close();
   });
 
   $('chgMoveAdd').addEventListener('click', () => {
