@@ -612,55 +612,78 @@
     return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : '';
   };
 
-  function findDetail(desc, iso) {
+  // Detalle armado desde texto o compras viejas (todavía no guardado en el gasto)
+  const pendingItems = new Map();
+
+  const findExp = (month, id) => {
+    const b = bridge();
+    return (b.getMonthExpenses ? b.getMonthExpenses(month) || [] : []).find((x) => x.id === id);
+  };
+  const canEditExpenses = () => typeof bridge().updateExpense === 'function';
+  const currentList = (exp) => (exp && Array.isArray(exp.detalle) && exp.detalle.length ? exp.detalle : pendingItems.get(exp && exp.id));
+
+  const normItem = (x, cur) => ({
+    name: String(x.name || 'Producto'),
+    icon: x.icon || 'otros',
+    cur: x.cur || cur,
+    price: Number(x.price) || 0,
+    qty: Number(x.qty) || 1,
+    byKg: !!x.byKg,
+    kg: Number(x.kg) || 0,
+    promo: x.promo || { type: 'none' },
+    paid: round2(Number(x.paid) || 0)
+  });
+
+  // Productos de un gasto de Changui: del propio gasto, de compras guardadas o del texto
+  function getDetail(desc, iso, exp) {
+    if (exp && Array.isArray(exp.detalle) && exp.detalle.length) return { items: exp.detalle, stored: true };
     const d = norm(desc);
+    const cur = (exp && exp.currency) || 'ARS';
     const P = state.purchases || [];
-    // 0) detalle guardado dentro del gasto (se sincroniza entre dispositivos)
-    try {
-      const b = bridge();
-      if (b.getMonthExpenses && iso) {
-        const hit = (b.getMonthExpenses(iso.slice(0, 7)) || [])
-          .find((e) => e.date === iso && norm(e.description) === d && Array.isArray(e.detalle) && e.detalle.length);
-        if (hit) return { items: hit.detalle, expId: hit.id, month: iso.slice(0, 7) };
-      }
-    } catch (e) { /* sigue con las otras opciones */ }
-    // 1) compra guardada con su detalle exacto
     for (const p of P) {
       if (iso && p.date !== iso) continue;
       for (const ex of (p.expenses || [])) {
-        if (!ex.isDelivery && norm(ex.description) === d) return { items: ex.items };
+        if (!ex.isDelivery && norm(ex.description) === d && ex.items && ex.items.length) {
+          return { items: ex.items.map((x) => normItem(x, cur)), stored: false };
+        }
       }
     }
-    // 2) compras viejas: productos del día cuyo nombre aparece en la descripción
     for (const p of P) {
       if (iso && p.date !== iso) continue;
       const its = (p.items || []).filter((it) => it.name && d.includes(norm(it.name)));
-      if (its.length) return { items: its };
+      if (its.length) return { items: its.map((x) => normItem(x, cur)), stored: false };
     }
-    // 3) solo el texto entre paréntesis
     const m = String(desc).match(/\(([^()]*)\)\s*$/);
-    return { names: m ? m[1].split(',').map((s) => s.trim()).filter(Boolean) : [] };
+    const names = m ? m[1].split(',').map((s) => s.trim()).filter(Boolean) : [];
+    return { items: names.map((n) => normItem({ name: n }, cur)), stored: false };
   }
 
-  function detailHTML(r) {
+  function detailHTML(res, edit) {
+    const items = res.items || [];
+    let unpriced = 0;
     let body = '';
-    if (r.items && r.items.length) {
-      const canEdit = !!(r.expId && typeof bridge().updateExpense === 'function');
-      body = r.items.map((it, idx) => {
+    if (items.length) {
+      body = items.map((it, idx) => {
+        const priced = Number(it.paid) > 0;
+        if (!priced) unpriced++;
         const promo = promoLabel(it.promo) ? ` · ${esc(promoLabel(it.promo))}` : '';
-        const sub = it.byKg
-          ? `⚖️ ${esc(kgLabel(it.kg))} x ${money(it.price, it.cur)}/kg${promo}`
-          : `${it.qty || 1} x ${money(it.price, it.cur)}${promo}`;
-        return `<div class="chg-d-line"><span>${iconOf(it.icon).e}</span><span class="chg-d-name">${esc(it.name)}<span class="chg-d-sub">${sub}</span></span><span class="chg-d-right"><b>${money(it.paid, it.cur)}</b>${canEdit ? `<button type="button" class="chg-d-edit" data-idx="${idx}" title="Editar peso / cantidad">✏️</button>` : ''}</span></div>`;
+        const sub = priced
+          ? (it.byKg ? `⚖️ ${esc(kgLabel(it.kg))} x ${money(it.price, it.cur)}/kg${promo}` : `${it.qty || 1} x ${money(it.price, it.cur)}${promo}`)
+          : 'Sin precio · tocá ✏️ para cargarlo';
+        const right = priced ? `<b>${money(it.paid, it.cur)}</b>` : '<span class="chg-d-sub">—</span>';
+        const btns = edit
+          ? `<button type="button" class="chg-d-edit" data-idx="${idx}" title="Editar producto">✏️</button><button type="button" class="chg-d-del" data-idx="${idx}" title="Quitar producto">✖</button>`
+          : '';
+        return `<div class="chg-d-line"><span>${iconOf(it.icon).e}</span><span class="chg-d-name">${esc(it.name)}<span class="chg-d-sub">${sub}</span></span><span class="chg-d-right">${right}${btns}</span></div>`;
       }).join('');
-    } else if (r.names && r.names.length) {
-      body = r.names.map((n) => `<div class="chg-d-line"><span>•</span><span class="chg-d-name">${esc(n)}</span><span></span></div>`).join('')
-        + '<p class="chg-d-note">Esta compra se cargó sin detalle de precios.</p>';
     } else {
       body = '<p class="chg-d-note">No hay detalle guardado para este gasto.</p>';
     }
-    const attrs = r.expId ? ` data-exp="${esc(r.expId)}" data-month="${esc(r.month)}"` : '';
-    return `<div class="chg-detail"${attrs}><div class="chg-d-title">🛒 ¿QUÉ SE COMPRÓ?</div>${body}</div>`;
+    const note = unpriced
+      ? `<p class="chg-d-note">Faltan precios en ${unpriced} ${unpriced === 1 ? 'producto' : 'productos'}. Cuando todos tengan precio, el total del gasto se calcula solo.</p>`
+      : '';
+    const attrs = edit ? ` data-exp="${esc(edit.id)}" data-month="${esc(edit.month)}"` : '';
+    return `<div class="chg-detail"${attrs}><div class="chg-d-title">🛒 ¿QUÉ SE COMPRÓ?</div>${body}${note}</div>`;
   }
 
   function enhanceTable() {
@@ -670,27 +693,42 @@
     try {
       tb.querySelectorAll('.chg-detail-row').forEach((r) => r.remove());
       tb.querySelectorAll('.chg-tog').forEach((b) => b.remove());
+      pendingItems.clear();
+
+      const b = bridge();
+      const month = (b.getCurrentMonth && b.getCurrentMonth()) || '';
+      const editable = canEditExpenses();
 
       [...tb.children].forEach((tr) => {
         if (tr.tagName !== 'TR' || tr.children.length < 3) return;
         const dateCell = tr.children[0];
         const descCell = tr.children[1];
-        const desc = descCell.textContent.trim();
+        const desc = tr.dataset.chgDesc || descCell.textContent.trim();
         if (!/^changui\b/i.test(desc)) return;
+        tr.dataset.chgDesc = desc;
 
         const iso = isoFromCell(dateCell.textContent);
         const key = iso + '|' + norm(desc);
         const isOpen = openKeys.has(key);
 
+        const idEl = tr.querySelector('[data-id]');
+        const exp = idEl && month ? findExp(month, idEl.dataset.id) : null;
+        const res = getDetail(desc, iso, exp);
+        if (exp && !res.stored) pendingItems.set(exp.id, res.items);
+        const canEdit = editable && !!exp;
+
         const detail = document.createElement('tr');
         detail.className = 'chg-detail-row' + (isOpen ? ' open' : '');
         detail.dataset.key = key;
         if (tr.style.display === 'none' || tr.hidden) detail.setAttribute('data-ph', '');
-        detail.innerHTML = `<td colspan="${tr.children.length}">${detailHTML(findDetail(desc, iso))}</td>`;
+        detail.innerHTML = `<td colspan="${tr.children.length}">${detailHTML(res, canEdit ? { id: exp.id, month } : null)}</td>`;
         tr.after(detail);
 
-        descCell.insertAdjacentHTML('afterbegin',
-          `<button type="button" class="chg-tog" data-key="${esc(key)}" aria-expanded="${isOpen}" title="Ver qué se compró"><span class="chg-arrow">▸</span> Detalle</button>`);
+        // La lista de productos se ve solo en el detalle; la descripción queda corta
+        const shortDesc = res.items.length >= 2 ? (desc.replace(/\s*\([^()]*\)\s*$/, '').trim() || desc) : desc;
+        descCell.innerHTML =
+          `<span class="chg-dtext" title="${esc(desc)}">${esc(shortDesc)}</span>` +
+          `<button type="button" class="chg-tog" data-key="${esc(key)}" aria-expanded="${isOpen}" title="Ver qué se compró"><span class="chg-arrow">▸</span> Detalle</button>`;
       });
     } finally {
       observeTable();
@@ -712,97 +750,154 @@
     try { fn(); } finally { observeTable(); }
   }
 
-  const findExp = (month, id) => {
-    const b = bridge();
-    return (b.getMonthExpenses ? b.getMonthExpenses(month) || [] : []).find((x) => x.id === id);
-  };
-
-  /* ---------- editar kilos / cantidad desde la solapa ---------- */
+  /* ---------- editar / quitar productos desde la solapa ---------- */
   function openItemEditor(btn) {
     const box = btn.closest('.chg-detail');
     const exp = box && findExp(box.dataset.month, box.dataset.exp);
+    const list = exp && currentList(exp);
     const idx = Number(btn.dataset.idx);
-    const it = exp && exp.detalle && exp.detalle[idx];
+    const it = list && list[idx];
     if (!it) return;
+
     const grams = it.byKg && Number(it.kg) < 1;
-    const qtyField = it.byKg
-      ? `<label>Peso comprado<div class="chg-weight"><input class="chg-d-qty" type="text" inputmode="decimal" value="${grams ? Math.round(it.kg * 1000) : String(it.kg).replace('.', ',')}"><select class="chg-d-unit"><option value="kg"${grams ? '' : ' selected'}>kg</option><option value="g"${grams ? ' selected' : ''}>g</option></select></div></label>`
-      : `<label>Cantidad<input class="chg-d-qty" type="number" min="1" max="99" value="${it.qty || 1}"></label>`;
-    const priceField = `<label>${it.byKg ? 'Precio por kg' : 'Precio por unidad'}<input class="chg-d-price" type="text" inputmode="decimal" value="${formatAmountInput(String(it.price).replace('.', ','))}"></label>`;
+    const wt = it.byKg ? String(grams ? Math.round(it.kg * 1000) : it.kg).replace('.', ',') : '';
+    const price = Number(it.price) > 0 ? formatAmountInput(String(it.price).replace('.', ',')) : '';
     const line = btn.closest('.chg-d-line');
+
     pauseObs(() => {
       line.insertAdjacentHTML('afterend',
-        `<div class="chg-d-form" data-idx="${idx}"><strong>${iconOf(it.icon).e} ${esc(it.name)}</strong><div class="chg-d-fields">${qtyField}${priceField}</div><div class="chg-d-btns"><button type="button" class="chg-d-cancel">Cancelar</button><button type="button" class="chg-d-save">Guardar</button></div></div>`);
+        `<div class="chg-d-form" data-idx="${idx}">
+           <strong>${iconOf(it.icon).e} Editar producto</strong>
+           <div class="chg-d-fields">
+             <label class="chg-d-full">Nombre<input class="chg-d-name-in" type="text" maxlength="40" value="${esc(it.name)}"></label>
+             <label>Se compra<select class="chg-d-mode"><option value="unit"${it.byKg ? '' : ' selected'}>Por unidad</option><option value="kg"${it.byKg ? ' selected' : ''}>Por kilo</option></select></label>
+             <label class="chg-d-qtywrap"${it.byKg ? ' hidden' : ''}>Cantidad<input class="chg-d-qty" type="number" min="1" max="99" value="${it.qty || 1}"></label>
+             <label class="chg-d-wtwrap"${it.byKg ? '' : ' hidden'}>Peso comprado<div class="chg-weight"><input class="chg-d-wt" type="text" inputmode="decimal" value="${wt}" placeholder="Ej. 0,5"><select class="chg-d-unit"><option value="kg"${grams ? '' : ' selected'}>kg</option><option value="g"${grams ? ' selected' : ''}>g</option></select></div></label>
+             <label class="chg-d-price-label">${it.byKg ? 'Precio por kg' : 'Precio por unidad'}<input class="chg-d-price" type="text" inputmode="decimal" value="${price}" placeholder="0,00"></label>
+           </div>
+           <div class="chg-d-btns"><button type="button" class="chg-d-cancel">Cancelar</button><button type="button" class="chg-d-save">Guardar</button></div>
+         </div>`);
       line.remove();
     });
+  }
+
+  // Guarda el detalle en el gasto. El total se recalcula solo si todos los productos tienen precio.
+  async function applyDetalle(box, exp, detalle, oldList, okMsg) {
+    const b = bridge();
+    if (!b.updateExpense) { toast('Falta actualizar app.js para poder editar.'); return; }
+    const month = box.dataset.month;
+
+    const allPriced = detalle.every((x) => Number(x.paid) > 0);
+    const amount = allPriced ? round2(detalle.reduce((s, x) => s + Number(x.paid || 0), 0)) : Number(exp.amount);
+
+    // Si la descripción tenía la lista de productos, se actualiza con los nuevos nombres
+    const oldDesc = String(exp.description || '');
+    let newDesc = oldDesc;
+    const m = oldDesc.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+    if (m && norm(m[2]) === norm(oldList.map((x) => x.name).join(', '))) {
+      newDesc = `${m[1].trim()} (${detalle.map((x) => x.name).join(', ')})`;
+    }
+
+    const row = box.closest('tr');
+    const oldKey = row ? row.dataset.key : '';
+    const iso = oldKey.split('|')[0];
+    const newKey = iso + '|' + norm(newDesc);
+    const wasOpen = openKeys.has(oldKey);
+    openKeys.delete(oldKey);
+    if (wasOpen) openKeys.add(newKey);
+
+    exp.description = newDesc;   // se guarda junto con el gasto
+    let ok = false;
+    try { ok = await b.updateExpense({ month, id: exp.id, amount, detalle }); } catch (err) { ok = false; }
+    if (!ok) {
+      exp.description = oldDesc;
+      openKeys.delete(newKey);
+      if (wasOpen) openKeys.add(oldKey);
+      toast('No se pudo guardar el cambio.');
+      return;
+    }
+    toast(okMsg);
   }
 
   async function saveItemEdit(btn) {
     const form = btn.closest('.chg-d-form');
     const box = btn.closest('.chg-detail');
     if (!form || !box) return;
-    const month = box.dataset.month, id = box.dataset.exp, idx = Number(form.dataset.idx);
-    const exp = findExp(month, id);
-    const b = bridge();
-    if (!exp || !exp.detalle || !b.updateExpense) { toast('Falta actualizar app.js para poder editar.'); return; }
+    const exp = findExp(box.dataset.month, box.dataset.exp);
+    const list = exp && currentList(exp);
+    const idx = Number(form.dataset.idx);
+    const old = list && list[idx];
+    if (!old) return;
 
-    const old = exp.detalle[idx];
-    const price = parseAmount(form.querySelector('.chg-d-price').value);
-    if (!(price > 0)) { toast('Ingresá un precio válido.'); return; }
+    const q = (s) => form.querySelector(s);
+    const name = q('.chg-d-name-in').value.trim() || old.name;
+    const byKg = q('.chg-d-mode').value === 'kg';
+    const price = parseAmount(q('.chg-d-price').value);
 
-    const nu = Object.assign({}, old, { price });
-    const qtyVal = form.querySelector('.chg-d-qty').value;
-    if (old.byKg) {
-      const w = parseWeight(qtyVal);
-      const kg = form.querySelector('.chg-d-unit').value === 'g' ? w / 1000 : w;
+    const nu = Object.assign({}, old, { name, price, byKg });
+    if (byKg) {
+      const w = parseWeight(q('.chg-d-wt').value);
+      const kg = q('.chg-d-unit').value === 'g' ? w / 1000 : w;
       if (!(kg > 0)) { toast('Ingresá el peso comprado.'); return; }
       nu.kg = Math.round(kg * 1000) / 1000;
+      nu.qty = 1;
+      if (!nu.promo || nu.promo.type !== 'pct') nu.promo = { type: 'none' };
     } else {
-      nu.qty = Math.min(99, Math.max(1, parseInt(qtyVal, 10) || 1));
+      nu.qty = Math.min(99, Math.max(1, parseInt(q('.chg-d-qty').value, 10) || 1));
+      nu.kg = 0;
     }
 
     // conserva el descuento general que tenía la compra
     const oldCalc = itemCalc(old).paid;
-    const factor = oldCalc > 0 ? Number(old.paid) / oldCalc : 1;
+    const factor = oldCalc > 0 && Number(old.paid) > 0 ? Number(old.paid) / oldCalc : 1;
     nu.paid = round2(itemCalc(nu).paid * factor);
 
-    const detalle = exp.detalle.map((x, i) => (i === idx ? nu : x));
-    const amount = round2(detalle.reduce((s, x) => s + Number(x.paid || 0), 0));
+    await applyDetalle(box, exp, list.map((x, i) => (i === idx ? nu : x)), list, 'Listo, actualicé el producto.');
+  }
 
-    let ok = false;
-    try { ok = await b.updateExpense({ month, id, amount, detalle }); } catch (err) { ok = false; }
-    if (!ok) { toast('No se pudo guardar el cambio.'); return; }
-
-    // mantiene al día la copia local (historial de Changui)
-    state.purchases.forEach((p) => {
-      if (p.date !== exp.date) return;
-      const ex = (p.expenses || []).find((x) => norm(x.description) === norm(exp.description));
-      if (!ex) return;
-      ex.items = detalle; ex.amount = amount;
-      const pi = (p.items || []).find((x) => x.name === old.name && Math.abs(Number(x.paid) - Number(old.paid)) < 0.01);
-      if (pi) Object.assign(pi, { price: nu.price, qty: nu.qty, kg: nu.kg, paid: nu.paid });
-    });
-    save();
-    toast('Listo, actualicé el gasto.');
+  async function deleteItem(btn) {
+    const box = btn.closest('.chg-detail');
+    const exp = box && findExp(box.dataset.month, box.dataset.exp);
+    const list = exp && currentList(exp);
+    const idx = Number(btn.dataset.idx);
+    if (!list || !list[idx]) return;
+    if (list.length <= 1) { toast('Es el único producto. Para borrar el gasto completo usá la ✖ de la fila.'); return; }
+    if (!confirm(`¿Quitar "${list[idx].name}" de este gasto?`)) return;
+    await applyDetalle(box, exp, list.filter((_, i) => i !== idx), list, 'Producto quitado.');
   }
 
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('#expenseTable .chg-tog');
-    if (!btn) return;
-    const tr = btn.closest('tr');
-    const detail = tr && tr.nextElementSibling;
-    if (!detail || !detail.classList.contains('chg-detail-row')) return;
-    const open = detail.classList.toggle('open');
-    btn.setAttribute('aria-expanded', String(open));
-    if (open) openKeys.add(detail.dataset.key); else openKeys.delete(detail.dataset.key);
-  });
-
-  document.addEventListener('click', (e) => {
+    const tog = e.target.closest('#expenseTable .chg-tog');
+    if (tog) {
+      const tr = tog.closest('tr');
+      const detail = tr && tr.nextElementSibling;
+      if (!detail || !detail.classList.contains('chg-detail-row')) return;
+      const open = detail.classList.toggle('open');
+      tog.setAttribute('aria-expanded', String(open));
+      if (open) openKeys.add(detail.dataset.key); else openKeys.delete(detail.dataset.key);
+      return;
+    }
     const ed = e.target.closest('#expenseTable .chg-d-edit');
     if (ed) { openItemEditor(ed); return; }
+    const del = e.target.closest('#expenseTable .chg-d-del');
+    if (del) { deleteItem(del); return; }
     if (e.target.closest('#expenseTable .chg-d-cancel')) { enhanceTable(); return; }
     const sv = e.target.closest('#expenseTable .chg-d-save');
     if (sv) saveItemEdit(sv);
+  });
+
+  document.addEventListener('change', (e) => {
+    const sel = e.target.closest && e.target.closest('#expenseTable .chg-d-mode');
+    if (!sel) return;
+    const form = sel.closest('.chg-d-form');
+    const kg = sel.value === 'kg';
+    pauseObs(() => {
+      form.querySelector('.chg-d-qtywrap').hidden = kg;
+      form.querySelector('.chg-d-wtwrap').hidden = !kg;
+      const lab = form.querySelector('.chg-d-price-label');
+      const tn = [...lab.childNodes].find((n) => n.nodeType === 3);
+      if (tn) tn.nodeValue = kg ? 'Precio por kg' : 'Precio por unidad';
+    });
   });
 
   document.addEventListener('input', (e) => {
