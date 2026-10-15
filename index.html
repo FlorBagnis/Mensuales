@@ -423,6 +423,33 @@ body:not(.x-1):not(.x-2) :is(td, .chg-btns, .chg-history-card, .rec-item, .pocki
   transform: scale(1.25) !important;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
 }
+
+/* =========================================================
+   CARRITO 🛒 DE LA TABLA (SVG)
+   Mismo look que el lápiz y la X: toma el color de cada modo
+   (claro, oscuro, azul y black) a través de la variable --edit.
+========================================================= */
+body table button.chg-mv-row,
+body td.actions button.chg-mv-row {
+  color: var(--edit) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+.chg-mv-row svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: block;
+}
+.chg-mv-row svg circle {
+  fill: currentColor;
+  stroke: none;
+}
+
 /* =========================================================
    FLECHA PARA VOLVER ARRIBA
    Aparece al bajar y te lleva al inicio. Usa los colores de
@@ -1507,7 +1534,7 @@ body.black-mode #closeAboutBtn {
 <script src="changui.js" defer></script>
   
 <script src="pocki.js" defer></script>
-<script src="pasar-a-changui.js?v=7" defer></script>
+<script src="pasar-a-changui.js?v=8" defer></script>
 <script type="module" src="app.js?v=2.9"></script>
 
   
