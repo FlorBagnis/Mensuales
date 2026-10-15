@@ -1000,7 +1000,11 @@
       const cur = it.cur || 'ARS';
       doc.setTextColor(...theme.dark); doc.setFontSize(7);
       doc.text((plain(it.name) || 'Producto').slice(0, 40), 18, y + 5);
-      doc.text(it.byKg ? kgLabel(it.kg) : String(it.qty || 1), 92, y + 5);
+      
+      // Acá aplicamos la lectura correcta de los kilos o unidades para el PDF
+      const qtyDisplay = it.byKg ? kgLabel(it.kg) : String(it.qty || 1);
+      doc.text(qtyDisplay, 92, y + 5);
+
       doc.text(fmt(paid / unitsOf(it), cur) + (it.byKg ? ' /kg' : ''), 106, y + 5);
       doc.text(fmt(paid, cur), 162, y + 5);
       doc.setDrawColor(...theme.lineDivider);
