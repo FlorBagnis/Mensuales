@@ -5,6 +5,10 @@
    - Si le sacás "Changui" a la descripción, vuelve a aparecer la opción
    No toca app.js ni changui.js.
    Creado by Flor Bagnis 💗
+
+   v2: sin bucles de refresco (ya no reescribe #userEmail ni el historial local en cada cambio),
+       "Chango nuevo" no duplica un chango que ya está en el Historial,
+       peso en gramos tipeado como kg (310 → 310 g) también acá.
 ========================================================= */
 (() => {
   'use strict';
@@ -136,6 +140,8 @@
     const n = parseFloat(t);
     return Number.isFinite(n) && n > 0 ? n : 0;
   };
+  // En "g" se divide por 1000; en "kg", un número >= 100 se toma como gramos (310 → 0,31 kg). Igual que en Changui.
+  const toKg = (w, unit) => (unit === 'g' || (unit === 'kg' && w >= 100) ? w / 1000 : w);
   const fmtInput = (v) => {
     let c = String(v == null ? '' : v).replace(/[^\d,]/g, '');
     const p = c.split(',');
@@ -145,86 +151,18 @@
     return d !== undefined ? `${w},${d.slice(0, 2)}` : w;
   };
 
-  // Mantiene al día la copia guardada en el Historial y Análisis de Changui + refresca gráficos en tiempo real
+  // Avisa a Changui y a app.js que algo cambió (sin reescribir #userEmail ni el historial local:
+  // eso hacía que Changui se recargara en bucle y cerraba los editores).
+  // El historial y los resúmenes de Changui se arman solos desde Gastos del mes.
   const syncLocal = (oldDesc, newDesc, date, detalle, amount, expId, isRemoved = false) => {
     try {
-      // 1) Si changui.js tiene su propio sincronizador, lo llamamos primero
-      if (!isRemoved && typeof window.__changuiSyncPurchase === 'function' && Array.isArray(detalle)) {
-        window.__changuiSyncPurchase(oldDesc, newDesc, date, detalle, amount);
+      // Si el gasto dejó de ser de Changui (o se borró), se saca de las compras guardadas
+      if (isRemoved && typeof window.__changuiForget === 'function') {
+        window.__changuiForget(expId, oldDesc, date);
       }
+      if (typeof window.__changuiRefresh === 'function') window.__changuiRefresh();
 
-      // 2) Aseguramos que figure en localStorage (st.purchases) para el análisis (#chgInsight) y gráficos de Changui
-      const emailEl = $('userEmail');
-      const email = ((emailEl && emailEl.textContent) || '').trim().toLowerCase();
-      const key = 'changui_v1_' + (email || 'anon');
-      const st = JSON.parse(localStorage.getItem(key) || 'null') || { items: [], general: 0, purchases: [] };
-
-      if (st && typeof st === 'object') {
-        if (!Array.isArray(st.purchases)) st.purchases = [];
-
-        const storeMatch = String(newDesc || '').match(/^changui\s+en\s+([^(]*?)\s*(\(|$)/i);
-        const storeName = storeMatch ? storeMatch[1].trim() : '';
-
-        // Buscamos si ya existía esta compra en el historial de Changui (para no duplicarla)
-        const idx = st.purchases.findIndex((p) =>
-          (expId && (p.id === expId || (Array.isArray(p.expenses) && p.expenses.includes(expId)))) ||
-          (oldDesc && (p.desc === oldDesc || p.description === oldDesc) && p.date === date) ||
-          (newDesc && (p.desc === newDesc || p.description === newDesc) && p.date === date)
-        );
-
-        if (isRemoved) {
-          if (idx !== -1) st.purchases.splice(idx, 1);
-        } else if (Array.isArray(detalle) && detalle.length) {
-          // Si viene un solo producto o varios sin precio individual, repartimos el monto para que sume bien en Changui
-          const sumPaid = detalle.reduce((acc, it) => acc + (Number(it.paid) || 0), 0);
-          const fallbackPaid = sumPaid > 0 ? 0 : round2(Number(amount || 0) / detalle.length);
-
-          const itemsMapped = detalle.map((it) => {
-            const paidVal = Number(it.paid) > 0 ? round2(it.paid) : fallbackPaid;
-            const units = it.byKg ? (Number(it.kg) || 1) : (Number(it.qty) || 1);
-            const priceVal = Number(it.price) > 0 ? round2(it.price) : round2(paidVal / units);
-            return {
-              name: it.name,
-              icon: it.icon,
-              cur: it.cur || 'ARS',
-              price: priceVal,
-              qty: Number(it.qty) || 1,
-              byKg: !!it.byKg,
-              kg: Number(it.kg) || 0,
-              promo: it.promo || { type: 'none' },
-              paid: paidVal
-            };
-          });
-
-          const purchaseObj = {
-            id: (idx !== -1 && st.purchases[idx].id) ? st.purchases[idx].id : (expId || (Date.now().toString(36) + Math.random().toString(36).slice(2, 7))),
-            date: date,
-            store: storeName,
-            desc: newDesc,
-            total: round2(amount),
-            deliveryMode: (idx !== -1 && st.purchases[idx].deliveryMode) ? st.purchases[idx].deliveryMode : 'presencial',
-            deliveryCost: (idx !== -1 && st.purchases[idx].deliveryCost) ? st.purchases[idx].deliveryCost : 0,
-            draft: false,
-            expenses: expId ? [expId] : [],
-            items: itemsMapped
-          };
-
-          if (idx !== -1) {
-            st.purchases[idx] = Object.assign({}, st.purchases[idx], purchaseObj);
-          } else {
-            st.purchases.unshift(purchaseObj);
-          }
-        }
-
-        localStorage.setItem(key, JSON.stringify(st));
-      }
-
-      // 3) Forzamos a changui.js a releer localStorage y redibujar #chgInsight (su MutationObserver escucha #userEmail)
-      if (emailEl) {
-        emailEl.textContent = emailEl.textContent;
-      }
-
-      // 4) Disparamos eventos para que app.js y changui.js redibujen gráficos (#categoryChart) y análisis (#trendText)
+      // Refrescar gráficos (#categoryChart) y análisis (#trendText) de app.js
       window.dispatchEvent(new CustomEvent('mensuales:refresh'));
       window.dispatchEvent(new CustomEvent('changui:refresh'));
       const mp = $('monthPicker');
@@ -592,7 +530,7 @@
     let qty = 1, kg = 0;
     if (byKg) {
       const w = parseWeight(q('.mv-wt').value);
-      kg = Math.round((q('.mv-unit').value === 'g' ? w / 1000 : w) * 1000) / 1000;
+      kg = Math.round(toKg(w, q('.mv-unit').value) * 1000) / 1000;
       if (!(kg > 0)) { alert('Ingresá el peso comprado de «' + name + '».'); q('.mv-wt').focus(); return null; }
     } else {
       qty = Math.min(99, Math.max(1, parseInt(q('.mv-qty').value, 10) || 1));
@@ -930,6 +868,7 @@
 
   /* ---------- 🛒 Chango nuevo: guarda el chango actual en el Historial y abre uno vacío ---------- */
   /* Nada se borra: el chango actual pasa al Historial (botón "📂 Ver" para volver a abrirlo).      */
+  /* Si el chango ya estaba en el Historial (lo abriste con "📂 Ver"), NO se vuelve a guardar.      */
   /* "Vaciar" sigue siendo la opción para borrar todo sin guardar.                                   */
   const clearBtn = $('chgClearBtn');
   if (clearBtn && !$('chgNewBtn')) {
@@ -989,30 +928,45 @@
         say('Tu changuito ya está vacío: podés empezar uno nuevo. 🛒');
         return;
       }
-      if (!confirm('¿Empezar un chango nuevo? El actual se guarda en el Historial (📜), no se borra nada.')) return;
 
-      const general = Math.min(100, Math.max(0, Number(st.general) || 0));
-      const mode = ($('chgDeliveryMode') &&$('chgDeliveryMode').value) || 'presencial';
-      const cost = mode === 'envio' ? parseMoney($('chgDeliveryCost') &&$('chgDeliveryCost').value) : 0;
-      const hoy = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date());
+      // ¿Es un chango que abriste desde el Historial?
+      const lf = st.loadedFrom && typeof st.loadedFrom === 'object' ? st.loadedFrom : null;
+      const yaRegistrado = !!(lf && !lf.draft && Array.isArray(lf.expIds) && lf.expIds.length);
+
+      const pregunta = yaRegistrado
+        ? 'Este chango ya está guardado en el Historial. ¿Empezar uno nuevo? Si cambiaste algo y no lo registraste, esos cambios se pierden.'
+        : '¿Empezar un chango nuevo? El actual se guarda en el Historial (📜), no se borra nada.';
+      if (!confirm(pregunta)) return;
 
       if (!Array.isArray(st.purchases)) st.purchases = [];
-      st.purchases.unshift({
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-        date: hoy,
-        store: (($('chgStore') &&$('chgStore').value) || '').trim().replace(/[()]/g, '').slice(0, 30),
-        deliveryMode: mode,
-        deliveryCost: cost,
-        draft: true,                    // guardado sin registrar en los gastos del mes
-        expenses: [],
-        items: st.items.map((it) => ({
-          name: it.name, icon: it.icon, cur: it.cur, price: it.price, qty: it.qty,
-          byKg: !!it.byKg, kg: it.kg || 0, promo: it.promo || { type: 'none' },
-          paid: paidOf(it, general)
-        }))
-      });
+
+      if (!yaRegistrado) {
+        const general = Math.min(100, Math.max(0, Number(st.general) || 0));
+        const mode = ($('chgDeliveryMode') &&$('chgDeliveryMode').value) || 'presencial';
+        const cost = mode === 'envio' ? parseMoney($('chgDeliveryCost') &&$('chgDeliveryCost').value) : 0;
+        const hoy = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date());
+
+        // Si venía de un borrador, se actualiza ese borrador en vez de crear otro
+        if (lf && lf.draft) st.purchases = st.purchases.filter((p) => p.id !== lf.id);
+
+        st.purchases.unshift({
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          date: hoy,
+          store: (($('chgStore') &&$('chgStore').value) || '').trim().replace(/[()]/g, '').slice(0, 30),
+          deliveryMode: mode,
+          deliveryCost: cost,
+          draft: true,                    // guardado sin registrar en los gastos del mes
+          expenses: [],
+          items: st.items.map((it) => ({
+            name: it.name, icon: it.icon, cur: it.cur, price: it.price, qty: it.qty,
+            byKg: !!it.byKg, kg: it.kg || 0, promo: it.promo || { type: 'none' },
+            paid: paidOf(it, general)
+          }))
+        });
+      }
       st.items = [];
       st.general = 0;
+      st.loadedFrom = null;               // el chango nuevo no está enlazado a ninguno anterior
       try { localStorage.setItem(key, JSON.stringify(st)); } catch (err) { say('No se pudo guardar el chango.'); return; }
 
       // limpiar la pantalla y los datos de compra
@@ -1028,7 +982,9 @@
       else window.location.reload();
 
       const top = $('changui'); if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      say('Listo: chango guardado en el Historial y chango nuevo en cero. 🛒');
+      say(yaRegistrado
+        ? 'Listo: chango nuevo en cero. El anterior ya estaba en el Historial. 🛒'
+        : 'Listo: chango guardado en el Historial y chango nuevo en cero. 🛒');
     });
   }
 })();
@@ -1044,13 +1000,14 @@ window.addEventListener('mensuales:refresh', () => {
 
 
 /* =========================================================
-   SINCRONIZACIÓN AUTOMÁTICA DE GASTOS YA CARGADOS (MES Y ANUAL)
-   Revisa todos los meses del año que tengan gastos de Changui
-   y los suma al análisis, gráficos y resumen anual al abrir.
+   MARCA AUTOMÁTICA DE GASTOS DE CHANGUI (MES Y ANUAL)
+   Revisa todos los meses del año y marca como "fromChangui" los gastos
+   de Changui que tienen detalle, para que el Resumen Anual los cuente.
+   v2: ya NO escribe en el historial local ni toca #userEmail
+   (eso hacía que Changui se recargara en bucle).
 ========================================================= */
 (() => {
   const $ = (id) => document.getElementById(id);
-  const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
   function syncExistingMonthChanguis() {
     try {
@@ -1060,96 +1017,24 @@ window.addEventListener('mensuales:refresh', () => {
       const curMonth = (b.getCurrentMonth && b.getCurrentMonth()) || ($('monthPicker') &&$('monthPicker').value) || '';
       if (!curMonth) return;
 
-      // Armamos la lista de los 12 meses del año seleccionado (ej. 2026-01 a 2026-12) + el mes actual
+      // Los 12 meses del año seleccionado (ej. 2026-01 a 2026-12) + el mes actual
       const year = curMonth.slice(0, 4) || String(new Date().getFullYear());
       const monthsToScan = new Set([curMonth]);
       for (let m = 1; m <= 12; m++) {
         monthsToScan.add(`${year}-${String(m).padStart(2, '0')}`);
       }
 
-      const emailEl = $('userEmail');
-      const email = ((emailEl && emailEl.textContent) || '').trim().toLowerCase();
-      const key = 'changui_v1_' + (email || 'anon');
-      const st = JSON.parse(localStorage.getItem(key) || 'null') || { items: [], general: 0, purchases: [] };
-      if (!Array.isArray(st.purchases)) st.purchases = [];
-
-      let changed = false;
-
       monthsToScan.forEach((month) => {
         const list = b.getMonthExpenses(month) || [];
-        if (!list.length) return;
-
         list.forEach((exp) => {
           const desc = String(exp.description || '').trim();
           const esChg = exp.fromChangui || /^changui\b/i.test(desc);
           const detalle = Array.isArray(exp.detalle) ? exp.detalle : [];
           if (!esChg || !detalle.length) return;
-
-          // 1) Aseguramos que el gasto en memoria tenga la marca fromChangui para el Resumen Anual de app.js
+          // Marca en memoria para el Resumen Anual de app.js
           if (!exp.fromChangui) exp.fromChangui = true;
-
-          // 2) Avisamos al sincronizador nativo de changui.js si existe
-          if (typeof window.__changuiSyncPurchase === 'function') {
-            window.__changuiSyncPurchase(desc, desc, exp.date, detalle, exp.amount);
-          }
-
-          // 3) Verificamos si ya figura en st.purchases de localStorage
-          const idx = st.purchases.findIndex((p) =>
-            (exp.id && (p.id === exp.id || (Array.isArray(p.expenses) && p.expenses.includes(exp.id)))) ||
-            ((p.desc === desc || p.description === desc) && p.date === exp.date)
-          );
-
-          const sumPaid = detalle.reduce((acc, it) => acc + (Number(it.paid) || 0), 0);
-          const fallbackPaid = sumPaid > 0 ? 0 : round2(Number(exp.amount || 0) / detalle.length);
-
-          const itemsMapped = detalle.map((it) => {
-            const paidVal = Number(it.paid) > 0 ? round2(it.paid) : fallbackPaid;
-            const units = it.byKg ? (Number(it.kg) || 1) : (Number(it.qty) || 1);
-            const priceVal = Number(it.price) > 0 ? round2(it.price) : round2(paidVal / units);
-            return {
-              name: it.name,
-              icon: it.icon,
-              cur: it.cur || exp.currency || 'ARS',
-              price: priceVal,
-              qty: Number(it.qty) || 1,
-              byKg: !!it.byKg,
-              kg: Number(it.kg) || 0,
-              promo: it.promo || { type: 'none' },
-              paid: paidVal
-            };
-          });
-
-          const storeMatch = desc.match(/^changui\s+en\s+([^(]*?)\s*(\(|$)/i);
-          const storeName = storeMatch ? storeMatch[1].trim() : '';
-
-          if (idx === -1) {
-            st.purchases.push({
-              id: exp.id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 7)),
-              date: exp.date,
-              store: storeName,
-              desc: desc,
-              total: round2(exp.amount),
-              deliveryMode: 'presencial',
-              deliveryCost: 0,
-              draft: false,
-              expenses: exp.id ? [exp.id] : [],
-              items: itemsMapped
-            });
-            changed = true;
-          } else if (!Array.isArray(st.purchases[idx].items) || !st.purchases[idx].items.length) {
-            st.purchases[idx].items = itemsMapped;
-            st.purchases[idx].total = round2(exp.amount);
-            st.purchases[idx].draft = false;
-            changed = true;
-          }
         });
       });
-
-      if (changed) {
-        localStorage.setItem(key, JSON.stringify(st));
-        if (emailEl) emailEl.textContent = emailEl.textContent;
-        window.dispatchEvent(new CustomEvent('changui:refresh'));
-      }
     } catch (e) {
       console.warn('AutoSync Changui Anual:', e);
     }
@@ -1165,7 +1050,7 @@ window.addEventListener('mensuales:refresh', () => {
     }).observe(expTable, { childList: true });
   }
 
-  // También sincroniza justo antes de abrir el modal de "🌸 Resumen Anual"
+  // También justo antes de abrir el modal de "🌸 Resumen Anual"
   const openAnnualBtn = $('openAnnualBtn');
   if (openAnnualBtn) {
     openAnnualBtn.addEventListener('click', syncExistingMonthChanguis, true);
