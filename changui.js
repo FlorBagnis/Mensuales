@@ -125,10 +125,6 @@
 
   let selIcon = 'otros';
   let editingId = null;
-  let loadedPurchaseId = null;
-  let loadedExpenseIds = [];
-  let loadedPurchaseMonth = '';
-  let registeringPurchase = false;
   let kgMode = false;
   let priceTextNode = null;
   let tableObs = null;
@@ -358,79 +354,6 @@
     $('#chgTotals').innerHTML = out.join('');
   }
 
-  function isFoodOrSuperExpense(e) {
-    if (!e) return false;
-    if (e.category === 'Alimentos') return true;
-    if (e.fromChangui) return true;
-    const d = String(e.description || '');
-    if (/^changui\b/i.test(d)) return true;
-    if (e.isDelivery) return true;
-    if (/^env[ií]o a domicilio/i.test(d)) return true;
-    return false;
-  }
-
-  function storeNameFromExpense(e) {
-    const d = String(e.description || '');
-    let m = d.match(/^changui\s+en\s+([^(]*?)\s*(\(|$)/i);
-    if (m && m[1].trim()) return m[1].trim();
-    m = d.match(/^env[ií]o a domicilio\s+en\s+(.+)$/i);
-    if (m && m[1].trim()) return m[1].trim();
-    return '';
-  }
-
-  function findLinkedExpenseIds(purchase) {
-    const ids = [];
-    const seen = new Set();
-    const add = (id) => { if (id && !seen.has(id)) { seen.add(id); ids.push(id); } };
-    (purchase.expenseIds || []).forEach(add);
-    if (purchase.source === 'expense' && purchase.id && !String(purchase.id).startsWith('exp_')) add(purchase.id);
-
-    const b = bridge();
-    const month = String(purchase.date || '').slice(0, 7);
-    const list = (b.getMonthExpenses ? b.getMonthExpenses(month) : []) || [];
-    const pDate = purchase.date;
-    const pNames = new Set((purchase.items || []).map((it) => String(it.name || '').trim().toLowerCase()).filter(Boolean));
-    const store = String(purchase.store || '').trim();
-    const descSet = new Set((purchase.expenses || []).map((x) => norm(x.description)).filter(Boolean));
-    const escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    list.forEach((e) => {
-      if (e.date !== pDate) return;
-      if (seen.has(e.id)) return;
-      const d = String(e.description || '');
-      if (descSet.has(norm(d))) { add(e.id); return; }
-
-      const isChg = e.fromChangui || /^changui\b/i.test(d);
-      const isDel = e.isDelivery || /^env[ií]o a domicilio/i.test(d);
-      if (isDel && Number(purchase.deliveryCost) > 0) {
-        if (!store || d.toLowerCase().includes(store.toLowerCase())) { add(e.id); return; }
-      }
-      if (!isChg || !pNames.size) return;
-      const eNames = [];
-      (Array.isArray(e.detalle) ? e.detalle : []).forEach((it) => {
-        const n = String(it.name || '').trim().toLowerCase();
-        if (n) eNames.push(n);
-      });
-      if (!eNames.length) {
-        const m = d.match(/\(([^()]*)\)\s*$/);
-        if (m) m[1].split(',').forEach((s) => { const n = s.trim().toLowerCase(); if (n) eNames.push(n); });
-      }
-      const overlap = eNames.filter((n) => pNames.has(n)).length;
-      if (!(overlap && overlap >= Math.min(pNames.size, eNames.length))) return;
-      const storeOk = store
-        ? new RegExp('^changui\\s+en\\s+' + escRe(store) + '\\s*(\\(|$)', 'i').test(d)
-        : /^changui(\s*\(|$)/i.test(d);
-      if (storeOk) add(e.id);
-    });
-    return ids;
-  }
-
-  function clearLoadedPurchase() {
-    loadedPurchaseId = null;
-    loadedExpenseIds = [];
-    loadedPurchaseMonth = '';
-  }
-
   function renderInsight() {
     const box = $('#chgInsight');
     if (!box) return;
@@ -440,10 +363,10 @@
     const month = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
     const list = b.getMonthExpenses(month) || [];
     const rate = dolar();
-    const toARS = (amount, cur) => (cur === 'USD' ? (rate ? Number(amount) * rate : 0) : Number(amount) || 0);
+    const toARS = (amount, cur) => (cur === 'USD' ? (rate ? amount * rate : 0) : amount);
     const pills = [];
 
-    const food = list.filter(isFoodOrSuperExpense);
+    const food = list.filter((e) => e.category === 'Alimentos' || e.fromChangui);
     let foodARS = 0, foodUSD = 0;
     food.forEach((e) => { if (e.currency === 'USD') foodUSD += Number(e.amount || 0); else foodARS += Number(e.amount || 0); });
     if (food.length) {
@@ -453,40 +376,42 @@
     }
 
     const storesData = {};
-    food.forEach((e) => {
-      const storeName = storeNameFromExpense(e);
-      if (!storeName) return;
-      storesData[storeName] = (storesData[storeName] || 0) + toARS(e.amount, e.currency || 'ARS');
+    state.purchases.forEach((p) => {
+      const storeName = p.store ? p.store.trim() : 'Sin especificar';
+      if (!storesData[storeName]) storesData[storeName] = { total: 0, items: new Set() };
+      let storeTotal = 0;
+      (p.items || []).forEach((it) => {
+        storeTotal += toARS(Number(it.paid || 0), it.cur);
+        storesData[storeName].items.add(String(it.name).trim().toLowerCase());
+      });
+      if (p.deliveryCost) storeTotal += toARS(Number(p.deliveryCost), 'ARS');
+      storesData[storeName].total += storeTotal;
     });
-    const sortedStores = Object.entries(storesData).sort((a, c) => c[1] - a[1]);
-    if (sortedStores.length > 0 && sortedStores[0][1] > 0) {
+
+    const sortedStores = Object.entries(storesData).filter(s => s[0] !== 'Sin especificar').sort((a, c) => c[1].total - a[1].total);
+
+    if (sortedStores.length > 0) {
       const topStore = sortedStores[0];
-      pills.push(`🏪 Donde más gastaste fue en <strong>${esc(topStore[0])}</strong> (${money(topStore[1], 'ARS')}).`);
+      const lowStore = sortedStores[sortedStores.length - 1];
+      pills.push(`🏪 Donde más gastaste fue en <strong>${esc(topStore[0])}</strong> (${money(topStore[1].total, 'ARS')}).`);
+
+      if (sortedStores.length > 1 && lowStore[0] !== topStore[0]) {
+        const itemsOnlyInTop = [...topStore[1].items].filter(x => !lowStore[1].items.has(x));
+        const comparisonText = itemsOnlyInTop.length > 0
+          ? ` Aquí compraste <em>(${itemsOnlyInTop.slice(0, 3).map(esc).join(', ')})</em> que no llevaste en ${esc(lowStore[0])}.`
+          : ` Concentraste tus compras grandes aquí en comparación con ${esc(lowStore[0])}.`;
+        pills.push(`📊 <strong>Comparativa:</strong> En ${esc(topStore[0])} gastaste más que en ${esc(lowStore[0])}.${comparisonText}`);
+      }
     }
 
     const prods = {};
-    food.forEach((e) => {
-      const items = Array.isArray(e.detalle) && e.detalle.length ? e.detalle : null;
-      if (items) {
-        items.forEach((it) => {
-          const v = toARS(Number(it.paid || 0), it.cur || e.currency || 'ARS');
-          const key = String(it.name || '').trim().toLowerCase();
-          if (!key || !(v > 0)) return;
-          if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, amt: 0 };
-          prods[key].amt += v;
-        });
-        return;
-      }
-      const d = String(e.description || '');
-      if (e.category === 'Alimentos' && !/^changui\b/i.test(d) && !e.isDelivery && !/^env[ií]o a domicilio/i.test(d)) {
-        const v = toARS(e.amount, e.currency || 'ARS');
-        const name = d.trim() || 'Alimentos';
-        const key = name.toLowerCase();
-        if (key && v > 0) {
-          if (!prods[key]) prods[key] = { name, icon: 'otros', amt: 0 };
-          prods[key].amt += v;
-        }
-      }
+    state.purchases.filter((p) => String(p.date).slice(0, 7) === month).forEach((p) => {
+      (p.items || []).forEach((it) => {
+        const v = toARS(Number(it.paid || 0), it.cur);
+        const key = String(it.name).trim().toLowerCase();
+        if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, amt: 0 };
+        prods[key].amt += v;
+      });
     });
     const topProd = Object.values(prods).sort((a, c) => c.amt - a.amt)[0];
     if (topProd && topProd.amt > 0) {
@@ -605,7 +530,6 @@
   }
 
   async function registerPurchase() {
-    if (registeringPurchase) return;
     if (!state.items.length) { toast('Primero agregá productos al changuito.'); return; }
     const b = bridge();
     if (!b.addExpenses) { toast('No se pudo conectar con Mensuales.'); return; }
@@ -661,41 +585,22 @@
 
     if (!expenses.length) { toast('El total de la compra es cero.'); return; }
 
-    registeringPurchase = true;
     let res = false;
-    try {
-      res = await b.addExpenses({
-        date,
-        expenses,
-        replaceIds: loadedExpenseIds.length ? loadedExpenseIds : undefined,
-        replaceMonth: loadedExpenseIds.length ? loadedPurchaseMonth : undefined
-      });
-    } catch (e) { res = false; }
-    registeringPurchase = false;
+    try { res = await b.addExpenses({ date, expenses }); } catch (e) { res = false; }
     if (!res) { toast('No se pudo registrar la compra.'); return; }
 
-    const createdIds = (res && Array.isArray(res.ids)) ? res.ids : [];
-    const rec = {
-      id: loadedPurchaseId || uid(),
-      date,
-      store,
-      deliveryMode,
-      deliveryCost,
-      expenseIds: createdIds.length ? createdIds : loadedExpenseIds.slice(),
+    state.purchases.unshift({
+      id: uid(), date, store, deliveryMode, deliveryCost,
       expenses: details,
       items: state.items.map((it) => ({
         name: it.name, icon: it.icon, cur: it.cur, price: it.price, qty: it.qty,
         byKg: !!it.byKg, kg: it.kg || 0, promo: it.promo,
         paid: round2(itemCalc(it).paid * (1 - g / 100))
       }))
-    };
-    const idx = loadedPurchaseId ? state.purchases.findIndex((p) => p.id === loadedPurchaseId) : -1;
-    if (idx >= 0) state.purchases[idx] = rec;
-    else state.purchases.unshift(rec);
+    });
     state.purchases = state.purchases.slice(0, 60);
     state.items = [];
     state.general = 0;
-    clearLoadedPurchase();
     save();
     $('#chgStore').value = '';
     if ($('#chgDeliveryCost')) $('#chgDeliveryCost').value = '';
@@ -703,10 +608,6 @@
     if ($('#chgDeliveryCostWrap')) $('#chgDeliveryCostWrap').hidden = true;
     resetForm();
     render();
-    try {
-      window.dispatchEvent(new CustomEvent('mensuales:refresh'));
-      window.dispatchEvent(new CustomEvent('changui:refresh'));
-    } catch (e) { /* sin eventos */ }
     toast(`Listo, la compra se sumó a tus gastos.`);
   }
 
@@ -1376,9 +1277,6 @@
     resetForm();
     state.items = items;
     state.general = general;
-    loadedPurchaseId = purchase.id;
-    loadedExpenseIds = findLinkedExpenseIds(purchase);
-    loadedPurchaseMonth = String(purchase.date || '').slice(0, 7);
 
     if ($('#chgStore')) $('#chgStore').value = purchase.store || '';
     if ($('#chgDeliveryMode')) $('#chgDeliveryMode').value = purchase.deliveryMode || 'presencial';
@@ -1408,7 +1306,7 @@
   $('#chgClearBtn').addEventListener('click', () => {
     if (!state.items.length) return;
     if (!confirm('¿Vaciar todo el changuito?')) return;
-    state.items = []; state.general = 0; clearLoadedPurchase(); save(); resetForm(); render();
+    state.items = []; state.general = 0; save(); resetForm(); render();
   });
 
   $('#chgPromo').addEventListener('change', (e) => {
@@ -1709,9 +1607,7 @@
     document.head.appendChild(st);
   })();
 
-  window.__changuiEnhance = enhanceTable;
-  window.__changuiSyncPurchase = syncPurchaseFromExpense;
-  window.addEventListener('changui:refresh', () => { load(); renderInsight(); enhanceTable(); });
+   window.__changuiEnhance = enhanceTable;
   setupKgUI();
   load();
   renderIcons();
