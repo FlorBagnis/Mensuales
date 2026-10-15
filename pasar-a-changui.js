@@ -633,7 +633,7 @@
     const decorateRows = () => {
       expTable.querySelectorAll('tr').forEach((tr) => {
         if (tr.querySelector('.chg-mv-row')) return;
-        const edit = tr.querySelector('.edit-btn');
+        const edit = tr.querySelector('.edit-btn:not(.chg-mv-row)');
         if (!edit) return;
         const id = edit.dataset.id;
         if (String(id).startsWith('rec-')) return;      // cuotas recurrentes: no aplica
@@ -641,7 +641,7 @@
         const esChg = !!exp && /^changui\b/i.test(String(exp.description || '').trim());
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'chg-mv-row cart-btn';
+        b.className = 'chg-mv-row pastel-btn btn-sm edit-btn cart-btn';
         b.title = esChg ? 'Editar productos de Changui' : 'Pasar a Changui';
         b.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L21 8H6"/></svg>';
         edit.before(b);
@@ -653,7 +653,7 @@
     expTable.addEventListener('click', (e) => {
       const b = e.target.closest('.chg-mv-row');
       if (!b) return;
-      const edit = b.closest('tr').querySelector('.edit-btn');
+      const edit = b.closest('tr').querySelector('.edit-btn:not(.chg-mv-row)');
       if (!edit) return;
       edit.click();          // abre el modal de editar gasto (lo maneja app.js)
       openChecked();
