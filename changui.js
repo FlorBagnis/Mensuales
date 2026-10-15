@@ -431,8 +431,8 @@
     const chg = list.filter((e) => isChgExp(e) || isDeliveryExp(e));
     const pills = [];
 
-    // 🛒 Comida y súper: todo lo de Alimentos + todo lo que pasó por Changui (envíos incluidos)
-    const food = list.filter((e) => e.category === 'Alimentos' || isChgExp(e) || isDeliveryExp(e));
+    // 🛒 Comida y súper: la categoría Alimentos de Gastos del mes (el mismo número que el gráfico "Gastos por categoría")
+    const food = list.filter((e) => e.category === 'Alimentos');
     let foodARS = 0, foodUSD = 0;
     food.forEach((e) => { if (e.currency === 'USD') foodUSD += Number(e.amount || 0); else foodARS += Number(e.amount || 0); });
     pills.push(food.length
@@ -634,9 +634,13 @@
     }));
 
     if (deliveryCost > 0) {
+      // El envío va con la categoría del chango (la del grupo que más pesa), no suelto en "Otros"
+      const biggest = Object.values(groups).filter((x) => x.cur === 'ARS').sort((a, c) => c.amount - a.amount)[0]
+        || Object.values(groups).sort((a, c) => c.amount - a.amount)[0];
+      const deliveryCat = mode === 'auto' ? (biggest ? biggest.cat : 'Otros') : mode;
       expenses.push({
         description: `Envío a domicilio${storeLabel}`,
-        category: 'Otros',
+        category: deliveryCat,
         amount: round2(deliveryCost),
         currency: 'ARS',
         isDelivery: true
