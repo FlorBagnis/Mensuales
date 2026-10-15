@@ -378,17 +378,6 @@
   }).observe(dialog, { attributes: true, attributeFilter: ['open'] });
 
   /* ---------- eventos del bloque ---------- */
-  chk.addEventListener('change', () => {
-    fields.hidden = !chk.checked;
-    if (chk.checked) {
-      // un gasto de Changui no se repite como recurrente
-      const rec = $('expenseRecurring');
-      if (rec) rec.checked = false;
-      const opts = $('recurringOptions');
-      if (opts) opts.classList.add('hidden');
-    }
-    showRecurring(!chk.checked);
-  });
 
   back.addEventListener('click', async () => {
     const b = bridge();
@@ -414,6 +403,9 @@
       alert('No se pudo sacar el gasto de Changui. Probá de nuevo.');
       return;
     }
+
+     window.dispatchEvent(new CustomEvent('mensuales:refresh'));
+
     dialog.close();
   });
 
@@ -889,3 +881,12 @@
     });
   }
 })();
+
+// Escucha el aviso de Changui para actualizar gráficos y análisis en tiempo real en app.js
+window.addEventListener('mensuales:refresh', () => {
+  if (typeof renderCategoryChart === 'function') renderCategoryChart();
+  if (typeof renderTrendAnalysis === 'function') renderTrendAnalysis();
+  if (typeof updateUI === 'function') updateUI(); 
+});
+
+
