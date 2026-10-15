@@ -1,7 +1,9 @@
 /* =========================================================
    PASAR UN GASTO A CHANGUI · extra para Mensuales
-   Al editar un gasto del mes, lo convertís en producto de Changui
-   (huevos, pollo, verduras, etc.). No toca app.js ni changui.js.
+   - Al EDITAR un gasto del mes, lo convertís en producto de Changui
+   - Al CREAR un gasto nuevo también podés marcarlo como Changui
+   - Si le sacás "Changui" a la descripción, vuelve a aparecer la opción
+   No toca app.js ni changui.js.
    Creado by Flor Bagnis 💗
 ========================================================= */
 (() => {
@@ -9,7 +11,7 @@
 
   const form = document.getElementById('expenseForm');
   const dialog = document.getElementById('expenseDialog');
-  if (!form || !dialog) return;
+  if (!form || !dialog) { console.warn('Pasar a Changui: no encontré #expenseForm o #expenseDialog'); return; }
   const $ = (id) => document.getElementById(id);
 
   // Mismos tipos de producto que Changui: [clave, emoji, nombre, categoría del gasto]
@@ -64,7 +66,7 @@
   `;
   document.head.appendChild(st);
 
-  /* ---------- bloque dentro del modal "Editar gasto" ---------- */
+  /* ---------- bloque dentro del modal "Editar gasto" / "Nuevo gasto" ---------- */
   const iconOpts = ICONS.map((i) => `<option value="${i[0]}">${i[1]} ${i[2]}</option>`).join('');
   const box = document.createElement('div');
   box.id = 'chgMoveWrap';
@@ -99,7 +101,8 @@
   /* ---------- utilidades ---------- */
   const bridge = () => window.ChanguiBridge || {};
   const currentMonth = () => (bridge().getCurrentMonth && bridge().getCurrentMonth()) || ($('monthPicker') && $('monthPicker').value) || '';
-  const findExp = (month, id) => ((bridge().getMonthExpenses && bridge().getMonthExpenses(month)) || []).find((x) => x.id === id);
+  const monthExpenses = (month) => (bridge().getMonthExpenses && bridge().getMonthExpenses(month)) || [];
+  const findExp = (month, id) => monthExpenses(month).find((x) => x.id === id);
   const round2 = (n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
   const parseMoney = (v) => {
     const n = parseFloat(String(v == null ? '' : v).replace(/\./g, '').replace(',', '.'));
@@ -212,11 +215,31 @@
   function setup() {
     reset();
     const id = form.dataset.editingId;
-    if (!id) { box.hidden = true; return; }          // gasto nuevo: no aplica
-
     const b = bridge();
-    const exp = typeof b.updateExpense === 'function' ? findExp(currentMonth(), id) : null;
-    if (!exp || String(exp.id).startsWith('rec-')) { box.hidden = true; return; }
+
+    if (typeof b.updateExpense !== 'function' || typeof b.getMonthExpenses !== 'function') {
+      console.warn('Pasar a Changui: ChanguiBridge no tiene updateExpense y/o getMonthExpenses. Bridge actual:', b);
+      box.hidden = true;
+      return;
+    }
+
+    // ----- GASTO NUEVO: se puede cargar directamente como Changui -----
+    if (!id) {
+      lbl.textContent = '🛒 Cargar este gasto como Changui';
+      hint.textContent = 'Este gasto se guarda como un Changui con los productos que cargues acá. Suma en el mes y lo ves en «Detalle» y en el Historial de Changui.';
+      addRow({});
+      renumber();
+      box.hidden = false;
+      return;
+    }
+
+    // ----- GASTO EXISTENTE -----
+    const exp = findExp(currentMonth(), id);
+    if (!exp || String(exp.id).startsWith('rec-')) {
+      console.warn('Pasar a Changui: no encontré el gasto', id, 'en el mes', currentMonth());
+      box.hidden = true;
+      return;
+    }
 
     // Es Changui solo si la descripción empieza con «Changui» (igual que la tabla). Si se la sacaste, vuelve a aparecer el tilde.
     const esChangui = /^changui\b/i.test(String(exp.description || '').trim());
@@ -257,12 +280,18 @@
     box.hidden = false;
   }
 
-  const origShow = HTMLDialogElement.prototype.showModal;
-  HTMLDialogElement.prototype.showModal = function (...args) {
-    const r = origShow.apply(this, args);
-    if (this === dialog) { try { setup(); } catch (e) { console.error('Pasar a Changui:', e); } }
-    return r;
-  };
+  const runSetup = () => { try { setup(); } catch (e) { console.error('Pasar a Changui:', e); } };
+
+  // Se detecta la apertura del modal (con showModal o show) mirando el atributo "open".
+  // Se corre otra vez enseguida por si app.js completa el formulario un instante después de abrirlo.
+  let wasOpen = dialog.open;
+  new MutationObserver(() => {
+    if (dialog.open && !wasOpen) {
+      runSetup();
+      setTimeout(() => { if (dialog.open && !chk.checked) runSetup(); }, 60);
+    }
+    wasOpen = dialog.open;
+  }).observe(dialog, { attributes: true, attributeFilter: ['open'] });
 
   /* ---------- eventos del bloque ---------- */
   chk.addEventListener('change', () => {
@@ -381,7 +410,37 @@
     return { name, icon, cur: currency, price, qty, byKg, kg, promo: { type: 'none' }, paid };
   }
 
-  /* ---------- guardar: el gasto pasa a ser un gasto de Changui ---------- */
+  /* ---------- gasto NUEVO: después del guardado normal, se le agregan los productos ---------- */
+  function attachToNewExpense(info) {
+    let tries = 0;
+    const timer = setInterval(async () => {
+      tries++;
+      const months = [...new Set([info.month, currentMonth()].filter(Boolean))];
+      let found = null, foundMonth = '';
+      for (const mo of months) {
+        const list = monthExpenses(mo);
+        for (let i = list.length - 1; i >= 0; i--) {
+          const x = list[i];
+          if (x.description === info.desc && !x.detalle && Math.abs(Number(x.amount) - info.amount) < 0.01) {
+            found = x; foundMonth = mo; break;
+          }
+        }
+        if (found) break;
+      }
+      if (found) {
+        clearInterval(timer);
+        found.fromChangui = true;
+        let ok = false;
+        try { ok = await bridge().updateExpense({ month: foundMonth, id: found.id, amount: round2(found.amount), detalle: info.items }); } catch (err) { ok = false; }
+        if (!ok) { delete found.fromChangui; alert('El gasto se guardó, pero no pude cargarle los productos de Changui. Editalo y probá de nuevo.'); }
+      } else if (tries >= 25) {
+        clearInterval(timer);
+        console.warn('Pasar a Changui: no encontré el gasto nuevo para agregarle los productos.');
+      }
+    }, 200);
+  }
+
+  /* ---------- guardar ---------- */
   form.addEventListener('submit', async (e) => {
     if (box.hidden || !chk.checked) {                  // flujo normal de la app
       // si le sacaste «Changui» a la descripción, se limpian las marcas viejas (PDF, resúmenes)
@@ -391,26 +450,26 @@
       if (e0 && (e0.fromChangui || e0.detalle) && !/^changui\b/i.test(d0)) { delete e0.fromChangui; delete e0.detalle; }
       return;
     }
-    e.preventDefault();
-    e.stopImmediatePropagation();
+    const stop = () => { e.preventDefault(); e.stopImmediatePropagation(); };
 
     const b = bridge();
     const id = form.dataset.editingId;
+    const isNew = !id;
     const month = currentMonth();
     const exp = id ? findExp(month, id) : null;
-    if (!exp || typeof b.updateExpense !== 'function') { alert('No pude encontrar el gasto para pasarlo a Changui.'); return; }
+    if (!isNew && (!exp || typeof b.updateExpense !== 'function')) { stop(); alert('No pude encontrar el gasto para pasarlo a Changui.'); return; }
 
     const amount = parseMoney($('expenseAmount') && $('expenseAmount').value);
-    if (!(amount > 0)) { alert('El monto tiene que ser mayor a cero.'); return; }
+    if (!(amount > 0)) { stop(); alert('El monto tiene que ser mayor a cero.'); return; }
     const currency = ($('expenseCurrency') && $('expenseCurrency').value) === 'USD' ? 'USD' : 'ARS';
 
     const rs = rows();
-    if (!rs.length) { alert('Cargá al menos un producto.'); return; }
+    if (!rs.length) { stop(); alert('Cargá al menos un producto.'); return; }
     const multi = rs.length > 1;
     const items = [];
     for (const r of rs) {
       const it = readRow(r, multi, amount, currency);
-      if (!it) return;
+      if (!it) { stop(); return; }
       items.push(it);
     }
 
@@ -419,6 +478,7 @@
       const todosConPrecio = items.every((x) => Number(x.paid) > 0);
       const tol = 0.02 + 0.005 * items.length;   // tolera los centavos de redondeo
       if (sum > amount + tol || (todosConPrecio && Math.abs(sum - amount) > tol)) {
+        stop();
         alert('La suma de los precios de los productos (' + sum.toLocaleString('es-AR', { minimumFractionDigits: 2 }) +
           ') no coincide con el monto del gasto (' + amount.toLocaleString('es-AR', { minimumFractionDigits: 2 }) +
           '). Ajustá los precios o dejá en blanco los que no sepas.');
@@ -426,11 +486,25 @@
       }
     }
 
-    // Se aplican los datos del modal y se marca como gasto de Changui
     const store = storeIn.value.trim().replace(/[()]/g, '').slice(0, 30);
+    const newDesc = `Changui${store ? ' en ' + store : ''} (${items.map((x) => x.name).join(', ')})`;
+
+    // ----- GASTO NUEVO: se deja que la app lo guarde normal y después se le agregan los productos -----
+    if (isNew) {
+      const descEl = $('expenseDescription');
+      if (descEl) descEl.value = newDesc;
+      // mismo mes que usa app.js para guardar: «Imputar al mes» (o el mes de la fecha)
+      const tm = ($('expenseTargetMonth') && $('expenseTargetMonth').value) ||
+        String(($('expenseDate') && $('expenseDate').value) || '').slice(0, 7) || month;
+      attachToNewExpense({ desc: newDesc, amount: round2(amount), items, month: tm });
+      return;                                          // sigue el guardado normal de app.js
+    }
+
+    // ----- GASTO EXISTENTE: se aplican los datos del modal y se marca como gasto de Changui -----
+    stop();
     const before = { date: exp.date, description: exp.description, category: exp.category, currency: exp.currency, fromChangui: exp.fromChangui };
     exp.date = ($('expenseDate') && $('expenseDate').value) || exp.date;
-    exp.description = `Changui${store ? ' en ' + store : ''} (${items.map((x) => x.name).join(', ')})`;
+    exp.description = newDesc;
     exp.category = ($('expenseCategory') && $('expenseCategory').value) || exp.category;
     exp.currency = currency;
     exp.fromChangui = true;
