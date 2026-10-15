@@ -13,6 +13,7 @@
   const dialog = document.getElementById('expenseDialog');
   if (!form || !dialog) { console.warn('Pasar a Changui: no encontré #expenseForm o #expenseDialog'); return; }
   const $ = (id) => document.getElementById(id);
+  console.log('Pasar a Changui: script cargado ✔');
 
   // Mismos tipos de producto que Changui: [clave, emoji, nombre, categoría del gasto]
   const ICONS = [
@@ -78,6 +79,7 @@
       <span id="chgMoveLbl">🛒 Pasar este gasto a Changui</span>
     </label>
     <button type="button" id="chgMoveBack" class="chg-move-add" hidden>↩️ Sacar de Changui (volver a gasto normal)</button>
+    <p class="chg-move-hint" id="chgMoveNote" hidden></p>
     <div id="chgMoveFields" hidden>
       <p class="chg-move-hint" id="chgMoveHint"></p>
       <label class="chg-move-store">¿Dónde compraste? (opcional)
@@ -95,6 +97,7 @@
   const fields = box.querySelector('#chgMoveFields');
   const lbl = box.querySelector('#chgMoveLbl');
   const hint = box.querySelector('#chgMoveHint');
+  const note = box.querySelector('#chgMoveNote');
   const storeIn = box.querySelector('#chgMoveStore');
   const itemsBox = box.querySelector('#chgMoveItems');
 
@@ -206,6 +209,8 @@
     toggleLbl.hidden = false;
     back.hidden = true;
     fields.hidden = true;
+    note.hidden = true;
+    note.textContent = '';
     itemsBox.innerHTML = '';
     storeIn.value = '';
     showRecurring(true);
@@ -217,9 +222,16 @@
     const id = form.dataset.editingId;
     const b = bridge();
 
+    const unavailable = (msg) => {
+      console.warn('Pasar a Changui:', msg);
+      toggleLbl.hidden = true;
+      note.textContent = '⚠️ ' + msg;
+      note.hidden = false;
+      box.hidden = false;
+    };
+
     if (typeof b.updateExpense !== 'function' || typeof b.getMonthExpenses !== 'function') {
-      console.warn('Pasar a Changui: ChanguiBridge no tiene updateExpense y/o getMonthExpenses. Bridge actual:', b);
-      box.hidden = true;
+      unavailable('Pasar a Changui no está disponible: falta conectar ChanguiBridge (updateExpense / getMonthExpenses).');
       return;
     }
 
@@ -235,9 +247,9 @@
 
     // ----- GASTO EXISTENTE -----
     const exp = findExp(currentMonth(), id);
-    if (!exp || String(exp.id).startsWith('rec-')) {
-      console.warn('Pasar a Changui: no encontré el gasto', id, 'en el mes', currentMonth());
-      box.hidden = true;
+    if (exp && String(exp.id).startsWith('rec-')) { box.hidden = true; return; }   // las cuotas recurrentes no se pasan
+    if (!exp) {
+      unavailable('No encontré este gasto en el mes ' + currentMonth() + '.');
       return;
     }
 
@@ -519,6 +531,61 @@
     }
     dialog.close();
   }, true);   // captura: corre antes que el guardado normal de app.js
+
+  /* ---------- Botones visibles en «Gastos del mes» ---------- */
+  // Al abrir el modal desde estos botones, el bloque de Changui queda tildado y desplegado
+  const openChecked = () => setTimeout(() => {
+    if (box.hidden || toggleLbl.hidden || chk.checked) return;
+    chk.checked = true;
+    chk.dispatchEvent(new Event('change', { bubbles: true }));
+    box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, 15);
+
+  // 1) 🛒 en cada fila de la tabla
+  const expTable = $('expenseTable');
+  if (expTable) {
+    const decorateRows = () => {
+      expTable.querySelectorAll('tr').forEach((tr) => {
+        if (tr.querySelector('.chg-mv-row')) return;
+        const edit = tr.querySelector('.edit-btn');
+        if (!edit) return;
+        const id = edit.dataset.id;
+        if (String(id).startsWith('rec-')) return;      // cuotas recurrentes: no aplica
+        const exp = findExp(currentMonth(), id);
+        const esChg = !!exp && /^changui\b/i.test(String(exp.description || '').trim());
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chg-mv-row';
+        b.title = esChg ? 'Editar productos de Changui' : 'Pasar a Changui';
+        b.textContent = '🛒';
+        b.style.cssText = 'background:transparent;border:none;box-shadow:none;cursor:pointer;font-size:15px;padding:4px 6px;';
+        edit.before(b);
+      });
+    };
+    new MutationObserver(decorateRows).observe(expTable, { childList: true });
+    decorateRows();
+
+    expTable.addEventListener('click', (e) => {
+      const b = e.target.closest('.chg-mv-row');
+      if (!b) return;
+      const edit = b.closest('tr').querySelector('.edit-btn');
+      if (!edit) return;
+      edit.click();          // abre el modal de editar gasto (lo maneja app.js)
+      openChecked();
+    });
+  }
+
+  // 2) 🛒 «Nuevo gasto Changui» al lado de «+ Nuevo gasto»
+  const addBtn = $('addExpenseBtn');
+  if (addBtn && !$('chgMoveNewBtn')) {
+    const nb = document.createElement('button');
+    nb.id = 'chgMoveNewBtn';
+    nb.type = 'button';
+    nb.className = 'btn btn-outline';
+    nb.textContent = '🛒 Nuevo gasto Changui';
+    nb.addEventListener('click', () => { addBtn.click(); openChecked(); });
+    addBtn.after(nb);
+  }
 
   /* ---------- Historial de Changui: editar lugar y fecha de los gastos pasados ---------- */
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
