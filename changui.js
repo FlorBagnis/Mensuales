@@ -267,9 +267,9 @@
   }
 
   // Convierte el peso tipeado a kilos. En "g" divide por 1000.
-  // En "kg", un número >= 10 se toma como gramos (ej. 310 o 500) y también se divide por 1000.
-  // Los decimales chicos (0,5 · 1,25) quedan como están.
-  const toKg = (w, unit) => (unit === 'g' || (unit === 'kg' && w >= 10) ? w / 1000 : w);
+  // En "kg", un número >= 100 se toma como gramos (ej. 310 o 500) y también se divide por 1000.
+  // Los pesos reales (0,5 · 1,25 · 10 · 25 kg) quedan como están.
+  const toKg = (w, unit) => (unit === 'g' || (unit === 'kg' && w >= 100) ? w / 1000 : w);
 
   function currentKg() {
     const w = parseWeight($('#chgWeight')?.value);
@@ -433,7 +433,7 @@
         const names = m ? m[1].split(/[,;]/).map((s) => s.trim()).filter(Boolean) : [];
         items = names.map((n) => ({ name: n, icon: 'otros', cur, paid: Number(e.amount || 0) / names.length }));
       }
-      items.forEach((it) => {
+      items.map(viewFixed).forEach((it) => {
         const v = toARS(Number(it.paid || 0), it.cur || cur);
         const key = String(it.name).trim().toLowerCase();
         if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, amt: 0 };
@@ -682,7 +682,12 @@
   const canEditExpenses = () => typeof bridge().updateExpense === 'function';
   const currentList = (exp) => (exp && Array.isArray(exp.detalle) && exp.detalle.length ? exp.detalle : pendingItems.get(exp && exp.id));
 
-  const normItem = (x, cur) => ({
+  // Vista corregida de un producto cargado con el error de los mil (310 kg -> 310 g), sin tocar el original
+  const viewFixed = (it) => (it && it.byKg && Number(it.kg) >= 100
+    ? Object.assign({}, it, { kg: Math.round(Number(it.kg)) / 1000, paid: round2((Number(it.paid) || 0) / 1000) })
+    : it);
+
+  const normItem = (x, cur) => ((x = viewFixed(x)), {
     name: String(x.name || 'Producto'),
     icon: x.icon || 'otros',
     cur: x.cur || cur,
@@ -696,7 +701,7 @@
 
   // Productos de un gasto de Changui: del propio gasto, de compras guardadas o del texto
   function getDetail(desc, iso, exp) {
-    if (exp && Array.isArray(exp.detalle) && exp.detalle.length) return { items: exp.detalle, stored: true };
+    if (exp && Array.isArray(exp.detalle) && exp.detalle.length) return { items: exp.detalle.map(viewFixed), stored: true };
     const d = norm(desc);
     const cur = (exp && exp.currency) || 'ARS';
     const P = state.purchases || [];
@@ -1201,6 +1206,49 @@
     toast('Archivo CSV descargado con éxito.');
   }
 
+  /* ---------- corrección de pesos cargados en gramos como kg (310 kg -> 310 g) ---------- */
+  // Compras ya guardadas con el error de los mil (ej. "310 kg" que eran 310 g): se corrigen solas,
+  // en el historial local y en el gasto de Gastos del mes (detalle + total). Es idempotente.
+  const fixedKgIds = new Set();
+  const badKg = (it) => !!it && !!it.byKg && Number(it.kg) >= 100;
+  function fixKgItem(it) {
+    const oldPaid = Number(it.paid) || 0;
+    it.kg = Math.round((Number(it.kg) / 1000) * 1000) / 1000;
+    it.paid = round2(oldPaid / 1000);
+    return oldPaid - it.paid;   // cuánto se restó del total
+  }
+  function fixThousands() {
+    let localChanged = false;
+    (state.purchases || []).forEach((p) => {
+      (p.items || []).forEach((it) => { if (badKg(it)) { fixKgItem(it); localChanged = true; } });
+      (p.expenses || []).forEach((x) => {
+        let d = 0;
+        (x.items || []).forEach((it) => { if (badKg(it)) d += fixKgItem(it); });
+        if (d) { x.amount = round2(Number(x.amount || 0) - d); localChanged = true; }
+      });
+    });
+
+    const b = bridge();
+    if (b.getMonthExpenses && b.updateExpense) {
+      const months = new Set();
+      if (b.getCurrentMonth) months.add(b.getCurrentMonth());
+      (state.purchases || []).forEach((p) => { const m = p.expMonth || String(p.date || '').slice(0, 7); if (m) months.add(m); });
+      months.forEach((month) => {
+        if (!month) return;
+        (b.getMonthExpenses(month) || []).forEach((exp) => {
+          if (!exp || !Array.isArray(exp.detalle) || fixedKgIds.has(exp.id)) return;
+          if (!exp.detalle.some(badKg)) return;
+          let delta = 0;
+          exp.detalle.forEach((it) => { if (badKg(it)) delta += fixKgItem(it); });
+          exp.amount = round2(Number(exp.amount || 0) - delta);
+          fixedKgIds.add(exp.id);
+          Promise.resolve(b.updateExpense({ month, id: exp.id, amount: exp.amount, detalle: exp.detalle })).catch(() => { /* se reintenta en la próxima sesión */ });
+        });
+      });
+    }
+    if (localChanged) save();
+  }
+
   /* ---------- Historial de Changuitos ---------- */
   // Cambia el local en la descripción de un gasto de Changui o de su envío
   const retitle = (desc, store) => {
@@ -1215,6 +1263,7 @@
   function renderHistoryModal() {
     const container = $('#chgHistoryListContainer');
     if (!container) return;
+    fixThousands();
 
     const b = bridge();
     const currentMonth = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
@@ -1716,7 +1765,7 @@
   });
 
   let timer;
-  const refresh = () => { clearTimeout(timer); timer = setTimeout(() => { renderTotals(); renderInsight(); }, 250); };
+  const refresh = () => { clearTimeout(timer); timer = setTimeout(() => { fixThousands(); renderTotals(); renderInsight(); }, 250); };
   const watch = (id, cb) => {
     const el = document.getElementById(id);
     if (el) new MutationObserver(cb).observe(el, { childList: true, subtree: true, characterData: true });
@@ -1779,6 +1828,6 @@
   let tries = 0;
   const poll = setInterval(() => {
     tries++;
-    if (bridge().getMonthExpenses || tries > 40) { clearInterval(poll); renderInsight(); }
+    if (bridge().getMonthExpenses || tries > 40) { clearInterval(poll); fixThousands(); renderInsight(); enhanceTable(); }
   }, 500);
 })();
