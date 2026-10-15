@@ -3,6 +3,7 @@
    Creado by Flor Bagnis 💗
    + Compra por kilo (verduras, frutas, queso y fiambres, carne, pollo, pescado)
    + Solapa "¿Qué se compró?" en Gastos del mes
+   + Historial corregido: botones Ver / PDF / CSV funcionan con todas las tarjetas
 ========================================================= */
 (() => {
   'use strict';
@@ -128,6 +129,11 @@
   let priceTextNode = null;
   let tableObs = null;
   const openKeys = new Set();
+
+  // Historial: lista unificada que se muestra en el modal (local + gastos del mes)
+  let historyCache = [];
+  const findPurchase = (id) => historyCache.find((p) => p.id === id);
+  const findLocalPurchase = (id) => state.purchases.find((p) => p.id === id);
 
   let toastTimer;
   function toast(text) {
@@ -1000,8 +1006,7 @@
       const cur = it.cur || 'ARS';
       doc.setTextColor(...theme.dark); doc.setFontSize(7);
       doc.text((plain(it.name) || 'Producto').slice(0, 40), 18, y + 5);
-      
-      // Acá aplicamos la lectura correcta de los kilos o unidades para el PDF
+
       const qtyDisplay = it.byKg ? kgLabel(it.kg) : String(it.qty || 1);
       doc.text(qtyDisplay, 92, y + 5);
 
@@ -1088,58 +1093,66 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Changui-${dateStr}-${storeName}.csv`;
+    a.download = `Changui-${dateStr}-${String(storeName).replace(/[\\/:*?"<>|]/g, '')}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast('Archivo CSV descargado con éxito.');
   }
 
-  /* ---------- Historial de Changuitos (Sincronizado y Seguro) ---------- */
+  /* ---------- Historial de Changuitos ---------- */
   function renderHistoryModal() {
     const container = $('#chgHistoryListContainer');
     if (!container) return;
 
-    // Obtenemos los gastos del mes actual desde el bridge para asegurar que no se pierda nada
     const b = bridge();
     const currentMonth = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
     const monthExpenses = (b.getMonthExpenses ? b.getMonthExpenses(currentMonth) || [] : []);
 
-    // Unificamos el historial local con los gastos de la app principal
+    // Lista unificada: compras locales + gastos de Changui del mes que no estén ya cubiertos
     const unifiedPurchases = [];
     const seenIds = new Set();
+    const covered = new Set();
 
-    // 1. Cargamos primero los guardados en state.purchases
-    (state.purchases || []).forEach(p => {
-      if (p.id && !seenIds.has(p.id)) {
-        seenIds.add(p.id);
-        unifiedPurchases.push({ ...p, source: 'local' });
-      }
+    // 1. Compras guardadas localmente
+    (state.purchases || []).forEach((p) => {
+      if (!p.id || seenIds.has(p.id)) return;
+      seenIds.add(p.id);
+      unifiedPurchases.push({ ...p, source: 'local' });
+      (p.expenses || []).forEach((x) => covered.add(norm(x.description)));
     });
 
-    // 2. Buscamos en los gastos del mes aquellos que vengan del changuito
-    monthExpenses.forEach(exp => {
-      if (/^changui\b/i.test(exp.description) || (exp.detalle && exp.detalle.length > 0)) {
-        const pId = exp.id || ('exp_' + exp.date + '_' + exp.amount);
-        if (!seenIds.has(pId)) {
-          seenIds.add(pId);
-          unifiedPurchases.push({
-            id: pId,
-            date: exp.date || todayISO(),
-            store: exp.description.replace(/^changui\b/i, '').replace(/[()]/g, '').trim() || 'Supermercado',
-            deliveryMode: exp.isDelivery ? 'envio' : 'presencial',
-            deliveryCost: exp.isDelivery ? exp.amount : 0,
-            items: exp.detalle || (exp.items || [])
-          });
-        }
-      }
+    // 2. Gastos de Changui del mes que NO estén ya cubiertos por una compra local
+    monthExpenses.forEach((exp) => {
+      if (!/^changui\b/i.test(exp.description || '')) return;
+      if (covered.has(norm(exp.description))) return;
+      const pId = exp.id || ('exp_' + exp.date + '_' + exp.amount);
+      if (seenIds.has(pId)) return;
+      seenIds.add(pId);
+      const cur = exp.currency || 'ARS';
+      unifiedPurchases.push({
+        id: pId,
+        source: 'expense',
+        date: exp.date || todayISO(),
+        store: (String(exp.description).match(/^changui\s+en\s+(.*?)\s*(\(|$)/i) || [])[1] || '',
+        deliveryMode: 'presencial',
+        deliveryCost: 0,
+        items: (exp.detalle || exp.items || []).map((x) => normItem(x, cur))
+      });
     });
+
+    // Más nuevas primero
+    unifiedPurchases.sort((a, c) => String(c.date).localeCompare(String(a.date)));
+
+    // Esta es la lista que usan Ver / PDF / CSV
+    historyCache = unifiedPurchases;
 
     if (unifiedPurchases.length === 0) {
       container.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--muted);">🛒 Todavía no guardaste ningún changuito.</div>`;
       return;
     }
 
-    container.innerHTML = unifiedPurchases.map(p => {
+    container.innerHTML = unifiedPurchases.map((p) => {
+      const isLocal = p.source === 'local';
       const storeName = p.store ? `Supermercado: <strong>${esc(p.store)}</strong>` : 'Compra general';
       const isEnvio = p.deliveryMode === 'envio';
       const deliveryText = isEnvio ? `📦 Envío a domicilio (${money(p.deliveryCost || 0, 'ARS')})` : '🛍️ Presencial (Local)';
@@ -1148,8 +1161,8 @@
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line);">
           <span>${iconOf(it.icon).e} ${esc(it.name)} (${esc(qtyText(it))})</span>
           <div style="display: flex; align-items: center; gap: 6px;">
-            <b>${money(it.paid, it.cur)}</b>
-            <button class="chg-ico-btn" type="button" data-edit-item-purchase="${p.id}" data-item-idx="${idx}" title="Editar producto">✏️</button>
+            <b>${Number(it.paid) > 0 ? money(it.paid, it.cur) : '—'}</b>
+            ${isLocal ? `<button class="chg-ico-btn" type="button" data-edit-item-purchase="${esc(p.id)}" data-item-idx="${idx}" title="Editar producto">✏️</button>` : ''}
           </div>
         </div>
       `).join('');
@@ -1162,27 +1175,69 @@
       ` : '';
 
       return `
-        <div class="chg-history-card" data-purchase-id="${p.id}" style="border: 1px solid var(--chg-line); border-radius: 16px; padding: 14px; background: var(--bg, transparent); margin-bottom: 10px;">
+        <div class="chg-history-card" data-purchase-id="${esc(p.id)}" style="border: 1px solid var(--chg-line); border-radius: 16px; padding: 14px; background: var(--bg, transparent); margin-bottom: 10px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 0.85rem;">
             <span>📅 ${fmtDay(p.date)} · ${storeName}</span>
             <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-              <button class="pastel-btn btn-sm" type="button" data-load-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="Cargar este changuito en la pantalla">📂 Ver</button>
-              <button class="pastel-btn btn-sm" type="button" data-pdf-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="PDF">📄 PDF</button>
-              <button class="pastel-btn btn-sm" type="button" data-csv-purchase="${p.id}" style="padding: 2px 6px; font-size: 10px;" title="CSV">📊 CSV</button>
-              <button class="chg-ico-btn" type="button" data-edit-purchase="${p.id}" title="Editar">✏️</button>
-              <button class="chg-ico-btn" type="button" data-del-purchase="${p.id}" title="Eliminar">🗑️</button>
+              <button class="pastel-btn btn-sm" type="button" data-load-purchase="${esc(p.id)}" style="padding: 2px 6px; font-size: 10px;" title="Cargar este changuito en la pantalla">📂 Ver</button>
+              <button class="pastel-btn btn-sm" type="button" data-pdf-purchase="${esc(p.id)}" style="padding: 2px 6px; font-size: 10px;" title="PDF">📄 PDF</button>
+              <button class="pastel-btn btn-sm" type="button" data-csv-purchase="${esc(p.id)}" style="padding: 2px 6px; font-size: 10px;" title="CSV">📊 CSV</button>
+              ${isLocal ? `<button class="chg-ico-btn" type="button" data-edit-purchase="${esc(p.id)}" title="Editar">✏️</button>
+              <button class="chg-ico-btn" type="button" data-del-purchase="${esc(p.id)}" title="Eliminar">🗑️</button>` : ''}
             </div>
           </div>
           <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 6px;">
             📍 Modalidad: <strong>${deliveryText}</strong>
           </div>
           <div style="display: grid; gap: 4px; margin-top: 6px;">
-            ${itemsHtml}
+            ${itemsHtml || '<span style="font-size:0.8rem;color:var(--muted);">Sin detalle de productos.</span>'}
             ${deliveryHtml}
           </div>
         </div>
       `;
     }).join('');
+  }
+
+  // Convierte una compra del historial en items del changuito activo
+  function loadPurchaseIntoCart(purchase) {
+    const items = (purchase.items || []).map((it) => ({
+      id: uid(),
+      icon: it.icon || 'otros',
+      name: it.name || 'Producto',
+      price: Number(it.price || it.paid || 0),
+      qty: Number(it.qty || 1),
+      byKg: !!it.byKg,
+      kg: Number(it.kg || 0),
+      cur: it.cur === 'USD' ? 'USD' : 'ARS',
+      promo: it.promo || { type: 'none' }
+    }));
+
+    // "paid" ya traía el descuento general incluido: lo recuperamos para no inflar el total
+    let general = 0;
+    let sumPaid = 0, sumCalc = 0, allPriced = true;
+    items.forEach((it, i) => {
+      const paid = Number((purchase.items[i] || {}).paid || 0);
+      const calc = itemCalc(it).paid;
+      if (!(paid > 0) || !(calc > 0)) { allPriced = false; return; }
+      sumPaid += paid; sumCalc += calc;
+    });
+    if (allPriced && sumCalc > 0 && sumPaid < sumCalc - 0.01) {
+      general = Math.min(100, Math.max(0, round2((1 - sumPaid / sumCalc) * 100)));
+    }
+
+    editingId = null;
+    resetForm();
+    state.items = items;
+    state.general = general;
+
+    if ($('#chgStore')) $('#chgStore').value = purchase.store || '';
+    if ($('#chgDeliveryMode')) $('#chgDeliveryMode').value = purchase.deliveryMode || 'presencial';
+    if ($('#chgDeliveryCostWrap')) $('#chgDeliveryCostWrap').hidden = purchase.deliveryMode !== 'envio';
+    if ($('#chgDeliveryCost')) $('#chgDeliveryCost').value = purchase.deliveryCost ? formatAmountInput(String(purchase.deliveryCost).replace('.', ',')) : '';
+    if ($('#chgDate')) $('#chgDate').value = purchase.date || todayISO();
+
+    save();
+    render();
   }
 
   /* ---------- eventos ---------- */
@@ -1282,72 +1337,77 @@
       return;
     }
 
+    /* ----- Historial: abrir / cerrar ----- */
     if (e.target.closest('#chgHistoryModalBtn')) {
       renderHistoryModal();
       $('#chgHistoryDialog')?.showModal();
+      return;
     }
-    if (e.target.closest('#chgCloseHistoryBtn') || e.target.closest('#chgHistoryDialog')) {
-      if (e.target.id === 'chgHistoryDialog') $('#chgHistoryDialog').close();
+    if (e.target.closest('#chgCloseHistoryBtn')) {
+      $('#chgHistoryDialog')?.close();
+      return;
+    }
+    // Click en el fondo del dialog (fuera de la tarjeta) lo cierra
+    if (e.target.id === 'chgHistoryDialog') {
+      $('#chgHistoryDialog').close();
+      return;
     }
 
-    // Cargar changuito histórico a la pantalla principal
+    /* ----- Historial: Ver (cargar en pantalla) ----- */
     const loadBtn = e.target.closest('[data-load-purchase]');
     if (loadBtn) {
-      const id = loadBtn.dataset.loadPurchase;
-      const purchase = state.purchases.find(p => p.id === id);
-      if (purchase) {
-        state.items = (purchase.items || []).map(it => ({
-          id: uid(), icon: it.icon || 'otros', name: it.name, price: Number(it.price || it.paid || 0),
-          qty: Number(it.qty || 1), byKg: !!it.byKg, kg: Number(it.kg || 0),
-          cur: it.cur || 'ARS', promo: it.promo || { type: 'none' }
-        }));
-        if ($('#chgStore')) $('#chgStore').value = purchase.store || '';
-        if ($('#chgDeliveryMode')) $('#chgDeliveryMode').value = purchase.deliveryMode || 'presencial';
-        if ($('#chgDeliveryCostWrap')) $('#chgDeliveryCostWrap').hidden = purchase.deliveryMode !== 'envio';
-        if ($('#chgDeliveryCost')) $('#chgDeliveryCost').value = purchase.deliveryCost ? formatAmountInput(String(purchase.deliveryCost).replace('.', ',')) : '';
-        if ($('#chgDate')) $('#chgDate').value = purchase.date || todayISO();
-        save();
-        render();
-        $('#chgHistoryDialog')?.close();
-        toast('Changuito cargado en pantalla con éxito. 🛒');
+      const purchase = findPurchase(loadBtn.dataset.loadPurchase);
+      if (!purchase) { toast('No se encontró ese changuito.'); return; }
+      if (!purchase.items || !purchase.items.length) { toast('Ese changuito no tiene productos guardados.'); return; }
+      if (state.items.length && !confirm('Ya tenés productos en el changuito actual. ¿Reemplazarlos por este?')) return;
+      loadPurchaseIntoCart(purchase);
+      $('#chgHistoryDialog')?.close();
+      const body = $('#chgBody');
+      if (body && body.hidden) {
+        body.hidden = false;
+        const tbtn = $('#chgToggleBtn');
+        if (tbtn) tbtn.textContent = '▲ Ocultar Changui';
       }
+      $('#chgList')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      toast('Changuito cargado en pantalla con éxito. 🛒');
       return;
     }
 
-    // Exportar PDF desde el historial
+    /* ----- Historial: PDF ----- */
     const pdfBtn = e.target.closest('[data-pdf-purchase]');
     if (pdfBtn) {
-      const id = pdfBtn.dataset.pdfPurchase;
-      const purchase = state.purchases.find(p => p.id === id);
-      if (purchase) exportPDF(purchase);
+      const purchase = findPurchase(pdfBtn.dataset.pdfPurchase);
+      if (purchase) exportPDF(purchase); else toast('No se encontró ese changuito.');
       return;
     }
 
-    // Exportar CSV desde el historial
+    /* ----- Historial: CSV ----- */
     const csvBtn = e.target.closest('[data-csv-purchase]');
     if (csvBtn) {
-      const id = csvBtn.dataset.csvPurchase;
-      const purchase = state.purchases.find(p => p.id === id);
-      if (purchase) exportCSV(purchase);
+      const purchase = findPurchase(csvBtn.dataset.csvPurchase);
+      if (purchase) exportCSV(purchase); else toast('No se encontró ese changuito.');
       return;
     }
 
+    /* ----- Historial: eliminar (solo compras locales) ----- */
     const delBtn = e.target.closest('[data-del-purchase]');
     if (delBtn) {
       const id = delBtn.dataset.delPurchase;
-      if (confirm('¿Eliminar este registro del historial?')) {
-        state.purchases = state.purchases.filter(p => p.id !== id);
+      if (confirm('¿Eliminar este registro del historial? El gasto ya cargado en Mensuales no se borra.')) {
+        state.purchases = state.purchases.filter((p) => p.id !== id);
         save();
         renderHistoryModal();
         renderInsight();
-        toast('Changuito eliminado.');
+        toast('Eliminado del historial. El gasto en Mensuales sigue ahí.');
       }
+      return;
     }
 
+    /* ----- Historial: editar tienda / fecha ----- */
     const editBtn = e.target.closest('[data-edit-purchase]');
     if (editBtn) {
       const id = editBtn.dataset.editPurchase;
-      const purchase = state.purchases.find(p => p.id === id);
+      const purchase = findLocalPurchase(id);
       if (!purchase) return;
       const card = editBtn.closest('.chg-history-card');
       if (!card) return;
@@ -1367,15 +1427,16 @@
           </div>
         </div>
       `;
+      return;
     }
 
     const cancelBtn = e.target.closest('[data-cancel-edit-purchase]');
-    if (cancelBtn) { renderHistoryModal(); }
+    if (cancelBtn) { renderHistoryModal(); return; }
 
     const saveBtn = e.target.closest('[data-save-purchase]');
     if (saveBtn) {
       const id = saveBtn.dataset.savePurchase;
-      const purchase = state.purchases.find(p => p.id === id);
+      const purchase = findLocalPurchase(id);
       if (purchase) {
         purchase.store = document.getElementById(`editStore_${id}`)?.value.trim() || '';
         purchase.date = document.getElementById(`editDate_${id}`)?.value || todayISO();
@@ -1384,13 +1445,15 @@
         renderInsight();
         toast('Changuito actualizado.');
       }
+      return;
     }
 
+    /* ----- Historial: editar un producto (solo compras locales) ----- */
     const editItemBtn = e.target.closest('[data-edit-item-purchase]');
     if (editItemBtn) {
       const pId = editItemBtn.dataset.editItemPurchase;
       const itemIdx = Number(editItemBtn.dataset.itemIdx);
-      const purchase = state.purchases.find(p => p.id === pId);
+      const purchase = findLocalPurchase(pId);
       if (!purchase || !purchase.items[itemIdx]) return;
 
       const item = purchase.items[itemIdx];
@@ -1423,13 +1486,14 @@
           </div>
         </div>
       `;
+      return;
     }
 
     const saveItemBtn = e.target.closest('[data-save-item-purchase]');
     if (saveItemBtn) {
       const pId = saveItemBtn.dataset.saveItemPurchase;
       const itemIdx = Number(saveItemBtn.dataset.itemIdx);
-      const purchase = state.purchases.find(p => p.id === pId);
+      const purchase = findLocalPurchase(pId);
       if (purchase && purchase.items[itemIdx]) {
         const item = purchase.items[itemIdx];
         const newName = document.getElementById(`editItemName_${pId}_${itemIdx}`)?.value.trim();
@@ -1448,10 +1512,12 @@
         save();
         renderHistoryModal();
         renderInsight();
-        toast('Producto actualizado con éxito.');
+        toast('Producto actualizado en el historial.');
       }
+      return;
     }
 
+    /* ----- Items del changuito activo ----- */
     const btn = e.target.closest('.chg-item [data-act]');
     if (!btn) return;
     const id = btn.closest('.chg-item').dataset.id;
