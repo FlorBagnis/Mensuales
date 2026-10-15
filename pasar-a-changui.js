@@ -236,7 +236,7 @@
         <label class="chg-move-full">Nombre del producto
           <input class="mv-name" type="text" maxlength="40" placeholder="Ej. Pollo entero">
         </label>
-        <div class="chg-move-full"><button type="button" class="chg-move-split" hidden>✂️ Separar por comas en varios productos</button></div>
+        <div class="chg-move-full"><button type="button" class="chg-move-split mv-split" hidden>✂️ Separar por comas en varios productos</button></div>
         <label>Se compra
           <select class="mv-mode"><option value="unit" selected>Por unidad</option><option value="kg">Por kilo</option></select>
         </label>
