@@ -191,6 +191,7 @@
   let kgMode = false;
   let priceTextNode = null;
   let tableObs = null;
+  let insightOpen = false;   // solapa "Resumen del mes"
   const openKeys = new Set();
 
   // Historial: lista unificada que se muestra en el modal (local + gastos del mes)
@@ -456,12 +457,35 @@
       ? `🛒 En ${esc(monthName(month))} venís gastando ${pairMoney(foodTot)} en comida y súper.`
       : `🛒 En ${esc(monthName(month))} todavía no cargaste gastos de comida o súper.`);
 
+    // Local y productos de un gasto. Formatos: "Changui en LOCAL (a, b)", "Envío a domicilio en LOCAL"
+    // y los viejos "PRODUCTO (LOCAL)" (ej. "Huevos (Verdulería Roberto)")
+    const splitNames = (t) => String(t || '').split(/[,;]/).map((x) => x.trim()).filter(Boolean);
+    const parseExp = (e) => {
+      const desc = String(e.description || '').trim();
+      let m = desc.match(/\bchangui\s+en\s+([^(]*?)\s*(?:\(([^()]*)\))?\s*$/i);
+      if (m) return { store: (m[1] || '').trim(), names: splitNames(m[2]) };
+      m = desc.match(/^env[ií]o a domicilio en\s+(.+)$/i);
+      if (m) return { store: m[1].trim(), names: [] };
+      m = desc.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+      if (m) {
+        const prefix = m[1].replace(/^changui\b[\s:\-–]*/i, '').trim();
+        if (prefix) return { store: m[2].trim(), names: splitNames(prefix) };   // "Huevos (Verdulería Roberto)"
+        const inner = splitNames(m[2]);
+        if (inner.length > 1) return { store: '', names: inner };               // "Changui (leche, pan)"
+      }
+      return { store: '', names: [] };   // "Changui (Verdulería Roberto)": no se sabe qué producto es
+    };
+    // Si el producto viene solo del texto, se le busca un ícono por su nombre (huevos -> 🥚)
+    const guessIcon = (name) => {
+      const n = norm(name);
+      const hit = ICONS.find((i) => i.k !== 'otros' && (n.includes(i.k) || n.includes(norm(i.label))));
+      return hit ? hit.k : 'otros';
+    };
+
     // 🏪 Dónde más gastaste (compras + envíos de Changui)
     const stores = {};
     chg.forEach((e) => {
-      const desc = String(e.description || '').trim();
-      const m = desc.match(/\bchangui\s+en\s+([^(]*?)\s*(\(|$)/i) || desc.match(/^env[ií]o a domicilio en\s+(.+)$/i);
-      const name = m && m[1] ? m[1].trim() : '';
+      const name = parseExp(e).store;
       if (!name) return;
       if (!stores[name]) stores[name] = { ARS: 0, USD: 0 };
       stores[name][curKey(e.currency)] += Number(e.amount || 0);
@@ -471,31 +495,41 @@
       pills.push(`🏪 Donde más gastaste fue en <strong>${esc(topStore[0])}</strong> (${pairMoney(topStore[1])}).`);
     }
 
-    // 🥚 Producto que más pesó
+    // 🥚 Producto que más pesó (y dónde lo compraste)
     const prods = {};
     chg.forEach((e) => {
       if (isDeliveryExp(e)) return;   // el envío no es un producto
       const cur = e.currency || 'ARS';
+      const info = parseExp(e);
       let items = Array.isArray(e.detalle) && e.detalle.length ? e.detalle : null;
       if (!items) {
-        const m = String(e.description || '').match(/\(([^()]*)\)\s*$/);
-        const names = m ? m[1].split(/[,;]/).map((s) => s.trim()).filter(Boolean) : [];
-        items = names.map((n) => ({ name: n, icon: 'otros', cur, paid: Number(e.amount || 0) / names.length }));
+        const names = info.names;
+        items = names.map((n) => ({ name: n, icon: guessIcon(n), cur, paid: Number(e.amount || 0) / names.length }));
       }
       items.map(viewFixed).forEach((it) => {
         if (isDeliv(it)) return;      // el envío que viaja dentro del gasto tampoco es un producto
         const key = String(it.name).trim().toLowerCase();
         if (!key) return;
-        if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, ARS: 0, USD: 0 };
-        prods[key][curKey(it.cur || cur)] += Number(it.paid || 0);
+        if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, ARS: 0, USD: 0, stores: {} };
+        const paid = Number(it.paid || 0);
+        prods[key][curKey(it.cur || cur)] += paid;
+        if (info.store) prods[key].stores[info.store] = (prods[key].stores[info.store] || 0) + paid;
       });
     });
     const topProd = Object.values(prods).sort((a, c) => score(c) - score(a))[0];
     if (topProd && score(topProd) > 0) {
-      pills.push(`${iconOf(topProd.icon).e} Producto que más pesó este mes: <strong>${esc(topProd.name)}</strong> (${pairMoney(topProd)}).`);
+      const topProdStore = Object.entries(topProd.stores).sort((a, c) => c[1] - a[1])[0];
+      const where = topProdStore ? ` · ${esc(topProdStore[0])}` : '';
+      pills.push(`${iconOf(topProd.icon).e} Producto que más pesó este mes: <strong>${esc(topProd.name)}</strong>${where} (${pairMoney(topProd)}).`);
     }
 
-    box.innerHTML = pills.map((p) => `<span class="chg-pill">${p}</span>`).join('');
+    box.innerHTML =
+      `<button type="button" class="chg-ins-tog" aria-expanded="${insightOpen}">` +
+        `<span>📊 Resumen de ${esc(monthName(month))}</span><span class="chg-ins-arrow">▸</span>` +
+      `</button>` +
+      `<div class="chg-ins-body"${insightOpen ? '' : ' hidden'}>` +
+        pills.map((p) => `<span class="chg-pill">${p}</span>`).join('') +
+      `</div>`;
   }
 
   function render() {
@@ -1751,6 +1785,15 @@
   });
 
   root.addEventListener('click', (e) => {
+    const insTog = e.target.closest('.chg-ins-tog');
+    if (insTog) {
+      insightOpen = !insightOpen;
+      insTog.setAttribute('aria-expanded', String(insightOpen));
+      const body = insTog.nextElementSibling;
+      if (body) body.hidden = !insightOpen;
+      return;
+    }
+
     const chip = e.target.closest('[data-icon]');
     if (chip) {
       const changed = selIcon !== chip.dataset.icon;
@@ -2008,6 +2051,16 @@
       .chg-tog:hover,.chg-d-save:hover,.chg-d-cancel:hover{transform:translateY(-1px) scale(1.05);border-color:rgba(var(--chg-fx),.85);box-shadow:0 6px 14px rgba(var(--chg-fx),var(--chg-fa))}
       .chg-d-edit:hover,.chg-d-del:hover{transform:scale(1.18);box-shadow:0 4px 10px rgba(var(--chg-fx),var(--chg-fa))}
       .chg-tog:active,.chg-d-edit:active,.chg-d-del:active,.chg-d-save:active,.chg-d-cancel:active{transform:scale(.96);box-shadow:none}
+
+      /* Solapa "Resumen del mes" */
+      #chgInsight{display:block}
+      .chg-ins-tog{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;box-sizing:border-box;padding:10px 14px;border-radius:14px;border:1px solid var(--chg-line,rgba(234,91,142,.3));background:transparent;color:var(--pink-700,inherit);font:inherit;font-weight:800;font-size:.9rem;cursor:pointer;text-align:left;transition:transform .15s ease,box-shadow .2s ease,border-color .2s ease}
+      .chg-ins-tog:hover{border-color:rgba(var(--chg-fx),.85);box-shadow:0 6px 14px rgba(var(--chg-fx),var(--chg-fa))}
+      .chg-ins-arrow{display:inline-block;transition:transform .2s ease}
+      .chg-ins-tog[aria-expanded="true"] .chg-ins-arrow{transform:rotate(90deg)}
+      .chg-ins-body{display:grid;gap:8px;margin-top:8px}
+      .chg-ins-body[hidden]{display:none}
+      .chg-ins-body .chg-pill{display:block;border-radius:14px;line-height:1.4}
     `;
     document.head.appendChild(st);
   })();
