@@ -355,71 +355,66 @@
   }
 
   function renderInsight() {
-    const box = $('#chgInsight');
-    if (!box) return;
-    const b = bridge();
-    if (!b.getMonthExpenses) { box.innerHTML = '<span class="chg-pill">Conectando con tus gastos de Mensuales…</span>'; return; }
+  const box = $('#chgInsight');
+  if (!box) return;
+  const b = bridge();
+  if (!b.getMonthExpenses) { box.innerHTML = '<span class="chg-pill">Conectando con tus gastos de Mensuales…</span>'; return; }
 
-    const month = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
-    const list = b.getMonthExpenses(month) || [];
-    const rate = dolar();
-    const toARS = (amount, cur) => (cur === 'USD' ? (rate ? amount * rate : 0) : amount);
-    const pills = [];
+  const month = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
+  const list = b.getMonthExpenses(month) || [];
+  const rate = dolar();
+  const toARS = (amount, cur) => (cur === 'USD' ? (rate ? amount * rate : 0) : amount);
+  const pills = [];
 
-    const food = list.filter((e) => e.category === 'Alimentos' || e.fromChangui);
-    let foodARS = 0, foodUSD = 0;
-    food.forEach((e) => { if (e.currency === 'USD') foodUSD += Number(e.amount || 0); else foodARS += Number(e.amount || 0); });
-    if (food.length) {
-      pills.push(`🛒 En ${esc(monthName(month))} venís gastando ${money(foodARS, 'ARS')}${foodUSD > 0 ? ' + ' + money(foodUSD, 'USD') : ''} en comida y súper.`);
-    } else {
-      pills.push(`🛒 En ${esc(monthName(month))} todavía no cargaste gastos de comida o súper.`);
-    }
+  // 🛒 Comida y súper
+  const food = list.filter((e) => e.category === 'Alimentos' || e.fromChangui || /^changui\b/i.test(e.description || ''));
+  let foodARS = 0, foodUSD = 0;
+  food.forEach((e) => { if (e.currency === 'USD') foodUSD += Number(e.amount || 0); else foodARS += Number(e.amount || 0); });
+  pills.push(food.length
+    ? `🛒 En ${esc(monthName(month))} venís gastando ${money(foodARS, 'ARS')}${foodUSD > 0 ? ' + ' + money(foodUSD, 'USD') : ''} en comida y súper.`
+    : `🛒 En ${esc(monthName(month))} todavía no cargaste gastos de comida o súper.`);
 
-    const storesData = {};
-    state.purchases.forEach((p) => {
-      const storeName = p.store ? p.store.trim() : 'Sin especificar';
-      if (!storesData[storeName]) storesData[storeName] = { total: 0, items: new Set() };
-      let storeTotal = 0;
-      (p.items || []).forEach((it) => {
-        storeTotal += toARS(Number(it.paid || 0), it.cur);
-        storesData[storeName].items.add(String(it.name).trim().toLowerCase());
-      });
-      if (p.deliveryCost) storeTotal += toARS(Number(p.deliveryCost), 'ARS');
-      storesData[storeName].total += storeTotal;
-    });
+  // Solo gastos de Changui del mes (la fuente es Gastos del mes)
+  const chgExps = list.filter((e) => e.fromChangui || /^changui\b/i.test(e.description || ''));
 
-    const sortedStores = Object.entries(storesData).filter(s => s[0] !== 'Sin especificar').sort((a, c) => c[1].total - a[1].total);
-
-    if (sortedStores.length > 0) {
-      const topStore = sortedStores[0];
-      const lowStore = sortedStores[sortedStores.length - 1];
-      pills.push(`🏪 Donde más gastaste fue en <strong>${esc(topStore[0])}</strong> (${money(topStore[1].total, 'ARS')}).`);
-
-      if (sortedStores.length > 1 && lowStore[0] !== topStore[0]) {
-        const itemsOnlyInTop = [...topStore[1].items].filter(x => !lowStore[1].items.has(x));
-        const comparisonText = itemsOnlyInTop.length > 0
-          ? ` Aquí compraste <em>(${itemsOnlyInTop.slice(0, 3).map(esc).join(', ')})</em> que no llevaste en ${esc(lowStore[0])}.`
-          : ` Concentraste tus compras grandes aquí en comparación con ${esc(lowStore[0])}.`;
-        pills.push(`📊 <strong>Comparativa:</strong> En ${esc(topStore[0])} gastaste más que en ${esc(lowStore[0])}.${comparisonText}`);
-      }
-    }
-
-    const prods = {};
-    state.purchases.filter((p) => String(p.date).slice(0, 7) === month).forEach((p) => {
-      (p.items || []).forEach((it) => {
-        const v = toARS(Number(it.paid || 0), it.cur);
-        const key = String(it.name).trim().toLowerCase();
-        if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, amt: 0 };
-        prods[key].amt += v;
-      });
-    });
-    const topProd = Object.values(prods).sort((a, c) => c.amt - a.amt)[0];
-    if (topProd && topProd.amt > 0) {
-      pills.push(`${iconOf(topProd.icon).e} Producto que más pesó este mes: <strong>${esc(topProd.name)}</strong> (${money(topProd.amt, 'ARS')}).`);
-    }
-
-    box.innerHTML = pills.map((p) => `<span class="chg-pill">${p}</span>`).join('');
+  // 🏪 Dónde más gastaste
+  const stores = {};
+  list.forEach((e) => {
+    const desc = String(e.description || '');
+    const m = desc.match(/^changui\s+en\s+([^(]*?)\s*(\(|$)/i) || desc.match(/^env[ií]o a domicilio en\s+(.+)$/i);
+    const name = m && m[1] ? m[1].trim() : '';
+    if (!name) return;
+    stores[name] = (stores[name] || 0) + toARS(Number(e.amount || 0), e.currency || 'ARS');
+  });
+  const topStore = Object.entries(stores).sort((a, c) => c[1] - a[1])[0];
+  if (topStore) {
+    pills.push(`🏪 Donde más gastaste fue en <strong>${esc(topStore[0])}</strong> (${money(topStore[1], 'ARS')}).`);
   }
+
+  // 🥚 Producto que más pesó
+  const prods = {};
+  chgExps.forEach((e) => {
+    const cur = e.currency || 'ARS';
+    let items = Array.isArray(e.detalle) && e.detalle.length ? e.detalle : null;
+    if (!items) {
+      const m = String(e.description || '').match(/\(([^()]*)\)\s*$/);
+      const names = m ? m[1].split(/[,;]/).map((s) => s.trim()).filter(Boolean) : [];
+      items = names.map((n) => ({ name: n, icon: 'otros', cur, paid: Number(e.amount || 0) / names.length }));
+    }
+    items.forEach((it) => {
+      const v = toARS(Number(it.paid || 0), it.cur || cur);
+      const key = String(it.name).trim().toLowerCase();
+      if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, amt: 0 };
+      prods[key].amt += v;
+    });
+  });
+  const topProd = Object.values(prods).sort((a, c) => c.amt - a.amt)[0];
+  if (topProd && topProd.amt > 0) {
+    pills.push(`${iconOf(topProd.icon).e} Producto que más pesó este mes: <strong>${esc(topProd.name)}</strong> (${money(topProd.amt, 'ARS')}).`);
+  }
+
+  box.innerHTML = pills.map((p) => `<span class="chg-pill">${p}</span>`).join('');
+}
 
   function render() {
     renderCart();
