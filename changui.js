@@ -7,6 +7,11 @@
    + v3: resumen (🛒 🏪 🥚) leído directo de Gastos del mes, sin duplicados al guardar
    + v4: el resumen cuenta también envíos y gastos viejos de Changui;
          al guardar un chango abierto desde el Historial se REEMPLAZA siempre (aunque cambies la fecha)
+   + v5: el ENVÍO va dentro del mismo gasto de la compra (ej. leche 1.600 + envío 4.000 = 5.600),
+         el Historial muestra el TOTAL de cada chango y el resumen calcula en pesos y dólares
+   + v6: cada producto queda en SU categoría (leche 1.600 · detergente 2.000) y el ENVÍO aparece
+         como una línea más del mismo chango (en el Historial va en el mismo grupo, con el TOTAL).
+         Categoría del envío: la que elijas; en "Automático", Alimentos si hay comida.
 ========================================================= */
 (() => {
   'use strict';
@@ -107,6 +112,17 @@
   ];
   const iconOf = (k) => ICONS.find((i) => i.k === k) || ICONS[ICONS.length - 1];
 
+  // El envío a domicilio viaja DENTRO del gasto de la compra, como un renglón más del detalle
+  const isDeliv = (it) => !!(it && (it.isDelivery || /^env[ií]o a domicilio$/i.test(String(it.name || '').trim())));
+  const emoji = (it) => (isDeliv(it) ? '📦' : iconOf(it && it.icon).e);
+  // "$ 5.600,00" + "u$s 10,00" (muestra solo la moneda que tenga monto)
+  const pairMoney = (v) => {
+    const parts = [];
+    if (v.ARS > 0 || v.USD <= 0) parts.push(money(v.ARS, 'ARS'));
+    if (v.USD > 0) parts.push(money(v.USD, 'USD'));
+    return parts.join(' + ');
+  };
+
   // Rubros que se pueden comprar por kilo
   const KG_KEYS = ['verdura', 'fruta', 'queso', 'carne', 'pollo', 'pescado'];
 
@@ -139,7 +155,6 @@
       if (arr.length < 2) return;
       const linked = arr.filter((p) => !p.draft && Array.isArray(p.expIds) && p.expIds.length);
       if (linked.length) arr.filter((p) => !linked.includes(p)).forEach((p) => drop.add(p));
-      else arr.slice(1).forEach((p) => drop.add(p));
     });
     if (!drop.size) return false;
     state.purchases = state.purchases.filter((p) => !drop.has(p));
@@ -415,7 +430,7 @@
     (Array.isArray(e.detalle) && e.detalle.length > 0) ||
     /\bchangui\b/i.test(String(e.description || ''))
   );
-  // Envío a domicilio de una compra de Changui (se carga como gasto aparte, categoría "Otros")
+  // Envío a domicilio cargado como gasto aparte (compras viejas)
   const isDeliveryExp = (e) => !!e && (e.isDelivery === true || /^env[ií]o a domicilio\b/i.test(String(e.description || '').trim()));
 
   function renderInsight() {
@@ -427,16 +442,18 @@
     const month = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
     const list = b.getMonthExpenses(month) || [];
     const rate = dolar();
-    const toARS = (amount, cur) => (cur === 'USD' ? (rate ? amount * rate : 0) : amount);
     const chg = list.filter((e) => isChgExp(e) || isDeliveryExp(e));
+    // Para ordenar se pasa todo a pesos (si no hay dólar, 1 a 1); en pantalla se muestran pesos y dólares
+    const score = (v) => v.ARS + v.USD * (rate || 1);
+    const curKey = (c) => (c === 'USD' ? 'USD' : 'ARS');
     const pills = [];
 
     // 🛒 Comida y súper: la categoría Alimentos de Gastos del mes (el mismo número que el gráfico "Gastos por categoría")
     const food = list.filter((e) => e.category === 'Alimentos');
-    let foodARS = 0, foodUSD = 0;
-    food.forEach((e) => { if (e.currency === 'USD') foodUSD += Number(e.amount || 0); else foodARS += Number(e.amount || 0); });
+    const foodTot = { ARS: 0, USD: 0 };
+    food.forEach((e) => { foodTot[curKey(e.currency)] += Number(e.amount || 0); });
     pills.push(food.length
-      ? `🛒 En ${esc(monthName(month))} venís gastando ${money(foodARS, 'ARS')}${foodUSD > 0 ? ' + ' + money(foodUSD, 'USD') : ''} en comida y súper.`
+      ? `🛒 En ${esc(monthName(month))} venís gastando ${pairMoney(foodTot)} en comida y súper.`
       : `🛒 En ${esc(monthName(month))} todavía no cargaste gastos de comida o súper.`);
 
     // 🏪 Dónde más gastaste (compras + envíos de Changui)
@@ -446,11 +463,12 @@
       const m = desc.match(/\bchangui\s+en\s+([^(]*?)\s*(\(|$)/i) || desc.match(/^env[ií]o a domicilio en\s+(.+)$/i);
       const name = m && m[1] ? m[1].trim() : '';
       if (!name) return;
-      stores[name] = (stores[name] || 0) + toARS(Number(e.amount || 0), e.currency || 'ARS');
+      if (!stores[name]) stores[name] = { ARS: 0, USD: 0 };
+      stores[name][curKey(e.currency)] += Number(e.amount || 0);
     });
-    const topStore = Object.entries(stores).sort((a, c) => c[1] - a[1])[0];
-    if (topStore && topStore[1] > 0) {
-      pills.push(`🏪 Donde más gastaste fue en <strong>${esc(topStore[0])}</strong> (${money(topStore[1], 'ARS')}).`);
+    const topStore = Object.entries(stores).sort((a, c) => score(c[1]) - score(a[1]))[0];
+    if (topStore && score(topStore[1]) > 0) {
+      pills.push(`🏪 Donde más gastaste fue en <strong>${esc(topStore[0])}</strong> (${pairMoney(topStore[1])}).`);
     }
 
     // 🥚 Producto que más pesó
@@ -465,15 +483,16 @@
         items = names.map((n) => ({ name: n, icon: 'otros', cur, paid: Number(e.amount || 0) / names.length }));
       }
       items.map(viewFixed).forEach((it) => {
-        const v = toARS(Number(it.paid || 0), it.cur || cur);
+        if (isDeliv(it)) return;      // el envío que viaja dentro del gasto tampoco es un producto
         const key = String(it.name).trim().toLowerCase();
-        if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, amt: 0 };
-        prods[key].amt += v;
+        if (!key) return;
+        if (!prods[key]) prods[key] = { name: it.name, icon: it.icon, ARS: 0, USD: 0 };
+        prods[key][curKey(it.cur || cur)] += Number(it.paid || 0);
       });
     });
-    const topProd = Object.values(prods).sort((a, c) => c.amt - a.amt)[0];
-    if (topProd && topProd.amt > 0) {
-      pills.push(`${iconOf(topProd.icon).e} Producto que más pesó este mes: <strong>${esc(topProd.name)}</strong> (${money(topProd.amt, 'ARS')}).`);
+    const topProd = Object.values(prods).sort((a, c) => score(c) - score(a))[0];
+    if (topProd && score(topProd) > 0) {
+      pills.push(`${iconOf(topProd.icon).e} Producto que más pesó este mes: <strong>${esc(topProd.name)}</strong> (${pairMoney(topProd)}).`);
     }
 
     box.innerHTML = pills.map((p) => `<span class="chg-pill">${p}</span>`).join('');
@@ -621,6 +640,8 @@
     const deliveryMode = $('#chgDeliveryMode')?.value || 'presencial';
     const deliveryCost = deliveryMode === 'envio' ? parseAmount($('#chgDeliveryCost')?.value) : 0;
 
+    // La categoría sigue a la que elijas: si pusiste "Alimentos" (o cualquier otra) va esa;
+    // en "Automático" cada producto va a la categoría de su ícono.
     const groups = {};
     state.items.forEach((it) => {
       const paid = itemCalc(it).paid * (1 - g / 100);
@@ -638,7 +659,7 @@
     });
 
     const storeLabel = store ? ` en ${store}` : '';
-    const expenses = Object.values(groups)
+    let expenses = Object.values(groups)
       .map((x) => ({
         description: `Changui${storeLabel} (${x.items.map(i => i.name).join(', ')})`,
         category: x.cat,
@@ -648,24 +669,33 @@
       }))
       .filter((x) => x.amount > 0);
 
+    // v6: cada producto queda en SU categoría (leche 1.600 · detergente 2.000) y el ENVÍO
+    // se registra como una línea más del MISMO chango (misma fecha, local y grupo en el Historial).
+    // Categoría del envío: la que elegiste; en "Automático", Alimentos si hay comida, si no la del grupo más grande.
+    let delItem = null;
+    if (deliveryCost > 0) {
+      delItem = {
+        name: 'Envío a domicilio', icon: 'otros', cur: 'ARS',
+        price: round2(deliveryCost), qty: 1, byKg: false, kg: 0,
+        promo: { type: 'none' }, paid: round2(deliveryCost), isDelivery: true
+      };
+      const biggest = expenses.slice().sort((a, c) => c.amount - a.amount)[0];
+      const delCat = mode !== 'auto'
+        ? mode
+        : (expenses.some((x) => x.category === 'Alimentos') ? 'Alimentos' : (biggest ? biggest.category : 'Otros'));
+      expenses.push({
+        description: `Envío a domicilio${storeLabel}`,
+        category: delCat,
+        amount: round2(deliveryCost),
+        currency: 'ARS',
+        detalle: [Object.assign({}, delItem)]
+      });
+    }
+
     // Copia local del detalle (respaldo)
     const details = expenses.map((x) => ({
       description: x.description, amount: x.amount, currency: x.currency, items: x.detalle
     }));
-
-    if (deliveryCost > 0) {
-      // El envío va con la categoría del chango (la del grupo que más pesa), no suelto en "Otros"
-      const biggest = Object.values(groups).filter((x) => x.cur === 'ARS').sort((a, c) => c.amount - a.amount)[0]
-        || Object.values(groups).sort((a, c) => c.amount - a.amount)[0];
-      const deliveryCat = mode === 'auto' ? (biggest ? biggest.cat : 'Otros') : mode;
-      expenses.push({
-        description: `Envío a domicilio${storeLabel}`,
-        category: deliveryCat,
-        amount: round2(deliveryCost),
-        currency: 'ARS',
-        isDelivery: true
-      });
-    }
 
     if (!expenses.length) { toast('El total de la compra es cero.'); return; }
 
@@ -686,7 +716,7 @@
       if (oldExps.length) {
         const unused = oldExps.slice();
         const take = (x) => {
-          const isDel = !!x.isDelivery;
+          const isDel = isDeliveryExp(x);
           let i = unused.findIndex((o) => isDeliveryExp(o) === isDel && (o.currency || 'ARS') === x.currency && o.category === x.category);
           if (i < 0) i = unused.findIndex((o) => isDeliveryExp(o) === isDel && (o.currency || 'ARS') === x.currency);
           return i >= 0 ? unused.splice(i, 1)[0] : null;
@@ -713,23 +743,49 @@
           if (added.length < toAdd.length) added = await resolveNewIds(monthOfNew, idsBefore, toAdd.map((x) => Object.assign({}, x, { date })));
           newIds = newIds.concat(added);
         }
-        // gastos viejos que ya no corresponden (ej. se sacó el envío)
-        if (unused.length && b.removeExpenses) {
-          try { await b.removeExpenses({ month: lf.month, ids: unused.map((o) => o.id) }); } catch (e) { /* sigue */ }
+
+        // gastos viejos que ya no corresponden (ej. sacaste el envío o un producto de otra categoría)
+        const removeIds = unused.map((o) => o.id);
+        if (removeIds.length && b.removeExpenses) {
+          try { await b.removeExpenses({ month: lf.month, ids: removeIds }); } catch (e) { /* sigue */ }
         }
         replaced = true;
         state.purchases = state.purchases.filter((p) => p.id !== lf.id);
       } else {
         // B) Chango nuevo (o que no se pudo enlazar): se agrega, y si venía de otro se borra el viejo
-        let res = false;
-        try { res = await b.addExpenses({ date, expenses }); } catch (e) { res = false; }
-        if (!res) { toast('No se pudo registrar la compra.'); return; }
-        newIds = Array.isArray(res) ? res : [];
-        if (newIds.length < expenses.length) newIds = await resolveNewIds(monthOfNew, idsBefore, expenses.map((x) => Object.assign({}, x, { date })));
+        // Anti-duplicados: si un gasto IDÉNTICO ya está en el mes (misma fecha, descripción, monto,
+        // moneda y categoría), se reutiliza en vez de crearlo de nuevo.
+        // Solo si el chango viene del Historial (lf). Si lo agregás a mano, se crea siempre, aunque sea igual a otro.
+        const existing = lf && b.getMonthExpenses ? b.getMonthExpenses(monthOfNew) || [] : [];
+        const taken = new Set();
+        const reuseIds = [];
+        const fresh = [];
+        expenses.forEach((x) => {
+          const hit = existing.find((e) => e.id && !taken.has(e.id) && e.date === date
+            && norm(e.description) === norm(x.description)
+            && (e.currency || 'ARS') === x.currency
+            && e.category === x.category
+            && Math.abs(Number(e.amount) - Number(x.amount)) < 0.01);
+          if (hit) { taken.add(hit.id); reuseIds.push(hit.id); } else fresh.push(x);
+        });
+
+        let added = [];
+        if (fresh.length) {
+          let res = false;
+          try { res = await b.addExpenses({ date, expenses: fresh }); } catch (e) { res = false; }
+          if (!res) { toast('No se pudo registrar la compra.'); return; }
+          added = Array.isArray(res) ? res : [];
+          if (added.length < fresh.length) added = await resolveNewIds(monthOfNew, idsBefore, fresh.map((x) => Object.assign({}, x, { date })));
+        }
+        newIds = reuseIds.concat(added);
+        if (reuseIds.length) replaced = true;   // ya existía: no se duplicó
 
         if (lf) {
-          if (!lf.draft && lf.expIds.length && b.removeExpenses) {
-            try { replaced = !!(await b.removeExpenses({ month: lf.month, ids: lf.expIds.filter((i) => !newIds.includes(i)) })); } catch (e) { replaced = false; }
+          const oldIds = (lf.expIds || []).filter((i) => !newIds.includes(i));
+          if (!lf.draft && oldIds.length && b.removeExpenses) {
+            try { replaced = !!(await b.removeExpenses({ month: lf.month, ids: oldIds })); } catch (e) { replaced = false; }
+          } else if (!lf.draft && lf.expIds.length && !oldIds.length) {
+            replaced = true;   // no había nada viejo para borrar
           }
           // También se saca la copia local si nunca estuvo enlazada a un gasto (no quedan dos tarjetas)
           if (lf.draft || replaced || !lf.expIds.length) state.purchases = state.purchases.filter((p) => p.id !== lf.id);
@@ -744,19 +800,15 @@
           name: it.name, icon: it.icon, cur: it.cur, price: it.price, qty: it.qty,
           byKg: !!it.byKg, kg: it.kg || 0, promo: it.promo,
           paid: round2(itemCalc(it).paid * (1 - g / 100))
-        }))
+        })).concat(delItem ? [Object.assign({}, delItem)] : [])
       };
 
-      // Si ya existe un chango IGUAL (mismo día, local y productos), no se crea otro: se reemplaza
-      const sigNew = purchaseSig(newP);
-      const dupes = state.purchases.filter((p) => purchaseSig(p) === sigNew);
-      for (const d of dupes) {
-        const ids = (Array.isArray(d.expIds) ? d.expIds : []).filter((i) => !newIds.includes(i));
-        if (ids.length && b.removeExpenses) {
-          try { await b.removeExpenses({ month: d.expMonth || String(d.date || '').slice(0, 7), ids }); } catch (e) { /* sigue */ }
-        }
+      // Solo al guardar un chango abierto desde el Historial: se limpian copias locales idénticas
+      // que quedaron sin enlazar. Nunca se borran gastos reales. Un chango manual nuevo se agrega siempre.
+      if (lf) {
+        const sigNew = purchaseSig(newP);
+        state.purchases = state.purchases.filter((p) => !(purchaseSig(p) === sigNew && !(Array.isArray(p.expIds) && p.expIds.length)));
       }
-      if (dupes.length) { state.purchases = state.purchases.filter((p) => !dupes.includes(p)); if (!replaced) replaced = true; }
 
       state.purchases.unshift(newP);
       state.purchases = state.purchases.slice(0, 60);
@@ -810,7 +862,8 @@
     byKg: !!x.byKg,
     kg: Number(x.kg) || 0,
     promo: x.promo || { type: 'none' },
-    paid: round2(Number(x.paid) || 0)
+    paid: round2(Number(x.paid) || 0),
+    ...(x.isDelivery ? { isDelivery: true } : {})
   });
 
   // Productos de un gasto de Changui: del propio gasto, de compras guardadas o del texto
@@ -853,7 +906,7 @@
         const btns = edit
           ? `<button type="button" class="chg-d-edit" data-idx="${idx}" title="Editar producto">✏️</button><button type="button" class="chg-d-del" data-idx="${idx}" title="Quitar producto">✖</button>`
           : '';
-        return `<div class="chg-d-line"><span>${iconOf(it.icon).e}</span><span class="chg-d-name">${esc(it.name)}<span class="chg-d-sub">${sub}</span></span><span class="chg-d-right">${right}${btns}</span></div>`;
+        return `<div class="chg-d-line"><span>${emoji(it)}</span><span class="chg-d-name">${esc(it.name)}<span class="chg-d-sub">${sub}</span></span><span class="chg-d-right">${right}${btns}</span></div>`;
       }).join('');
     } else {
       body = '<p class="chg-d-note">No hay detalle guardado para este gasto.</p>';
@@ -905,8 +958,8 @@
         detail.innerHTML = `<td colspan="${tr.children.length}">${detailHTML(res, canEdit ? { id: exp.id, month } : null)}</td>`;
         tr.after(detail);
 
-        // La lista de productos se ve solo en el detalle; la descripción queda corta
-        const shortDesc = res.items.length >= 2 ? (desc.replace(/\s*\([^()]*\)\s*$/, '').trim() || desc) : desc;
+        // La lista de productos se ve solo en el detalle; la descripción queda corta (el envío no cuenta como producto)
+        const shortDesc = res.items.filter((x) => !isDeliv(x)).length >= 2 ? (desc.replace(/\s*\([^()]*\)\s*$/, '').trim() || desc) : desc;
         descCell.innerHTML =
           `<span class="chg-dtext" title="${esc(desc)}">${esc(shortDesc)}</span>` +
           `<button type="button" class="chg-tog" data-key="${esc(key)}" aria-expanded="${isOpen}" title="Ver qué se compró"><span class="chg-arrow">▸</span> Detalle</button>`;
@@ -948,7 +1001,7 @@
     pauseObs(() => {
       line.insertAdjacentHTML('afterend',
         `<div class="chg-d-form" data-idx="${idx}">
-           <strong>${iconOf(it.icon).e} Editar producto</strong>
+           <strong>${emoji(it)} Editar producto</strong>
            <div class="chg-d-fields">
              <label class="chg-d-full">Nombre<input class="chg-d-name-in" type="text" maxlength="40" value="${esc(it.name)}"></label>
              <label class="chg-d-full">Tipo de producto<select class="chg-d-icon">${ICONS.map((i) => `<option value="${i.k}"${i.k === it.icon ? ' selected' : ''}>${i.e} ${esc(i.label)}</option>`).join('')}</select></label>
@@ -998,13 +1051,15 @@
     const allPriced = detalle.every((x) => Number(x.paid) > 0);
     const amount = allPriced ? round2(detalle.reduce((s, x) => s + Number(x.paid || 0), 0)) : Number(exp.amount);
 
-    // Si la descripción tenía la lista de productos, se actualiza con los nuevos nombres
+    // Si la descripción tenía la lista de productos, se actualiza con los nuevos nombres (el envío no figura en la descripción)
     const oldDesc = String(exp.description || '');
     let newDesc = oldDesc;
     const m = oldDesc.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+    const oldNames = oldList.filter((x) => !isDeliv(x)).map((x) => x.name);
+    const newNames = detalle.filter((x) => !isDeliv(x)).map((x) => x.name);
     // Solo si el detalle ya estaba guardado: si venía del texto, el paréntesis puede ser el local (ej: Verdulería Roberto)
-    if (m && Array.isArray(exp.detalle) && exp.detalle.length && norm(m[2]) === norm(oldList.map((x) => x.name).join(', '))) {
-      newDesc = `${m[1].trim()} (${detalle.map((x) => x.name).join(', ')})`;
+    if (m && newNames.length && Array.isArray(exp.detalle) && exp.detalle.length && norm(m[2]) === norm(oldNames.join(', '))) {
+      newDesc = `${m[1].trim()} (${newNames.join(', ')})`;
     }
 
     const row = box.closest('tr');
@@ -1172,7 +1227,10 @@
       if ((it.cur || 'ARS') === 'USD') totalUSD += paid; else totalARS += paid;
     });
 
-    const delivery = customPurchase ? (customPurchase.deliveryMode === 'envio' ? Number(customPurchase.deliveryCost || 0) : 0) : getDeliveryCost();
+    // En las compras guardadas el envío ya puede venir como un renglón más: no se cuenta dos veces
+    const delivery = customPurchase
+      ? ((customPurchase.items || []).some(isDeliv) ? 0 : (customPurchase.deliveryMode === 'envio' ? Number(customPurchase.deliveryCost || 0) : 0))
+      : getDeliveryCost();
     totalARS += delivery;
 
     const storeName = plain(customPurchase ? (customPurchase.store || '') : $('#chgStore')?.value || '');
@@ -1196,10 +1254,11 @@
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
     doc.text('Detalle del changuito - ' + dateStr + (storeName ? ' - ' + storeName : ''), 21, 31);
 
+    const hasDelivItem = !!customPurchase && (customPurchase.items || []).some(isDeliv);
     const totalCardText = fmt(totalARS, 'ARS') + (totalUSD > 0 ? ' + ' + fmt(totalUSD, 'USD') : '');
     const cards = [
       ['TOTAL GASTADO', totalCardText],
-      ['MODALIDAD', customPurchase ? (customPurchase.deliveryMode === 'envio' ? 'Envío a domicilio' : 'Presencial') : ($('#chgDeliveryMode')?.value === 'envio' ? 'Envío' : 'Presencial')],
+      ['MODALIDAD', customPurchase ? ((customPurchase.deliveryMode === 'envio' || hasDelivItem) ? 'Envío a domicilio' : 'Presencial') : ($('#chgDeliveryMode')?.value === 'envio' ? 'Envío' : 'Presencial')],
       ['CANT. ÍTEMS', String(itemsToPrint.length + (delivery > 0 ? 1 : 0))]
     ];
     cards.forEach((card, i) => {
@@ -1310,7 +1369,9 @@
       csv += `${name},${qty},${unit},${cur},${paid.toFixed(2)}\n`;
     });
 
-    const delivery = customPurchase ? (customPurchase.deliveryMode === 'envio' ? Number(customPurchase.deliveryCost || 0) : 0) : getDeliveryCost();
+    const delivery = customPurchase
+      ? ((customPurchase.items || []).some(isDeliv) ? 0 : (customPurchase.deliveryMode === 'envio' ? Number(customPurchase.deliveryCost || 0) : 0))
+      : getDeliveryCost();
     if (delivery > 0) {
       csv += `"Envío a domicilio",1,u,ARS,${delivery.toFixed(2)}\n`;
     }
@@ -1389,6 +1450,7 @@
     const currentMonth = (b.getCurrentMonth && b.getCurrentMonth()) || todayISO().slice(0, 7);
     const expsOf = (m) => (b.getMonthExpenses ? b.getMonthExpenses(m) || [] : []);
     const dkey = (d, date) => norm(d) + '|' + (date || '');
+    const sumExps = (arr) => arr.reduce((t, e) => { t[e.currency === 'USD' ? 'USD' : 'ARS'] += Number(e.amount || 0); return t; }, { ARS: 0, USD: 0 });
 
     const unified = [];
     const claimed = new Set();   // ids de gastos que ya tienen su tarjeta
@@ -1417,6 +1479,7 @@
         const live = ids.map((id) => expsOf(month).find((e) => e.id === id)).filter(Boolean);
         if (!live.length) return;   // ya se borró en Gastos del mes: no se muestra
         copy.liveIds = live.map((e) => e.id);
+        copy.liveTotal = sumExps(live);   // el TOTAL sale de los gastos reales
         const prods = live.filter((e) => Array.isArray(e.detalle) && e.detalle.length);
         if (prods.length) copy.items = prods.flatMap((e) => e.detalle.map((x) => normItem(x, e.currency || 'ARS')));
       }
@@ -1437,6 +1500,7 @@
         deliveryMode: 'presencial',
         deliveryCost: 0,
         liveIds: exp.id ? [exp.id] : [],
+        liveTotal: sumExps([exp]),
         expMonth: currentMonth,
         items: getDetail(exp.description, exp.date, exp).items.map((x) => normItem(x, cur))
       });
@@ -1457,23 +1521,40 @@
     container.innerHTML = hint + unified.map((p) => {
       const isLocal = p.source === 'local';
       const storeName = p.store ? `Supermercado: <strong>${esc(p.store)}</strong>` : 'Compra general';
-      const isEnvio = p.deliveryMode === 'envio';
-      const deliveryText = isEnvio ? `📦 Envío a domicilio (${money(p.deliveryCost || 0, 'ARS')})` : '🛍️ Presencial (Local)';
       const draftTag = p.draft ? ' <em style="font-size:0.72rem;color:var(--muted);">(sin registrar)</em>' : '';
+
+      // Envío: puede venir como renglón dentro de la compra (nuevo) o como gasto aparte (compras viejas)
+      const delItem = (p.items || []).find(isDeliv);
+      const isEnvio = p.deliveryMode === 'envio' || !!delItem;
+      const delCost = delItem ? Number(delItem.paid || 0) : Number(p.deliveryCost || 0);
+      const deliveryText = isEnvio ? `📦 Envío a domicilio (${money(delCost, 'ARS')})` : '🛍️ Presencial (Local)';
+
+      // TOTAL de este chango (productos + envío)
+      let tot = p.liveTotal;
+      if (!tot) {
+        tot = { ARS: 0, USD: 0 };
+        (p.items || []).forEach((it) => { tot[it.cur === 'USD' ? 'USD' : 'ARS'] += Number(it.paid || 0); });
+        if (isEnvio && !delItem) tot.ARS += delCost;
+      }
+      const totalHtml = `
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; padding: 10px 0 0; font-weight: 800; color: var(--pink-700);">
+          <span>🧾 TOTAL</span>
+          <b>${pairMoney(tot)}</b>
+        </div>`;
 
       const itemsHtml = (p.items || []).map((it) => `
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line);">
-          <span>${iconOf(it.icon).e} ${esc(it.name)} (${esc(qtyText(it))})</span>
+          <span>${emoji(it)} ${esc(it.name)} (${esc(qtyText(it))})</span>
           <div style="display: flex; align-items: center; gap: 6px;">
             <b>${Number(it.paid) > 0 ? money(it.paid, it.cur) : '—'}</b>
           </div>
         </div>
       `).join('');
 
-      const deliveryHtml = isEnvio && p.deliveryCost > 0 ? `
+      const deliveryHtml = isEnvio && !delItem && delCost > 0 ? `
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line); color: var(--pink-700);">
           <span>📦 Costo de envío</span>
-          <b>${money(p.deliveryCost, 'ARS')}</b>
+          <b>${money(delCost, 'ARS')}</b>
         </div>
       ` : '';
 
@@ -1496,6 +1577,7 @@
             ${itemsHtml || '<span style="font-size:0.8rem;color:var(--muted);">Sin detalle de productos.</span>'}
             ${deliveryHtml}
           </div>
+          ${totalHtml}
         </div>
       `;
     }).join('');
@@ -1527,7 +1609,15 @@
   }
 
   // Convierte una compra del historial en items del changuito activo
-  function loadPurchaseIntoCart(purchase) {
+  function loadPurchaseIntoCart(purchaseIn) {
+    // El envío que viaja como renglón dentro de la compra vuelve al campo "Envío a domicilio" del formulario
+    const delIt = (purchaseIn.items || []).find(isDeliv);
+    const purchase = Object.assign({}, purchaseIn, {
+      items: (purchaseIn.items || []).filter((x) => !isDeliv(x)),
+      deliveryMode: delIt ? 'envio' : purchaseIn.deliveryMode,
+      deliveryCost: delIt ? Number(delIt.paid || 0) : purchaseIn.deliveryCost
+    });
+
     const items = (purchase.items || []).map((it) => ({
       id: uid(),
       icon: it.icon || 'otros',
@@ -1579,7 +1669,7 @@
       if (!expIds.length) {
         const names = (purchase.items || []).map((i) => norm(i.name)).sort().join('|');
         const hit = monthList.find((e) => e.date === purchase.date && Array.isArray(e.detalle) && e.detalle.length
-          && e.detalle.map((i) => norm(i.name)).sort().join('|') === names);
+          && e.detalle.filter((i) => !isDeliv(i)).map((i) => norm(i.name)).sort().join('|') === names);
         if (hit) expIds.push(hit.id);
       }
     }
