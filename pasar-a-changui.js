@@ -60,8 +60,22 @@
     .chg-move-add{margin-top:10px;width:100%;padding:9px 14px;font-size:.82rem}
     .chg-move-split{padding:5px 10px;font-size:.72rem}
     .chg-move-add:hover,.chg-move-split:hover,.chg-move-rm:hover{transform:scale(1.04)}
+    .chg-move-lbl{font-size:.8rem;font-weight:700;margin:0 0 6px}
+    .chg-move-picked{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:700;font-size:.9rem}
+    .chg-move-chg{background:transparent;border:1px dashed var(--pink-700,#c43878);color:var(--pink-700,#c43878);
+      border-radius:10px;padding:3px 10px;font-size:.72rem;font-weight:700;cursor:pointer}
+    .chg-move-icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px;
+      max-height:210px;overflow-y:auto;padding:2px}
+    .chg-move-ico{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+      padding:6px 2px;min-height:54px;border-radius:12px;cursor:pointer;color:inherit;font:inherit;
+      border:1px solid var(--line,#f2cfdf);background:var(--card,transparent);transition:transform .15s,border-color .15s,background .15s}
+    .chg-move-ico .e{font-size:1.25rem;line-height:1}
+    .chg-move-ico .n{font-size:.58rem;line-height:1.1;text-align:center;word-break:break-word}
+    .chg-move-ico:hover{transform:scale(1.06);border-color:var(--pink-700,#c43878)}
+    .chg-move-ico.sel{border:2px solid var(--pink-700,#c43878);background:var(--pill-bg,rgba(251,196,212,.3));font-weight:700}
     @media (max-width:480px){
       .chg-move{padding:10px 12px}
+      .chg-move-icons{grid-template-columns:repeat(auto-fill,minmax(60px,1fr))}
       .chg-move-grid{grid-template-columns:1fr}
     }
   `;
@@ -69,6 +83,8 @@
 
   /* ---------- bloque dentro del modal "Editar gasto" / "Nuevo gasto" ---------- */
   const iconOpts = ICONS.map((i) => `<option value="${i[0]}">${i[1]} ${i[2]}</option>`).join('');
+  const iconBtns = ICONS.map((i) =>
+    `<button type="button" class="chg-move-ico" data-k="${i[0]}" title="${i[2]}"><span class="e">${i[1]}</span><span class="n">${i[2]}</span></button>`).join('');
   const box = document.createElement('div');
   box.id = 'chgMoveWrap';
   box.className = 'chg-move';
@@ -128,6 +144,14 @@
     const w = (i || '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     return d !== undefined ? `${w},${d.slice(0, 2)}` : w;
   };
+  // Mantiene al día la copia guardada en el Historial de Changui (evita tarjetas duplicadas)
+  const syncLocal = (oldDesc, newDesc, date, detalle, amount) => {
+    try {
+      if (typeof window.__changuiSyncPurchase === 'function' && Array.isArray(detalle)) {
+        window.__changuiSyncPurchase(oldDesc, newDesc, date, detalle, amount);
+      }
+    } catch (err) { console.warn('Pasar a Changui: no se pudo sincronizar el historial', err); }
+  };
   const showRecurring = (show) => { if (recBox) recBox.style.display = show ? '' : 'none'; };
 
   /* ---------- renglones de productos ---------- */
@@ -156,15 +180,59 @@
     });
   }
 
+  // Adivina el ícono según el nombre del producto (se puede cambiar)
+  const norm = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const GUESS = [
+    ['snacks', /papas fritas|snack|galletita|chocolate|alfajor|golosina|helado/],
+    ['verdura', /zanahoria|espinaca|zapallo|zapallito|lechuga|tomate|\bpapas?\b|cebolla|acelga|morron|calabaza|brocoli|\bajo\b|pepino|verdura|berenjena|choclo|rucula|puerro|remolacha|batata/],
+    ['fruta', /manzana|banana|naranja|limon|\bperas?\b|frutilla|\buvas?\b|mandarina|durazno|anana|sandia|melon|kiwi|fruta|palta/],
+    ['huevos', /huevo/],
+    ['pollo', /pollo|pechuga|muslo/],
+    ['carne', /carne|asado|bife|milanesa|picada|vacio|cerdo|chorizo|hamburguesa|matambre/],
+    ['pescado', /pescado|merluza|atun|salmon|surubi|camaron/],
+    ['queso', /queso|fiambre|jamon|salame|mortadela|muzzarella|mozzarella/],
+    ['leche', /leche|yogur|crema|manteca|ricota/],
+    ['pan', /\bpan\b|factura|medialuna|tostada|prepizza/],
+    ['agua', /agua|bidon|soda/],
+    ['bebidas', /gaseosa|cerveza|vino|jugo|bebida|fernet|energizante/],
+    ['limpieza', /lavandina|detergente|limpieza|limpiador|esponja|desinfectante|suavizante|trapo/],
+    ['higiene', /papel higienico|shampoo|champu|jabon|desodorante|pasta dental|cepillo|toallita|panal|higiene/],
+    ['mascotas', /perro|gato|mascota|balanceado/],
+    ['almacen', /arroz|fideos|harina|aceite|azucar|\bsal\b|yerba|cafe|lenteja|polenta|salsa|conserva|almacen|pure/]
+  ];
+  const guessIcon = (name) => { const n = norm(name); const g = GUESS.find((x) => x[1].test(n)); return g ? g[0] : ''; };
+
+  // "Verdulería (Zanahoria, Espinaca, zapallitos)" -> lugar + un producto por cada nombre
+  function parseDescription(desc) {
+    const d = String(desc || '').replace(/^🔄\s*/, '').trim();
+    const m = d.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+    const store = m ? m[1].trim().slice(0, 30) : '';
+    const list = m ? m[2] : d;
+    const names = list.split(/[,;]/).map((x) => x.replace(/[()]/g, '').trim().slice(0, 40)).filter(Boolean);
+    return { store, names };
+  }
+
+  function markIcon(r) {
+    const v = r.querySelector('.mv-icon').value;
+    const info = ICONS.find((i) => i[0] === v);
+    r.querySelectorAll('.chg-move-ico').forEach((b) => b.classList.toggle('sel', b.dataset.k === v));
+    r.querySelector('.chg-move-icons').hidden = !!info;
+    r.querySelector('.chg-move-picked').hidden = !info;
+    if (info) r.querySelector('.chg-move-pk').textContent = info[1] + ' ' + info[2];
+  }
+
   function addRow(d = {}) {
     const r = document.createElement('div');
     r.className = 'chg-move-item';
     r.innerHTML = `
       <div class="chg-move-item-head"><strong class="chg-move-num"></strong><button type="button" class="chg-move-rm" title="Quitar este producto">✖</button></div>
       <div class="chg-move-grid">
-        <label class="chg-move-full">Tipo de producto
-          <select class="mv-icon"><option value="" disabled selected>Elegí el tipo…</option>${iconOpts}</select>
-        </label>
+        <div class="chg-move-full">
+          <div class="chg-move-lbl">Elegí el producto</div>
+          <div class="chg-move-picked" hidden><span class="chg-move-pk"></span><button type="button" class="chg-move-chg">Cambiar producto</button></div>
+          <div class="chg-move-icons">${iconBtns}</div>
+          <select class="mv-icon" hidden><option value="" disabled selected>Elegí el tipo…</option>${iconOpts}</select>
+        </div>
         <label class="chg-move-full">Nombre del producto
           <input class="mv-name" type="text" maxlength="40" placeholder="Ej. Pollo entero">
         </label>
@@ -188,6 +256,7 @@
     itemsBox.appendChild(r);
     const q = (s) => r.querySelector(s);
     q('.mv-icon').value = ICONS.some((i) => i[0] === d.icon) ? d.icon : '';
+    markIcon(r);
     q('.mv-name').value = d.name || '';
     syncRow(r);
     if (d.byKg) { q('.mv-mode').value = 'kg'; syncRow(r); }
@@ -238,7 +307,7 @@
     // ----- GASTO NUEVO: se puede cargar directamente como Changui -----
     if (!id) {
       lbl.textContent = '🛒 Cargar este gasto como Changui';
-      hint.textContent = 'Este gasto se guarda como un Changui con los productos que cargues acá. Suma en el mes y lo ves en «Detalle» y en el Historial de Changui.';
+      hint.textContent = 'Este gasto se guarda como un Changui con los productos que cargues acá. Suma en el mes y lo ves en «Detalle» y en el Historial de Changui. Podés cargar varios productos con «➕ Agregar otro producto».';
       addRow({});
       renumber();
       box.hidden = false;
@@ -275,7 +344,7 @@
       }));
     } else {
       lbl.textContent = '🛒 Pasar este gasto a Changui';
-      hint.textContent = 'Este gasto pasa a ser un Changui con los productos que cargues acá. Sigue sumando en el mes, y lo ves en «Detalle» y en el Historial de Changui.';
+      hint.textContent = 'Este gasto pasa a ser un Changui con los productos que cargues acá. Sigue sumando en el mes, y lo ves en «Detalle» y en el Historial de Changui. Podés cargar varios productos con «➕ Agregar otro producto».';
       if (Array.isArray(exp.detalle) && exp.detalle.length) {
         // el gasto ya estuvo en Changui: se recuperan sus productos y el local
         const sm = String(exp.description || '').match(/^(.*?)\s*\(/);
@@ -285,7 +354,10 @@
           price: Number(it.paid) > 0 ? Number(it.paid) : 0, orig: it
         }));
       } else {
-        addRow({ name: String(exp.description || '').slice(0, 40) });
+        const parsed = parseDescription(exp.description);
+        if (parsed.store) storeIn.value = parsed.store;
+        if (parsed.names.length) parsed.names.forEach((n) => addRow({ name: n, icon: guessIcon(n) }));
+        else addRow({ name: String(exp.description || '').slice(0, 40) });
       }
     }
     renumber();
@@ -348,13 +420,14 @@
   $('chgMoveAdd').addEventListener('click', () => {
     const r = addRow();
     renumber();
-    r.querySelector('.mv-icon').focus();
+    r.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });
 
   itemsBox.addEventListener('change', (e) => {
     const r = e.target.closest('.chg-move-item');
     if (!r) return;
     syncRow(r);
+    if (e.target.classList.contains('mv-icon')) markIcon(r);
     if (e.target.classList.contains('mv-icon') && r === itemsBox.firstElementChild) {
       // la categoría del gasto acompaña al primer producto (la podés cambiar después)
       const info = ICONS.find((i) => i[0] === e.target.value);
@@ -378,6 +451,18 @@
   itemsBox.addEventListener('click', (e) => {
     const r = e.target.closest('.chg-move-item');
     if (!r) return;
+    if (e.target.closest('.chg-move-chg')) {
+      r.querySelector('.chg-move-icons').hidden = false;
+      r.querySelector('.chg-move-picked').hidden = true;
+      return;
+    }
+    const ico = e.target.closest('.chg-move-ico');
+    if (ico) {
+      const sel = r.querySelector('.mv-icon');
+      sel.value = ico.dataset.k;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
     if (e.target.closest('.chg-move-rm')) {
       r.remove();
       renumber();
@@ -399,7 +484,7 @@
   function readRow(r, multi, amount, currency) {
     const q = (s) => r.querySelector(s);
     const icon = q('.mv-icon').value;
-    if (!icon) { alert('Elegí el tipo de producto en cada renglón.'); q('.mv-icon').focus(); return null; }
+    if (!icon) { alert('Elegí el producto en cada renglón.'); q('.chg-move-icons').scrollIntoView({ block: 'center' }); return null; }
 
     // Si no tocó nada de un producto que ya existía, se conserva tal cual (con su promo y precio)
     if (r._orig && snap(r) === r._snap && (multi || Math.abs(Number(r._orig.paid) - amount) < 0.005)) {
@@ -529,6 +614,7 @@
       alert('No se pudo guardar. Probá de nuevo.');
       return;
     }
+    syncLocal(before.description, exp.description, exp.date, items, round2(amount));
     dialog.close();
   }, true);   // captura: corre antes que el guardado normal de app.js
 
@@ -604,12 +690,17 @@
       if (typeof bridge().updateExpense !== 'function') return;
       const month = currentMonth();
       histBox.querySelectorAll('.chg-history-card[data-purchase-id]').forEach((card) => {
-        if (card.querySelector('[data-edit-purchase], [data-mv-edit]')) return;
         const id = card.dataset.purchaseId;
         const exp = findExp(month, id);
         if (!exp || !(exp.fromChangui || /^changui\b/i.test(String(exp.description || '')))) return;
         const group = card.querySelector('[data-pdf-purchase]') && card.querySelector('[data-pdf-purchase]').parentElement;
-        if (group) group.insertAdjacentHTML('beforeend', `<button class="chg-ico-btn" type="button" data-mv-edit="${esc(id)}" title="Editar">✏️</button>`);
+        if (!group) return;
+        if (!card.querySelector('[data-edit-purchase], [data-mv-edit]')) {
+          group.insertAdjacentHTML('beforeend', `<button class="chg-ico-btn" type="button" data-mv-edit="${esc(id)}" title="Editar">✏️</button>`);
+        }
+        if (!card.querySelector('[data-del-purchase], [data-mv-del], [title="Eliminar"], [title="Borrar"]')) {
+          group.insertAdjacentHTML('beforeend', `<button class="chg-ico-btn" type="button" data-mv-del="${esc(id)}" title="Eliminar">🗑️</button>`);
+        }
       });
     };
     new MutationObserver(decorate).observe(histBox, { childList: true });
@@ -635,6 +726,7 @@
               <input class="mv-date" type="date" value="${esc(exp.date || '')}" style="${fieldCss}">
             </label>
             <div style="display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;margin-top:4px;">
+              <button class="btn btn-outline btn-sm" type="button" data-mv-products="${esc(id)}">🛒 Editar productos</button>
               <button class="btn btn-outline btn-sm" type="button" data-mv-cancel="1">Cancelar</button>
               <button class="pastel-btn btn-sm" type="button" data-mv-save="${esc(id)}">Guardar</button>
             </div>
@@ -643,6 +735,27 @@
       }
 
       if (e.target.closest('[data-mv-cancel]')) { refreshHistory(); return; }
+
+      // 🛒 Editar productos: abre el editor del gasto con los productos desplegados
+      const prod = e.target.closest('[data-mv-products]');
+      if (prod) {
+        const editBtn = document.querySelector(`#expenseTable .edit-btn[data-id="${CSS.escape(prod.dataset.mvProducts)}"]`);
+        if (!editBtn) { alert('No encuentro este gasto en «Gastos del mes». Sacá la búsqueda o el filtro de categoría y probá de nuevo.'); return; }
+        if (histDialog && histDialog.open) histDialog.close();
+        editBtn.click();
+        openChecked();
+        return;
+      }
+
+      // 🗑️ Eliminar: usa el mismo borrado (con confirmación) de «Gastos del mes»
+      const del = e.target.closest('[data-mv-del]');
+      if (del) {
+        const delBtn = document.querySelector(`#expenseTable .delete-btn[data-id="${CSS.escape(del.dataset.mvDel)}"]`);
+        if (!delBtn) { alert('No encuentro este gasto en «Gastos del mes». Sacá la búsqueda o el filtro de categoría y probá de nuevo.'); return; }
+        delBtn.click();
+        setTimeout(refreshHistory, 500);
+        return;
+      }
 
       const save = e.target.closest('[data-mv-save]');
       if (!save) return;
@@ -667,6 +780,7 @@
         alert('No se pudo guardar el cambio.');
         return;
       }
+      syncLocal(before.description, exp.description, exp.date, exp.detalle, exp.amount);
       refreshHistory();
     });
   }
