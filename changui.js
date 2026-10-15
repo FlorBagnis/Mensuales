@@ -2060,7 +2060,9 @@
       .chg-ins-tog[aria-expanded="true"] .chg-ins-arrow{transform:rotate(90deg)}
       .chg-ins-body{display:grid;gap:8px;margin-top:8px}
       .chg-ins-body[hidden]{display:none}
-      .chg-ins-body .chg-pill{display:block;border-radius:14px;line-height:1.4}
+      .chg-ins-body .chg-pill{display:block;box-sizing:border-box;max-width:100%;border-radius:14px;line-height:1.4;overflow-wrap:anywhere}
+      .chg-ins-tog span:first-child{min-width:0;overflow-wrap:anywhere}
+      @media (max-width:480px){.chg-ins-tog{padding:9px 12px;font-size:.85rem}.chg-ins-body .chg-pill{font-size:.85rem}}
     `;
     document.head.appendChild(st);
   })();
