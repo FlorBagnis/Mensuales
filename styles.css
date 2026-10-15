@@ -2025,9 +2025,10 @@ body:is(.dark-mode, .dark-blue-mode, .black-mode) :is(thead, th, .table-wrap th)
 }
 
 
+
 /* =========================================================
    19. TABLAS EN CELULAR (Gastos del mes, Dinero Extra, etc.)
-   Letra chica y pareja, sin cortar columnas.
+   Letra chica y pareja, CON scroll horizontal.
 ========================================================= */
 
 html {
@@ -2042,8 +2043,16 @@ table th * {
 }
 
 @media (max-width: 600px) {
+  /* El contenedor scrollea de costado (y de arriba a abajo) */
+  .table-wrap,
+  .table-container-collapsible:not(.collapsed) {
+    overflow-x: auto !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   table {
-    min-width: 0;          /* ya no obliga a scrollear de costado */
+    min-width: 560px;      /* mantiene el ancho para que haya scroll */
     width: 100%;
     font-size: 11px;
     table-layout: auto;
@@ -2051,31 +2060,30 @@ table th * {
 
   th {
     font-size: 9px;
-    padding: 7px 6px;
+    padding: 7px 8px;
     white-space: nowrap;
   }
 
   td {
     font-size: 11px !important;
     line-height: 1.3;
-    padding: 8px 6px;
-    white-space: normal;   /* permite salto de línea */
+    padding: 8px;
+    white-space: nowrap;   /* nada se encima */
   }
 
-  /* Fecha: chica y en una sola línea */
+  /* Fecha: chica */
   td:first-child {
     font-size: 10px !important;
-    white-space: nowrap;
   }
 
-  /* Descripción: baja de renglón en vez de agrandar la tabla */
+  /* Descripción: ancho mínimo cómodo, baja de renglón si es larga */
   td:nth-child(2) {
+    min-width: 170px;
+    white-space: normal;
     word-break: break-word;
-    overflow-wrap: anywhere;
     font-weight: 500;
   }
 
-  /* Monto: siempre en una línea */
   td.amount,
   td:last-child {
     white-space: nowrap;
