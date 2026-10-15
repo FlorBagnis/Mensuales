@@ -1607,6 +1607,7 @@
     document.head.appendChild(st);
   })();
 
+   window.__changuiEnhance = enhanceTable;
   setupKgUI();
   load();
   renderIcons();
