@@ -747,75 +747,42 @@
         return;
       }
 
-      // 🗑️ Eliminar: usa el mismo borrado (con confirmación) de «Gastos del mes»
-      const del = e.target.closest('[data-mv-del]');
-      if (del) {
-        const delBtn = document.querySelector(`#expenseTable .delete-btn[data-id="${CSS.escape(del.dataset.mvDel)}"]`);
-        if (!delBtn) { alert('No encuentro este gasto en «Gastos del mes». Sacá la búsqueda o el filtro de categoría y probá de nuevo.'); return; }
-        delBtn.click();
-        setTimeout(refreshHistory, 500);
-        return;
-      }
+   
+      // 🗑️ Eliminar: usa el mismo borrado (con confirmación) de «Gastos del mes»
+      const del = e.target.closest('[data-mv-del]');
+      if (del) {
+        const delBtn = document.querySelector(`#expenseTable .delete-btn[data-id="${CSS.escape(del.dataset.mvDel)}"]`);
+        if (!delBtn) { alert('No encuentro este gasto en «Gastos del mes». Sacá la búsqueda o el filtro de categoría y probá de nuevo.'); return; }
+        delBtn.click();
+        setTimeout(refreshHistory, 500);
+        return;
+      }
 
-      const save = e.target.closest('[data-mv-save]');
-      if (!save) return;
-      const card = save.closest('.chg-history-card');
-      const id = save.dataset.mvSave;
-      const month = currentMonth();
-      const exp = findExp(month, id);
-      if (!exp || !card) return;
+      const save = e.target.closest('[data-mv-save]');
+      if (!save) return;
+      const card = save.closest('.chg-history-card');
+      const id = save.dataset.mvSave;
+      const month = currentMonth();
+      const exp = findExp(month, id);
+      if (!exp || !card) return;
 
-      const newStore = card.querySelector('.mv-store').value.trim().replace(/[()]/g, '').slice(0, 30);
-      const newDate = card.querySelector('.mv-date').value || exp.date;
-      const before = { date: exp.date, description: exp.description };
+      const newStore = card.querySelector('.mv-store').value.trim().replace(/[()]/g, '').slice(0, 30);
+      const newDate = card.querySelector('.mv-date').value || exp.date;
+      const before = { date: exp.date, description: exp.description };
 
-      exp.date = newDate;
-      const parts = String(exp.description || '').match(/^changui(?:\s+en\s+[^(]*?)?\s*(\([^()]*\))?\s*$/i);
-      if (parts) exp.description = `Changui${newStore ? ' en ' + newStore : ''}${parts[1] ? ' ' + parts[1] : ''}`;
+      exp.date = newDate;
+      const parts = String(exp.description || '').match(/^changui(?:\s+en\s+[^(]*?)?\s*(\([^()]*\))?\s*$/i);
+      if (parts) exp.description = `Changui${newStore ? ' en ' + newStore : ''}${parts[1] ? ' ' + parts[1] : ''}`;
 
-     let ok = false;
-      try { ok = await bridge().updateExpense({ month, id, amount: exp.amount, detalle: exp.detalle }); } catch (err) { ok = false; }
-      if (!ok) {
-        Object.assign(exp, before);
-        alert('No se pudo guardar el cambio.');
-        return;
-      }
-      syncLocal(before.description, exp.description, exp.date, exp.detalle, exp.amount);
-      refreshHistory();
-    });
-  }
-
-  /* ---------- Botón del changuito al lado del lápiz en la tabla ---------- */
-  const expTable = $('expenseTable');
-  if (expTable) {
-    const decorateRows = () => {
-      expTable.querySelectorAll('tr').forEach((tr) => {
-        if (tr.querySelector('.chg-mv-row')) return;
-        const edit = tr.querySelector('.edit-btn');
-        if (!edit) return;
-        const id = edit.dataset.id;
-        if (String(id).startsWith('rec-')) return;
-        const exp = findExp(currentMonth(), id);
-        const esChg = !!exp && /^changui\b/i.test(String(exp.description || '').trim());
-        
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'chg-mv-row chg-ico-btn';
-        b.title = esChg ? 'Editar productos de Changui' : 'Pasar a Changui';
-        b.textContent = '🛒';
-        edit.before(b);
-      });
-    };
-    new MutationObserver(decorateRows).observe(expTable, { childList: true, subtree: true });
-    decorateRows();
-
-    expTable.addEventListener('click', (e) => {
-      const b = e.target.closest('.chg-mv-row');
-      if (!b) return;
-      const edit = b.closest('tr').querySelector('.edit-btn');
-      if (!edit) return;
-      edit.click();
-      openChecked();
-    });
-  }
+      let ok = false;
+      try { ok = await bridge().updateExpense({ month, id, amount: exp.amount, detalle: exp.detalle }); } catch (err) { ok = false; }
+      if (!ok) {
+        Object.assign(exp, before);
+        alert('No se pudo guardar el cambio.');
+        return;
+      }
+      syncLocal(before.description, exp.description, exp.date, exp.detalle, exp.amount);
+      refreshHistory();
+    });
+  }
 })();
