@@ -9,9 +9,9 @@
          al guardar un chango abierto desde el Historial se REEMPLAZA siempre (aunque cambies la fecha)
    + v5: el ENVÍO va dentro del mismo gasto de la compra (ej. leche 1.600 + envío 4.000 = 5.600),
          el Historial muestra el TOTAL de cada chango y el resumen calcula en pesos y dólares
-   + v6: cada producto queda en SU categoría (leche 1.600 · detergente 2.000) y el ENVÍO aparece
-         como una línea más del mismo chango (en el Historial va en el mismo grupo, con el TOTAL).
-         Categoría del envío: la que elijas; en "Automático", Alimentos si hay comida.
+   + v6: el ENVÍO va ADENTRO del gasto de la compra, igual que en Changui (producto + envío en una fila,
+         y en el Detalle se ven los productos y el envío). Con varios productos en pesos, van juntos en un gasto.
+         Categoría: la que elijas; en "Automático", Alimentos si hay comida.
 ========================================================= */
 (() => {
   'use strict';
@@ -703,9 +703,10 @@
       }))
       .filter((x) => x.amount > 0);
 
-    // v6: cada producto queda en SU categoría (leche 1.600 · detergente 2.000) y el ENVÍO
-    // se registra como una línea más del MISMO chango (misma fecha, local y grupo en el Historial).
-    // Categoría del envío: la que elegiste; en "Automático", Alimentos si hay comida, si no la del grupo más grande.
+    // v6: con ENVÍO, los productos en pesos van JUNTOS en UN solo gasto y el envío va ADENTRO,
+    // igual que en Changui. Con un solo producto es lo mismo: producto + envío (ej. SANCOR 1.600 + envío 4.000 = 5.600).
+    // En el Detalle se ven todos los productos y el envío como un renglón más.
+    // Categoría: la que elegiste; en "Automático", Alimentos si hay comida, si no la del grupo más grande.
     let delItem = null;
     if (deliveryCost > 0) {
       delItem = {
@@ -713,17 +714,29 @@
         price: round2(deliveryCost), qty: 1, byKg: false, kg: 0,
         promo: { type: 'none' }, paid: round2(deliveryCost), isDelivery: true
       };
-      const biggest = expenses.slice().sort((a, c) => c.amount - a.amount)[0];
-      const delCat = mode !== 'auto'
-        ? mode
-        : (expenses.some((x) => x.category === 'Alimentos') ? 'Alimentos' : (biggest ? biggest.category : 'Otros'));
-      expenses.push({
-        description: `Envío a domicilio${storeLabel}`,
-        category: delCat,
-        amount: round2(deliveryCost),
-        currency: 'ARS',
-        detalle: [Object.assign({}, delItem)]
-      });
+      const ars = expenses.filter((x) => x.currency === 'ARS');
+      if (ars.length) {
+        const main = ars.slice().sort((a, c) => c.amount - a.amount)[0];
+        const todos = ars.flatMap((x) => x.detalle);
+        const merged = {
+          description: `Changui${storeLabel} (${todos.map((i) => i.name).join(', ')})`,
+          category: mode !== 'auto' ? mode : (ars.some((x) => x.category === 'Alimentos') ? 'Alimentos' : main.category),
+          amount: round2(ars.reduce((s, x) => s + x.amount, 0) + deliveryCost),
+          currency: 'ARS',
+          detalle: todos.concat([Object.assign({}, delItem)])
+        };
+        expenses = expenses.filter((x) => x.currency !== 'ARS').concat([merged]);
+      } else {
+        // Compra solo en dólares: el envío (en pesos) va en su propio gasto de Changui
+        const biggest = expenses.slice().sort((a, c) => c.amount - a.amount)[0];
+        expenses.push({
+          description: `Changui${storeLabel} (Envío a domicilio)`,
+          category: mode !== 'auto' ? mode : (biggest ? biggest.category : 'Otros'),
+          amount: round2(deliveryCost),
+          currency: 'ARS',
+          detalle: [Object.assign({}, delItem)]
+        });
+      }
     }
 
     // Copia local del detalle (respaldo)
@@ -778,8 +791,21 @@
           newIds = newIds.concat(added);
         }
 
-        // gastos viejos que ya no corresponden (ej. sacaste el envío o un producto de otra categoría)
-        const removeIds = unused.map((o) => o.id);
+        // Compras viejas: el envío estaba como gasto aparte. Si ahora va adentro de la compra,
+        // se busca ese gasto suelto (misma fecha, mismo local y mismo monto) para unirlo y no contarlo dos veces.
+        const legacy = [];
+        if (deliveryCost > 0) {
+          const wantDesc = norm('Envío a domicilio' + storeLabel);
+          const cands = (b.getMonthExpenses(lf.month) || []).filter((e) => isDeliveryExp(e)
+            && !lf.expIds.includes(e.id) && !newIds.includes(e.id)
+            && e.date === (lf.date || date)
+            && norm(e.description) === wantDesc
+            && Math.abs(Number(e.amount) - deliveryCost) < 0.01);
+          if (cands.length === 1) legacy.push(cands[0]);
+        }
+
+        // gastos viejos que ya no corresponden (ej. el envío que ahora va adentro de la compra)
+        const removeIds = unused.map((o) => o.id).concat(legacy.map((o) => o.id));
         if (removeIds.length && b.removeExpenses) {
           try { await b.removeExpenses({ month: lf.month, ids: removeIds }); } catch (e) { /* sigue */ }
         }
