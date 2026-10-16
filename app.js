@@ -685,11 +685,20 @@ function renderMensualesExpensesTable(expenses) {
     const row = document.createElement("tr");
     const curr = e.currency || "ARS";
     if (idx % 2 === 1) row.className = "row-alt";
+
+    // Si el gasto trae el envío adentro (compra de Changui), se avisa en la misma fila
+    const envioItem = Array.isArray(e.detalle)
+      ? e.detalle.find(x => x && (x.isDelivery || /^env[ií]o a domicilio$/i.test(String(x.name || "").trim())))
+      : null;
+    const envioHtml = envioItem && Number(envioItem.paid) > 0
+      ? `<div style="font-size:.72em;opacity:.75;font-weight:600;">📦 incluye envío ${money(envioItem.paid, envioItem.cur || "ARS")}</div>`
+      : "";
+
     row.innerHTML = `
       <td>${formatDate(e.date)}</td>
       <td>${escapeHtml(e.description)}</td>
       <td><span class="category">${escapeHtml(e.category)}</span></td>
-      <td class="amount" style="text-align: right;">${money(e.amount, curr)}</td>
+      <td class="amount" style="text-align: right;">${money(e.amount, curr)}${envioHtml}</td>
       <td style="text-align: right; white-space: nowrap;">
         <button class="pastel-btn btn-sm edit-btn" data-id="${e.id}" type="button" title="Editar">✏️</button>
         <button class="btn btn-danger btn-sm delete-btn" data-id="${e.id}" type="button" title="Eliminar">×</button>
@@ -2706,12 +2715,29 @@ window.ChanguiBridge = {
   getDolar: () => currentDolarBlue,
 
   getPdfTheme: () => getPdfThemeColors(),
-  updateExpense: async ({ month, id, amount, detalle }) => {
+
+  // Ahora también actualiza descripción, categoría y fecha (antes solo monto y detalle)
+  updateExpense: async ({ month, id, amount, detalle, description, category, date }) => {
     const m = data.months[month];
     const exp = m && (m.expenses || []).find(x => x.id === id);
     if (!exp) return false;
-    exp.amount = Number(amount);
+    if (amount !== undefined) exp.amount = Number(amount);
     if (detalle) exp.detalle = detalle;
+    if (description !== undefined) exp.description = description;
+    if (category !== undefined) exp.category = category;
+    if (date !== undefined) exp.date = date;
+    renderMensuales();
+    await saveMonthToFirestore(month);
+    return true;
+  },
+
+  // Borra uno o varios gastos del mes (lo usa Changui para unir el envío con su compra
+  // y para reemplazar una compra abierta desde el Historial)
+  removeExpenses: async ({ month, ids }) => {
+    const m = data.months[month];
+    if (!m || !Array.isArray(m.expenses) || !Array.isArray(ids) || !ids.length) return false;
+    const borrar = new Set(ids);
+    m.expenses = m.expenses.filter(x => !borrar.has(x.id));
     renderMensuales();
     await saveMonthToFirestore(month);
     return true;
@@ -2726,6 +2752,7 @@ window.ChanguiBridge = {
     return monthData ? (monthData.expenses || []) : [];
   },
 
+  // Ahora devuelve los ids de los gastos creados (un array es "verdadero", no rompe los if (!res))
   addExpenses: async ({ date, expenses }) => {
     if (!currentUser) return false;
     try {
@@ -2736,9 +2763,12 @@ window.ChanguiBridge = {
         monthData.expenses = [];
       }
 
+      const ids = [];
       expenses.forEach(exp => {
+        const id = createId("expense");
+        ids.push(id);
         monthData.expenses.push({
-          id: createId("expense"),
+          id,
           date: date,
           description: exp.description,
           category: exp.category,
@@ -2751,7 +2781,7 @@ window.ChanguiBridge = {
 
       renderMensuales();
       await saveMonthToFirestore(monthKey);
-      return true;
+      return ids;
     } catch (err) {
       console.error("Error al registrar gastos desde Changui:", err);
       return false;
