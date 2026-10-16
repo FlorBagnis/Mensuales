@@ -1844,6 +1844,45 @@
     render();
   }
 
+
+  /* ---------- vista previa del precio con descuento (antes de agregar) ---------- */
+  function setupPricePreview() {
+    const btn = $('#chgSubmit');
+    if (!btn || $('#chgPricePreview')) return;
+    btn.insertAdjacentHTML('beforebegin', '<div id="chgPricePreview" class="chg-kgprev" hidden></div>');
+  }
+
+  function updatePricePreview() {
+    const box = $('#chgPricePreview');
+    if (!box) return;
+    const hide = () => { box.hidden = true; box.innerHTML = ''; };
+
+    const price = parseAmount($('#chgPrice').value);
+    if (!(price > 0)) { hide(); return; }
+
+    const byKg = kgMode && KG_KEYS.includes(selIcon);
+    const kg = byKg ? currentKg() : 0;
+    if (byKg && !(kg > 0)) { hide(); return; }
+
+    const it = {
+      price,
+      qty: byKg ? 1 : Math.min(99, Math.max(1, parseInt($('#chgQty').value, 10) || 1)),
+      byKg, kg,
+      cur: $('#chgCur').value === 'USD' ? 'USD' : 'ARS',
+      promo: promoFromForm()
+    };
+    const c = itemCalc(it);
+
+    if (c.saved > 0.005) {
+      box.innerHTML = `🏷️ <s class="chg-old">${money(c.base, it.cur)}</s> → <b>${money(c.paid, it.cur)}</b> · ahorrás ${money(c.saved, it.cur)}`;
+    } else if (!byKg && it.qty > 1) {
+      box.innerHTML = `Total: <b>${money(c.paid, it.cur)}</b>`;
+    } else { hide(); return; }
+    box.hidden = false;
+  }
+
+
+   
   /* ---------- eventos ---------- */
   $('#chgForm').addEventListener('submit', submitItem);
   $('#chgCancelEdit').addEventListener('click', resetForm);
@@ -1879,8 +1918,12 @@
     el.setSelectionRange(pos, pos);
     updateKgPreview();
   });
+   
   $('#chgCur').addEventListener('change', updateKgPreview);
-
+['input', 'change', 'click', 'submit'].forEach((ev) =>
+$('#chgForm').addEventListener(ev, () => setTimeout(updatePricePreview, 0))
+  );
+   
   $('#chgDeliveryMode')?.addEventListener('change', (e) => {
     const isEnvio = e.target.value === 'envio';
     const wrap = $('#chgDeliveryCostWrap');
@@ -2213,6 +2256,7 @@
   };
 
   setupKgUI();
+  setupPricePreview();
   load();
   renderIcons();
   applyKgUI();
