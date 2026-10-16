@@ -1937,23 +1937,108 @@
 
   /* ---------- descuentos generales con nombre (bancos y billeteras) ---------- */
   const GEN_DISCOUNTS = [
-    { name: 'Cuenta DNI', pct: 20 },
-    { name: 'Mercado Pago', pct: 15 },
-    { name: 'Ualá', pct: 15 },
-    { name: 'Brubank', pct: 15 },
-    { name: 'Personal Pay', pct: 15 },
-    { name: 'Naranja X', pct: 15 },
-    { name: 'MODO', pct: 20 },
-    { name: 'Banco Nación', pct: 20 },
-    { name: 'Banco Provincia', pct: 20 },
-    { name: 'Banco Ciudad', pct: 20 },
-    { name: 'Banco Galicia', pct: 20 },
-    { name: 'Santander', pct: 20 },
-    { name: 'BBVA', pct: 20 },
-    { name: 'Macro', pct: 20 },
-    { name: 'ICBC', pct: 20 },
-    { name: 'Supervielle', pct: 20 },
-    { name: 'Tarjeta de supermercado', pct: 10 }
+    // Cuenta DNI
+    { name: 'Cuenta DNI 10%', pct: 10 },
+    { name: 'Cuenta DNI 20%', pct: 20 },
+    { name: 'Cuenta DNI 30%', pct: 30 },
+    { name: 'Cuenta DNI 40%', pct: 40 },
+    { name: 'Cuenta DNI 50%', pct: 50 },
+
+    // Billeteras virtuales
+    { name: 'Mercado Pago 10%', pct: 10 },
+    { name: 'Mercado Pago 15%', pct: 15 },
+    { name: 'Mercado Pago 20%', pct: 20 },
+    { name: 'Mercado Pago 30%', pct: 30 },
+    { name: 'Ualá 10%', pct: 10 },
+    { name: 'Ualá 15%', pct: 15 },
+    { name: 'Ualá 20%', pct: 20 },
+    { name: 'Ualá 30%', pct: 30 },
+    { name: 'Brubank 10%', pct: 10 },
+    { name: 'Brubank 15%', pct: 15 },
+    { name: 'Brubank 20%', pct: 20 },
+    { name: 'Brubank 30%', pct: 30 },
+    { name: 'Personal Pay 15%', pct: 15 },
+    { name: 'Personal Pay 20%', pct: 20 },
+    { name: 'Personal Pay 25%', pct: 25 },
+    { name: 'Personal Pay 30%', pct: 30 },
+    { name: 'Naranja X 15%', pct: 15 },
+    { name: 'Naranja X 20%', pct: 20 },
+    { name: 'Naranja X 30%', pct: 30 },
+    { name: 'MODO 10%', pct: 10 },
+    { name: 'MODO 20%', pct: 20 },
+    { name: 'MODO 30%', pct: 30 },
+    { name: 'MODO 40%', pct: 40 },
+    { name: 'MODO 50%', pct: 50 },
+
+    // Banco Nación
+    { name: 'Banco Nación 10%', pct: 10 },
+    { name: 'Banco Nación 20%', pct: 20 },
+    { name: 'Banco Nación 30%', pct: 30 },
+    { name: 'Banco Nación 40%', pct: 40 },
+    { name: 'Banco Nación 50%', pct: 50 },
+
+    // Banco Provincia
+    { name: 'Banco Provincia 10%', pct: 10 },
+    { name: 'Banco Provincia 20%', pct: 20 },
+    { name: 'Banco Provincia 30%', pct: 30 },
+    { name: 'Banco Provincia 40%', pct: 40 },
+    { name: 'Banco Provincia 50%', pct: 50 },
+
+    // Banco Ciudad
+    { name: 'Banco Ciudad 10%', pct: 10 },
+    { name: 'Banco Ciudad 20%', pct: 20 },
+    { name: 'Banco Ciudad 30%', pct: 30 },
+    { name: 'Banco Ciudad 40%', pct: 40 },
+    { name: 'Banco Ciudad 50%', pct: 50 },
+
+    // Banco Galicia
+    { name: 'Banco Galicia 10%', pct: 10 },
+    { name: 'Banco Galicia 20%', pct: 20 },
+    { name: 'Banco Galicia 30%', pct: 30 },
+    { name: 'Banco Galicia 40%', pct: 40 },
+    { name: 'Banco Galicia 50%', pct: 50 },
+
+    // Santander
+    { name: 'Santander 10%', pct: 10 },
+    { name: 'Santander 20%', pct: 20 },
+    { name: 'Santander 30%', pct: 30 },
+    { name: 'Santander 40%', pct: 40 },
+    { name: 'Santander 50%', pct: 50 },
+
+    // BBVA
+    { name: 'BBVA 10%', pct: 10 },
+    { name: 'BBVA 20%', pct: 20 },
+    { name: 'BBVA 30%', pct: 30 },
+    { name: 'BBVA 40%', pct: 40 },
+    { name: 'BBVA 50%', pct: 50 },
+
+    // Macro
+    { name: 'Macro 10%', pct: 10 },
+    { name: 'Macro 20%', pct: 20 },
+    { name: 'Macro 30%', pct: 30 },
+    { name: 'Macro 40%', pct: 40 },
+    { name: 'Macro 50%', pct: 50 },
+
+    // ICBC
+    { name: 'ICBC 10%', pct: 10 },
+    { name: 'ICBC 20%', pct: 20 },
+    { name: 'ICBC 30%', pct: 30 },
+    { name: 'ICBC 40%', pct: 40 },
+    { name: 'ICBC 50%', pct: 50 },
+
+    // Supervielle
+    { name: 'Supervielle 10%', pct: 10 },
+    { name: 'Supervielle 20%', pct: 20 },
+    { name: 'Supervielle 30%', pct: 30 },
+    { name: 'Supervielle 40%', pct: 40 },
+    { name: 'Supervielle 50%', pct: 50 },
+
+    // Supermercados y Clubes
+    { name: 'Tarjeta de supermercado 10%', pct: 10 },
+    { name: 'Tarjeta de supermercado 15%', pct: 15 },
+    { name: 'Tarjeta de supermercado 20%', pct: 20 },
+    { name: 'Club La Nación 20%', pct: 20 },
+    { name: 'Clarín 365 20%', pct: 20 }
   ];
 
   function setupGenName() {
