@@ -170,6 +170,7 @@
     if (!Array.isArray(state.items)) state.items = [];
     if (!Array.isArray(state.purchases)) state.purchases = [];
     state.general = Math.min(100, Math.max(0, Number(state.general) || 0));
+    state.genName = String(state.genName || '');
     loadedFrom = state.loadedFrom && typeof state.loadedFrom === 'object' && Array.isArray(state.loadedFrom.expIds) ? state.loadedFrom : null;
 
     // Limpieza: copias duplicadas que creaba el sincronizador viejo (tienen "desc" y ids de gasto como texto).
@@ -406,6 +407,7 @@
     const gi = $('#chgGeneral');
     if (gi && document.activeElement !== gi) gi.value = state.general ? String(state.general).replace('.', ',') : '';
     root.querySelectorAll('[data-gen]').forEach((b) => b.classList.toggle('on', Number(b.dataset.gen) === state.general));
+       syncGenSelect();
   }
 
   function renderTotals() {
@@ -852,7 +854,7 @@
         }
       }
 
-      const newP = {
+      const newP = {genName: g > 0 ? (state.genName || '') : '', genPct: g,
         id: uid(), date, store, deliveryMode, deliveryCost,
         expIds: newIds, expMonth: date.slice(0, 7),
         expenses: details,
@@ -874,6 +876,7 @@
       state.purchases = state.purchases.slice(0, 60);
       state.items = [];
       state.general = 0;
+      state.genName = '';
       setLoaded(null);
       save();
       $('#chgStore').value = '';
@@ -958,11 +961,16 @@
       body = items.map((it, idx) => {
         const priced = Number(it.paid) > 0;
         if (!priced) unpriced++;
-        const promo = promoLabel(it.promo) ? ` · ${esc(promoLabel(it.promo))}` : '';
-        const sub = priced
+        const promoName = promoLabel(it.promo);
+        const promo = promoName ? ` · 🏷️ ${esc(promoName)}` : '';
+        const baseP = itemCalc(it).base;
+        const hasPromo = !!promoName && baseP > Number(it.paid) + 0.005;
+         const sub = priced
           ? (it.byKg ? `⚖️ ${esc(kgLabel(it.kg))} x ${money(it.price, it.cur)}/kg${promo}` : `${it.qty || 1} x ${money(it.price, it.cur)}${promo}`)
           : 'Sin precio · tocá ✏️ para cargarlo';
-        const right = priced ? `<b>${money(it.paid, it.cur)}</b>` : '<span class="chg-d-sub">—</span>';
+           const right = priced
+          ? (hasPromo ? `<s class="chg-old">${money(baseP, it.cur)}</s> ` : '') + `<b>${money(it.paid, it.cur)}</b>`
+          : '<span class="chg-d-sub">—</span>';
         const btns = edit
           ? `<button type="button" class="chg-d-edit" data-idx="${idx}" title="Editar producto">✏️</button><button type="button" class="chg-d-del" data-idx="${idx}" title="Quitar producto">✖</button>`
           : '';
@@ -1699,14 +1707,58 @@
           <b>${pairMoney(tot)}</b>
         </div>`;
 
-      const itemsHtml = (p.items || []).map((it) => `
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line);">
-          <span>${emoji(it)} ${esc(it.name)} (${esc(qtyText(it))})</span>
-          <div style="display: flex; align-items: center; gap: 6px;">
-            <b>${Number(it.paid) > 0 ? money(it.paid, it.cur) : '—'}</b>
+     const promoExplain = (pr) => {
+        if (!pr || pr.type === 'none') return '';
+        if (pr.type === 'pct') return `${pr.value}% de descuento`;
+        if (pr.type === '2x1') return '2x1 · pagás 1 de cada 2';
+        if (pr.type === 'second') return `2da unidad al ${pr.value}% de descuento`;
+        return '';
+      };
+
+      // Ahorros del chango: promos de cada producto y descuento general
+      const savePromo = { ARS: 0, USD: 0 };
+      const saveGen = { ARS: 0, USD: 0 };
+      let genPct = 0;
+
+      const itemsHtml = (p.items || []).map((it) => {
+        const cur = it.cur === 'USD' ? 'USD' : 'ARS';
+        const c = itemCalc(it);
+        const paidN = Number(it.paid) || 0;
+        const explain = promoExplain(it.promo);
+        const hasPromo = !!explain && c.base > 0 && c.saved > 0.005;
+
+        // Si pagó menos que el precio con promo, la diferencia es el descuento general
+        const gSaved = !isDeliv(it) && paidN > 0 && c.paid > 0 ? c.paid - paidN : 0;
+        if (gSaved > 0.01) {
+          saveGen[cur] += gSaved;
+          if (!genPct) genPct = Math.round((1 - paidN / c.paid) * 1000) / 10;
+        }
+        if (hasPromo) savePromo[cur] += c.saved;
+
+        const promoLine = hasPromo
+          ? `<div style="font-size:0.7rem;color:var(--pink-700);font-weight:700;margin-top:1px;">🏷️ ${esc(explain)} · ahorraste ${money(c.saved, cur)}</div>`
+          : '';
+        const old = (hasPromo || gSaved > 0.01) && c.base > paidN + 0.005
+          ? `<s style="font-size:0.72rem;opacity:.6;font-weight:600;">${money(c.base, cur)}</s>`
+          : '';
+        return `
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line);">
+          <span>${emoji(it)} ${esc(it.name)} (${esc(qtyText(it))})${promoLine}</span>
+          <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+            ${old}
+            <b>${paidN > 0 ? money(it.paid, it.cur) : '—'}</b>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
+
+      const hasGen = saveGen.ARS > 0.01 || saveGen.USD > 0.01;
+      const hasPromoAny = savePromo.ARS > 0.005 || savePromo.USD > 0.005;
+      const sumLine = (txt, v) => `<div style="font-size:0.76rem;color:var(--pink-700);font-weight:700;display:flex;justify-content:space-between;gap:8px;"><span>${txt}</span><span>${pairMoney(v)}</span></div>`;
+      const savingsHtml = (hasGen || hasPromoAny) ? `
+        <div style="margin-top:8px;padding:8px 10px;border-radius:12px;border:1px dashed var(--chg-line);display:grid;gap:3px;">
+          ${hasPromoAny ? sumLine('🏷️ Ahorro por promos', savePromo) : ''}
+          ${hasGen ? sumLine(`🎟️ ${p.genName ? esc(p.genName) + ' · ' : 'Descuento general '}${String(genPct).replace('.', ',')}%`, saveGen) : ''}
+        </div>` : '';
 
       const deliveryHtml = isEnvio && !delItem && delCost > 0 ? `
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px dashed var(--chg-line); color: var(--pink-700);">
@@ -1734,7 +1786,8 @@
             ${itemsHtml || '<span style="font-size:0.8rem;color:var(--muted);">Sin detalle de productos.</span>'}
             ${deliveryHtml}
           </div>
-          ${totalHtml}
+          ${savingsHtml}
+          ${totalHtml}    
         </div>
       `;
     }).join('');
@@ -1804,6 +1857,7 @@
     resetForm();
     state.items = items;
     state.general = general;
+    state.genName = purchase.genName || '';
 
     if ($('#chgStore')) $('#chgStore').value = purchase.store || '';
     if ($('#chgDeliveryMode')) $('#chgDeliveryMode').value = purchase.deliveryMode || 'presencial';
@@ -1881,7 +1935,66 @@
     box.hidden = false;
   }
 
+  /* ---------- descuentos generales con nombre (bancos y billeteras) ---------- */
+  const GEN_DISCOUNTS = [
+    { name: 'Cuenta DNI', pct: 20 },
+    { name: 'Mercado Pago', pct: 15 },
+    { name: 'Ualá', pct: 15 },
+    { name: 'Brubank', pct: 15 },
+    { name: 'Personal Pay', pct: 15 },
+    { name: 'Naranja X', pct: 15 },
+    { name: 'MODO', pct: 20 },
+    { name: 'Banco Nación', pct: 20 },
+    { name: 'Banco Provincia', pct: 20 },
+    { name: 'Banco Ciudad', pct: 20 },
+    { name: 'Banco Galicia', pct: 20 },
+    { name: 'Santander', pct: 20 },
+    { name: 'BBVA', pct: 20 },
+    { name: 'Macro', pct: 20 },
+    { name: 'ICBC', pct: 20 },
+    { name: 'Supervielle', pct: 20 },
+    { name: 'Tarjeta de supermercado', pct: 10 }
+  ];
 
+  function setupGenName() {
+    const chip = root.querySelector('[data-gen]');
+    if (!chip || $('#chgGenName')) return;
+    chip.parentElement.insertAdjacentHTML('afterend',
+      `<label class="chg-field" id="chgGenNameWrap">Con qué descuento (opcional)
+         <select id="chgGenName">
+           <option value="">Sin nombre</option>
+           ${GEN_DISCOUNTS.map((d, i) => `<option value="${i}">${esc(d.name)} · ${d.pct}%</option>`).join('')}
+           <option value="custom">✏️ Otro (escribir nombre)</option>
+         </select>
+       </label>`);
+
+    $('#chgGenName').addEventListener('change', (e) => {
+      const v = e.target.value;
+      if (v === 'custom') {
+        const n = prompt('¿Con qué descuento? (ej. Tarjeta Carrefour)', state.genName || '');
+        if (n === null) { syncGenSelect(); return; }
+        state.genName = n.trim().replace(/[()]/g, '').slice(0, 30);
+      } else if (v === '') {
+        state.genName = '';
+      } else {
+        const d = GEN_DISCOUNTS[Number(v)];
+        state.genName = d.name;
+        if (!state.general) state.general = d.pct;   // solo carga el % si todavía no pusiste uno
+      }
+      save(); renderCart(); renderTotals();
+    });
+  }
+
+  function syncGenSelect() {
+    const s = $('#chgGenName');
+    if (!s) return;
+    const i = GEN_DISCOUNTS.findIndex((d) => d.name === state.genName);
+    if (!state.genName) { s.value = ''; return; }
+    if (i >= 0) { s.value = String(i); return; }
+    const opt = s.querySelector('option[value="custom"]');
+    if (opt) opt.textContent = '✏️ ' + state.genName;
+    s.value = 'custom';
+  }
    
   /* ---------- eventos ---------- */
   $('#chgForm').addEventListener('submit', submitItem);
@@ -1901,7 +2014,7 @@
   $('#chgClearBtn').addEventListener('click', () => {
     if (!state.items.length) return;
     if (!confirm('¿Vaciar todo el changuito?')) return;
-    state.items = []; state.general = 0; setLoaded(null); save(); resetForm(); render();
+    state.items = []; state.general = 0; state.genName = ''; setLoaded(null); save(); resetForm(); render();
   });
 
   $('#chgPromo').addEventListener('change', (e) => {
@@ -2257,6 +2370,7 @@ $('#chgForm').addEventListener(ev, () => setTimeout(updatePricePreview, 0))
 
   setupKgUI();
   setupPricePreview();
+  setupGenName();
   load();
   renderIcons();
   applyKgUI();
