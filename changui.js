@@ -1489,6 +1489,102 @@
     if (localChanged) save();
   }
 
+  /* ---------- unir el ENVÍO viejo (gasto aparte) con su compra ---------- */
+  // Compras guardadas antes: "Changui (SANCOR)" 1.600 + "Envío a domicilio" 4.000 en dos filas.
+  // Se unen solas en UN gasto (producto + envío = 5.600), con el envío como renglón del Detalle,
+  // igual que las compras nuevas. Se une solo si hay una única compra de Changui en pesos
+  // con la misma fecha y el mismo local; si hay dudas, no se toca nada.
+  const failedDelivIds = new Set();
+  let mergingDeliv = false;
+  const storeOf = (desc) => {
+    const d = String(desc || '').trim();
+    let m = d.match(/^env[ií]o a domicilio\s+en\s+(.+)$/i);
+    if (m) return norm(m[1]);
+    m = d.match(/^changui\s+en\s+([^(]*?)\s*(?:\(|$)/i);
+    return m ? norm(m[1]) : '';
+  };
+
+  async function mergeLegacyDelivery() {
+    const b = bridge();
+    if (mergingDeliv || registering) return;
+    if (!b.getMonthExpenses || !b.updateExpense || !b.removeExpenses) return;
+    mergingDeliv = true;
+    let merged = false;
+    try {
+      const months = new Set();
+      if (b.getCurrentMonth) months.add(b.getCurrentMonth());
+      (state.purchases || []).forEach((p) => { const m = p.expMonth || String(p.date || '').slice(0, 7); if (m) months.add(m); });
+
+      for (const month of months) {
+        if (!month) continue;
+        const list = b.getMonthExpenses(month) || [];
+        const dels = list.filter((e) => e && e.id && isDeliveryExp(e) && !failedDelivIds.has(e.id)
+          && (e.currency || 'ARS') === 'ARS' && Number(e.amount) > 0);
+
+        for (const d of dels) {
+          const cands = list.filter((e) => e && e.id && e.id !== d.id && !isDeliveryExp(e)
+            && /^changui\b/i.test(String(e.description || '').trim())
+            && (e.currency || 'ARS') === 'ARS'
+            && e.date === d.date
+            && storeOf(e.description) === storeOf(d.description)
+            && Array.isArray(e.detalle) && e.detalle.length && !e.detalle.some(isDeliv));
+          if (cands.length !== 1) continue;
+
+          const main = cands[0];
+          const oldAmount = Number(main.amount);
+          const oldDetalle = main.detalle;
+          const amt = round2(Number(d.amount));
+          const delItem = {
+            name: 'Envío a domicilio', icon: 'otros', cur: 'ARS',
+            price: amt, qty: 1, byKg: false, kg: 0,
+            promo: { type: 'none' }, paid: amt, isDelivery: true
+          };
+          const newDetalle = oldDetalle.concat([delItem]);
+          const newAmount = round2(oldAmount + amt);
+
+          let ok = false;
+          try { ok = !!(await b.updateExpense({ month, id: main.id, amount: newAmount, detalle: newDetalle })); } catch (e) { ok = false; }
+          if (!ok) { failedDelivIds.add(d.id); continue; }
+
+          let removed = false;
+          try { removed = !!(await b.removeExpenses({ month, ids: [d.id] })); } catch (e) { removed = false; }
+          if (!removed) {
+            // no se pudo sacar el envío suelto: se deja todo como estaba para no contarlo dos veces
+            try { await b.updateExpense({ month, id: main.id, amount: oldAmount, detalle: oldDetalle }); } catch (e) { /* sigue */ }
+            main.amount = oldAmount; main.detalle = oldDetalle;
+            failedDelivIds.add(d.id);
+            continue;
+          }
+          main.amount = newAmount;
+          main.detalle = newDetalle;
+
+          // la copia local del historial apunta ahora al gasto unido
+          let changed = false;
+          (state.purchases || []).forEach((p) => {
+            if (!Array.isArray(p.expIds) || !p.expIds.includes(d.id)) return;
+            p.expIds = p.expIds.filter((i) => i !== d.id);
+            if (!p.expIds.includes(main.id)) p.expIds.push(main.id);
+            changed = true;
+          });
+          if (loadedFrom && Array.isArray(loadedFrom.expIds) && loadedFrom.expIds.includes(d.id)) {
+            loadedFrom.expIds = loadedFrom.expIds.filter((i) => i !== d.id);
+            if (!loadedFrom.expIds.includes(main.id)) loadedFrom.expIds.push(main.id);
+            changed = true;
+          }
+          if (changed) { try { localStorage.setItem(userKey(), JSON.stringify(state)); } catch (e) { /* sin guardado */ } }
+          merged = true;
+        }
+      }
+    } finally {
+      mergingDeliv = false;
+    }
+    if (merged) {
+      renderInsight();
+      enhanceTable();
+      toast('Uní el envío con su compra: ahora van juntos en una sola fila.');
+    }
+  }
+
   /* ---------- Historial de Changuitos ---------- */
   // Cambia el local en la descripción de un gasto de Changui o de su envío
   const retitle = (desc, store) => {
@@ -1504,6 +1600,7 @@
     const container = $('#chgHistoryListContainer');
     if (!container) return;
     fixThousands();
+    mergeLegacyDelivery();
     dedupeLocal();
 
     const b = bridge();
@@ -2051,7 +2148,7 @@
   });
 
   let timer;
-  const refresh = () => { clearTimeout(timer); timer = setTimeout(() => { fixThousands(); renderTotals(); renderInsight(); }, 250); };
+  const refresh = () => { clearTimeout(timer); timer = setTimeout(() => { fixThousands(); mergeLegacyDelivery(); renderTotals(); renderInsight(); }, 250); };
   const watch = (id, cb) => {
     const el = document.getElementById(id);
     if (el) new MutationObserver(cb).observe(el, { childList: true, subtree: true, characterData: true });
@@ -2126,6 +2223,6 @@
   let tries = 0;
   const poll = setInterval(() => {
     tries++;
-    if (bridge().getMonthExpenses || tries > 40) { clearInterval(poll); fixThousands(); renderInsight(); enhanceTable(); }
+    if (bridge().getMonthExpenses || tries > 40) { clearInterval(poll); fixThousands(); mergeLegacyDelivery(); renderInsight(); enhanceTable(); }
   }, 500);
 })();
