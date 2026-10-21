@@ -289,23 +289,38 @@
     var pageH = doc.internal.pageSize.getHeight();
     var y = 20;
 
+    // Colores del PDF según el modo activo
+    var cl = document.body.classList;
+    var P = cl.contains('black-mode')
+      ? { bg: [0, 0, 0], title: [255, 255, 255], sub: [154, 154, 154], head: [38, 38, 38], headText: [255, 255, 255], alt: [26, 26, 26], text: [255, 255, 255] }
+      : cl.contains('dark-blue-mode')
+      ? { bg: [7, 13, 30], title: [56, 189, 248], sub: [124, 147, 184], head: [20, 36, 75], headText: [56, 189, 248], alt: [15, 28, 63], text: [226, 232, 240] }
+      : cl.contains('dark-mode')
+      ? { bg: [26, 13, 18], title: [255, 182, 193], sub: [201, 138, 153], head: [78, 43, 55], headText: [255, 182, 193], alt: [42, 22, 29], text: [255, 182, 193] }
+      : { bg: [255, 243, 247], title: [196, 56, 120], sub: [139, 125, 134], head: [251, 196, 212], headText: [90, 35, 55], alt: [255, 228, 239], text: [60, 50, 60] };
+    function paint() {
+      doc.setFillColor.apply(doc, P.bg);
+      doc.rect(0, 0, pageW, pageH, 'F');
+    }
+    paint();
+
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
-    doc.setTextColor(196, 56, 120);
+    doc.setTextColor.apply(doc, P.title);
     doc.text('Mensuales - Re calculando', 14, y);
     y += 7;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
-    doc.setTextColor(120, 120, 120);
+    doc.setTextColor.apply(doc, P.sub);
     doc.text('Generado el ' + new Date().toLocaleString('es-AR'), 14, y);
     y += 10;
 
     function head() {
-      doc.setFillColor(251, 196, 212);
+      doc.setFillColor.apply(doc, P.head);
       doc.rect(14, y - 5, pageW - 28, 8, 'F');
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
-      doc.setTextColor(90, 35, 55);
+      doc.setTextColor.apply(doc, P.headText);
       doc.text('Fecha', 16, y);
       doc.text('Operación', 56, y);
       doc.text('Resultado', pageW - 16, y, { align: 'right' });
@@ -320,13 +335,13 @@
       var fecha = d.toLocaleDateString('es-AR') + ' ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
       var lines = doc.splitTextToSize(h.expr.replace(/−/g, '-'), 90);
       var rowH = Math.max(7, lines.length * 5 + 2);
-      if (y + rowH > pageH - 16) { doc.addPage(); y = 20; head(); }
+      if (y + rowH > pageH - 16) { doc.addPage(); paint(); y = 20; head(); }
       if (idx % 2 === 1) {
-        doc.setFillColor(255, 244, 248);
+        doc.setFillColor.apply(doc, P.alt);
         doc.rect(14, y - 4.5, pageW - 28, rowH, 'F');
       }
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(60, 50, 60);
+      doc.setTextColor.apply(doc, P.text);
       doc.text(fecha, 16, y);
       doc.text(lines, 56, y);
       doc.setFont('helvetica', 'bold');
