@@ -107,69 +107,80 @@
       GASTOS RECURRENTES Y PANELES (COMPACTO IGUAL A GASTOS DEL MES)
   ========================================================= */
 .rec-panel {
-    margin: 1.2rem 0 !important;
-    padding: 14px 16px !important;
+    margin: 1rem 0 !important;
+    padding: 12px 14px !important;
     border-radius: 16px !important;
     border: 1px solid var(--line, #f2cfdf) !important;
     background: var(--card, #ffffff) !important;
     color: var(--text, #332934) !important;
     box-sizing: border-box !important;
   }
-  .rec-head h2 {
+
+  /* Encabezado del panel */
+  .rec-panel h2, .rec-head h2 {
+    font-size: 0.95rem !important;
     margin: 0 !important;
-    font-size: 0.95rem !important; /* Título principal 'Gastos recurrentes' */
-    color: var(--pink-700, #c43878) !important;
-    font-weight: 800 !important;
   }
-  .rec-head p {
-    margin: 2px 0 0 !important;
-    font-size: 0.72rem !important; /* Bajada 'Suscripciones, servicios...' */
-    color: var(--muted, #8b7d86) !important;
+  .rec-panel p, .rec-head p {
+    font-size: 0.72rem !important;
+    margin: 2px 0 !important;
   }
-  .rec-summary, .rec-panel .rec-stats, .rec-panel > p:not(.rec-head p) {
-    font-size: 0.72rem !important; /* 'Pagados: 5 de 5 · Falta pagar: $0' */
-    margin: 4px 0 8px !important;
-  }
-  .rec-cat-title {
-    font-size: 0.7rem !important; /* Títulos de categoría 'Internet', 'Suscripciones' */
+
+  /* Títulos de categorías (Internet, Suscripciones) */
+  .rec-panel h3, .rec-panel h4, .rec-cat-title {
+    font-size: 0.72rem !important;
     font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
     margin: 8px 0 4px !important;
     color: var(--pink-700, #c43878) !important;
   }
-  .rec-item {
+
+  /* La tarjeta/fila entera */
+  .rec-item, .rec-panel li, .rec-card {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 4px 10px !important; /* Altura de cada fila (más compacta) */
-    margin-bottom: 4px !important;
-    border-radius: 10px !important;
+    padding: 3px 8px !important;       /* Relleno mínimo para que no quede alta */
+    min-height: 28px !important;       /* Altura de renglón de tabla */
+    margin-bottom: 3px !important;
+    border-radius: 8px !important;
     border: 1px solid var(--line, #fde2ec) !important;
     background: var(--bg, #fff8fa) !important;
-    color: var(--text, #332934) !important;
-    font-size: 13px !important; /* Tamaño base idéntico a las celdas de la tabla */
+    font-size: 11px !important;
   }
-  .rec-name {
-    font-size: 13px !important; /* Nombre del servicio (Flow, Spotify, Google One) */
+
+  /* Nombre del servicio (Flow, Meli & Disney, Spotify, etc.) */
+  .rec-item h4, .rec-item h5, .rec-item strong, .rec-name, .rec-item > div:first-child > *:first-child {
+    font-size: 12px !important;
     font-weight: 600 !important;
-    color: var(--text, #332934) !important;
-    line-height: 1.2 !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  .rec-meta {
-    font-size: 11px !important; /* 'Día 30 · $ 25.000' debajo del nombre */
+
+  /* Subtexto: Día y Monto */
+  .rec-meta, .rec-item small, .rec-item p, .rec-item span:not(.rec-badge) {
+    font-size: 10.5px !important;
     color: var(--muted, #8b7d86) !important;
-    margin-top: 1px !important;
+    margin: 0 !important;
+    line-height: 1.15 !important;
   }
-  .rec-badge {
-    font-size: 11px !important; /* Cartelito verde 'Pagado el 01/10' */
-    padding: 2px 7px !important;
+
+  /* Insignia 'Pagado' */
+  .rec-badge, .rec-item .badge, .rec-item [class*="badge"] {
+    font-size: 10px !important;
+    padding: 1px 6px !important;
+    line-height: 1.2 !important;
     border-radius: 999px !important;
-    font-weight: 600 !important;
   }
-  .rec-item .btn, .rec-item button {
-    padding: 2px 4px !important;
-    font-size: 12px !important; /* Íconos de flecha, lápiz y tachito */
+
+  /* Botones de acción derecha (repetir, editar, borrar) */
+  .rec-item button, .rec-item .btn, .rec-item svg {
+    font-size: 11px !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 1px 3px !important;
+    margin: 0 !important;
+    line-height: 1 !important;
   }
   
   /* =========================================================
