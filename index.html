@@ -662,12 +662,62 @@ body.black-mode #closeAboutBtn {
   border: 1px solid #333333 !important;
 }
 
-  
+/* =========================================================
+   PANEL CARGA POR VOZ (LOS 4 MODOS)
+========================================================= */
+.voice-box {
+  background: var(--card, #ffffff);
+  border: 1px solid var(--line, #f2cfdf);
+  border-radius: 18px;
+  padding: 14px;
+  margin: 10px 0 14px;
+  display: grid;
+  gap: 8px;
+  color: var(--text, #332934);
+  box-shadow: 0 4px 20px rgba(90, 35, 55, 0.06);
+}
+
+.voice-box .voice-help {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted, #8b7d86);
+  line-height: 1.4;
+}
+
+/* Modo Rosa Oscuro */
+body.dark-mode .voice-box {
+  background: #2a161d !important;
+  border-color: #4e2b37 !important;
+  color: #ffb6c1 !important;
+}
+body.dark-mode .voice-box .voice-help {
+  color: #f7a8b8 !important;
+  opacity: 0.85;
+}
+
+/* Modo Azul */
+body.dark-blue-mode .voice-box {
+  background: #0f1c3f !important;
+  border-color: #14244b !important;
+  color: #f1f5f9 !important;
+}
+body.dark-blue-mode .voice-box .voice-help {
+  color: #94a3b8 !important;
+  opacity: 0.9;
+}
+
+/* Modo Black */
+body.black-mode .voice-box {
+  background: #121212 !important;
+  border-color: #262626 !important;
+  color: #ffffff !important;
+}
+body.black-mode .voice-box .voice-help {
+  color: #a3a3a3 !important;
+  opacity: 0.85;
+}
+
 </style>
-
-
-
-  
 </head>
 
 <body>
@@ -739,7 +789,7 @@ body.black-mode #closeAboutBtn {
        <button id="aboutBtn" class="pastel-btn btn-sm" type="button" style="display: inline-flex; align-items: center; gap: 4px;">🎀 Sobre mí</button>
         <button id="logoutBtn" class="btn btn-dark" type="button">Cerrar sesión</button>
       </div>
-    </header> <!-- ✅ CORREGIDO: cierre del header que faltaba -->
+    </header>
 
     <div class="amounts-toggle" style="margin-top: 18px; margin-bottom: 1rem; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
       <button id="toggleThemeBtn" class="btn btn-outline" type="button">🌙 Modo oscuro</button>
@@ -971,14 +1021,14 @@ body.black-mode #closeAboutBtn {
             <div id="categoryChart" class="category-chart"></div>
           </div>
         </section>
-      </section> <!-- cierre de la sección de dos columnas -->
+      </section>
 
       <!-- ANÁLISIS DE TENDENCIA -->
       <section class="trend-box" style="margin-top: 1.5rem;">
         <h2>📊 Análisis de tendencia</h2>
         <p id="trendText">Agregá gastos para comenzar a analizar tus hábitos.</p>
       </section>
-    </div> <!-- cierre de #viewMensuales -->
+    </div>
 
     <!-- POCKI: AHORRANDO ANDO (metas de ahorro) -->
     <section class="panel" id="pocki" style="margin-top: 1.5rem;">
@@ -1027,9 +1077,8 @@ body.black-mode #closeAboutBtn {
 
         <div id="pockiInfo" class="pocki-info"></div>
         <div id="pockiGoals" class="pocki-grid"></div>
-      </div> <!-- ✅ CORREGIDO: cierre de #pockiBody -->
-    </section> <!-- ✅ CORREGIDO: cierre de #pocki -->
-
+      </div>
+    </section>
 
     <!-- CHANGUI: CALCULÁ TU COMPRA -->
     <section class="panel" id="changui" style="margin-top: 2rem;">
@@ -1163,7 +1212,7 @@ body.black-mode #closeAboutBtn {
               </div>
               <button id="chgRegisterBtn" class="pastel-btn" type="button">🧾 Registrar en los gastos del mes</button>
               <p class="chg-note">Se carga con el descuento aplicado. Si elegís envío, el costo se suma automáticamente.</p>
-            </div> <!-- cierre de .chg-register -->
+            </div>
 
             <dialog id="chgHistoryDialog" style="border-radius: 24px; border: 1px solid var(--line); padding: 25px; max-width: 520px; width: 100%; background: var(--card); color: var(--text);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -1173,10 +1222,10 @@ body.black-mode #closeAboutBtn {
               <div id="chgHistoryListContainer" style="max-height: 60vh; overflow-y: auto; display: grid; gap: 10px;"></div>
             </dialog>
 
-          </div> <!-- cierre de .chg-main -->
-        </div> <!-- cierre de .chg-layout -->
-      </div> <!-- ✅ CORREGIDO: cierre de #chgBody -->
-    </section> <!-- cierre de #changui -->
+          </div>
+        </div>
+      </div>
+    </section>
 
     <footer style="margin-top: 2rem;">
       MENSUALES · Tus gastos organizados mes a mes.
@@ -1184,7 +1233,7 @@ body.black-mode #closeAboutBtn {
       <small>Creado por Flor Bagnis💗</small>
     </footer>
 
-  </section> <!-- cierre de #appContent -->
+  </section>
 
   <script>
     try {
@@ -1206,7 +1255,6 @@ body.black-mode #closeAboutBtn {
   </div>
 
   <div style="display: grid; gap: 14px; margin-bottom: 22px;">
-    <!-- FECHA REAL E IMPUTAR AL MES -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
       <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
         FECHA REAL
@@ -1218,7 +1266,6 @@ body.black-mode #closeAboutBtn {
       </label>
     </div>
 
-    <!-- CATEGORÍA DE INGRESO -->
     <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
       CATEGORÍA DE INGRESO
       <select id="modalExtraCategory" style="width: 100%; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--ink); padding: 10px 12px; font: inherit; font-size: 13px;">
@@ -1232,13 +1279,11 @@ body.black-mode #closeAboutBtn {
       </select>
     </label>
 
-    <!-- DESCRIPCIÓN OPCIONAL -->
     <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
       DESCRIPCIÓN (Opcional)
       <input type="text" id="modalExtraDescription" placeholder="Ej: Venta de campera, quincena..." style="width: 100%;">
     </label>
 
-    <!-- MONTO Y MONEDA -->
     <label style="display: grid; gap: 6px; font-size: 11px; font-weight: 800; color: var(--pink-700);">
       MONTO Y MONEDA
       <div style="display: flex; gap: 6px; align-items: center;">
@@ -1254,7 +1299,6 @@ body.black-mode #closeAboutBtn {
     </label>
   </div>
 
-  <!-- OPCIONES DE RECURRENCIA IDÉNTICAS A GASTOS -->
   <div style="margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px;">
     <label style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">
       <input type="checkbox" id="extraRecurring" style="width: auto;">
@@ -1277,7 +1321,6 @@ body.black-mode #closeAboutBtn {
     <div id="extraRecurringAmounts" class="hidden" style="margin-top: 6px;"></div>
   </div>
 
-  <!-- BOTONES DE ACCIÓN -->
   <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
     <button type="button" class="btn btn-outline" id="closeExtraCancelBtn">Cancelar</button>
     <button type="button" class="pastel-btn" id="submitExtraBtn">Sumar dinero</button>
@@ -1293,7 +1336,6 @@ body.black-mode #closeAboutBtn {
       <h2 id="modalTitle">Agregar gasto</h2>
     </div>
 
-    <!-- FECHA REAL E IMPUTAR AL MES -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
       <label style="margin-bottom: 0;">
         Fecha real
@@ -1433,8 +1475,7 @@ body.black-mode #closeAboutBtn {
   </div>
 </dialog>
 
-
-  <!-- SOBRE MI -->
+<!-- SOBRE MI -->
 <dialog id="aboutDialog" class="panel" style="border: none; border-radius: 20px; padding: 22px; max-width: 420px; width: 90%; max-height: 82vh; overflow-y: auto; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); margin: auto; position: fixed; inset: 0; scrollbar-width: thin; scrollbar-color: var(--pink-500, #ffb6c1) transparent;">
     
     <div style="text-align: center;">
@@ -1496,9 +1537,9 @@ body.black-mode #closeAboutBtn {
       </details>
 
       <!-- BOTÓN DE CIERRE SIEMPRE DISPONIBLE -->
-<button id="closeAboutBtn" class="pastel-btn" type="button">¡Entendido!</button>
+      <button id="closeAboutBtn" class="pastel-btn" type="button">¡Entendido!</button>
     </div>
-  </dialog>
+</dialog>
   
 <!-- FLECHA PARA VOLVER ARRIBA -->
 <button id="scrollTopBtn" type="button" aria-label="Volver arriba" title="Volver arriba">
@@ -1534,13 +1575,11 @@ body.black-mode #closeAboutBtn {
 </script>
 
 <script src="changui.js" defer></script>
-  
 <script src="pocki.js" defer></script>
 <script src="calculadora.js?v=1" defer></script>
 <script src="pasar-a-changui.js?v=10" defer></script>
 <script type="module" src="app.js?v=2.9"></script>
 
-  
 <script>
   document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -1722,7 +1761,6 @@ async function cartReg(){
  for(var i=0;i<20;i++){await sleep(100);if($("totalSpent").textContent!==s0||$("expenseTable").children.length!==c0)return true}
  return false}
 /* ===== INTERFAZ / MOTOR (un solo botón para todo) ===== */
-var BOX="background:var(--card-bg,#fff);border:1px solid var(--line,#eee);border-radius:18px;padding:14px;margin:10px 0 14px;display:grid;gap:8px";
 var CMD=/(?:^|[\s,;.§])(?:y\s+)?(?:por\s+favor\s+)?(?:gu[aá]rd(?:ar|[aá]l[oa]|[aá]me|[aá])|registr(?:ar|[aá]lo|[aá]la|[aá])|list[oa])(?:\s+por\s+favor)?(?=[\s,;.§]|$)/i,
 CAN=/(?:^|[\s,;.§])(?:cancel[aá]r?|descart[aá]r?|borr[aá]r?)\s+(?:eso|esto|ese|este)(?:\s+gasto)?(?=[\s,;.§]|$)/i,
 NEXT=/^[\s,;.§]*(?:y\s+)?(?:(?:guardar|agregar)\s+)?(?:otro|(?:el\s+)?siguiente|nuevo)(?:\s+gasto)?[\s,;.§]*/i;
@@ -1737,8 +1775,9 @@ function cleanCart(s){return s.replace(CARTX," ").replace(LEADV,"").replace(/\s+
 function hasText(s){return !!fold(s).replace(/[^a-z0-9]/g,"")}
 function ERR(c){return c==="not-allowed"||c==="service-not-allowed"?"Permiso de micrófono denegado. Habilitalo en el candado de la barra de direcciones.":c==="audio-capture"?"No encuentro el micrófono.":c==="network"?"El dictado no pudo conectarse al servicio de voz del navegador. Probá con Chrome.":"El dictado se detuvo ("+c+")."}
 function build(){
- var box=document.createElement("section");box.style.cssText=BOX;
- box.innerHTML='<button class="pastel-btn vzb" type="button" style="width:100%;padding:12px">🎙️ Cargar por voz</button><p style="margin:0;font-size:.82rem;opacity:.8">Un solo botón para todo: detecta si es un gasto, un gasto recurrente, dinero extra o productos del changuito. Decí «guardar» y lo guarda. Ejemplos: «Supermercado 25 mil, guardar» · «Alquiler 300 mil día 5 durante 12 meses, guardar» · «Sueldo 500 mil, guardar» · «Changuito, leche 1500, coma, pan 800, coma, tomate 2000 un kilo, guardar» (con «coma» pasás al producto siguiente y «guardar» lo registra en tus gastos). «Borrar eso» descarta lo último que dijiste.</p><div class="vzm" style="white-space:pre-line;font-size:.88rem;font-weight:600"></div>';
+ var box=document.createElement("section");
+ box.className = "voice-box";
+ box.innerHTML='<button class="pastel-btn vzb" type="button" style="width:100%;padding:12px">🎙️ Cargar por voz</button><p class="voice-help">Un solo botón para todo: detecta si es un gasto, un gasto recurrente, dinero extra o productos del changuito. Decí «guardar» y lo guarda. Ejemplos: «Supermercado 25 mil, guardar» · «Alquiler 300 mil día 5 durante 12 meses, guardar» · «Sueldo 500 mil, guardar» · «Changuito, leche 1500, coma, pan 800, coma, tomate 2000 un kilo, guardar» (con «coma» pasás al producto siguiente y «guardar» lo registra en tus gastos). «Borrar eso» descarta lo último que dijiste.</p><div class="vzm" style="white-space:pre-line;font-size:.88rem;font-weight:600"></div>';
  var btn=box.querySelector(".vzb"),msg=box.querySelector(".vzm"),VZ=null;
  function say(t){msg.textContent=t}
  btn.onclick=function(){
@@ -1781,7 +1820,6 @@ function build(){
    var t=totTxt(),ok=await cartReg();
    log.push(ok?"🧾 Changuito registrado en gastos del mes"+(t?": "+t:""):"⚠️ Toqué «Registrar», pero no pude confirmar que se cargó. Revisá Gastos del mes.");
    if(ok){tot={ARS:0,USD:0};toast_("🧾 Compra registrada")}}
-  /* "guardar": decide qué es lo dicho y lo guarda */
   function handleSave(seg){
    if(!hasText(seg))return true;
    if(isCart(seg)){mode=null;queue(function(){return addItems(seg)});queue(regCart);note="";return true}
@@ -1795,7 +1833,6 @@ function build(){
     if(res.ok){log.push("✅ "+sumAny(x));toast_(x.k==="extra"?"✅ Ingreso guardado":(x.p.rec?"✅ Gasto recurrente guardado":"✅ Gasto guardado"))}
     else log.push("⚠️ "+res.msg+" ("+(x.p.desc||"")+")")})});
    return true}
-  /* modo changuito: cada «coma» agrega el producto que ya está completo */
   function liveCart(){
    if(mode!=="cart"&&!CARTW.test(fold(buf)))return;
    if(CARTW.test(fold(buf))){buf=buf.replace(CARTX," ").replace(/\s+/g," ").trim();lastF=""}
