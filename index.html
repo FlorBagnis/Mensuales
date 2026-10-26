@@ -112,7 +112,7 @@
     border-radius: 16px !important;
     border: 1px solid var(--line, #f2cfdf) !important;
     background: var(--card, #ffffff) !important;
-    color: var(--text, #332934) !important;
+    color: var(--text, #1a1a1a) !important;
     box-sizing: border-box !important;
   }
 
@@ -120,15 +120,17 @@
   .rec-panel h2, .rec-head h2 {
     font-size: 0.95rem !important;
     margin: 0 !important;
+    color: var(--pink-700, #c43878) !important;
   }
   .rec-panel p, .rec-head p {
     font-size: 0.72rem !important;
     margin: 2px 0 !important;
+    color: var(--muted, #666666) !important;
   }
 
   /* Títulos de categorías (Internet, Suscripciones) */
   .rec-panel h3, .rec-panel h4, .rec-cat-title {
-    font-size: 0.72rem !important;
+    font-size: 0.75rem !important;
     font-weight: 700 !important;
     margin: 8px 0 4px !important;
     color: var(--pink-700, #c43878) !important;
@@ -139,30 +141,40 @@
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 3px 8px !important;       /* Relleno mínimo para que no quede alta */
-    min-height: 28px !important;       /* Altura de renglón de tabla */
+    padding: 3px 8px !important;
+    min-height: 28px !important;
     margin-bottom: 3px !important;
     border-radius: 8px !important;
     border: 1px solid var(--line, #fde2ec) !important;
     background: var(--bg, #fff8fa) !important;
     font-size: 11px !important;
+    color: var(--text, #1a1a1a) !important;
   }
 
-  /* Nombre del servicio (Flow, Meli & Disney, Spotify, etc.) */
-  .rec-item h4, .rec-item h5, .rec-item strong, .rec-name, .rec-item > div:first-child > *:first-child {
+  /* Nombre del servicio en negro nítido (Flow, Meli & Disney, Spotify, etc.) */
+  .rec-item h4, .rec-item h5, .rec-item strong, .rec-name, 
+  .rec-item > div:first-child > *:first-child {
     font-size: 12px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     line-height: 1.15 !important;
     margin: 0 !important;
     padding: 0 !important;
+    color: var(--text, #1a1a1a) !important;
   }
 
-  /* Subtexto: Día y Monto */
-  .rec-meta, .rec-item small, .rec-item p, .rec-item span:not(.rec-badge) {
+  /* Subtexto: Día y Monto (en negro suave y nítido, sin ser gris lavado) */
+  .rec-meta, .rec-item small, .rec-item p {
     font-size: 10.5px !important;
-    color: var(--muted, #8b7d86) !important;
+    color: var(--text, #222222) !important;
+    opacity: 0.85 !important;
     margin: 0 !important;
     line-height: 1.15 !important;
+  }
+
+  /* Spans dentro de la fila (respetando la insignia verde) */
+  .rec-item span:not(.rec-badge) {
+    color: var(--text, #1a1a1a) !important;
+    font-size: 10.5px !important;
   }
 
   /* Insignia 'Pagado' */
