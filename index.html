@@ -104,47 +104,80 @@
   }
 
   /* =========================================================
-      GASTOS RECURRENTES Y PANELES
+      GASTOS RECURRENTES Y PANELES (COMPACTO IGUAL A GASTOS DEL MES)
   ========================================================= */
   .rec-panel {
     margin: 1.5rem 0 !important;
-    padding: 22px !important;
-    border-radius: 24px !important;
+    padding: 18px 20px !important;
+    border-radius: 20px !important;
     border: 1px solid var(--line, #f2cfdf) !important;
     background: var(--card, #ffffff) !important;
     box-shadow: 0 4px 20px rgba(90, 35, 55, 0.06) !important;
     color: var(--text, #332934) !important;
     box-sizing: border-box !important;
   }
+  .rec-head {
+    margin-bottom: 12px !important;
+  }
   .rec-head h2 {
     margin: 0 !important;
-    font-size: 1.15rem !important;
+    font-size: 1.05rem !important;
     color: var(--pink-700, #c43878) !important;
     font-weight: 800 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
   }
   .rec-head p {
-    margin: 2px 0 0 !important;
-    font-size: .8rem !important;
+    margin: 3px 0 0 !important;
+    font-size: 0.8rem !important;
     color: var(--muted, #8b7d86) !important;
+  }
+  .rec-summary, .rec-panel .rec-stats, .rec-panel > p:not(.rec-head p) {
+    font-size: 0.82rem !important;
+    margin: 6px 0 10px !important;
+  }
+  .rec-cat-title {
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    margin: 10px 0 6px !important;
+    color: var(--pink-700, #c43878) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
   }
   .rec-item {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 12px 14px !important;
-    margin-bottom: 8px !important;
-    border-radius: 16px !important;
+    padding: 7px 12px !important;
+    margin-bottom: 6px !important;
+    border-radius: 12px !important;
     border: 1px solid var(--line, #fde2ec) !important;
     background: var(--bg, #fff8fa) !important;
     color: var(--text, #332934) !important;
+    font-size: 0.84rem !important;
   }
   .rec-name {
+    font-size: 0.86rem !important;
     font-weight: 700 !important;
     color: var(--text, #332934) !important;
+    line-height: 1.25 !important;
   }
   .rec-meta {
-    font-size: .78rem !important;
+    font-size: 0.74rem !important;
     color: var(--muted, #8b7d86) !important;
+    margin-top: 1px !important;
+  }
+  .rec-badge {
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+    border-radius: 999px !important;
+    font-weight: 600 !important;
+  }
+  .rec-item .btn, .rec-item button {
+    padding: 3px 6px !important;
+    font-size: 0.85rem !important;
   }
 
   /* =========================================================
@@ -1509,7 +1542,6 @@ body.black-mode .voice-box .voice-help {
             Completá tus datos y envianos un mensaje directo.
           </p>
           
-          <!-- Contenedor de éxito con su botón para enviar otro -->
           <div id="formSuccessContainer" style="display: none; text-align: center; margin-bottom: 8px;">
             <div style="background: rgba(40, 167, 69, 0.15); color: #28a745; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; margin-bottom: 8px;">
               ¡Mensaje enviado con éxito! 💖 Te responderé a la brevedad.
