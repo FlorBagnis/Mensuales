@@ -1279,7 +1279,7 @@
     try { theme = bridge().getPdfTheme(); } catch (e) { theme = null; }
     if (!theme) theme = {
       pink: [234, 91, 142], dark: [82, 22, 42], light: [253, 232, 238], headerBg: [255, 174, 195],
-      cardBorder: [246, 214, 223], lineDivider: [246, 214, 223], pageBg: null, footerColor: [125, 80, 98]
+      cardBorder: [246, 214, 223], lineDivider: [246, 214, 223], pageBg: [255, 240, 245], footerColor: [125, 80, 98]
     };
     const isBlack = document.body.classList.contains('black-mode');
 
