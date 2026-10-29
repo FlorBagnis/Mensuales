@@ -1,7 +1,9 @@
 # 💗 MENSUALES & Gastos Próximos · Control de Gastos
 
 <p align="center">
-  <img width="1528" height="877" alt="image" src="https://github.com/user-attachments/assets/2a8f7688-da56-4acf-ab05-3417c841c709" />
+
+<img width="1886" height="1061" alt="image" src="https://github.com/user-attachments/assets/c626ce2b-4fa6-4695-bcf0-b91e0e5cf01d" />
+
 </p>
 
 > **MENSUALES** es una Progressive Web App (PWA) bimonetaria diseñada para registrar, organizar y proyectar finanzas personales mes a mes con sincronización en la nube en tiempo real e integración directa con **[Gastos Próximos](https://gastos-proximos.vercel.app/)**.
